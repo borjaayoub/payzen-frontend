@@ -1,0 +1,209 @@
+{
+  "app": {
+    "name": "PayZen",
+    "country": "MAROC"
+  },
+  "nav": {
+    "mainMenu": "Menu Principal",
+    "dashboard": "Tableau de Bord",
+    "company": "Entreprise",
+    "employees": "Employés",
+    "payroll": "Paie",
+    "reports": "Rapports"
+  },
+  "auth": {
+    "login": {
+      "welcome": "Bienvenue",
+      "title": "Connexion",
+      "subtitle": "Connectez-vous à votre compte",
+      "emailAddress": "Email Address",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "emailRequired": "L'email est requis",
+      "emailInvalid": "Veuillez entrer un email valide",
+      "username": "Nom d'Utilisateur",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
+      "rememberMe": "Se souvenir de moi",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n'avez pas de compte?",
+      "signUp": "S'inscrire",
+      "demoAccounts": "Comptes de démonstration (mot de passe: password123)",
+      "adminAccount": "Admin:",
+      "hrAccount": "RH:",
+      "managerAccount": "Manager:",
+      "employeeAccount": "Salarié:"
+    },
+    "logout": "Déconnexion"
+  },
+  "user": {
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "role": {
+      "admin": "Administrateur",
+      "user": "Utilisateur",
+      "manager": "Gestionnaire"
+    }
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée disponible",
+    "error": "Une erreur s'est produite",
+    "success": "Opération réussie",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "actions": "Actions",
+    "view": "Voir",
+    "download": "Télécharger",
+    "upload": "Uploader",
+    "replace": "Remplacer",
+    "back": "Retour",
+    "clear": "Effacer"
+  },
+  "company": {
+    "title": "Gestion de l'Entreprise",
+    "subtitle": "Gérez les informations et paramètres de votre société",
+    "tabs": {
+      "info": "Informations",
+      "hrSettings": "Paramètres RH",
+      "users": "Utilisateurs",
+      "documents": "Documents"
+    },
+    "info": {
+      "title": "Informations de la Société",
+      "raisonSociale": "Raison Sociale",
+      "ice": "ICE",
+      "cnss": "CNSS",
+      "regimeFiscal": "Régime Fiscal",
+      "address": "Adresse",
+      "email": "Email Officiel",
+      "phone": "Téléphone"
+    },
+    "hrSettings": {
+      "title": "Paramètres RH",
+      "workingDays": "Jours Ouvrables",
+      "leaveCalculation": "Mode de Calcul des Congés",
+      "absenceCalculation": "Mode de Calcul des Absences"
+    },
+    "users": {
+      "title": "Gestion des Utilisateurs",
+      "invite": "Inviter un Utilisateur",
+      "sendInvite": "Envoyer l'Invitation",
+      "changeRole": "Changer le Rôle",
+      "remove": "Supprimer",
+      "table": {
+        "user": "Utilisateur",
+        "email": "Email",
+        "role": "Rôle",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "inviteDialog": {
+        "title": "Inviter un Nouvel Utilisateur",
+        "email": "Adresse Email",
+        "role": "Rôle",
+        "selectRole": "Sélectionner un rôle",
+        "hint": "Un email d'invitation sera envoyé à l'utilisateur avec les instructions de connexion."
+      }
+    },
+    "documents": {
+      "title": "Documents de l'Entreprise",
+      "subtitle": "Gérez les documents officiels de votre société",
+      "previousVersions": "Versions précédentes"
+    }
+  },
+  "employees": {
+    "title": "Gestion des Salariés",
+    "subtitle": "Gérez les informations et documents de vos employés",
+    "addEmployee": "Ajouter un Salarié",
+    "viewProfile": "Voir Fiche",
+    "noEmployees": "Aucun salarié trouvé",
+    "table": {
+      "employee": "Salarié",
+      "position": "Poste",
+      "department": "Département",
+      "contract": "Contrat",
+      "startDate": "Date d'entrée",
+      "status": "Statut",
+      "documents": "Documents",
+      "actions": "Actions"
+    },
+    "profile": {
+      "title": "Fiche Salarié",
+      "sections": {
+        "identity": "Identité",
+        "contact": "Contacts",
+        "position": "Poste & Contrat",
+        "salary": "Salaire & Éléments Fixes",
+        "legal": "Infos Légales",
+        "documents": "Documents",
+        "history": "Historique"
+      },
+      "identity": {
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "cin": "CIN",
+        "maritalStatus": "Situation Familiale",
+        "birthDate": "Date de Naissance",
+        "birthPlace": "Lieu de Naissance"
+      },
+      "contact": {
+        "professionalEmail": "Email Professionnel",
+        "personalEmail": "Email Personnel",
+        "phone": "Téléphone",
+        "address": "Adresse Complète"
+      },
+      "position": {
+        "position": "Poste",
+        "department": "Département",
+        "manager": "Manager",
+        "contractType": "Type de Contrat",
+        "startDate": "Date de Début",
+        "endDate": "Date de Fin",
+        "probationPeriod": "Période d'Essai",
+        "exitReason": "Motif de Sortie"
+      },
+      "salary": {
+        "baseSalary": "Salaire de Base",
+        "transportAllowance": "Prime Transport",
+        "mealAllowance": "Prime Panier",
+        "seniorityBonus": "Prime Ancienneté",
+        "benefitsInKind": "Avantages en Nature",
+        "paymentMethod": "Mode de Paiement"
+      },
+      "legal": {
+        "cnss": "CNSS",
+        "amo": "AMO",
+        "cimr": "CIMR",
+        "annualLeave": "Congés Annuels"
+      },
+      "documents": {
+        "cin": "CIN",
+        "contract": "Contrat",
+        "jobDescription": "Fiche de Poste",
+        "rib": "RIB"
+      }
+    }
+  },
+  "language": {
+    "select": "Sélectionner la Langue",
+    "en": "Anglais",
+    "es": "Espagnol",
+    "fr": "Français"
+  }
+}
+

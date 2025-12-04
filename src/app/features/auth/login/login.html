@@ -1,0 +1,102 @@
+<div class="min-h-screen flex items-center justify-center bg-(--bg-page) p-4">
+  <div class="w-full max-w-md">
+    <!-- Login Form -->
+    <p-card class="shadow-xl">
+      <div class="p-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ 'auth.login.welcome' | translate }}</h1>
+          <h2 class="text-xl text-gray-600">{{ 'app.name' | translate }}</h2>
+          <p class="text-sm text-gray-500 mt-2">{{ 'auth.login.subtitle' | translate }}</p>
+        </div>
+
+        <!-- Error Message -->
+        @if (error()) {
+          <p-message severity="error" [text]="error()!" styleClass="w-full mb-4" />
+        }
+
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              {{ 'auth.login.emailAddress' | translate }}
+            </label>
+            <input 
+              pInputText 
+              id="email" 
+              formControlName="email"
+              type="email"
+              [placeholder]="'auth.login.emailPlaceholder' | translate"
+              class="w-full"
+              [class.ng-invalid]="emailControl?.invalid && emailControl?.touched"
+            />
+            @if (emailControl?.invalid && emailControl?.touched) {
+              <small class="text-red-500 mt-1 block">
+                @if (emailControl?.hasError('required')) {
+                  {{ 'auth.login.emailRequired' | translate }}
+                }
+                @if (emailControl?.hasError('email')) {
+                  {{ 'auth.login.emailInvalid' | translate }}
+                }
+              </small>
+            }
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+              {{ 'auth.login.password' | translate }}
+            </label>
+            <p-password 
+              formControlName="password"
+              [placeholder]="'auth.login.passwordPlaceholder' | translate"
+              [toggleMask]="true"
+              [feedback]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [class.ng-invalid]="passwordControl?.invalid && passwordControl?.touched"
+            />
+            @if (passwordControl?.invalid && passwordControl?.touched) {
+              <small class="text-red-500 mt-1 block">
+                @if (passwordControl?.hasError('required')) {
+                  {{ 'auth.login.passwordRequired' | translate }}
+                }
+                @if (passwordControl?.hasError('minlength')) {
+                  {{ 'auth.login.passwordMinLength' | translate }}
+                }
+              </small>
+            }
+          </div>
+
+          <!-- Remember Me -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <p-checkbox 
+                formControlName="rememberMe" 
+                inputId="rememberMe"
+                [binary]="true"
+              />
+              <label for="rememberMe" class="ml-2 text-sm text-gray-700 cursor-pointer">
+                {{ 'auth.login.rememberMe' | translate }}
+              </label>
+            </div>
+            <a href="#" class="text-sm text-blue-600 hover:text-blue-800">
+              {{ 'auth.login.forgotPassword' | translate }}
+            </a>
+          </div>
+
+          <!-- Submit Button -->
+          <p-button 
+            type="submit"
+            [label]="'auth.login.submit' | translate"
+            [loading]="isLoading()"
+            [disabled]="loginForm.invalid"
+            styleClass="w-full"
+            size="large"
+          />
+        </form>
+      </div>
+    </p-card>
+  </div>
+</div>

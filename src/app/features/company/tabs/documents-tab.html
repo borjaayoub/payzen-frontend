@@ -1,0 +1,153 @@
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <h2 class="page-title mb-1">
+      {{ 'company.documents.title' | translate }}
+    </h2>
+    <p class="subtitle mt-1">
+      {{ 'company.documents.subtitle' | translate }}
+    </p>
+  </div>
+
+  <!-- Documents Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    @for (doc of documents(); track doc.id) {
+      <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition">
+        <!-- Document Header -->
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <i [class]="'pi ' + getDocumentIcon(doc.type) + ' text-primary'"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-900">{{ doc.name }}</h3>
+              @if (doc.fileName) {
+                <p class="text-xs text-gray-500 mt-1">{{ doc.fileName }}</p>
+              }
+            </div>
+          </div>
+
+          @if (doc.fileName) {
+            <p-tag value="Uploadé" severity="success" [rounded]="true"></p-tag>
+          } @else {
+            <p-tag value="Manquant" severity="warn" [rounded]="true"></p-tag>
+          }
+        </div>
+
+        <!-- Document Info -->
+        @if (doc.fileName) {
+          <div class="flex items-center gap-4 text-xs text-gray-500 mb-3">
+            <span>{{ formatFileSize(doc.fileSize) }}</span>
+            <span>•</span>
+            <span>{{ formatDate(doc.uploadDate) }}</span>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+          @if (doc.fileName) {
+            <button
+              pButton
+              type="button"
+              [label]="'common.view' | translate"
+              icon="pi pi-eye"
+              class="p-button-sm p-button-outlined flex-1"
+              (click)="viewDocument(doc)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              [label]="'common.download' | translate"
+              icon="pi pi-download"
+              class="p-button-sm p-button-outlined flex-1"
+              (click)="downloadDocument(doc)"
+            ></button>
+          }
+
+          <!-- Upload -->
+          <p-fileUpload
+            mode="basic"
+            [chooseLabel]="doc.fileName ? ('common.replace' | translate) : ('common.upload' | translate)"
+            chooseIcon="pi pi-upload"
+            [auto]="true"
+            (onUpload)="onUpload($event, doc.type)"
+            [customUpload]="true"
+            styleClass="flex-1"
+          >
+          </p-fileUpload>
+        </div>
+
+        <!-- Previous Versions -->
+        @if (doc.versions && doc.versions.length > 0) {
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-xs font-medium text-gray-500 mb-2">
+              {{ 'company.documents.previousVersions' | translate }} ({{ doc.versions.length }})
+            </p>
+            <div class="space-y-2">
+              @for (version of doc.versions; track version.id) {
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-file text-gray-500"></i>
+                    <span class="text-gray-900">{{ version.fileName }}</span>
+                    <span class="text-gray-500">
+                      ({{ formatFileSize(version.fileSize) }})
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-download"
+                      class="p-button-text p-button-sm"
+                      (click)="downloadDocument(doc)"
+                    ></button>
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="p-button-text p-button-sm p-button-danger"
+                      (click)="deleteVersion(doc, version.id)"
+                    ></button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Document Preview Dialog -->
+<p-dialog
+  [(visible)]="showPreviewDialog"
+  [header]="selectedDocument()?.name"
+  [modal]="true"
+  [style]="{ width: '80vw', height: '80vh' }"
+  [maximizable]="true"
+>
+  @if (selectedDocument()) {
+    <div class="h-full flex items-center justify-center">
+      @if (selectedDocument()!.type === 'logo') {
+        <img [src]="selectedDocument()!.url" [alt]="selectedDocument()!.name" class="max-w-full max-h-full object-contain" />
+      } @else {
+        <iframe
+          [src]="selectedDocument()!.url"
+          class="w-full h-full border-0"
+          title="Document preview"
+        ></iframe>
+      }
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      [label]="'common.close' | translate"
+      class="p-button-outlined"
+      (click)="showPreviewDialog.set(false)"
+    ></button>
+  </ng-template>
+</p-dialog>

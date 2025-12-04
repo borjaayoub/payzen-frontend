@@ -1,0 +1,8 @@
+<input
+  pInputText
+  class="ds-input"
+  [type]="type"
+  [placeholder]="placeholder"
+  [(ngModel)]="model"
+  (ngModelChange)="modelChange.emit($event)"
+/>

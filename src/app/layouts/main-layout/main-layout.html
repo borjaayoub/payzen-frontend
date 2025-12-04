@@ -1,0 +1,37 @@
+<div class="flex h-screen bg-(--color-bg) font-family-sans">
+  <!-- Sidebar Navigation - 240px Desktop, Hidden Mobile -->
+  <app-sidebar [Collapsible]="true"></app-sidebar>
+
+  <!-- Mobile Overlay -->
+  @if (isSidebarOpen()) {
+    <div
+      class="fixed inset-0 bg-(--color-primary)/10 bg-opacity-50 z-30 lg:hidden"
+      (click)="closeSidebar()"
+    ></div>
+  }
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Desktop Header with Language Switcher -->
+    <div class="hidden lg:block">
+      <app-header></app-header>
+    </div>
+
+    <!-- Mobile Header with Hamburger -->
+    <header class="lg:hidden bg-(--color-bg) px-4 py-3 flex items-center gap-3">
+      <ds-button
+        type="button"
+        [label]="'nav.mainMenu' | translate"
+        icon="pi pi-bars"
+        class="text-(--color-primary-light)"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="'nav.mainMenu' | translate"
+      ></ds-button>
+    </header>
+
+    <!-- Main Content with router outlet -->
+    <main class="flex-1 overflow-auto">
+      <router-outlet />
+    </main>
+  </div>
+</div>

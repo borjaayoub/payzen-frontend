@@ -1,0 +1,168 @@
+<div class="space-y-6">
+  <!-- Header with description -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="page-title mb-1">
+        {{ 'company.hrSettings.title' | translate }}
+      </h2>
+      <p class="subtitle">
+        Configurez les paramètres RH de votre entreprise
+      </p>
+    </div>
+
+    @if (!isEditMode()) {
+      <button
+        pButton
+        type="button"
+        [label]="'common.edit' | translate"
+        icon="pi pi-pencil"
+        class="p-button-outlined"
+        (click)="toggleEditMode()"
+      ></button>
+    }
+  </div>
+
+  <!-- Working Days Card -->
+  <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <i class="pi pi-calendar text-primary"></i>
+      </div>
+      <div class="flex-1">
+        <h3 class="section-title mb-1">
+          {{ 'company.hrSettings.workingDays' | translate }}
+        </h3>
+        <p class="text-sm text-gray-500">
+          Sélectionnez les jours ouvrables de votre entreprise
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-4">
+      @for (day of weekDays; track day.value) {
+        <div
+          [class]="isWorkingDay(day.value)
+            ? 'bg-primary/10 border-primary border-2'
+            : 'bg-gray-50 border-gray-200 border'"
+          class="rounded-lg p-3 transition-all cursor-pointer hover:shadow-sm"
+          (click)="isEditMode() && toggleWorkingDay(day.value)"
+        >
+          <div class="flex flex-col items-center gap-2">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="isWorkingDay(day.value)"
+              (ngModelChange)="toggleWorkingDay(day.value)"
+              [disabled]="!isEditMode()"
+              [inputId]="day.value"
+            />
+            <label
+              [for]="day.value"
+              [class]="isWorkingDay(day.value) ? 'text-primary font-medium' : 'text-gray-500'"
+              class="text-sm cursor-pointer text-center"
+            >
+              {{ day.label }}
+            </label>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!isEditMode()) {
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex items-center gap-2 text-sm">
+          <i class="pi pi-info-circle text-primary"></i>
+          <span class="text-gray-500">
+            <span class="font-semibold text-gray-900">{{ hrSettings().workingDays.length }}</span>
+            jour(s) ouvrable(s) par semaine
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Leave Calculation Card -->
+  <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+        <i class="pi pi-sun text-green-600"></i>
+      </div>
+      <div class="flex-1">
+        <h3 class="section-title mb-1">
+          {{ 'company.hrSettings.leaveCalculation' | translate }}
+        </h3>
+        <p class="text-sm text-gray-500">
+          Définissez comment les congés sont calculés
+        </p>
+      </div>
+    </div>
+
+    @if (isEditMode()) {
+      <p-select
+        [options]="leaveCalculationModes"
+        [(ngModel)]="hrSettings().leaveCalculationMode"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      ></p-select>
+    } @else {
+      <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <p class="text-base text-gray-900">
+          {{ getLeaveCalculationLabel() }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <!-- Absence Calculation Card -->
+  <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+        <i class="pi pi-clock text-orange-600"></i>
+      </div>
+      <div class="flex-1">
+        <h3 class="section-title mb-1">
+          {{ 'company.hrSettings.absenceCalculation' | translate }}
+        </h3>
+        <p class="text-sm text-gray-500">
+          Choisissez l'unité de calcul des absences
+        </p>
+      </div>
+    </div>
+
+    @if (isEditMode()) {
+      <p-select
+        [options]="absenceCalculationModes"
+        [(ngModel)]="hrSettings().absenceCalculationMode"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      ></p-select>
+    } @else {
+      <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <p class="text-base text-gray-900">
+          {{ getAbsenceCalculationLabel() }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  @if (isEditMode()) {
+    <div class="flex items-center gap-3 pt-2">
+      <button
+        pButton
+        type="button"
+        [label]="'common.save' | translate"
+        icon="pi pi-check"
+        (click)="save()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="'common.cancel' | translate"
+        class="p-button-outlined p-button-secondary"
+        (click)="cancel()"
+      ></button>
+    </div>
+  }
+</div>

@@ -1,0 +1,209 @@
+{
+  "app": {
+    "name": "PayZen",
+    "country": "MOROCCO"
+  },
+  "nav": {
+    "mainMenu": "Main Menu",
+    "dashboard": "Dashboard",
+    "company": "Company",
+    "employees": "Employees",
+    "payroll": "Payroll",
+    "reports": "Reports"
+  },
+  "auth": {
+    "login": {
+      "welcome": "Welcome",
+      "title": "Login",
+      "subtitle": "Connect to your account",
+      "emailAddress": "Email Address",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "username": "Username",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "rememberMe": "Remember me",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "demoAccounts": "Demo accounts (password: password123)",
+      "adminAccount": "Admin:",
+      "hrAccount": "RH:",
+      "managerAccount": "Manager:",
+      "employeeAccount": "Employee:"
+    },
+    "logout": "Logout"
+  },
+  "user": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "role": {
+      "admin": "Admin",
+      "user": "User",
+      "manager": "Manager"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "actions": "Actions",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "replace": "Replace",
+    "back": "Back",
+    "clear": "Clear"
+  },
+  "company": {
+    "title": "Company Management",
+    "subtitle": "Manage your company information and settings",
+    "tabs": {
+      "info": "Information",
+      "hrSettings": "HR Settings",
+      "users": "Users",
+      "documents": "Documents"
+    },
+    "info": {
+      "title": "Company Information",
+      "raisonSociale": "Legal Name",
+      "ice": "ICE",
+      "cnss": "CNSS",
+      "regimeFiscal": "Tax Regime",
+      "address": "Address",
+      "email": "Official Email",
+      "phone": "Phone"
+    },
+    "hrSettings": {
+      "title": "HR Settings",
+      "workingDays": "Working Days",
+      "leaveCalculation": "Leave Calculation Mode",
+      "absenceCalculation": "Absence Calculation Mode"
+    },
+    "users": {
+      "title": "User Management",
+      "invite": "Invite User",
+      "sendInvite": "Send Invitation",
+      "changeRole": "Change Role",
+      "remove": "Remove",
+      "table": {
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "inviteDialog": {
+        "title": "Invite New User",
+        "email": "Email Address",
+        "role": "Role",
+        "selectRole": "Select a role",
+        "hint": "An invitation email will be sent to the user with login instructions."
+      }
+    },
+    "documents": {
+      "title": "Company Documents",
+      "subtitle": "Manage your company's official documents",
+      "previousVersions": "Previous versions"
+    }
+  },
+  "employees": {
+    "title": "Employee Management",
+    "subtitle": "Manage your employees' information and documents",
+    "addEmployee": "Add Employee",
+    "viewProfile": "View Profile",
+    "noEmployees": "No employees found",
+    "table": {
+      "employee": "Employee",
+      "position": "Position",
+      "department": "Department",
+      "contract": "Contract",
+      "startDate": "Start Date",
+      "status": "Status",
+      "documents": "Documents",
+      "actions": "Actions"
+    },
+    "profile": {
+      "title": "Employee Profile",
+      "sections": {
+        "identity": "Identity",
+        "contact": "Contact",
+        "position": "Position & Contract",
+        "salary": "Salary & Fixed Elements",
+        "legal": "Legal Information",
+        "documents": "Documents",
+        "history": "History"
+      },
+      "identity": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "cin": "National ID",
+        "maritalStatus": "Marital Status",
+        "birthDate": "Date of Birth",
+        "birthPlace": "Place of Birth"
+      },
+      "contact": {
+        "professionalEmail": "Professional Email",
+        "personalEmail": "Personal Email",
+        "phone": "Phone",
+        "address": "Full Address"
+      },
+      "position": {
+        "position": "Position",
+        "department": "Department",
+        "manager": "Manager",
+        "contractType": "Contract Type",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "probationPeriod": "Probation Period",
+        "exitReason": "Exit Reason"
+      },
+      "salary": {
+        "baseSalary": "Base Salary",
+        "transportAllowance": "Transport Allowance",
+        "mealAllowance": "Meal Allowance",
+        "seniorityBonus": "Seniority Bonus",
+        "benefitsInKind": "Benefits in Kind",
+        "paymentMethod": "Payment Method"
+      },
+      "legal": {
+        "cnss": "CNSS",
+        "amo": "AMO",
+        "cimr": "CIMR",
+        "annualLeave": "Annual Leave"
+      },
+      "documents": {
+        "cin": "National ID",
+        "contract": "Contract",
+        "jobDescription": "Job Description",
+        "rib": "Bank Details"
+      }
+    }
+  },
+  "language": {
+    "select": "Select Language",
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French"
+  }
+}
+

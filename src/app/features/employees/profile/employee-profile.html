@@ -1,0 +1,541 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div>
+    <div class="max-w-7xl mx-auto px-6 pt-4 pb-4">
+      <div class="flex items-center justify-between mb-4">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-left"
+          [label]="'common.back' | translate"
+          class="p-button-text"
+          (click)="goBack()"
+        ></button>
+
+        @if (!isEditMode()) {
+          <button
+            pButton
+            type="button"
+            [label]="'common.edit' | translate"
+            icon="pi pi-pencil"
+            (click)="toggleEditMode()"
+          ></button>
+        } @else {
+          <div class="flex items-center gap-2">
+            <button
+              pButton
+              type="button"
+              [label]="'common.cancel' | translate"
+              class="p-button-outlined p-button-secondary"
+              (click)="cancel()"
+            ></button>
+            <button
+              pButton
+              type="button"
+              [label]="'common.save' | translate"
+              icon="pi pi-check"
+              (click)="save()"
+            ></button>
+          </div>
+        }
+      </div>
+
+      <!-- Employee Header Card -->
+      <div class="card mb-4">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-4">
+            @if (employee().photo) {
+              <p-avatar
+                [image]="employee().photo"
+                shape="circle"
+                size="xlarge"
+              ></p-avatar>
+            } @else {
+              <p-avatar
+                [label]="getInitials()"
+                shape="circle"
+                size="xlarge"
+                styleClass="bg-primary/10 text-primary font-bold text-2xl"
+                [style]="{'width': '80px', 'height': '80px'}"
+              ></p-avatar>
+            }
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900 mb-1">
+                {{ getFullName() }}
+              </h1>
+              <p class="text-gray-500 mb-2">{{ employee().position }}</p>
+              <div class="flex items-center gap-2">
+                <p-tag
+                  [value]="getStatusLabel()"
+                  [severity]="getStatusSeverity()"
+                  [rounded]="true"
+                ></p-tag>
+                <span class="text-sm text-gray-500">
+                  {{ employee().department }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="flex flex-col items-end gap-2">
+            <div class="text-sm text-gray-500">Date d'entr�e</div>
+            <div class="text-lg font-semibold text-gray-900">
+              {{ employee().startDate | date: 'dd/MM/yyyy' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content with Tabs -->
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="card">
+      <p-tabs [(value)]="activeTab">
+        <p-tablist class="bg-gray-50 border-b border-gray-200">
+          <p-tab value="0">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-id-card"></i>
+              <span>{{ 'employees.profile.sections.identity' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="1">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-phone"></i>
+              <span>{{ 'employees.profile.sections.contact' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="2">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-briefcase"></i>
+              <span>{{ 'employees.profile.sections.position' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="3">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-dollar"></i>
+              <span>{{ 'employees.profile.sections.salary' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="4">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-shield"></i>
+              <span>{{ 'employees.profile.sections.legal' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="5">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-file"></i>
+              <span>{{ 'employees.profile.sections.documents' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="6">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-history"></i>
+              <span>{{ 'employees.profile.sections.history' | translate }}</span>
+            </div>
+          </p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+          <!-- Tab 1: Identit� -->
+          <p-tabpanel value="0">
+            <div class="p-6 space-y-6">
+              <h3 class="section-title">{{ 'employees.profile.sections.identity' | translate }}</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.identity.firstName' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().firstName" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().firstName }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.identity.lastName' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().lastName" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().lastName }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.identity.cin' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().cin" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().cin }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.identity.maritalStatus' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-select
+                      [options]="maritalStatusOptions"
+                      [(ngModel)]="employee().maritalStatus"
+                      optionLabel="label"
+                      optionValue="value"
+                      styleClass="w-full"
+                    ></p-select>
+                  } @else {
+                    <p class="form-value">{{ getMaritalStatusLabel() }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.identity.birthDate' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText type="date" [(ngModel)]="employee().birthDate" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().birthDate | date: 'dd/MM/yyyy' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.identity.birthPlace' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().birthPlace" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().birthPlace }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 2: Contacts -->
+          <p-tabpanel value="1">
+            <div class="p-6 space-y-6">
+              <h3 class="section-title">{{ 'employees.profile.sections.contact' | translate }}</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.contact.professionalEmail' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText type="email" [(ngModel)]="employee().professionalEmail" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().professionalEmail }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.contact.personalEmail' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText type="email" [(ngModel)]="employee().personalEmail" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().personalEmail }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.contact.phone' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText type="tel" [(ngModel)]="employee().phone" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().phone }}</p>
+                  }
+                </div>
+
+                <div class="form-field md:col-span-2">
+                  <label class="form-label required">{{ 'employees.profile.contact.address' | translate }}</label>
+                  @if (isEditMode()) {
+                    <textarea pTextarea [(ngModel)]="employee().address" rows="3" class="w-full"></textarea>
+                  } @else {
+                    <p class="form-value">{{ employee().address }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 3: Poste & Contrat -->
+          <p-tabpanel value="2">
+            <div class="p-6 space-y-6">
+              <h3 class="section-title">{{ 'employees.profile.sections.position' | translate }}</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.position.position' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().position" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().position }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.position.department' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().department" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().department }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.position.manager' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().manager" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().manager }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.position.contractType' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-select
+                      [options]="contractTypeOptions"
+                      [(ngModel)]="employee().contractType"
+                      optionLabel="label"
+                      optionValue="value"
+                      styleClass="w-full"
+                    ></p-select>
+                  } @else {
+                    <p class="form-value">{{ employee().contractType }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.position.startDate' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText type="date" [(ngModel)]="employee().startDate" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().startDate | date: 'dd/MM/yyyy' }}</p>
+                  }
+                </div>
+
+                @if (employee().contractType === 'CDD') {
+                  <div class="form-field">
+                    <label class="form-label">{{ 'employees.profile.position.endDate' | translate }}</label>
+                    @if (isEditMode()) {
+                      <input pInputText type="date" [(ngModel)]="employee().endDate" class="w-full" />
+                    } @else {
+                      <p class="form-value">{{ employee().endDate ? (employee().endDate | date: 'dd/MM/yyyy') : '-' }}</p>
+                    }
+                  </div>
+                }
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.position.probationPeriod' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().probationPeriod" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().probationPeriod }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 4: Salaire & �l�ments Fixes -->
+          <p-tabpanel value="3">
+            <div class="p-6 space-y-6">
+              <div class="flex items-center justify-between">
+                <h3 class="section-title">{{ 'employees.profile.sections.salary' | translate }}</h3>
+                <div class="text-right">
+                  <p class="text-sm text-gray-500">Salaire Total</p>
+                  <p class="text-2xl font-bold text-primary">{{ getTotalSalary() }} MAD</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.salary.baseSalary' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [(ngModel)]="employee().baseSalary" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                  } @else {
+                    <p class="form-value">{{ employee().baseSalary }} MAD</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.salary.transportAllowance' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [(ngModel)]="employee().transportAllowance" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                  } @else {
+                    <p class="form-value">{{ employee().transportAllowance }} MAD</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.salary.mealAllowance' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [(ngModel)]="employee().mealAllowance" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                  } @else {
+                    <p class="form-value">{{ employee().mealAllowance }} MAD</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.salary.seniorityBonus' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [(ngModel)]="employee().seniorityBonus" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                  } @else {
+                    <p class="form-value">{{ employee().seniorityBonus }} MAD</p>
+                  }
+                </div>
+
+                <div class="form-field md:col-span-2">
+                  <label class="form-label">{{ 'employees.profile.salary.benefitsInKind' | translate }}</label>
+                  @if (isEditMode()) {
+                    <textarea pTextarea [(ngModel)]="employee().benefitsInKind" rows="2" class="w-full"></textarea>
+                  } @else {
+                    <p class="form-value">{{ employee().benefitsInKind || '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.salary.paymentMethod' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-select
+                      [options]="paymentMethodOptions"
+                      [(ngModel)]="employee().paymentMethod"
+                      optionLabel="label"
+                      optionValue="value"
+                      styleClass="w-full"
+                    ></p-select>
+                  } @else {
+                    <p class="form-value">{{ getPaymentMethodLabel() }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 5: Infos L�gales -->
+          <p-tabpanel value="4">
+            <div class="p-6 space-y-6">
+              <h3 class="section-title">{{ 'employees.profile.sections.legal' | translate }}</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.legal.cnss' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().cnss" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().cnss }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.legal.amo' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().amo" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().amo }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.legal.cimr' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [(ngModel)]="employee().cimr" class="w-full" />
+                  } @else {
+                    <p class="form-value">{{ employee().cimr || '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label required">{{ 'employees.profile.legal.annualLeave' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [(ngModel)]="employee().annualLeave" suffix=" jours" styleClass="w-full"></p-inputnumber>
+                  } @else {
+                    <p class="form-value">{{ employee().annualLeave }} jours</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 6: Documents -->
+          <p-tabpanel value="5">
+            <div class="p-6 space-y-4">
+              <h3 class="section-title">{{ 'employees.profile.sections.documents' | translate }}</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (doc of documents(); track doc.type) {
+                  <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start justify-between">
+                      <div class="flex items-start gap-3">
+                        <div [class]="doc.status === 'uploaded' ? 'w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center' : 'w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center'">
+                          <i [class]="doc.status === 'uploaded' ? 'pi pi-file-pdf text-green-600' : 'pi pi-file text-red-600'"></i>
+                        </div>
+                        <div class="flex-1">
+                          <p class="font-medium text-gray-900">{{ doc.name }}</p>
+                          @if (doc.uploadDate) {
+                            <p class="text-xs text-gray-500 mt-1">Upload� le {{ doc.uploadDate | date: 'dd/MM/yyyy' }}</p>
+                          } @else {
+                            <p class="text-xs text-red-600 mt-1">Document manquant</p>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="flex items-center gap-1">
+                        @if (doc.status === 'uploaded') {
+                          <button
+                            pButton
+                            type="button"
+                            icon="pi pi-download"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            (click)="downloadDocument(doc)"
+                          ></button>
+                          <button
+                            pButton
+                            type="button"
+                            icon="pi pi-trash"
+                            class="p-button-text p-button-sm p-button-rounded p-button-danger"
+                            (click)="deleteDocument(doc)"
+                          ></button>
+                        } @else {
+                          <p-fileupload
+                            mode="basic"
+                            chooseLabel="Upload"
+                            chooseIcon="pi pi-upload"
+                            class="p-button-sm"
+                            [auto]="true"
+                            (onSelect)="uploadDocument($event, doc.type)"
+                          ></p-fileupload>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 7: Historique -->
+          <p-tabpanel value="6">
+            <div class="p-6">
+              <h3 class="section-title mb-6">{{ 'employees.profile.sections.history' | translate }}</h3>
+
+              <p-timeline [value]="history()" align="left">
+                <ng-template pTemplate="marker" let-event>
+                  <div [class]="'w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center ' + getEventColor(event.type)">
+                    <i [class]="getEventIcon(event.type)"></i>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="content" let-event>
+                  <div class="pb-6">
+                    <div class="flex items-start justify-between mb-2">
+                      <h4 class="font-semibold text-gray-900">{{ event.title }}</h4>
+                      <span class="text-xs text-gray-500">{{ event.date | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-1">{{ event.description }}</p>
+                    <p class="text-xs text-gray-500 italic">Par: {{ event.author }}</p>
+                  </div>
+                </ng-template>
+              </p-timeline>
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </div>
+</div>

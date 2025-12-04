@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "PayZen",
+    "country": "المغرب"
+  },
+  "nav": {
+    "mainMenu": "القائمة الرئيسية",
+    "dashboard": "لوحة القيادة",
+    "company": "الشركة",
+    "employees": "الموظفون",
+    "payroll": "الرواتب",
+    "reports": "التقارير"
+  },
+  "auth": {
+    "login": {
+      "welcome": "مرحبا",
+      "title": "تسجيل الدخول",
+      "subtitle": "قم بتسجيل الدخول إلى حسابك",
+      "emailAddress": "عنوان البريد الإلكتروني",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+      "username": "اسم المستخدم",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "passwordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+      "rememberMe": "تذكرني",
+      "submit": "تسجيل الدخول",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "noAccount": "ليس لديك حساب؟",
+      "signUp": "سجل الآن",
+      "demoAccounts": "حسابات تجريبية (كلمة المرور: password123)",
+      "adminAccount": "مدير:",
+      "hrAccount": "الموارد البشرية:",
+      "managerAccount": "مدير:",
+      "employeeAccount": "موظف:"
+    },
+    "logout": "تسجيل الخروج"
+  },
+  "user": {
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "role": {
+      "admin": "مدير",
+      "user": "مستخدم",
+      "manager": "مدير"
+    }
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "search": "بحث",
+    "filter": "تصفية",
+    "export": "تصدير",
+    "import": "استيراد",
+    "loading": "جاري التحميل...",
+    "noData": "لا توجد بيانات",
+    "error": "حدث خطأ",
+    "success": "تمت العملية بنجاح",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "actions": "الإجراءات"
+  },
+  "language": {
+    "select": "اختر اللغة",
+    "en": "الإنجليزية",
+    "ar": "العربية",
+    "fr": "الفرنسية"
+  }
+}
+

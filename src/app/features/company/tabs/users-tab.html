@@ -1,0 +1,205 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="page-title mb-1">
+        {{ 'company.users.title' | translate }}
+      </h2>
+      <p class="subtitle">
+        Gérez les accès et permissions de votre équipe
+      </p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      [label]="'company.users.invite' | translate"
+      icon="pi pi-user-plus"
+      (click)="openInviteDialog()"
+    ></button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+          <i class="pi pi-users text-primary"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Total Utilisateurs</p>
+          <p class="text-2xl font-bold text-gray-900">{{ users().length }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+          <i class="pi pi-check-circle text-green-600"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Actifs</p>
+          <p class="text-2xl font-bold text-green-600">
+            {{ getActiveUsersCount() }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+          <i class="pi pi-clock text-orange-600"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">En attente</p>
+          <p class="text-2xl font-bold text-orange-600">
+            {{ getPendingUsersCount() }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <p-table [value]="users()" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-50">
+          <th class="font-semibold">{{ 'company.users.table.user' | translate }}</th>
+          <th class="font-semibold">{{ 'company.users.table.email' | translate }}</th>
+          <th class="font-semibold">{{ 'company.users.table.role' | translate }}</th>
+          <th class="font-semibold">{{ 'company.users.table.status' | translate }}</th>
+          <th class="font-semibold text-right">{{ 'company.users.table.actions' | translate }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr class="hover:bg-gray-50 transition">
+          <!-- User -->
+          <td>
+            <div class="flex items-center gap-3 py-2">
+              <p-avatar
+                [label]="user.name.charAt(0)"
+                shape="circle"
+                size="normal"
+                styleClass="bg-primary/10 text-primary font-semibold"
+              ></p-avatar>
+              <span class="font-medium text-gray-900">{{ user.name }}</span>
+            </div>
+          </td>
+
+          <!-- Email -->
+          <td>
+            <span class="text-gray-500 text-sm">{{ user.email }}</span>
+          </td>
+
+          <!-- Role -->
+          <td>
+            <span class="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-900">
+              <i class="pi pi-shield text-xs"></i>
+              {{ getRoleLabel(user.role) }}
+            </span>
+          </td>
+
+          <!-- Status -->
+          <td>
+            <p-tag
+              [value]="getStatusLabel(user.status)"
+              [severity]="getStatusSeverity(user.status)"
+              [rounded]="true"
+            ></p-tag>
+          </td>
+
+          <!-- Actions -->
+          <td class="text-right">
+            <div class="flex items-center justify-end gap-1">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-text p-button-sm p-button-rounded"
+                [pTooltip]="'company.users.changeRole' | translate"
+                tooltipPosition="top"
+                (click)="changeRole(user)"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-rounded p-button-danger"
+                [pTooltip]="'company.users.remove' | translate"
+                tooltipPosition="top"
+                (click)="removeUser(user)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Invite User Dialog -->
+<p-dialog
+  [(visible)]="showInviteDialog"
+  [header]="'company.users.inviteDialog.title' | translate"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+>
+  <div class="flex flex-col gap-4 p-4">
+    <!-- Email -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-medium text-gray-900">
+        {{ 'company.users.inviteDialog.email' | translate }}
+      </label>
+      <input
+        pInputText
+        type="email"
+        [(ngModel)]="inviteForm().email"
+        placeholder="exemple@email.com"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Role -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-medium text-gray-900">
+        {{ 'company.users.inviteDialog.role' | translate }}
+      </label>
+      <p-select
+        [options]="roleOptions"
+        [(ngModel)]="inviteForm().role"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'company.users.inviteDialog.selectRole' | translate"
+        styleClass="w-full"
+      ></p-select>
+    </div>
+
+    <p class="text-xs text-gray-500">
+      {{ 'company.users.inviteDialog.hint' | translate }}
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center gap-2">
+      <button
+        pButton
+        type="button"
+        [label]="'common.cancel' | translate"
+        class="p-button-outlined p-button-secondary"
+        (click)="closeInviteDialog()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="'company.users.sendInvite' | translate"
+        icon="pi pi-send"
+        (click)="sendInvite()"
+        [disabled]="!inviteForm().email || !inviteForm().role"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

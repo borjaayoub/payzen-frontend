@@ -1,0 +1,37 @@
+@reference "../../../styles.css";
+
+/* Employee card animations */
+/* @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
+
+.card {
+  animation: fadeInUp var(--transition-fast);
+}
+
+/* Enhanced table styling */
+::ng-deep .p-datatable {
+  .p-datatable-thead > tr > th {
+    @apply bg-gray-50 text-gray-500 font-semibold text-sm;
+  }
+
+  .p-datatable-tbody > tr {
+    @apply transition-colors;
+  }
+
+  .p-datatable-tbody > tr:hover {
+    @apply bg-gray-50;
+  }
+}
+
+/* Badge animations */
+.stat-card {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}

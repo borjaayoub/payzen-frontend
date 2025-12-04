@@ -1,0 +1,31 @@
+<button
+  pButton
+  [type]="type"
+  [disabled]="disabled"
+  (click)="onClick()"
+  [ngClass]="{
+    'ds-btn': true,
+    'ds-btn-primary': variant === 'primary',
+    'ds-btn-secondary': variant === 'secondary',
+    'ds-btn-outline': variant === 'outline',
+    'ds-btn-danger': variant === 'danger',
+    'ds-btn-success': variant === 'success',
+    'ds-btn-warning': variant === 'warning',
+    'ds-btn-sm': size === 'sm',
+    'ds-btn-md': size === 'md',
+    'ds-btn-lg': size === 'lg',
+    'ds-btn-full': fullWidth
+  }"
+  [class]="customClass || ''"
+  [attr.aria-label]="label || null"
+>
+  @if (icon) {
+    <i [class]="icon"></i>
+  }
+  @if (label) {
+    <span>{{ label }}</span>
+  }
+  @if (!label && !icon) {
+    <ng-content></ng-content>
+  }
+</button>
