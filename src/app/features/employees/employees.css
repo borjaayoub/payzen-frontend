@@ -12,9 +12,9 @@
   }
 } */
 
-.card {
+/* .card {
   animation: fadeInUp var(--transition-fast);
-}
+} */
 
 /* Enhanced table styling */
 ::ng-deep .p-datatable {
@@ -32,6 +32,6 @@
 }
 
 /* Badge animations */
-.stat-card {
+/* .stat-card {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
+} */

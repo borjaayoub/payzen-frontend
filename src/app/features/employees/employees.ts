@@ -114,13 +114,13 @@ export class EmployeesPage implements OnInit {
 
     this.employeeService.getEmployees(filters).subscribe({
       next: (response) => {
-        this.employees.set(response.employees);
-        this.isLoading.set(false);
+      this.employees.set(response.employees);
+      this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Failed to load employees');
-        this.isLoading.set(false);
-        console.error('Error loading employees:', err);
+      this.error.set(err.error?.message || 'Échec du chargement des employés');
+      this.isLoading.set(false);
+      console.error('Error loading employees:', err);
       }
     });
   }

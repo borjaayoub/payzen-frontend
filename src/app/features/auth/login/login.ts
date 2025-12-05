@@ -7,8 +7,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PasswordModule } from 'primeng/password';
-import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
+import { DsCard } from '@app/design-system';
 import { AuthService } from '@app/core/services/auth.service';
 
 @Component({
@@ -23,8 +23,8 @@ import { AuthService } from '@app/core/services/auth.service';
     ButtonModule,
     CheckboxModule,
     PasswordModule,
-    CardModule,
-    MessageModule
+    MessageModule,
+    DsCard
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'

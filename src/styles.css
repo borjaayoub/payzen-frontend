@@ -1,13 +1,9 @@
 /* Payzen Frontend - Global Styles */
 /* Tailwind v4 Imports */
 @import "tailwindcss";
-@import './app/design-system/styles/design-system.css';
-
-/* Also ensure you include your PrimeNG theme and primeng core css */
 @import "tailwindcss-primeui";
 @import "primeicons/primeicons.css";
-
-
+@import './app/design-system/styles/design-system.css';
 
 
 /* ============================================
@@ -16,7 +12,60 @@
 @layer theme {
   :root {
     /* Color Palette */
-    --color-primary: #1A73E8;
+
+    --primary: #1A73E8;
+    --primary-hover: #1050a3;
+    --primary-light: #EBF5FF;
+
+    --secondary: #6C757D;
+    --secondary-hover: #5A6268;
+    --secondary-light: #F3F4F6;
+    
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --text: #1F2937;
+    
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --gray: #6B7280;
+
+    /* Typography */
+    --font-family: 'Inter', sans-serif, system-ui, -apple-system, 'Segoe UI';
+    --font-size-paragraph: 0.65rem;
+    --font-size-body: 0.875rem;
+    --font-size-subheading: 1rem;
+    --font-size-heading: 1.25rem;
+    --font-size-title: 1.875rem;
+    --line-height-base: 1.5;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    /* Spacing */
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+
+    /* Border Radius */
+    --rads-sm: 0.125rem;
+    --rads-md: 0.25rem;
+    --rads-lg: 0.5rem;
+    --rads-xl: 1rem;
+
+    /* Shadows */
+    --shadow-xs: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  
+
+    /* --color-primary: #1A73E8;
     --color-primary-hover: #1557B0;
     --color-primary-light: #EBF5FF;
     --color-primary-dark: #1461c7;
@@ -24,42 +73,43 @@
     --color-secondary: #6C757D;
     --color-secondary-hover: #5A6268;
     --color-secondary-light: #F3F4F6;
-    --color-secondary-dark: #4B5257;
+    --color-secondary-dark: #4B5257; */
 
-    --color-gray: #6B7280;
+    /* --color-gray: #6B7280;
 
-    --color-bg: #F8FAFC;
+    --color-bg: #F8FAFC; */
     
     /* Backgrounds & Text */
-    --color-text: #1F2937;
-    --color-text-secondary: #6B7280;
-    --color-text-secondary-light: #6B728080;
+    /* --color-text: #1F2937; */
+    /* --color-text-secondary: #6B7280;
+    --color-text-secondary-light: #6B728080; */
 
     /* Spacing & Layout */
-    --space-xs: 0.5rem;
+    /* --space-xs: 0.5rem;
     --space-sm: 0.75rem;
     --space-md: 1rem;
     --space-lg: 1.5rem;
-    --space-xl: 2rem;
-    --card-padding: 24px;
+    --space-xl: 2rem; */
+    /* --card-padding: 24px;
     --card-radius: 8px;
-    --button-radius: 6px;
+    --button-radius: 6px; */
 
     /* RADIUS */
-    --radius-sm: 0.25rem;
+    /* --radius-sm: 0.25rem;
     --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
+    --radius-lg: 0.75rem; */
 
     /* Typography */
-    --font-family-sans: 'Inter', sans-serif, system-ui, -apple-system, 'Segoe UI';
+    /* --font-family-sans: 'Inter', sans-serif, system-ui, -apple-system, 'Segoe UI';
+    --font-paragraph: 0.875rem;
     --font-body: 1rem;
     --font-heading: 1.25rem;
-    --font-title: 1.875rem;
+    --font-title: 1.875rem; */
 
     /* Shadows */
-    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    /* --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     --shadow-card-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); */
 
     /* Sidebar */
     --sidebar-desktop: 240px;
@@ -82,14 +132,13 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: var(--font-family-sans);
+    font-family: var(--font-family);
   }
 
   body {
-    font-family: var(--font-family-sans);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-regular);
-    background-color: var(--color-bg-page);
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    background-color: var(--bg);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -99,6 +148,27 @@
     font-weight: var(--font-weight-medium);
     line-height: 1.2;
   }
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  a:hover {
+    color: var(--primary-hover);
+  }
+
+  button {
+    cursor: pointer;
+    font-family: var(--font-family);
+  }
+
+  input, textarea, select {
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+  }
+
 }
 
 
@@ -106,22 +176,6 @@
    Responsive Design
    ============================================ */
 @layer utilities {
-  /* Custom Color Utilities */
-  /* .text-primary-light {
-    color: var(--color-primary-light);
-  }
-
-  .text-primary-dark {
-    color: var(--color-primary-dark);
-  }
-
-  .bg-primary-light {
-    background-color: var(--color-primary-light);
-  }
-
-  .bg-primary-dark {
-    background-color: var(--color-primary-dark);
-  } */
 
   /* Desktop (≥1024px) - Default behavior */
   @media (min-width: 1024px) {
@@ -177,191 +231,127 @@
  @layer components {
   /* BUTTONS */
   .btn {
-    @apply inline-flex items-center font-medium rounded-md transition;
+    @apply inline-flex items-center justify-center font-medium rounded-md transition focus:outline-none;
     padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-md);
+    border-radius: var(--rads-md);
   }
 
   .btn-primary {
     @apply text-white;
-    background: var(--color-primary);
+    background: var(--primary);
   }
-  .btn-primary:hover {
-    background: var(--color-primary-hover);
-  }
+  .btn-primary:hover { background: var(--primary-hover); }
 
   .btn-outline {
-    @apply border text-gray-700;
-    border-color: var(--color-primary);
+    @apply border;
+    border-color: var(--primary);
+    color: var(--primary);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    @apply bg-(--primary) text-white;
   }
 
   /* INPUTS */
   .input {
-    @apply border rounded-md w-full text-gray-800 transition;
-    padding: var(--space-sm) var(--space-md);
-    border-color: #d1d5db;
+    @apply border rounded-md;
+    padding: var(--space-xs) var(--space-sm);
+    border-color: #d6d8dd;
+    
+  }
+  .input::placeholder {
+    @apply text-(--gray);
   }
   .input:focus {
-    @apply ring-2 ring-blue-500;
+    @apply ring ring-(--primary) border-0;
+    border-color: var(--primary);
+  }
+
+  .select-input {
+    @apply border rounded-md;
+    padding: var(--space-xs) var(--space-sm);
+    border-color: #d6d8dd;
+    width: 100%;
+  }
+  .select-input:focus {
+    @apply ring ring-(--primary) border-0;
+    border-color: var(--primary);
+  }
+  .p-dropdown-label {
+    @apply text-(--text) pl-5;
+    padding-left: 20px;
   }
 
   /* CARDS */
   .card {
-    @apply bg-white shadow rounded-lg p-5;
+    @apply bg-white p-5;
   }
+  .card-compact {
+    @apply p-3;
+  }
+
+  /* STAT-CARD */
+  .stat-card {
+    @apply bg-(--surface) rounded-(--rads-md) p-4 shadow-sm;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  .stat-label {
+    @apply text-[0.875rem] text-(--gray);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .stat-value {
+    @apply text-(--primary) text-[1.75rem] font-[700];
+    line-height: 1.2;
+    letter-spacing: -0.02rem;
+  }
+  .stat-card-icon{
+    @apply text-(--primary);
+  }
+
+  /* ALERTS */
+  .alert {
+    @apply p-4 rounded-md mb-4;
+  }
+  .alert-success {
+    @apply bg-(--success)/5 text-(--success);
+  }
+  .alert-error {
+    @apply bg-(--danger)/5 text-(--danger);
+  }
+  .alert-warning {
+    @apply bg-(--warning)/5 text-(--warning);
+  }
+  .alert-info {
+    @apply bg-(--info)/5 text-(--info);
+  }
+
 
   /* TYPOGRAPHY */
   .heading {
-    font-size: var(--font-title);
-    @apply font-bold text-gray-900;
+    @apply text-(--text) text-2xl font-semibold;
   }
 
   .subheading {
-    font-size: var(--font-heading);
-    @apply font-semibold text-gray-700;
+    @apply text-sm text-(--gray);
   }
 
-  .body {
-    font-size: var(--font-body);
-    @apply text-gray-700;
+  .txt-body {
+    @apply text-(--text);
+  }
+
+  .paragraph {
+    font-size: var(--font-size-paragraph);
+    @apply mb-4 text-gray-600;
   }
 }
 
   
-/* ============================================
-   PrimeNG Component Overrides
-   ============================================ */
-@layer components {
-  /* PrimeNG Card */
-  .p-card {
-    background-color: var(--color-bg-element);
-    border-radius: var(--card-radius);
-    padding: var(--card-padding);
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--color-border-subtle);
-    transition: box-shadow var(--transition-fast);
-  }
 
-  .p-card .p-card-body {
-    padding: var(--card-padding);
-  }
-
-  .p-card .p-card-title {
-    font-size: var(--font-size-title);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-primary);
-    margin-bottom: 1rem;
-  }
-
-  .p-card .p-card-subtitle {
-    color: var(--color-text-secondary);
-  }
-
-  /* PrimeNG Button */
-  .p-button {
-    color: var(--color-foreground);
-    border-radius: var(--button-radius);
-    padding: 0.5rem 1.25rem;
-    font-weight: var(--font-weight-medium);
-    border: none;
-    cursor: pointer;
-    transition: filter var(--transition-fast);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .p-button.p-button-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-  }
-
-  .p-button.p-button-primary:hover {
-    filter: brightness(0.9);
-  }
-  .p-button:disabled {
-    background-color: var(--color-muted);
-    cursor:not-allowed;
-    filter: none;
-  }
-
-  /* PrimeNG Input Fields */
-  .p-inputtext {
-    border-radius: var(--button-radius);
-    background-color: var(--color-input-bg);
-    padding: 0.5rem 0.75rem;
-    /* border: 1px solid var(--color-border); */
-  }
-
-  .p-inputtext::placeholder {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-base);
-    opacity: 0.5;
-  }
-
-  .p-inputtext:hover {
-    border-color: var(--color-primary);
-  }
-
-  .p-inputtext:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.2);
-  }
-
-
-  .p-checkbox-box {
-    border-color: var(--color-border-subtle);
-  }
-
-
-  /* PrimeNG Panel */
-  .p-panel {
-    border-radius: var(--card-radius);
-    border: 1px solid var(--color-border-subtle);
-  }
-
-  .p-panel .p-panel-header {
-    background-color: var(--color-bg-element);
-    border-bottom: 1px solid var(--color-border-subtle);
-    color: var(--color-text-primary);
-  }
-
-  /* PrimeNG Menu / Sidebar Menu */
-  .p-menu {
-    background-color: var(--color-bg-element);
-    border: 1px solid var(--color-border-subtle);
-  }
-
-  .p-menu .p-menuitem-link:hover {
-    background-color: var(--color-primary-light);
-  }
-
-  .p-menu .p-menuitem-link.p-menuitem-link-active {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-  }
-
-  /* PrimeNG DataTable */
-  .p-datatable .p-datatable-thead > tr > th {
-    background-color: var(--color-bg-element);
-    color: var(--color-text-primary);
-    border-bottom: 2px solid var(--color-border-subtle);
-    font-weight: var(--font-weight-medium);
-  }
-
-  .p-datatable .p-datatable-tbody > tr {
-    background-color: var(--color-bg-element);
-  }
-
-  .p-datatable .p-datatable-tbody > tr:hover {
-    background-color: var(--color-bg-page);
-  }
-
-  .p-datatable .p-datatable-tbody > tr > td {
-    border-bottom: 1px solid var(--color-border-subtle);
-  }
-}
 
 /* ============================================
    RTL Support for Arabic

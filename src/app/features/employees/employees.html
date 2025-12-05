@@ -5,14 +5,14 @@
       <div class="flex items-center justify-between">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <div class="icon-box primary">
+            <div class="bg-(--primary)/10 text-(--primary) p-3 rounded-(--rads-lg)">
               <i class="pi pi-users text-2xl"></i>
             </div>
             <div>
-              <h1 class="page-title">
+              <h1 class="heading">
                 {{ 'employees.title' | translate }}
               </h1>
-              <p class="subtitle mt-1">
+              <p class="subheading mt-1">
                 {{ 'employees.subtitle' | translate }}
               </p>
             </div>
@@ -23,6 +23,7 @@
           pButton
           type="button"
           [label]="'employees.addEmployee' | translate"
+          class="btn btn-primary"
           icon="pi pi-user-plus"
           (click)="addEmployee()"
         ></button>
@@ -34,18 +35,18 @@
   <div class="max-w-7xl mx-auto px-6 py-6">
     <!-- Error Message -->
     @if (error()) {
-      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-        <i class="pi pi-exclamation-circle text-red-600 text-xl"></i>
+      <div class="card alert-error alert flex items-start gap-3">
+        <i class="pi pi-exclamation-circle text-xl self-center"></i>
         <div class="flex-1">
-          <h3 class="font-semibold text-red-900 mb-1">Error Loading Employees</h3>
-          <p class="text-red-700 text-sm">{{ error() }}</p>
+          <h3 class="font-semibold  mb-1">{{ 'common.error' | translate }}</h3>
+          <p class=" text-sm">{{ error() }}</p>
         </div>
         <button
           pButton
           type="button"
           icon="pi pi-refresh"
-          class="p-button-sm p-button-danger"
-          label="Retry"
+          class="btn btn-danger"
+          [label]="'common.retry' | translate"
           (click)="loadEmployees()"
         ></button>
       </div>
@@ -54,7 +55,7 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <div class="stat-card">
-        <div class="stat-card-icon primary">
+        <div class="stat-card-icon text-blue-500">
           <i class="pi pi-users"></i>
         </div>
         <div>
@@ -64,7 +65,7 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-card-icon success">
+        <div class="stat-card-icon text-green-500">
           <i class="pi pi-check-circle"></i>
         </div>
         <div>
@@ -74,7 +75,7 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-card-icon warning">
+        <div class="stat-card-icon text-yellow-500">
           <i class="pi pi-clock"></i>
         </div>
         <div>
@@ -84,7 +85,7 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-card-icon danger">
+        <div class="stat-card-icon text-cyan-500">
           <i class="pi pi-file"></i>
         </div>
         <div>
@@ -95,18 +96,18 @@
     </div>
 
     <!-- Filters & Search -->
-    <div class="card-compact mb-6">
+    <div class="card card-compact mb-6">
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Search -->
         <div class="flex-1 min-w-0">
           <p-iconfield iconPosition="left" class="w-full">
-            <p-inputicon class="pi pi-search"></p-inputicon>
+            <p-inputicon class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2"></p-inputicon>
             <input
-              pInputText
+              
               type="text"
               [(ngModel)]="searchQuery"
               placeholder="Rechercher par nom ou poste..."
-              class="w-full p-inputtext"
+              class="w-full pl-10 input"
             />
           </p-iconfield>
         </div>
@@ -119,8 +120,8 @@
             optionLabel="label"
             optionValue="value"
             placeholder="Département"
-            class="w-full p-inputtext"
-          ></p-select>
+            class="w-full select-input p-dropdown-label"
+          />
         </div>
 
         <!-- Status Filter -->

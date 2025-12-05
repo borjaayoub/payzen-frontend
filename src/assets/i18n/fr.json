@@ -72,7 +72,8 @@
     "upload": "Uploader",
     "replace": "Remplacer",
     "back": "Retour",
-    "clear": "Effacer"
+    "clear": "Effacer",
+    "retry": "Réessayer"
   },
   "company": {
     "title": "Gestion de l'Entreprise",

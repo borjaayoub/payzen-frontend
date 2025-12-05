@@ -30,6 +30,10 @@
     --ds-space-xl: 2rem;
 
     /* Border Radius */
+    --ds-rounded-sm: 0.125rem;
+    --ds-rounded-md: 0.25rem;
+    --ds-rounded-lg: 0.5rem;
+    --ds-rounded-xl: 1rem;
     --ds-border-radius: 0.25rem;
     --ds-border-radius-lg: 0.5rem;
 
@@ -83,7 +87,7 @@
 
   /* Card */
   .ds-card {
-    @apply bg-white rounded-lg shadow p-5;
+    @apply bg-(--ds-surface) rounded-(--ds-rounded-md) p-15;
   }
 
   /* Alert */

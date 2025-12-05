@@ -72,7 +72,8 @@
     "upload": "Upload",
     "replace": "Replace",
     "back": "Back",
-    "clear": "Clear"
+    "clear": "Clear",
+    "retry": "Retry"
   },
   "company": {
     "title": "Company Management",
