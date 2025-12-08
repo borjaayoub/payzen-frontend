@@ -34,7 +34,7 @@ export const guestGuard: CanActivateFn = (route, state) => {
   // Redirect to appropriate dashboard based on role
   const user = authService.getCurrentUser();
   if (user) {
-    router.navigate([getRoleDefaultRoute(user.role)]);
+    router.navigate([authService.getRoleDefaultRoute(user.role)]);
   }
   return false;
 };
@@ -84,18 +84,3 @@ export const managerGuard: CanActivateFn = createRoleGuard(['admin', 'rh', 'mana
  * Cabinet Guard - Cabinet and Admin PayZen
  */
 export const cabinetGuard: CanActivateFn = createRoleGuard(['cabinet', 'admin_payzen']);
-
-/**
- * Get default route based on user role
- */
-export function getRoleDefaultRoute(role: string): string {
-  const roleRoutes: Record<string, string> = {
-    'admin': '/dashboard',
-    'rh': '/dashboard',
-    'manager': '/employees',
-    'employee': '/my-profile',
-    'cabinet': '/companies',
-    'admin_payzen': '/admin/dashboard'
-  };
-  return roleRoutes[role] || '/dashboard';
-}

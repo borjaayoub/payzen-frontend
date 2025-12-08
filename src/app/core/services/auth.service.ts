@@ -13,7 +13,6 @@ import {
   AuthState,
   ROLE_PERMISSIONS 
 } from '@app/core/models/user.model';
-import { getRoleDefaultRoute } from '@app/core/guards/auth.guard';
 
 @Injectable({
   providedIn: 'root'
@@ -122,7 +121,7 @@ export class AuthService {
     });
 
     // Navigate to role-specific route
-    const defaultRoute = getRoleDefaultRoute(response.user.role);
+    const defaultRoute = this.getRoleDefaultRoute(response.user.role);
     this.router.navigate([defaultRoute]);
   }
 
@@ -294,6 +293,22 @@ export class AuthService {
     const user = this.getCurrentUser();
     if (!user) return false;
     return roles.includes(user.role as UserRole);
+  }
+
+  /**
+   * Resolve default route for a given role
+   */
+  getRoleDefaultRoute(role: string): string {
+    const roleRoutes: Record<string, string> = {
+      [UserRole.ADMIN]: '/dashboard',
+      [UserRole.RH]: '/dashboard',
+      [UserRole.MANAGER]: '/employees',
+      [UserRole.EMPLOYEE]: '/my-profile',
+      [UserRole.CABINET]: '/companies',
+      [UserRole.ADMIN_PAYZEN]: '/admin/dashboard'
+    };
+
+    return roleRoutes[role] || '/dashboard';
   }
 }
 
