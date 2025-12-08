@@ -12,7 +12,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { EmployeeService, Employee, EmployeeFilters, EmployeeStats } from '@app/core/services/employee.service';
+import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesResponse } from '@app/core/services/employee.service';
 
 @Component({
   selector: 'app-employees',
@@ -155,24 +155,16 @@ export class EmployeesPage implements OnInit {
     };
 
     this.employeeService.getEmployees(filters).subscribe({
-      next: (response) => {
-      this.employees.set(response.employees);
-      this.isLoading.set(false);
+      next: (response: EmployeesResponse) => {
+        this.employees.set(response.employees);
+        this.stats.set({ total: response.total, active: response.active });
+        this.isLoading.set(false);
       },
       error: (err) => {
-      this.error.set(err.error?.message || 'Échec du chargement des employés');
-      this.isLoading.set(false);
-      console.error('Error loading employees:', err);
+        this.error.set(err.error?.message || 'Échec du chargement des employés');
+        this.isLoading.set(false);
+        console.error('Error loading employees:', err);
       }
-    });
-
-    this.loadStatistics(filters);
-  }
-
-  private loadStatistics(filters?: EmployeeFilters): void {
-    this.employeeService.getStatistics(filters).subscribe({
-      next: stats => this.stats.set(stats),
-      error: err => console.error('Error loading employee statistics:', err)
     });
   }
 

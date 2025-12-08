@@ -9,7 +9,6 @@ import { LoginPage } from './features/auth/login/login';
 import { authGuard, guestGuard, rhGuard } from '@app/core/guards/auth.guard';
 
 export const routes: Routes = [
-  // Auth routes (guest only)
   {
     path: 'login',
     component: AuthLayout,
