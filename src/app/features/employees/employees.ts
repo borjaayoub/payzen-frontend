@@ -39,6 +39,12 @@ export class EmployeesPage implements OnInit {
   readonly selectedStatus = signal<string | null>(null);
 
   readonly employees = signal<Employee[]>([]);
+  readonly departments = signal<Array<{ label: string; value: string | null }>>([
+    { label: 'Tous les départements', value: null }
+  ]);
+  readonly statuses = signal<Array<{ label: string; value: string | null }>>([
+    { label: 'Tous les statuts', value: null }
+  ]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
   readonly stats = signal<EmployeeStats>({
@@ -89,21 +95,6 @@ export class EmployeesPage implements OnInit {
       iconColor: 'text-green-500',
       valueClass: 'text-success'
     }
-  ];
-
-  readonly departments = [
-    { label: 'Tous les départements', value: null },
-    { label: 'IT', value: 'IT' },
-    { label: 'RH', value: 'RH' },
-    { label: 'Finance', value: 'Finance' },
-    { label: 'Marketing', value: 'Marketing' }
-  ];
-
-  readonly statuses = [
-    { label: 'Tous les statuts', value: null },
-    { label: 'Actif', value: 'active' },
-    { label: 'En congé', value: 'on_leave' },
-    { label: 'Inactif', value: 'inactive' }
   ];
 
   readonly filteredEmployees = computed(() => {
@@ -158,6 +149,14 @@ export class EmployeesPage implements OnInit {
       next: (response: EmployeesResponse) => {
         this.employees.set(response.employees);
         this.stats.set({ total: response.total, active: response.active });
+        this.departments.set([
+          { label: 'Tous les départements', value: null },
+          ...this.buildDepartmentOptions(response.departments)
+        ]);
+        this.statuses.set([
+          { label: 'Tous les statuts', value: null },
+          ...this.buildStatusOptions(response.statuses)
+        ]);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -223,5 +222,21 @@ export class EmployeesPage implements OnInit {
     this.selectedDepartment.set(null);
     this.selectedStatus.set(null);
     this.loadEmployees();
+  }
+
+  private buildDepartmentOptions(departments: string[] = []): Array<{ label: string; value: string | null }> {
+    const uniqueDepartments = Array.from(new Set(departments.filter(Boolean)));
+    return uniqueDepartments.map(dep => ({
+      label: dep,
+      value: dep
+    }));
+  }
+
+  private buildStatusOptions(statuses: string[] = []): Array<{ label: string; value: string | null }> {
+    const uniqueStatuses = Array.from(new Set(statuses.filter(Boolean)));
+    return uniqueStatuses.map(status => ({
+      label: this.getStatusLabel(status) || status,
+      value: status
+    }));
   }
 }

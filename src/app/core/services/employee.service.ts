@@ -31,6 +31,8 @@ export interface EmployeesResponse {
   employees: Employee[];
   total: number;
   active: number;
+  departments: string[];
+  statuses: string[];
 }
 
 export interface EmployeeStats {
@@ -55,6 +57,8 @@ interface DashboardEmployeesResponse {
   TotalEmployees: number;
   ActiveEmployees: number;
   Employees: DashboardEmployee[];
+  Departments?: string[];
+  Statuses?: string[];
 }
 
 interface EmployeeAddressResponse {
@@ -201,8 +205,14 @@ export class EmployeeService {
     const employees = (response?.Employees ?? []).map(emp => this.mapDashboardEmployee(emp));
     const total = response?.TotalEmployees ?? employees.length;
     const active = response?.ActiveEmployees ?? employees.filter(emp => emp.status === 'active').length;
+    const departments = Array.from(new Set(response?.Departments ?? employees
+      .map(emp => emp.department)
+      .filter(dep => !!dep))) as string[];
+    const statuses = Array.from(new Set(response?.Statuses ?? employees
+      .map(emp => emp.status)
+      .filter(status => !!status))) as string[];
 
-    return { employees, total, active };
+    return { employees, total, active, departments, statuses };
   }
 
   private mapDashboardEmployee(employee: DashboardEmployee): Employee {

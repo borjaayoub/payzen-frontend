@@ -93,7 +93,7 @@
         <!-- Department Filter -->
         <div class="w-full md:w-56 shrink-0">
           <p-select
-            [options]="departments"
+            [options]="departments()"
             [(ngModel)]="selectedDepartmentModel"
             optionLabel="label"
             optionValue="value"
@@ -105,7 +105,7 @@
         <!-- Status Filter -->
         <div class="w-full md:w-48 shrink-0">
           <p-select
-            [options]="statuses"
+            [options]="statuses()"
             [(ngModel)]="selectedStatusModel"
             optionLabel="label"
             optionValue="value"
