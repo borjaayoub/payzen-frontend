@@ -73,7 +73,8 @@
     "replace": "Remplacer",
     "back": "Retour",
     "clear": "Effacer",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "apply": "Appliquer"
   },
   "company": {
     "title": "Gestion de l'Entreprise",
@@ -130,6 +131,12 @@
   "employees": {
     "title": "Gestion des Salariés",
     "subtitle": "Gérez les informations et documents de vos employés",
+    "stats": {
+      "total": "Total Salariés",
+      "active": "Actifs",
+      "onLeave": "En congé",
+      "missingDocs": "Docs manquants"
+    },
     "addEmployee": "Ajouter un Salarié",
     "viewProfile": "Voir Fiche",
     "noEmployees": "Aucun salarié trouvé",

@@ -328,16 +328,6 @@
     /* box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.2); */
   }
 
-  .select-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md transition-colors;
-  }
-
-  .select-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.2);
-  }
-
   /* Alerts */
   .alert {
     @apply flex items-start gap-3 p-4 rounded-lg border;

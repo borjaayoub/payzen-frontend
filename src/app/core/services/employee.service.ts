@@ -32,6 +32,11 @@ export interface EmployeesResponse {
   limit: number;
 }
 
+export interface EmployeeStats {
+  total: number;
+  active: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -40,21 +45,28 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) {}
 
+  private buildFilterParams(filters?: EmployeeFilters): HttpParams {
+    let params = new HttpParams();
+
+    if (!filters) {
+      return params;
+    }
+
+    if (filters.searchQuery) params = params.set('search', filters.searchQuery);
+    if (filters.department) params = params.set('department', filters.department);
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.contractType) params = params.set('contractType', filters.contractType);
+    if (filters.page) params = params.set('page', filters.page.toString());
+    if (filters.limit) params = params.set('limit', filters.limit.toString());
+
+    return params;
+  }
+
   /**
    * Get all employees with optional filters
    */
   getEmployees(filters?: EmployeeFilters): Observable<EmployeesResponse> {
-    let params = new HttpParams();
-
-    if (filters) {
-      if (filters.searchQuery) params = params.set('search', filters.searchQuery);
-      if (filters.department) params = params.set('department', filters.department);
-      if (filters.status) params = params.set('status', filters.status);
-      if (filters.contractType) params = params.set('contractType', filters.contractType);
-      if (filters.page) params = params.set('page', filters.page.toString());
-      if (filters.limit) params = params.set('limit', filters.limit.toString());
-    }
-
+    const params = this.buildFilterParams(filters);
     return this.http.get<EmployeesResponse>(this.API_URL, { params });
   }
 
@@ -89,8 +101,9 @@ export class EmployeeService {
   /**
    * Get employee statistics
    */
-  getStatistics(): Observable<any> {
-    return this.http.get(`${this.API_URL}/statistics`);
+  getStatistics(filters?: EmployeeFilters): Observable<EmployeeStats> {
+    const params = this.buildFilterParams(filters);
+    return this.http.get<EmployeeStats>(`${this.API_URL}/statistics`, { params });
   }
 
   /**

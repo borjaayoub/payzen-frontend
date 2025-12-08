@@ -12,7 +12,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { EmployeeService, Employee } from '@app/core/services/employee.service';
+import { EmployeeService, Employee, EmployeeFilters, EmployeeStats } from '@app/core/services/employee.service';
 
 @Component({
   selector: 'app-employees',
@@ -41,6 +41,55 @@ export class EmployeesPage implements OnInit {
   readonly employees = signal<Employee[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
+  readonly stats = signal<EmployeeStats>({
+    total: 0,
+    active: 0
+  });
+
+  get searchQueryModel(): string {
+    return this.searchQuery();
+  }
+
+  set searchQueryModel(value: string) {
+    this.searchQuery.set(value);
+  }
+
+  get selectedDepartmentModel(): string | null {
+    return this.selectedDepartment();
+  }
+
+  set selectedDepartmentModel(value: string | null) {
+    this.selectedDepartment.set(value);
+  }
+
+  get selectedStatusModel(): string | null {
+    return this.selectedStatus();
+  }
+
+  set selectedStatusModel(value: string | null) {
+    this.selectedStatus.set(value);
+  }
+
+  get disableClearButton(): boolean {
+    return (!this.searchQuery() && !this.selectedDepartment() && !this.selectedStatus()) || this.isLoading();
+  }
+
+  readonly statCards = [
+    {
+      label: 'employees.stats.total',
+      accessor: (stats: EmployeeStats) => stats.total,
+      icon: 'pi pi-users',
+      iconColor: 'text-blue-500',
+      valueClass: ''
+    },
+    {
+      label: 'employees.stats.active',
+      accessor: (stats: EmployeeStats) => stats.active,
+      icon: 'pi pi-check-circle',
+      iconColor: 'text-green-500',
+      valueClass: 'text-success'
+    }
+  ];
 
   readonly departments = [
     { label: 'Tous les départements', value: null },
@@ -83,13 +132,6 @@ export class EmployeesPage implements OnInit {
     return result;
   });
 
-  readonly stats = computed(() => ({
-    total: this.employees().length,
-    active: this.employees().filter(e => e.status === 'active').length,
-    onLeave: this.employees().filter(e => e.status === 'on_leave').length,
-    missingDocs: this.employees().filter(e => e.missingDocuments > 0).length
-  }));
-
   constructor(
     private router: Router,
     private employeeService: EmployeeService
@@ -106,7 +148,7 @@ export class EmployeesPage implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    const filters = {
+    const filters: EmployeeFilters = {
       searchQuery: this.searchQuery() || undefined,
       department: this.selectedDepartment() || undefined,
       status: this.selectedStatus() || undefined
@@ -122,6 +164,15 @@ export class EmployeesPage implements OnInit {
       this.isLoading.set(false);
       console.error('Error loading employees:', err);
       }
+    });
+
+    this.loadStatistics(filters);
+  }
+
+  private loadStatistics(filters?: EmployeeFilters): void {
+    this.employeeService.getStatistics(filters).subscribe({
+      next: stats => this.stats.set(stats),
+      error: err => console.error('Error loading employee statistics:', err)
     });
   }
 

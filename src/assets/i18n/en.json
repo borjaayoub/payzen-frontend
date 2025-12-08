@@ -73,7 +73,8 @@
     "replace": "Replace",
     "back": "Back",
     "clear": "Clear",
-    "retry": "Retry"
+    "retry": "Retry",
+    "apply": "Apply"
   },
   "company": {
     "title": "Company Management",
@@ -130,6 +131,12 @@
   "employees": {
     "title": "Employee Management",
     "subtitle": "Manage your employees' information and documents",
+    "stats": {
+      "total": "Total Employees",
+      "active": "Active",
+      "onLeave": "On Leave",
+      "missingDocs": "Missing Documents"
+    },
     "addEmployee": "Add Employee",
     "viewProfile": "View Profile",
     "noEmployees": "No employees found",
