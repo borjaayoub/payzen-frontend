@@ -164,7 +164,7 @@ export class AuthService {
     });
 
     // Navigate to login
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
   }
 
   /**

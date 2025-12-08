@@ -11,18 +11,13 @@ import { authGuard, guestGuard, rhGuard } from '@app/core/guards/auth.guard';
 export const routes: Routes = [
   // Auth routes (guest only)
   {
-    path: 'auth',
+    path: 'login',
     component: AuthLayout,
-    // canActivate: [guestGuard],
+    canActivate: [guestGuard],
     children: [
       {
-        path: 'login',
-        component: LoginPage
-      },
-      {
         path: '',
-        redirectTo: 'login',
-        pathMatch: 'full'
+        component: LoginPage
       }
     ]
   },
@@ -31,7 +26,7 @@ export const routes: Routes = [
   {
     path: '',
     component: MainLayout,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -49,12 +44,12 @@ export const routes: Routes = [
       {
         path: 'employees',
         component: EmployeesPage,
-        // canActivate: [rhGuard]
+        canActivate: [rhGuard]
       },
       {
         path: 'employees/:id',
         component: EmployeeProfile,
-        // canActivate: [rhGuard]
+        canActivate: [rhGuard]
       }
     ]
   },
@@ -62,6 +57,6 @@ export const routes: Routes = [
   // Redirect to login
   {
     path: '**',
-    redirectTo: 'auth/login'
+    redirectTo: 'login'
   }
 ];

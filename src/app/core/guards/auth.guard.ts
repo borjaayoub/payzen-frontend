@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
 
   // Redirect to login with return URL
-  router.navigate(['/auth/login'], {
+  router.navigate(['/login'], {
     queryParams: { returnUrl: state.url }
   });
   return false;
@@ -48,7 +48,7 @@ export const createRoleGuard = (allowedRoles: string[]): CanActivateFn => {
     const router = inject(Router);
 
     if (!authService.isAuthenticated()) {
-      router.navigate(['/auth/login'], {
+      router.navigate(['/login'], {
         queryParams: { returnUrl: state.url }
       });
       return false;
