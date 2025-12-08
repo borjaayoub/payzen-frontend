@@ -8,6 +8,8 @@
           type="button"
           icon="pi pi-arrow-left"
           [label]="'common.back' | translate"
+          [attr.aria-label]="'common.back' | translate"
+          title="{{ 'common.back' | translate }}"
           class="p-button-text"
           (click)="goBack()"
         ></button>
@@ -17,6 +19,8 @@
             pButton
             type="button"
             [label]="'common.edit' | translate"
+            [attr.aria-label]="'common.edit' | translate"
+            title="{{ 'common.edit' | translate }}"
             icon="pi pi-pencil"
             (click)="toggleEditMode()"
           ></button>
@@ -27,6 +31,8 @@
               type="button"
               [label]="'common.cancel' | translate"
               class="p-button-outlined p-button-secondary"
+              [attr.aria-label]="'common.cancel' | translate"
+              title="{{ 'common.cancel' | translate }}"
               (click)="cancel()"
             ></button>
             <button
@@ -34,6 +40,8 @@
               type="button"
               [label]="'common.save' | translate"
               icon="pi pi-check"
+              [attr.aria-label]="'common.save' | translate"
+              title="{{ 'common.save' | translate }}"
               (click)="save()"
             ></button>
           </div>
@@ -55,22 +63,23 @@
                 [label]="getInitials()"
                 shape="circle"
                 size="xlarge"
-                styleClass="bg-primary/10 text-primary font-bold text-2xl"
+                styleClass="bg-(--primary)/10 text-(--primary) font-bold text-2xl"
                 [style]="{'width': '80px', 'height': '80px'}"
               ></p-avatar>
             }
             <div>
-              <h1 class="text-2xl font-bold text-gray-900 mb-1">
+              <h1 class="text-2xl font-bold text-(--text-primary) mb-1">
                 {{ getFullName() }}
               </h1>
-              <p class="text-gray-500 mb-2">{{ employee().position }}</p>
+              <p class="text-(--text-secondary) mb-2">{{ employee().position }}</p>
               <div class="flex items-center gap-2">
                 <p-tag
                   [value]="getStatusLabel()"
                   [severity]="getStatusSeverity()"
                   [rounded]="true"
+                  class="tag"
                 ></p-tag>
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-(--text-secondary)">
                   {{ employee().department }}
                 </span>
               </div>
@@ -79,8 +88,8 @@
 
           <!-- Quick Stats -->
           <div class="flex flex-col items-end gap-2">
-            <div class="text-sm text-gray-500">Date d'entr�e</div>
-            <div class="text-lg font-semibold text-gray-900">
+            <div class="text-sm text-(--text-secondary)">Date d'entrée</div>
+            <div class="text-lg font-semibold text-(--text-primary)">
               {{ employee().startDate | date: 'dd/MM/yyyy' }}
             </div>
           </div>
@@ -93,7 +102,7 @@
   <div class="max-w-7xl mx-auto px-6">
     <div class="card">
       <p-tabs [(value)]="activeTab">
-        <p-tablist class="bg-gray-50 border-b border-gray-200">
+        <p-tablist class="bg-(--bg-element) border-b border-(--border-color-subtle)">
           <p-tab value="0">
             <div class="flex items-center gap-2">
               <i class="pi pi-id-card"></i>
@@ -148,7 +157,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.identity.firstName' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().firstName" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().firstName" class="w-full" title="{{ 'employees.profile.identity.firstName' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().firstName }}</p>
                   }
@@ -157,7 +166,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.identity.lastName' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().lastName" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().lastName" class="w-full" title="{{ 'employees.profile.identity.lastName' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().lastName }}</p>
                   }
@@ -166,7 +175,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.identity.cin' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().cin" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().cin" class="w-full" title="{{ 'employees.profile.identity.cin' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().cin }}</p>
                   }
@@ -190,7 +199,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.identity.birthDate' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText type="date" [(ngModel)]="employee().birthDate" class="w-full" />
+                    <input pInputText type="date" [(ngModel)]="employee().birthDate" class="w-full" title="{{ 'employees.profile.identity.birthDate' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().birthDate | date: 'dd/MM/yyyy' }}</p>
                   }
@@ -199,7 +208,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.identity.birthPlace' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().birthPlace" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().birthPlace" class="w-full" title="{{ 'employees.profile.identity.birthPlace' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().birthPlace }}</p>
                   }
@@ -217,7 +226,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.contact.professionalEmail' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText type="email" [(ngModel)]="employee().professionalEmail" class="w-full" />
+                    <input pInputText type="email" [(ngModel)]="employee().professionalEmail" class="w-full" title="{{ 'employees.profile.contact.professionalEmail' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().professionalEmail }}</p>
                   }
@@ -226,7 +235,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.contact.personalEmail' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText type="email" [(ngModel)]="employee().personalEmail" class="w-full" />
+                    <input pInputText type="email" [(ngModel)]="employee().personalEmail" class="w-full" title="{{ 'employees.profile.contact.personalEmail' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().personalEmail }}</p>
                   }
@@ -235,7 +244,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.contact.phone' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText type="tel" [(ngModel)]="employee().phone" class="w-full" />
+                    <input pInputText type="tel" [(ngModel)]="employee().phone" class="w-full" title="{{ 'employees.profile.contact.phone' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().phone }}</p>
                   }
@@ -244,7 +253,7 @@
                 <div class="form-field md:col-span-2">
                   <label class="form-label required">{{ 'employees.profile.contact.address' | translate }}</label>
                   @if (isEditMode()) {
-                    <textarea pTextarea [(ngModel)]="employee().address" rows="3" class="w-full"></textarea>
+                    <textarea pTextarea [(ngModel)]="employee().address" rows="3" class="w-full" title="{{ 'employees.profile.contact.address' | translate }}"></textarea>
                   } @else {
                     <p class="form-value">{{ employee().address }}</p>
                   }
@@ -262,7 +271,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.position.position' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().position" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().position" class="w-full" title="{{ 'employees.profile.position.position' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().position }}</p>
                   }
@@ -271,7 +280,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.position.department' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().department" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().department" class="w-full" title="{{ 'employees.profile.position.department' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().department }}</p>
                   }
@@ -280,7 +289,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.position.manager' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().manager" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().manager" class="w-full" title="{{ 'employees.profile.position.manager' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().manager }}</p>
                   }
@@ -304,7 +313,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.position.startDate' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText type="date" [(ngModel)]="employee().startDate" class="w-full" />
+                    <input pInputText type="date" [(ngModel)]="employee().startDate" class="w-full" title="{{ 'employees.profile.position.startDate' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().startDate | date: 'dd/MM/yyyy' }}</p>
                   }
@@ -314,7 +323,7 @@
                   <div class="form-field">
                     <label class="form-label">{{ 'employees.profile.position.endDate' | translate }}</label>
                     @if (isEditMode()) {
-                      <input pInputText type="date" [(ngModel)]="employee().endDate" class="w-full" />
+                      <input pInputText type="date" [(ngModel)]="employee().endDate" class="w-full" title="{{ 'employees.profile.position.endDate' | translate }}" />
                     } @else {
                       <p class="form-value">{{ employee().endDate ? (employee().endDate | date: 'dd/MM/yyyy') : '-' }}</p>
                     }
@@ -324,7 +333,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.position.probationPeriod' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().probationPeriod" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().probationPeriod" class="w-full" title="{{ 'employees.profile.position.probationPeriod' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().probationPeriod }}</p>
                   }
@@ -348,7 +357,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.salary.baseSalary' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-inputnumber [(ngModel)]="employee().baseSalary" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                    <p-inputnumber [(ngModel)]="employee().baseSalary" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full" title="{{ 'employees.profile.salary.baseSalary' | translate }}"></p-inputnumber>
                   } @else {
                     <p class="form-value">{{ employee().baseSalary }} MAD</p>
                   }
@@ -357,7 +366,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.salary.transportAllowance' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-inputnumber [(ngModel)]="employee().transportAllowance" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                    <p-inputnumber [(ngModel)]="employee().transportAllowance" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full" title="{{ 'employees.profile.salary.transportAllowance' | translate }}"></p-inputnumber>
                   } @else {
                     <p class="form-value">{{ employee().transportAllowance }} MAD</p>
                   }
@@ -366,7 +375,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.salary.mealAllowance' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-inputnumber [(ngModel)]="employee().mealAllowance" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                    <p-inputnumber [(ngModel)]="employee().mealAllowance" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full" title="{{ 'employees.profile.salary.mealAllowance' | translate }}"></p-inputnumber>
                   } @else {
                     <p class="form-value">{{ employee().mealAllowance }} MAD</p>
                   }
@@ -375,7 +384,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.salary.seniorityBonus' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-inputnumber [(ngModel)]="employee().seniorityBonus" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full"></p-inputnumber>
+                    <p-inputnumber [(ngModel)]="employee().seniorityBonus" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full" title="{{ 'employees.profile.salary.seniorityBonus' | translate }}"></p-inputnumber>
                   } @else {
                     <p class="form-value">{{ employee().seniorityBonus }} MAD</p>
                   }
@@ -384,7 +393,7 @@
                 <div class="form-field md:col-span-2">
                   <label class="form-label">{{ 'employees.profile.salary.benefitsInKind' | translate }}</label>
                   @if (isEditMode()) {
-                    <textarea pTextarea [(ngModel)]="employee().benefitsInKind" rows="2" class="w-full"></textarea>
+                    <textarea pTextarea [(ngModel)]="employee().benefitsInKind" rows="2" class="w-full" title="{{ 'employees.profile.salary.benefitsInKind' | translate }}"></textarea>
                   } @else {
                     <p class="form-value">{{ employee().benefitsInKind || '-' }}</p>
                   }
@@ -398,6 +407,7 @@
                       [(ngModel)]="employee().paymentMethod"
                       optionLabel="label"
                       optionValue="value"
+                      title="{{ 'employees.profile.salary.paymentMethod' | translate }}"
                       styleClass="w-full"
                     ></p-select>
                   } @else {
@@ -417,7 +427,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.legal.cnss' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().cnss" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().cnss" class="w-full" title="{{ 'employees.profile.legal.cnss' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().cnss }}</p>
                   }
@@ -426,7 +436,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.legal.amo' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().amo" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().amo" class="w-full" title="{{ 'employees.profile.legal.amo' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().amo }}</p>
                   }
@@ -435,7 +445,7 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.legal.cimr' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [(ngModel)]="employee().cimr" class="w-full" />
+                    <input pInputText [(ngModel)]="employee().cimr" class="w-full" title="{{ 'employees.profile.legal.cimr' | translate }}" />
                   } @else {
                     <p class="form-value">{{ employee().cimr || '-' }}</p>
                   }
@@ -483,6 +493,7 @@
                             type="button"
                             icon="pi pi-download"
                             class="p-button-text p-button-sm p-button-rounded"
+                            title="Télécharger le document"
                             (click)="downloadDocument(doc)"
                           ></button>
                           <button
@@ -490,6 +501,7 @@
                             type="button"
                             icon="pi pi-trash"
                             class="p-button-text p-button-sm p-button-rounded p-button-danger"
+                            title="Supprimer le document"
                             (click)="deleteDocument(doc)"
                           ></button>
                         } @else {

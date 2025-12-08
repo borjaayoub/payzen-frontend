@@ -13,40 +13,8 @@ import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TimelineModule } from 'primeng/timeline';
-
-interface EmployeeData {
-  id: string;
-  firstName: string;
-  lastName: string;
-  photo?: string;
-  cin: string;
-  maritalStatus: string;
-  birthDate: string;
-  birthPlace: string;
-  professionalEmail: string;
-  personalEmail: string;
-  phone: string;
-  address: string;
-  position: string;
-  department: string;
-  manager: string;
-  contractType: 'CDI' | 'CDD' | 'Stage';
-  startDate: string;
-  endDate?: string;
-  probationPeriod: string;
-  exitReason?: string;
-  baseSalary: number;
-  transportAllowance: number;
-  mealAllowance: number;
-  seniorityBonus: number;
-  benefitsInKind: string;
-  paymentMethod: string;
-  cnss: string;
-  amo: string;
-  cimr?: string;
-  annualLeave: number;
-  status: 'active' | 'on_leave' | 'inactive';
-}
+import { EmployeeService } from '@app/core/services/employee.service';
+import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
 
 interface Document {
   type: string;
@@ -87,41 +55,15 @@ interface HistoryEvent {
 export class EmployeeProfile implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private employeeService = inject(EmployeeService);
 
   readonly activeTab = signal('0');
   readonly isEditMode = signal(false);
   readonly employeeId = signal<string | null>(null);
+  readonly isLoadingProfile = signal(false);
+  readonly loadError = signal<string | null>(null);
 
-  readonly employee = signal<EmployeeData>({
-    id: '1',
-    firstName: 'Youssef',
-    lastName: 'Amrani',
-    cin: 'AB123456',
-    maritalStatus: 'married',
-    birthDate: '1990-05-15',
-    birthPlace: 'Casablanca',
-    professionalEmail: 'youssef.amrani@payzen.ma',
-    personalEmail: 'youssef@gmail.com',
-    phone: '+212 6 12 34 56 78',
-    address: '123 Rue Hassan II, Casablanca',
-    position: 'D�veloppeur Senior',
-    department: 'IT',
-    manager: 'Ahmed Bennani',
-    contractType: 'CDI',
-    startDate: '2022-01-15',
-    probationPeriod: '3 mois',
-    baseSalary: 15000,
-    transportAllowance: 500,
-    mealAllowance: 300,
-    seniorityBonus: 1000,
-    benefitsInKind: 'V�hicule de fonction',
-    paymentMethod: 'Virement bancaire',
-    cnss: '123456789',
-    amo: 'AMO123456',
-    cimr: 'CIMR789',
-    annualLeave: 22,
-    status: 'active'
-  });
+  readonly employee = signal<EmployeeProfileModel>(this.createEmptyEmployee());
 
   readonly documents = signal<Document[]>([
     {
@@ -158,29 +100,29 @@ export class EmployeeProfile implements OnInit {
       date: '2024-01-01',
       type: 'salary_change',
       title: 'Augmentation de salaire',
-      description: 'Salaire de base: 13000 MAD � 15000 MAD',
+      description: 'Salaire de base: 13000 MAD → 15000 MAD',
       author: 'Fatima Zahra (RH)'
     },
     {
       date: '2023-06-15',
       type: 'position_change',
       title: 'Promotion',
-      description: 'D�veloppeur � D�veloppeur Senior',
+      description: 'Développeur → Développeur Senior',
       author: 'Ahmed Bennani (Manager)'
     },
     {
       date: '2023-01-15',
       type: 'note',
-      title: 'Fin de p�riode d\'essai',
-      description: 'P�riode d\'essai valid�e avec succ�s',
+      title: 'Fin de période d\'essai',
+      description: 'Période d\'essai validée avec succès',
       author: 'Fatima Zahra (RH)'
     }
   ]);
 
   readonly maritalStatusOptions = [
-    { label: 'C�libataire', value: 'single' },
-    { label: 'Mari�(e)', value: 'married' },
-    { label: 'Divorc�(e)', value: 'divorced' },
+    { label: 'Célibataire', value: 'single' },
+    { label: 'Marié(e)', value: 'married' },
+    { label: 'Divorcé(e)', value: 'divorced' },
     { label: 'Veuf(ve)', value: 'widowed' }
   ];
 
@@ -192,15 +134,32 @@ export class EmployeeProfile implements OnInit {
 
   readonly paymentMethodOptions = [
     { label: 'Virement bancaire', value: 'bank_transfer' },
-    { label: 'Ch�que', value: 'check' },
-    { label: 'Esp�ces', value: 'cash' }
+    { label: 'Chèque', value: 'check' },
+    { label: 'Espèces', value: 'cash' }
   ];
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.employeeId.set(params['id']);
-        // TODO: Load employee data from API
+        this.loadEmployeeDetails(params['id']);
+      }
+    });
+  }
+
+  private loadEmployeeDetails(id: string): void {
+    this.isLoadingProfile.set(true);
+    this.loadError.set(null);
+
+    this.employeeService.getEmployeeDetails(id).subscribe({
+      next: (employee) => {
+        this.employee.set(employee);
+        this.isLoadingProfile.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load employee details', err);
+        this.loadError.set('Impossible de charger le profil employé.');
+        this.isLoadingProfile.set(false);
       }
     });
   }
@@ -239,7 +198,7 @@ export class EmployeeProfile implements OnInit {
 
   getTotalSalary(): number {
     const emp = this.employee();
-    return emp.baseSalary + emp.transportAllowance + emp.mealAllowance + emp.seniorityBonus;
+    return (emp.baseSalary || 0) + (emp.transportAllowance || 0) + (emp.mealAllowance || 0) + (emp.seniorityBonus || 0);
   }
 
   toggleEditMode() {
@@ -292,5 +251,42 @@ export class EmployeeProfile implements OnInit {
       note: 'text-gray-600'
     };
     return colorMap[type] || 'text-gray-600';
+  }
+
+  private createEmptyEmployee(): EmployeeProfileModel {
+    return {
+      id: '',
+      firstName: '',
+      lastName: '',
+      photo: undefined,
+      cin: '',
+      maritalStatus: 'single',
+      birthDate: '',
+      birthPlace: '',
+      professionalEmail: '',
+      personalEmail: '',
+      phone: '',
+      address: '',
+      position: '',
+      department: '',
+      manager: '',
+      contractType: 'CDI',
+      startDate: '',
+      endDate: undefined,
+      probationPeriod: '',
+      exitReason: undefined,
+      baseSalary: 0,
+      transportAllowance: 0,
+      mealAllowance: 0,
+      seniorityBonus: 0,
+      benefitsInKind: undefined,
+      paymentMethod: 'bank_transfer',
+      cnss: '',
+      amo: '',
+      cimr: undefined,
+      annualLeave: 0,
+      status: 'active',
+      missingDocuments: 0
+    };
   }
 }

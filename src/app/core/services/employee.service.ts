@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '@environments/environment';
+import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
 
 export interface Employee {
   id: string;
@@ -56,6 +57,53 @@ interface DashboardEmployeesResponse {
   Employees: DashboardEmployee[];
 }
 
+interface EmployeeAddressResponse {
+  AddressLine1?: string;
+  AddressLine2?: string;
+  ZipCode?: string;
+  CityName?: string;
+  CountryName?: string;
+}
+
+interface SalaryComponentResponse {
+  ComponentName: string;
+  Amount: number;
+}
+
+interface EmployeeDetailsResponse {
+  Id: string | number;
+  FirstName: string;
+  LastName: string;
+  CinNumber: string;
+  MaritalStatusName: string;
+  DateOfBirth: string;
+  StatusName: string;
+  Email: string;
+  Phone: string | number;
+  CountryPhoneCode?: string;
+  Address?: EmployeeAddressResponse;
+  JobPositionName: string;
+  Department?: string;
+  DepartmentName?: string;
+  ManagerName?: string | null;
+  ContractStartDate: string;
+  ContractTypeName: string;
+  BaseSalary: number;
+  SalaryComponents?: SalaryComponentResponse[];
+  TotalSalary?: number;
+  CNSS?: string | number;
+  AMO?: string | number;
+  CIMR?: string | number;
+  CreatedAt?: string;
+  UpdatedAt?: string;
+  CompanyId?: string | number;
+  UserId?: string | number;
+  MissingDocuments?: number;
+  SalaryPaymentMethod?: string;
+  AnnualLeave?: number;
+  ProbationPeriod?: string;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -63,6 +111,7 @@ interface DashboardEmployeesResponse {
 export class EmployeeService {
   private readonly EMPLOYEES_URL = `${environment.apiUrl}/employees`;
   private readonly DASHBOARD_EMPLOYEES_URL = `${environment.apiUrl}/dashboard/employees`;
+  private readonly EMPLOYEE_DETAILS_URL = `${environment.apiUrl}/employee`;
 
   constructor(private http: HttpClient) {}
 
@@ -98,6 +147,15 @@ export class EmployeeService {
    */
   getEmployeeById(id: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.EMPLOYEES_URL}/${id}`);
+  }
+
+  /**
+   * Get detailed employee profile
+   */
+  getEmployeeDetails(id: string): Observable<EmployeeProfileModel> {
+    return this.http
+      .get<EmployeeDetailsResponse>(`${this.EMPLOYEE_DETAILS_URL}/${id}/details`)
+      .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
   }
 
   /**
@@ -162,6 +220,55 @@ export class EmployeeService {
     };
   }
 
+  private mapEmployeeDetailsResponse(payload: EmployeeDetailsResponse): EmployeeProfileModel {
+    const salaryComponents = payload.SalaryComponents ?? [];
+    const transportAllowance = this.findSalaryComponentAmount(salaryComponents, ['transport']);
+    const mealAllowance = this.findSalaryComponentAmount(salaryComponents, ['meal', 'restauration']);
+    const seniorityBonus = this.findSalaryComponentAmount(salaryComponents, ['ancien', 'seniority']);
+    const otherBenefits = this.collectOtherBenefits(salaryComponents, ['transport', 'meal', 'restauration', 'ancien', 'seniority']);
+
+    const detail: EmployeeProfileModel = {
+      id: this.toStringValue(payload.Id),
+      firstName: payload.FirstName ?? '',
+      lastName: payload.LastName ?? '',
+      photo: undefined,
+      cin: payload.CinNumber ?? '',
+      maritalStatus: this.mapMaritalStatus(payload.MaritalStatusName),
+      birthDate: payload.DateOfBirth ?? '',
+      birthPlace: payload.Address?.CityName ?? '',
+      professionalEmail: payload.Email ?? '',
+      personalEmail: payload.Email ?? '',
+      phone: this.composePhone(payload.CountryPhoneCode, payload.Phone),
+      address: this.formatAddress(payload.Address),
+      position: payload.JobPositionName ?? 'Non assigné',
+      department: payload.Department ?? payload.DepartmentName ?? '',
+      manager: payload.ManagerName ?? '',
+      contractType: this.mapContractType(payload.ContractTypeName),
+      startDate: payload.ContractStartDate ?? '',
+      endDate: undefined,
+      probationPeriod: payload.ProbationPeriod ?? '',
+      exitReason: undefined,
+      baseSalary: payload.BaseSalary ?? 0,
+      transportAllowance,
+      mealAllowance,
+      seniorityBonus,
+      benefitsInKind: otherBenefits,
+      paymentMethod: this.mapPaymentMethod(payload.SalaryPaymentMethod),
+      cnss: this.toStringValue(payload.CNSS),
+      amo: this.toStringValue(payload.AMO),
+      cimr: this.toStringValue(payload.CIMR) || undefined,
+      annualLeave: payload.AnnualLeave ?? 0,
+      status: this.mapEmployeeStatus(payload.StatusName),
+      missingDocuments: payload.MissingDocuments ?? 0,
+      companyId: this.toStringValue(payload.CompanyId) || undefined,
+      userId: this.toStringValue(payload.UserId) || undefined,
+      createdAt: payload.CreatedAt ? new Date(payload.CreatedAt) : undefined,
+      updatedAt: payload.UpdatedAt ? new Date(payload.UpdatedAt) : undefined
+    };
+
+    return detail;
+  }
+
   private mapEmployeeStatus(status?: string): Employee['status'] {
     const normalized = (status ?? '').toLowerCase();
     if (normalized === 'active') return 'active';
@@ -174,6 +281,56 @@ export class EmployeeService {
     if (normalized === 'cdd') return 'CDD';
     if (normalized === 'stage' || normalized === 'intern') return 'Stage';
     return 'CDI';
+  }
+
+  private mapMaritalStatus(status?: string): EmployeeProfileModel['maritalStatus'] {
+    const normalized = (status ?? '').toLowerCase();
+    if (normalized.includes('mari')) return 'married';
+    if (normalized.includes('divorc')) return 'divorced';
+    if (normalized.includes('veuf') || normalized.includes('veuve')) return 'widowed';
+    return 'single';
+  }
+
+  private mapPaymentMethod(method?: string): EmployeeProfileModel['paymentMethod'] {
+    const normalized = (method ?? '').toLowerCase();
+    if (normalized.includes('ch')) return 'check';
+    if (normalized.includes('esp')) return 'cash';
+    return 'bank_transfer';
+  }
+
+  private composePhone(code?: string, phone?: string | number): string {
+    const cleanCode = code ? String(code).trim() : '';
+    const cleanPhone = phone ? String(phone).trim() : '';
+    return `${cleanCode} ${cleanPhone}`.trim();
+  }
+
+  private formatAddress(address?: EmployeeAddressResponse): string {
+    if (!address) {
+      return '';
+    }
+    const parts = [address.AddressLine1, address.AddressLine2, address.CityName, address.ZipCode, address.CountryName]
+      .filter(part => !!part)
+      .map(part => part?.trim());
+    return parts.join(', ');
+  }
+
+  private findSalaryComponentAmount(components: SalaryComponentResponse[], keywords: string[]): number {
+    const match = components.find(component =>
+      keywords.some(keyword => component.ComponentName?.toLowerCase().includes(keyword))
+    );
+    return match ? Number(match.Amount) || 0 : 0;
+  }
+
+  private collectOtherBenefits(
+    components: SalaryComponentResponse[],
+    excludedKeywords: string[]
+  ): string | undefined {
+    const others = components
+      .filter(component =>
+        !excludedKeywords.some(keyword => component.ComponentName?.toLowerCase().includes(keyword))
+      )
+      .map(component => `${component.ComponentName}: ${component.Amount} MAD`);
+    return others.length ? others.join(' | ') : undefined;
   }
 
   private toStringValue(value: string | number | undefined | null): string {

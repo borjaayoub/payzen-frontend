@@ -361,6 +361,10 @@
   .card-title {
     @apply text-xl font-medium text-(--text-primary);
   }
+
+  .tag {
+    @apply inline-block px-2 py-0.5 rounded-lg text-sm font-medium;
+  }
 }
 
 

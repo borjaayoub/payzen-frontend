@@ -12,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'login',
     component: AuthLayout,
-    canActivate: [guestGuard],
+    // canActivate: [guestGuard],
     children: [
       {
         path: '',
@@ -25,7 +25,7 @@ export const routes: Routes = [
   {
     path: '',
     component: MainLayout,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -43,12 +43,12 @@ export const routes: Routes = [
       {
         path: 'employees',
         component: EmployeesPage,
-        canActivate: [rhGuard]
+        // canActivate: [rhGuard]
       },
       {
         path: 'employees/:id',
         component: EmployeeProfile,
-        canActivate: [rhGuard]
+        // canActivate: [rhGuard]
       }
     ]
   },
