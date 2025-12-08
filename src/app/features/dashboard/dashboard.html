@@ -2,40 +2,42 @@
   <!-- Header Section -->
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-      <p class="text-gray-500 mt-1">Gestion de la paie</p>
+      <h1 class="heading">Tableau de bord</h1>
+      <p class="subheading mt-1">Gestion de la paie</p>
     </div>
-    <ds-button
+    <button
+      pButton
+      type="button"
       label="Nouvelle Société"
       icon="pi pi-building"
-      (onClick)="openCompanySettings()"
-      styleClass="p-button-primary"
-    ></ds-button >
+      class="btn btn-primary"
+      (click)="openCompanySettings()"
+    ></button>
   </div>
 
   <!-- Metrics Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     @for (metric of metrics; track metric.title) {
-      <p-card styleClass="h-full">
-        <div class="flex items-start justify-between">
+      <p-card styleClass="card h-full">
+        <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
           <div class="flex-1">
-            <p class="text-sm text-gray-500 mb-1">{{ metric.title }}</p>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ metric.value }}</h3>
-            <div class="flex items-center gap-1">
+            <p class="text-sm text-(--text-secondary) mb-1">{{ metric.title }}</p>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ metric.value }}</h3>
+            <div class="flex items-center gap-1 text-sm">
               <i
-                [class]="metric.changeType === 'increase' ? 'pi pi-arrow-up text-green-600' : 'pi pi-arrow-down text-red-600'"
+                [class]="metric.changeType === 'increase' ? 'pi pi-arrow-up text-(--success)' : 'pi pi-arrow-down text-(--danger)'"
                 class="text-xs"
               ></i>
               <span
-                [class]="metric.changeType === 'increase' ? 'text-green-600' : 'text-red-600'"
-                class="text-sm font-medium"
+                [class]="metric.changeType === 'increase' ? 'text-(--success)' : 'text-(--danger)'"
+                class="font-medium"
               >
                 {{ metric.change }}
               </span>
-              <span class="text-xs text-gray-500 ml-1">vs mois dernier</span>
+              <span class="text-xs text-(--text-secondary) ml-1">vs mois dernier</span>
             </div>
           </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50">
+          <div [class]="'flex items-center justify-center w-12 h-12 rounded-lg ' + metric.bgColor">
             <i [class]="'pi ' + metric.icon + ' ' + metric.iconColor" class="text-xl"></i>
           </div>
         </div>
@@ -46,13 +48,13 @@
   <!-- Charts and Content Section -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <!-- Charts Section - Takes 2 columns on large screens -->
-    <div class="lg:col-span-2 grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-4 lg:col-span-2">
       <!-- Payroll Evolution Chart -->
-      <p-card>
+      <p-card styleClass="card">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-            <h3 class="text-lg font-semibold text-gray-900">Évolution de la Masse Salariale</h3>
-            <p class="text-sm text-gray-500 mt-1">Tendance sur les 6 derniers mois</p>
+            <h3 class="card-title">Évolution de la Masse Salariale</h3>
+            <p class="text-sm text-(--text-secondary) mt-1">Tendance sur les 6 derniers mois</p>
           </div>
         </ng-template>
         <div class="h-[300px]">
@@ -61,14 +63,14 @@
       </p-card>
 
       <!-- Employee Distribution Chart -->
-      <p-card>
+      <p-card styleClass="card">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-            <h3 class="text-lg font-semibold text-gray-900">Répartition des Employés</h3>
-            <p class="text-sm text-gray-500 mt-1">Par type de contrat</p>
+            <h3 class="card-title">Répartition des Employés</h3>
+            <p class="text-sm text-(--text-secondary) mt-1">Par type de contrat</p>
           </div>
         </ng-template>
-        <div class="h-[300px] flex items-center justify-center">
+        <div class="flex items-center justify-center h-[300px]">
           <p-chart type="doughnut" [data]="employeeChartData()" [options]="employeeChartOptions()" class="w-full max-w-[300px]"></p-chart>
         </div>
       </p-card>
@@ -77,20 +79,20 @@
     <!-- Sidebar - Takes 1 column on large screens -->
     <div class="flex flex-col gap-4">
       <!-- Recent Payslips -->
-      <p-card styleClass="h-full">
+      <p-card styleClass="card h-full">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50">
-                  <i class="pi pi-file-edit text-blue-600"></i>
-              </div>
-              <div>
-                  <h3 class="font-semibold text-gray-900">Bulletins Récents</h3>
-                  <p class="text-xs text-gray-500">Documents de paie récents</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-(--primary-light)">
+                  <i class="pi pi-file-edit text-(--primary)"></i>
+                </div>
+                <div>
+                  <h3 class="card-title text-base">Bulletins Récents</h3>
+                  <p class="text-xs text-(--text-secondary)">Documents de paie récents</p>
                 </div>
               </div>
-              <a href="/payslips" class="text-sm text-primary hover:text-primary-dark font-medium flex items-center gap-1">
+              <a href="/payslips" class="text-sm font-medium text-(--primary) hover:text-(--primary-hover) flex items-center gap-1">
                 Voir Tous
                 <i class="pi pi-arrow-right text-xs"></i>
               </a>
@@ -99,15 +101,15 @@
         </ng-template>
         <div class="flex flex-col gap-3">
             @for (payslip of recentPayslips; track payslip.id) {
-            <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-3 p-3 rounded-lg border border-(--border-color-subtle) hover:bg-(--bg-hover) transition-colors">
               <p-avatar
                 icon="pi pi-user"
                 shape="circle"
-                styleClass="bg-gray-100 text-gray-600"
+                styleClass="bg-(--primary-light) text-(--primary)"
               ></p-avatar>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-gray-900 text-sm truncate">{{ payslip.employeeName }}</p>
-                <p class="text-xs text-gray-500">{{ payslip.amount }}</p>
+                <p class="text-sm font-medium text-(--text-primary) truncate">{{ payslip.employeeName }}</p>
+                <p class="text-xs text-(--text-secondary)">{{ payslip.amount }}</p>
                 </div>
               <p-tag
                 [value]="getStatusLabel(payslip.status)"
@@ -119,23 +121,23 @@
       </p-card>
 
       <!-- Quick Actions -->
-      <p-card styleClass="h-full">
+      <p-card styleClass="card h-full">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-            <h3 class="font-semibold text-gray-900">Actions Rapides</h3>
+            <h3 class="card-title text-base">Actions Rapides</h3>
           </div>
         </ng-template>
         <div class="flex flex-col gap-2">
             @for (action of quickActions; track action.title) {
             <a
               [href]="action.route"
-              class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+              class="flex items-center gap-3 p-3 rounded-lg border border-(--border-color-subtle) hover:bg-(--bg-hover) transition-colors group"
             >
-              <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors">
+              <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-(--primary-light) group-hover:bg-(--primary-light)/80 transition-colors">
                 <i [class]="'pi ' + action.icon + ' ' + action.iconColor"></i>
                 </div>
-              <span class="flex-1 text-sm font-medium text-gray-900">{{ action.title }}</span>
-              <i class="pi pi-chevron-right text-gray-400 text-xs"></i>
+              <span class="flex-1 text-sm font-medium text-(--text-primary)">{{ action.title }}</span>
+              <i class="pi pi-chevron-right text-(--text-muted) text-xs"></i>
               </a>
             }
         </div>

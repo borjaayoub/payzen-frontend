@@ -5,10 +5,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MenuItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { Header } from '../../shared/components/header/header';
-import { DsButton } from '../../design-system/components/button/ds-button';
 
 @Component({
   selector: 'app-main-layout',
@@ -21,8 +21,8 @@ import { DsButton } from '../../design-system/components/button/ds-button';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    TranslateModule,
-    DsButton
+    ButtonModule,
+    TranslateModule
   ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',

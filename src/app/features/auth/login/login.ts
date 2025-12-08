@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
-import { DsCard } from '@app/design-system';
+import { CardModule } from 'primeng/card';
 import { AuthService } from '@app/core/services/auth.service';
 
 @Component({
@@ -24,7 +24,7 @@ import { AuthService } from '@app/core/services/auth.service';
     CheckboxModule,
     PasswordModule,
     MessageModule,
-    DsCard
+    CardModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'

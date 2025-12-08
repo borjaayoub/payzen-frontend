@@ -6,7 +6,6 @@ import { ChartModule } from 'primeng/chart';
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { TranslateModule } from '@ngx-translate/core';
-import { DsButton } from '../../design-system/components/button/ds-button';
 
 interface MetricCard {
   title: string;
@@ -15,6 +14,7 @@ interface MetricCard {
   changeType: 'increase' | 'decrease';
   icon: string;
   iconColor: string;
+  bgColor: string;
 }
 
 interface Payslip {
@@ -41,8 +41,7 @@ interface QuickAction {
     ChartModule,
     TagModule,
     AvatarModule,
-    TranslateModule,
-    DsButton,
+    TranslateModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -57,6 +56,7 @@ export class Dashboard {
       changeType: 'increase',
       icon: 'pi-users',
       iconColor: 'text-blue-600',
+      bgColor: 'bg-blue-100',
     },
     {
       title: 'Masse Salariale',
@@ -65,6 +65,7 @@ export class Dashboard {
       changeType: 'increase',
       icon: 'pi-wallet',
       iconColor: 'text-green-600',
+      bgColor: 'bg-green-100',
     },
     {
       title: 'Paies en Attente',
@@ -73,6 +74,7 @@ export class Dashboard {
       changeType: 'decrease',
       icon: 'pi-clock',
       iconColor: 'text-orange-600',
+      bgColor: 'bg-orange-100',
     },
   ];
 

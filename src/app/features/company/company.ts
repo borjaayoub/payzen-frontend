@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
+import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { CompanyInfoTab } from './tabs/company-info-tab';
 import { HrSettingsTab } from './tabs/hr-settings-tab';
 import { UsersTab } from './tabs/users-tab';
 import { DocumentsTab } from './tabs/documents-tab';
-import { Button } from '../../design-system/button/button';
 
 interface Tab {
   label: string;
@@ -18,12 +18,12 @@ interface Tab {
   selector: 'app-company',
   imports: [
     TabsModule,
+    ButtonModule,
     TranslateModule,
     CompanyInfoTab,
     HrSettingsTab,
     UsersTab,
-    DocumentsTab,
-    Button
+    DocumentsTab
   ],
   templateUrl: './company.html',
   styleUrl: './company.css'

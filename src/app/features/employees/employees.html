@@ -35,63 +35,68 @@
   <div class="max-w-7xl mx-auto px-6 py-6">
     <!-- Error Message -->
     @if (error()) {
-      <div class="card alert-error alert flex items-start gap-3">
-        <i class="pi pi-exclamation-circle text-xl self-center"></i>
+      <div class="flex flex-row items-center justify-center card alert-error alert gap-3 mb-4">
+        <div>
+          <i class="pi pi-exclamation-circle text-xl self-center"></i>
+        </div>
         <div class="flex-1">
           <h3 class="font-semibold  mb-1">{{ 'common.error' | translate }}</h3>
           <p class=" text-sm">{{ error() }}</p>
         </div>
-        <button
+        <div>
+          <button
           pButton
           type="button"
           icon="pi pi-refresh"
           class="btn btn-danger"
           [label]="'common.retry' | translate"
           (click)="loadEmployees()"
-        ></button>
+          ></button>
+        </div>
       </div>
     }
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card">
-        <div class="stat-card-icon text-blue-500">
-          <i class="pi pi-users"></i>
-        </div>
+      <div class="stat-card flex items-center justify-between">
         <div>
           <p class="stat-label">Total Salariés</p>
           <p class="stat-value">{{ stats().total }}</p>
         </div>
+        <div class="stat-card-icon text-blue-500">
+          <i class="pi pi-users"></i>
+        </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-card-icon text-green-500">
-          <i class="pi pi-check-circle"></i>
-        </div>
+      <div class="stat-card flex items-center justify-between">
         <div>
           <p class="stat-label">Actifs</p>
           <p class="stat-value text-success">{{ stats().active }}</p>
         </div>
+        <div class="stat-card-icon text-green-500">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        
       </div>
 
-      <div class="stat-card">
-        <div class="stat-card-icon text-yellow-500">
-          <i class="pi pi-clock"></i>
-        </div>
+      <div class="stat-card flex items-center justify-between">
         <div>
           <p class="stat-label">En Congé</p>
           <p class="stat-value text-warning">{{ stats().onLeave }}</p>
         </div>
+        <div class="stat-card-icon text-yellow-500">
+          <i class="pi pi-clock"></i>
+        </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-card-icon text-cyan-500">
-          <i class="pi pi-file"></i>
-        </div>
+      <div class="stat-card flex items-center justify-between">
         <div>
           <p class="stat-label">Docs Manquants</p>
           <p class="stat-value text-danger">{{ stats().missingDocs }}</p>
         </div>
+        <div class="stat-card-icon text-cyan-500">
+          <i class="pi pi-file"></i>
+        </div>  
       </div>
     </div>
 
@@ -101,13 +106,13 @@
         <!-- Search -->
         <div class="flex-1 min-w-0">
           <p-iconfield iconPosition="left" class="w-full">
-            <p-inputicon class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2"></p-inputicon>
+            <p-inputicon class="pi pi-search "></p-inputicon>
             <input
-              
+              pInputText
               type="text"
               [(ngModel)]="searchQuery"
               placeholder="Rechercher par nom ou poste..."
-              class="w-full pl-10 input"
+              class="w-full input"
             />
           </p-iconfield>
         </div>

@@ -19,18 +19,19 @@
 
     <!-- Mobile Header with Hamburger -->
     <header class="lg:hidden bg-(--color-bg) px-4 py-3 flex items-center gap-3">
-      <ds-button
+      <button
+        pButton
         type="button"
         [label]="'nav.mainMenu' | translate"
         icon="pi pi-bars"
-        class="text-(--color-primary-light)"
+        class="btn btn-primary"
         (click)="toggleSidebar()"
         [attr.aria-label]="'nav.mainMenu' | translate"
-      ></ds-button>
+      ></button>
     </header>
 
     <!-- Main Content with router outlet -->
-    <main class="flex-1 overflow-auto">
+    <main class="flex-1 overflow-auto px-3 bg-(--bg-page)">
       <router-outlet />
     </main>
   </div>

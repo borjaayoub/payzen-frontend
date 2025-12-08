@@ -1,10 +1,10 @@
 import { Component, signal, input, computed, output, effect, inject } from '@angular/core';
-import { clsx, ClassValue } from 'clsx';
+import { NgClass } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
+import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
-import { DsButton } from '../../design-system/components/button/ds-button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SidebarGroupComponent } from './sidebar-group/sidebar-group.component';
 import { SidebarGroupLabelComponent } from './sidebar-group/sidebar-group-label.component';
@@ -19,11 +19,12 @@ interface MenuItemConfig extends MenuItem {
 @Component({
   selector: 'app-sidebar',
   imports: [
+    NgClass,
     RouterLink,
     RouterLinkActive,
     AvatarModule,
+    ButtonModule,
     TranslateModule,
-    DsButton,
     TooltipModule,
     SidebarGroupComponent,
     SidebarGroupLabelComponent
@@ -38,7 +39,7 @@ export class Sidebar {
   readonly Collapsible = input<boolean>(false);
   readonly Collapsed = input<boolean>(false);
   readonly CollapsedChange = output<boolean>();
-  readonly className = input<ClassValue>('');
+  readonly className = input<string | string[] | Record<string, boolean> | null>(null);
 
   // === Internal state ===
   private readonly isCollapsedSignal = signal(this.Collapsed());
@@ -76,14 +77,6 @@ export class Sidebar {
   // === Computed width ===
   readonly currentWidth = computed(() =>
     this.isCollapsedSignal() ? this.CollapsedWidth() : this.Width()
-  );
-
-  // === Computed CSS classes ===
-  readonly classes = computed(() =>
-    clsx(
-      'relative flex flex-col font-sans shadow-md bg-white transition-all duration-300',
-      this.className()
-    )
   );
 
   // === Behavior ===

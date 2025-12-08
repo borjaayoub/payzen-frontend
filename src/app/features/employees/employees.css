@@ -1,4 +1,3 @@
-@reference "../../../styles.css";
 
 /* Employee card animations */
 /* @keyframes fadeInUp {
@@ -17,7 +16,7 @@
 } */
 
 /* Enhanced table styling */
-::ng-deep .p-datatable {
+/* ::ng-deep .p-datatable {
   .p-datatable-thead > tr > th {
     @apply bg-gray-50 text-gray-500 font-semibold text-sm;
   }
@@ -29,7 +28,7 @@
   .p-datatable-tbody > tr:hover {
     @apply bg-gray-50;
   }
-}
+} */
 
 /* Badge animations */
 /* .stat-card {
