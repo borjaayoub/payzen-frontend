@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { 
   User, 
@@ -85,7 +85,8 @@ export class AuthService {
     this.isLoading.set(true);
     this.updateAuthState({ ...this.authStateSubject.value, isLoading: true, error: null });
 
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
+    return this.http.post<any>(`${this.API_URL}/login`, credentials).pipe(
+      map(response => this.normalizeLoginResponse(response)),
       tap(response => {
         this.handleLoginSuccess(response);
       }),
@@ -131,7 +132,8 @@ export class AuthService {
   register(data: RegisterRequest): Observable<LoginResponse> {
     this.isLoading.set(true);
     
-    return this.http.post<LoginResponse>(`${this.API_URL}/register`, data).pipe(
+    return this.http.post<any>(`${this.API_URL}/register`, data).pipe(
+      map(response => this.normalizeLoginResponse(response)),
       tap(response => {
         this.handleLoginSuccess(response);
       }),
@@ -176,12 +178,23 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<LoginResponse>(`${this.API_URL}/refresh`, { refreshToken }).pipe(
+    const cachedUser = this.currentUser();
+
+    return this.http.post<any>(`${this.API_URL}/refresh`, { refreshToken }).pipe(
+      map(response => this.normalizeLoginResponse(response, cachedUser)),
       tap(response => {
         this.storeToken(response.token);
         if (response.refreshToken) {
           this.storeRefreshToken(response.refreshToken);
         }
+        this.storeUser(response.user);
+        this.currentUser.set(response.user);
+        this.updateAuthState({
+          ...this.authStateSubject.value,
+          user: response.user,
+          token: response.token,
+          isAuthenticated: true
+        });
       }),
       catchError(error => {
         this.logout();
@@ -273,6 +286,79 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  private normalizeLoginResponse(payload: any, fallbackUser: User | null = null): LoginResponse {
+    const token = this.extractToken(payload);
+    const refreshToken = this.extractRefreshToken(payload);
+    const backendUser = payload?.user ?? payload?.User ?? null;
+
+    let user: User | null = null;
+    if (backendUser) {
+      user = this.normalizeUserPayload(backendUser);
+    } else if (fallbackUser) {
+      user = fallbackUser;
+    }
+
+    if (!user) {
+      throw new Error('Invalid auth response: missing user payload');
+    }
+
+    return {
+      user,
+      token,
+      refreshToken: refreshToken ?? undefined
+    };
+  }
+
+  private extractToken(payload: any): string {
+    const token = payload?.token ?? payload?.Token ?? null;
+    if (!token) {
+      throw new Error('Invalid auth response: missing token');
+    }
+    return String(token);
+  }
+
+  private extractRefreshToken(payload: any): string | null {
+    const refreshToken = payload?.refreshToken ?? payload?.RefreshToken ?? null;
+    return refreshToken ? String(refreshToken) : null;
+  }
+
+  private normalizeUserPayload(userRaw: any): User {
+    const permissions = userRaw?.permissions ?? userRaw?.Permissions ?? [];
+    return {
+      id: this.normalizeString(userRaw?.id ?? userRaw?.Id) ?? '',
+      email: this.normalizeString(userRaw?.email ?? userRaw?.Email) ?? '',
+      username: this.normalizeString(userRaw?.username ?? userRaw?.Username) ?? '',
+      firstName: this.normalizeString(userRaw?.firstName ?? userRaw?.FirstName) ?? '',
+      lastName: this.normalizeString(userRaw?.lastName ?? userRaw?.LastName) ?? '',
+      role: this.mapBackendRole(userRaw?.role ?? userRaw?.Role ?? userRaw?.Roles?.[0]),
+      employee_id: this.normalizeString(userRaw?.employee_id ?? userRaw?.employeeId ?? userRaw?.EmployeeId ?? userRaw?.EmployeeID),
+      companyId: this.normalizeString(userRaw?.companyId ?? userRaw?.CompanyId ?? userRaw?.CompanyID),
+      permissions: Array.isArray(permissions) ? permissions : []
+    };
+  }
+
+  private normalizeString(value: any): string | undefined {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+    return String(value);
+  }
+
+  private mapBackendRole(role?: string): UserRole {
+    const normalized = (role ?? '').toLowerCase();
+    const roleMap: Record<string, UserRole> = {
+      admin: UserRole.ADMIN,
+      rh: UserRole.RH,
+      manager: UserRole.MANAGER,
+      employee: UserRole.EMPLOYEE,
+      cabinet: UserRole.CABINET,
+      admin_payzen: UserRole.ADMIN_PAYZEN,
+      'admin payzen': UserRole.ADMIN_PAYZEN,
+      'admin-payzen': UserRole.ADMIN_PAYZEN
+    };
+    return roleMap[normalized] ?? UserRole.EMPLOYEE;
   }
 
   /**

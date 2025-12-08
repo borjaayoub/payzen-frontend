@@ -18,10 +18,11 @@ export interface User {
   email: string;
   employee_id?: string;
   username: string;
+  firstName: string;
+  lastName: string;
   role: UserRole;
   companyId?: string;
-  isActive: boolean;
-  createdAt: Date;
+  permissions?: string[];
 }
 
 /**
