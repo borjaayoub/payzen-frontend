@@ -131,11 +131,10 @@
           pButton
           type="button"
           icon="pi pi-times"
-          class="shrink-0 btn btn-danger"
           [label]="'common.clear' | translate"
           (click)="clearFilters()"
           [disabled]="disableClearButton"
-          [ngClass]="disableClearButton ? 'opacity-50 cursor-not-allowed' : ''"
+          [ngClass]="disableClearButton ? 'btn btn-disabled' : 'shrink-0 btn btn-danger'"
           title="{{ 'common.clear' | translate }}"
         ></button>
       </div>

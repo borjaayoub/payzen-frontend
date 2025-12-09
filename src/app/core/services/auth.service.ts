@@ -354,9 +354,7 @@ export class AuthService {
       manager: UserRole.MANAGER,
       employee: UserRole.EMPLOYEE,
       cabinet: UserRole.CABINET,
-      admin_payzen: UserRole.ADMIN_PAYZEN,
-      'admin payzen': UserRole.ADMIN_PAYZEN,
-      'admin-payzen': UserRole.ADMIN_PAYZEN
+      admin_payzen: UserRole.ADMIN_PAYZEN
     };
     return roleMap[normalized] ?? UserRole.EMPLOYEE;
   }

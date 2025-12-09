@@ -27,12 +27,12 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Email -->
           <div variant="on" class="form-group">
-            <label for="email" class="block text-sm text-(--text-primary) mb-2">
+            <label for="email" class="block text-sm text-(--text-primary) mb-2 after:text-red-500 after:content-['*']">
               {{ 'auth.login.emailAddress' | translate }}
             </label>
             <input 
               pInputText 
-              id="email" 
+              id="email"
               formControlName="email"
               type="email"
               [placeholder]="'auth.login.emailPlaceholder' | translate"
@@ -54,7 +54,7 @@
 
           <!-- Password -->
           <div class="form-group">
-            <label for="password" class="block text-sm text-(--text-primary) mb-2">
+            <label for="password" class="block text-sm text-(--text-primary) mb-2 after:text-red-500 after:content-['*']">
               {{ 'auth.login.password' | translate }}
             </label>
             

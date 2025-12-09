@@ -266,7 +266,10 @@
   .btn{
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors;
   }
-  
+
+  .btn-disabled {
+    @apply cursor-not-allowed bg-(--border-color-medium) text-(--text-muted);
+  }
   .btn-primary {
     @apply text-white bg-(--primary);
   }
