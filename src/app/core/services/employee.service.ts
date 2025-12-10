@@ -134,8 +134,8 @@ export interface CreateEmployeeRequest {
   FirstName: string;
   LastName: string;
   Email: string;
-  Phone: string;
-  BirthDate?: string | null;
+  Phone: number;
+  BirthDate: string;
   CinNumber?: string | null;
   StatusId: number;
   GenderId?: number | null;
@@ -154,6 +154,8 @@ export interface CreateEmployeeRequest {
   ManagerId?: number | null;
   StartDate?: string | null;
   Salary?: number | null;
+  CnssNumber?: string | null;
+  CmirNumber?: string | null;
 }
 
 interface DashboardEmployee {
