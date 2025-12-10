@@ -133,12 +133,14 @@ export interface EmployeeFormData {
 export interface CreateEmployeeRequest {
   FirstName: string;
   LastName: string;
-  Email: string;
-  Phone: number;
-  BirthDate: string;
   CinNumber?: string | null;
+  DateOfBirth: string;
+  Phone: string;
+  Email: string;
   StatusId: number;
+
   GenderId?: number | null;
+  
   EducationLevelId?: number | null;
   MaritalStatusId?: number | null;
   NationalityId?: number | null;
@@ -155,7 +157,7 @@ export interface CreateEmployeeRequest {
   StartDate?: string | null;
   Salary?: number | null;
   CnssNumber?: string | null;
-  CmirNumber?: string | null;
+  CimrNumber?: string | null;
 }
 
 interface DashboardEmployee {
@@ -202,7 +204,7 @@ interface EmployeeDetailsResponse {
   StatusName: string;
   Email: string;
   Phone: string | number;
-  CountryPhoneCode?: string;
+  CountryPhoneCode?: string | null;
   Address?: EmployeeAddressResponse;
   JobPositionName: string;
   Department?: string;
@@ -492,7 +494,7 @@ export class EmployeeService {
     return 'bank_transfer';
   }
 
-  private composePhone(code?: string, phone?: string | number): string {
+  private composePhone(code?: string | null, phone?: string | number): string {
     const cleanCode = code ? String(code).trim() : '';
     const cleanPhone = phone ? String(phone).trim() : '';
     return `${cleanCode} ${cleanPhone}`.trim();
