@@ -198,7 +198,7 @@ interface EmployeeDetailsResponse {
   LastName: string;
   CinNumber: string;
   MaritalStatusName: string;
-  DateOfBirth: string;
+  BirthDate: string;
   StatusName: string;
   Email: string;
   Phone: string | number;
@@ -428,7 +428,7 @@ export class EmployeeService {
       photo: undefined,
       cin: payload.CinNumber ?? '',
       maritalStatus: this.mapMaritalStatus(payload.MaritalStatusName),
-      birthDate: payload.DateOfBirth ?? '',
+      birthDate: payload.BirthDate ?? '',
       birthPlace: payload.Address?.CityName ?? '',
       professionalEmail: payload.Email ?? '',
       personalEmail: payload.Email ?? '',
