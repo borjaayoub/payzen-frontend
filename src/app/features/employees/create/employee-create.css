@@ -76,3 +76,45 @@
 .inline-loading {
   font-size: 0.95rem;
 }
+
+.phone-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.phone-code-select {
+  min-width: 7rem;
+}
+
+.phone-select-option,
+.phone-select-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.country-label {
+  font-weight: 500;
+}
+
+.country-code {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.country-placeholder {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

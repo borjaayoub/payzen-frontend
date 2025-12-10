@@ -18,8 +18,12 @@
         class="btn btn-secondary"
         icon="pi pi-arrow-left"
         [label]="'common.back' | translate"
+        [attr.aria-label]="'common.back' | translate"
+        [attr.title]="'common.back' | translate"
         (click)="cancel()"
-      ></button>
+      >
+        <span class="sr-only">{{ 'common.back' | translate }}</span>
+      </button>
     </div>
 
     @if (errorMessage()) {
@@ -32,8 +36,12 @@
           class="btn btn-danger"
           icon="pi pi-refresh"
           [label]="'common.retry' | translate"
+          [attr.aria-label]="'common.retry' | translate"
+          [attr.title]="'common.retry' | translate"
           (click)="retryLoad()"
-        ></button>
+        >
+          <span class="sr-only">{{ 'common.retry' | translate }}</span>
+        </button>
       </div>
     }
 
@@ -110,18 +118,72 @@
                 </div>
 
                 <div class="form-field">
+                  <label class="field-label" for="cinNumber">{{ 'employees.create.form.cin' | translate }}</label>
+                  <input
+                    id="cinNumber"
+                    pInputText
+                    type="text"
+                    class="input"
+                    placeholder="AA123456"
+                    formControlName="cinNumber"
+                  />
+                  @if (isInvalid('cinNumber')) {
+                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="field-label" for="birthDate">{{ 'employees.create.form.birthDate' | translate }}</label>
+                  <input
+                    id="birthDate"
+                    type="date"
+                    class="input"
+                    formControlName="birthDate"
+                  />
+                  @if (isInvalid('birthDate')) {
+                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
                   <label class="field-label" for="phone">{{ 'employees.create.form.phone' | translate }}</label>
-                  <div class="flex gap-2">
-                    <div class="phone-code" *ngIf="phoneCode()">{{ phoneCode() }}</div>
+                  <div class="phone-input-group">
+                    <p-select
+                      class="phone-code-select"
+                      formControlName="phoneCountryId"
+                      [options]="data.countries"
+                      optionValue="id"
+                      [placeholder]="'employees.create.form.phoneCountryPlaceholder' | translate"
+                      [attr.aria-label]="'employees.create.form.phoneCountry' | translate"
+                      appendTo="body"
+                    >
+                      <ng-template pTemplate="selectedItem" let-option>
+                        <div class="phone-select-selected" *ngIf="option; else emptyCode">
+                          <span class="country-label">{{ option.phoneCode }}</span>
+                        </div>
+                        <ng-template #emptyCode>
+                          <span class="country-placeholder">{{ 'employees.create.form.phoneCountryPlaceholder' | translate }}</span>
+                        </ng-template>
+                      </ng-template>
+                      <ng-template pTemplate="item" let-option>
+                        <div class="phone-select-option">
+                          <span class="country-label">{{ option.label }}</span>
+                          <span class="country-code">{{ option.phoneCode }}</span>
+                        </div>
+                      </ng-template>
+                    </p-select>
                     <input
                       id="phone"
                       pInputText
                       type="tel"
                       class="input"
-                      placeholder="612-345-678"
+                      placeholder="576 908 413"
                       formControlName="phone"
                     />
                   </div>
+                  @if (isInvalid('phoneCountryId')) {
+                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
+                  }
                   @if (isInvalid('phone')) {
                     <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
                   }
@@ -330,8 +392,12 @@
                 pButton
                 class="btn btn-secondary"
                 [label]="'common.cancel' | translate"
+                [attr.aria-label]="'common.cancel' | translate"
+                [attr.title]="'common.cancel' | translate"
                 (click)="cancel()"
-              ></button>
+              >
+                <span class="sr-only">{{ 'common.cancel' | translate }}</span>
+              </button>
               <button
                 type="submit"
                 pButton
@@ -339,7 +405,13 @@
                 icon="pi pi-save"
                 [disabled]="isSubmitting()"
                 [label]="isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate)"
-              ></button>
+                [attr.aria-label]="isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate)"
+                [attr.title]="isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate)"
+              >
+                <span class="sr-only">
+                  {{ isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate) }}
+                </span>
+              </button>
             </div>
           </form>
     </div>

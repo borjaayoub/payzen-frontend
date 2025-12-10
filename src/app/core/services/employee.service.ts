@@ -135,6 +135,8 @@ export interface CreateEmployeeRequest {
   LastName: string;
   Email: string;
   Phone: string;
+  BirthDate?: string | null;
+  CinNumber?: string | null;
   StatusId: number;
   GenderId?: number | null;
   EducationLevelId?: number | null;

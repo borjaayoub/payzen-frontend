@@ -56,7 +56,10 @@ export class EmployeeCreatePage implements OnInit {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
+    cinNumber: ['', Validators.required],
+    birthDate: ['', Validators.required],
     phone: ['', Validators.required],
+    phoneCountryId: [null as number | null, Validators.required],
     statusId: [null, Validators.required],
     genderId: [null],
     educationLevelId: [null],
@@ -76,8 +79,8 @@ export class EmployeeCreatePage implements OnInit {
   });
 
   readonly phoneCode = computed(() => {
-    const countryId = this.employeeForm.controls.countryId.value;
-    return this.formData().countries.find(country => country.id === countryId)?.phoneCode ?? '';
+    const phoneCountryId = this.employeeForm.controls.phoneCountryId.value;
+    return this.formData().countries.find(country => country.id === phoneCountryId)?.phoneCode ?? '';
   });
 
   readonly cityOptions = computed<CityLookupOption[]>(() => {
@@ -99,6 +102,9 @@ export class EmployeeCreatePage implements OnInit {
     this.employeeService.getEmployeeFormData().subscribe({
       next: (data) => {
         this.formData.set(data);
+        if (!this.employeeForm.controls.phoneCountryId.value && data.countries.length) {
+          this.employeeForm.controls.phoneCountryId.setValue(data.countries[0].id);
+        }
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -122,6 +128,8 @@ export class EmployeeCreatePage implements OnInit {
       LastName: value.lastName ?? '',
       Email: value.email ?? '',
       Phone: [selectedPhoneCode, value.phone].filter(Boolean).join(' ').trim(),
+      BirthDate: value.birthDate || null,
+      CinNumber: value.cinNumber || null,
       StatusId: Number(value.statusId),
       GenderId: value.genderId ? Number(value.genderId) : null,
       EducationLevelId: value.educationLevelId ? Number(value.educationLevelId) : null,
@@ -150,6 +158,10 @@ export class EmployeeCreatePage implements OnInit {
         this.isSubmitting.set(false);
         this.successMessage.set(this.translate.instant('employees.create.success'));
         this.employeeForm.reset();
+        const defaultCountryId = this.formData().countries[0]?.id ?? null;
+        if (defaultCountryId) {
+          this.employeeForm.controls.phoneCountryId.setValue(defaultCountryId);
+        }
         setTimeout(() => this.router.navigate(['/employees']), 800);
       },
       error: (err) => {
