@@ -205,6 +205,59 @@
         "jobDescription": "Fiche de Poste",
         "rib": "RIB"
       }
+    },
+    "create": {
+      "eyebrow": "Nouveau collaborateur",
+      "title": "Créer un salarié",
+      "subtitle": "Renseignez l'identité, le contrat et les contacts avant l'onboarding.",
+      "submit": "Créer le salarié",
+      "success": "Le salarié a été créé avec succès.",
+      "error": "Impossible de créer le salarié. Veuillez réessayer.",
+      "emptyState": "Les données du formulaire sont indisponibles pour le moment.",
+      "sections": {
+        "personal": "Identité",
+        "personalTitle": "Informations personnelles",
+        "personalDescription": "Identité légale, état civil et données démographiques.",
+        "job": "Poste",
+        "jobTitle": "Poste & contrat",
+        "jobDescription": "Associez le salarié à un département, un poste et un manager.",
+        "contact": "Contact",
+        "contactTitle": "Coordonnées & adresse",
+        "contactDescription": "Informations de localisation utilisées pour la paie et les documents légaux."
+      },
+      "form": {
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "email": "Email professionnel",
+        "phone": "Numéro de téléphone",
+        "gender": "Genre",
+        "status": "Statut d'emploi",
+        "statusPlaceholder": "Sélectionnez un statut",
+        "maritalStatus": "Situation familiale",
+        "educationLevel": "Niveau d'études",
+        "nationality": "Nationalité",
+        "department": "Département",
+        "departmentPlaceholder": "Choisissez un département",
+        "jobPosition": "Poste",
+        "jobPositionPlaceholder": "Choisissez un poste",
+        "contractType": "Type de contrat",
+        "contractTypePlaceholder": "Choisissez un type de contrat",
+        "manager": "Manager direct",
+        "managerPlaceholder": "Affecter un manager (optionnel)",
+        "startDate": "Date d'entrée",
+        "salary": "Salaire mensuel (MAD)",
+        "country": "Pays",
+        "countryPlaceholder": "Sélectionnez un pays",
+        "city": "Ville",
+        "cityPlaceholder": "Sélectionnez une ville",
+        "addressLine1": "Adresse ligne 1",
+        "addressLine2": "Adresse ligne 2",
+        "zipCode": "Code postal"
+      },
+      "validation": {
+        "required": "Ce champ est obligatoire",
+        "email": "Veuillez saisir un email valide"
+      }
     }
   },
   "language": {

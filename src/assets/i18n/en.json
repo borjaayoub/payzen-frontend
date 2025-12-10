@@ -205,6 +205,59 @@
         "jobDescription": "Job Description",
         "rib": "Bank Details"
       }
+    },
+    "create": {
+      "eyebrow": "New hire flow",
+      "title": "Create Employee",
+      "subtitle": "Collect identity, contract, and contact details before onboarding.",
+      "submit": "Create employee",
+      "success": "Employee created successfully.",
+      "error": "Unable to create employee. Please try again.",
+      "emptyState": "Form data is unavailable. Please retry in a moment.",
+      "sections": {
+        "personal": "Identity",
+        "personalTitle": "Personal information",
+        "personalDescription": "Legal identity, civil status, and demographics.",
+        "job": "Role",
+        "jobTitle": "Job & contract",
+        "jobDescription": "Link the employee to a department, position, and manager.",
+        "contact": "Contact",
+        "contactTitle": "Contact & address",
+        "contactDescription": "Location details used for payroll and legal documents."
+      },
+      "form": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "Professional email",
+        "phone": "Phone number",
+        "gender": "Gender",
+        "status": "Employment status",
+        "statusPlaceholder": "Select a status",
+        "maritalStatus": "Marital status",
+        "educationLevel": "Education level",
+        "nationality": "Nationality",
+        "department": "Department",
+        "departmentPlaceholder": "Select a department",
+        "jobPosition": "Job position",
+        "jobPositionPlaceholder": "Select a position",
+        "contractType": "Contract type",
+        "contractTypePlaceholder": "Select a contract type",
+        "manager": "Direct manager",
+        "managerPlaceholder": "Assign a manager (optional)",
+        "startDate": "Start date",
+        "salary": "Monthly salary (MAD)",
+        "country": "Country",
+        "countryPlaceholder": "Select a country",
+        "city": "City",
+        "cityPlaceholder": "Select a city",
+        "addressLine1": "Address line 1",
+        "addressLine2": "Address line 2",
+        "zipCode": "Postal code"
+      },
+      "validation": {
+        "required": "This field is required",
+        "email": "Enter a valid email"
+      }
     }
   },
   "language": {

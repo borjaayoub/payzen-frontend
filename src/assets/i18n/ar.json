@@ -19,6 +19,59 @@
       "active": "النشطون",
       "onLeave": "في إجازة",
       "missingDocs": "وثائق ناقصة"
+    },
+    "create": {
+      "eyebrow": "موظف جديد",
+      "title": "إنشاء موظف",
+      "subtitle": "اجمع بيانات الهوية والعقد ووسائل الاتصال قبل الانضمام.",
+      "submit": "إنشاء الموظف",
+      "success": "تم إنشاء الموظف بنجاح.",
+      "error": "تعذر إنشاء الموظف. حاول مرة أخرى.",
+      "emptyState": "تعذر تحميل بيانات النموذج، حاول بعد قليل.",
+      "sections": {
+        "personal": "الهوية",
+        "personalTitle": "المعلومات الشخصية",
+        "personalDescription": "الهوية القانونية، الحالة العائلية والبيانات الديموغرافية.",
+        "job": "الوظيفة",
+        "jobTitle": "الوظيفة والعقد",
+        "jobDescription": "اربط الموظف بالقسم والوظيفة والمدير.",
+        "contact": "التواصل",
+        "contactTitle": "بيانات الاتصال والعنوان",
+        "contactDescription": "تفاصيل الموقع المستخدمة في الأجور والمستندات."
+      },
+      "form": {
+        "firstName": "الاسم الشخصي",
+        "lastName": "الاسم العائلي",
+        "email": "البريد المهني",
+        "phone": "رقم الهاتف",
+        "gender": "النوع",
+        "status": "حالة التوظيف",
+        "statusPlaceholder": "اختر الحالة",
+        "maritalStatus": "الوضع العائلي",
+        "educationLevel": "المستوى الدراسي",
+        "nationality": "الجنسية",
+        "department": "القسم",
+        "departmentPlaceholder": "اختر قسماً",
+        "jobPosition": "الوظيفة",
+        "jobPositionPlaceholder": "اختر وظيفة",
+        "contractType": "نوع العقد",
+        "contractTypePlaceholder": "اختر نوع العقد",
+        "manager": "المسؤول المباشر",
+        "managerPlaceholder": "أسند مديراً (اختياري)",
+        "startDate": "تاريخ الالتحاق",
+        "salary": "الأجر الشهري (درهم)",
+        "country": "البلد",
+        "countryPlaceholder": "اختر بلداً",
+        "city": "المدينة",
+        "cityPlaceholder": "اختر مدينة",
+        "addressLine1": "العنوان الأول",
+        "addressLine2": "العنوان الثاني",
+        "zipCode": "الرمز البريدي"
+      },
+      "validation": {
+        "required": "هذه الخانة مطلوبة",
+        "email": "يرجى إدخال بريد إلكتروني صحيح"
+      }
     }
   },
   "auth": {

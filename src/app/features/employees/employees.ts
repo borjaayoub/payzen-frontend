@@ -214,7 +214,7 @@ export class EmployeesPage implements OnInit {
   }
 
   addEmployee() {
-    this.router.navigate(['/employees', 'new']);
+    this.router.navigate(['/employees', 'create']);
   }
 
   clearFilters() {

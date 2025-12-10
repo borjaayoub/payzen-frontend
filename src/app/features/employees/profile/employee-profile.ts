@@ -182,7 +182,7 @@ export class EmployeeProfile implements OnInit {
   getStatusLabel(): string {
     const status = this.employee().status;
     if (status === 'active') return 'Actif';
-    if (status === 'on_leave') return 'En cong�';
+    if (status === 'on_leave') return 'En congé';
     return 'Inactif';
   }
 

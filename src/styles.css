@@ -23,26 +23,31 @@
     --primary-950: #020c1a;
 
     /* Semantic color scales */
-    --success: #16a34a;
-    --success-light: #dcfce7;
-    --success-dark: #15803d;
+    --success: var(--color-green-500);
+    --success-hover: var(--color-green-600);
+    --success-light: var(--color-green-100);
+    --success-dark: var(--color-green-700);
 
-    --warning: #d97706;
-    --warning-light: #fef3c7;
-    --warning-dark: #b45309;
-    --danger: #dc2626;
-    --danger-light: #fee2e2;
-    --danger-dark: #b91c1c;
+    --warning: var(--color-orange-500);
+    --warning-hover: var(--color-orange-600);
+    --warning-light: var(--color-orange-100);
+    --warning-dark: var(--color-orange-700);
+    
+    --danger: var(--color-red-500);
+    --danger-hover: var(--color-red-600);
+    --danger-light: var(--color-red-100);
+    --danger-dark: var(--color-red-700);
 
-    --info: #0284c7;
-    --info-light: #e0f2fe;
-    --info-dark: #075985;
+    --info: var(--color-blue-500);
+    --info-hover: var(--color-blue-600);
+    --info-light: var(--color-blue-100);
+    --info-dark: var(--color-blue-700);
     /* ============================================
        CONVENIENT ALIASES (for backward compatibility)
        ============================================ */
     --primary: var(--primary-500);
     --primary-hover: var(--primary-600);
-    --primary-light: var(--primary-50);
+    --primary-light: var(--primary-100);
     --primary-dark: var(--primary-700);
 
     /* ============================================
@@ -268,7 +273,7 @@
   }
 
   .btn-disabled {
-    @apply cursor-not-allowed bg-(--border-color-medium) text-(--text-muted);
+    @apply cursor-not-allowed bg-gray-200 text-gray-500;
   }
   .btn-primary {
     @apply text-white bg-(--primary);
@@ -285,16 +290,32 @@
     @apply bg-gray-100 text-gray-900 border border-gray-300 hover:bg-gray-200;
   }
 
+  .btn-secondary-outline {
+    @apply text-gray-600 bg-white border border-gray-300 hover:bg-gray-200 hover:text-gray-900;
+  }
+
   .btn-success {
-    @apply bg-green-600 text-white hover:bg-green-700;
+    @apply bg-(--success) text-white hover:bg-(--success-hover);
+  }
+
+  .btn-success-outline {
+    @apply text-(--success) bg-white border border-(--success) hover:bg-(--success-hover) hover:text-white;
   }
 
   .btn-warning {
-    @apply bg-orange-500 text-white hover:bg-orange-600;
+    @apply bg-(--warning) text-white hover:bg-(--warning-hover);
+  }
+
+  .btn-warning-outline {
+    @apply text-(--warning) bg-white border border-(--warning) hover:bg-(--warning-hover) hover:text-white;
   }
 
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700;
+    @apply bg-(--danger) text-white hover:bg-(--danger-hover);
+  }
+
+  .btn-danger-outline {
+    @apply text-(--danger) bg-white border border-(--danger) hover:bg-(--danger-hover) hover:text-white;
   }
 
   /* Cards */
@@ -366,7 +387,7 @@
   }
 
   .tag {
-    @apply inline-block px-2 py-0.5 rounded-lg text-sm font-medium;
+    @apply leading-none px-1.5 py-0.5 rounded-sm text-sm font-medium;
   }
 }
 

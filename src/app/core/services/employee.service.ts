@@ -40,6 +40,120 @@ export interface EmployeeStats {
   active: number;
 }
 
+interface LookupResponseItem {
+  Id: number;
+  Name: string;
+}
+
+interface CountryResponseItem {
+  Id: number;
+  CountryName: string;
+  CountryPhoneCode: string;
+}
+
+interface CityResponseItem {
+  Id: number;
+  CityName: string;
+  CountryId: number;
+  CountryName: string;
+}
+
+interface DepartementResponseItem {
+  Id: number;
+  DepartementName: string;
+  CompanyId: number;
+}
+
+interface JobPositionResponseItem {
+  Id: number;
+  Name: string;
+  CompanyId: number;
+}
+
+interface ContractTypeResponseItem {
+  Id: number;
+  ContractTypeName: string;
+  CompanyId: number;
+}
+
+interface PotentialManagerResponseItem {
+  Id: number;
+  FirstName: string;
+  LastName: string;
+  FullName: string;
+  DepartementName: string;
+}
+
+interface EmployeeFormDataResponse {
+  Statuses?: LookupResponseItem[];
+  Genders?: LookupResponseItem[];
+  EducationLevels?: LookupResponseItem[];
+  MaritalStatuses?: LookupResponseItem[];
+  Nationalities?: LookupResponseItem[];
+  Countries?: CountryResponseItem[];
+  Cities?: CityResponseItem[];
+  Departements?: DepartementResponseItem[];
+  JobPositions?: JobPositionResponseItem[];
+  ContractTypes?: ContractTypeResponseItem[];
+  PotentialManagers?: PotentialManagerResponseItem[];
+}
+
+export interface LookupOption {
+  id: number;
+  label: string;
+}
+
+export interface CountryLookupOption extends LookupOption {
+  phoneCode: string;
+}
+
+export interface CityLookupOption extends LookupOption {
+  countryId: number;
+  countryName: string;
+}
+
+export interface ManagerLookupOption extends LookupOption {
+  departmentName: string;
+}
+
+export interface EmployeeFormData {
+  statuses: LookupOption[];
+  genders: LookupOption[];
+  educationLevels: LookupOption[];
+  maritalStatuses: LookupOption[];
+  nationalities: LookupOption[];
+  countries: CountryLookupOption[];
+  cities: CityLookupOption[];
+  departements: LookupOption[];
+  jobPositions: LookupOption[];
+  contractTypes: LookupOption[];
+  potentialManagers: ManagerLookupOption[];
+}
+
+export interface CreateEmployeeRequest {
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  Phone: string;
+  StatusId: number;
+  GenderId?: number | null;
+  EducationLevelId?: number | null;
+  MaritalStatusId?: number | null;
+  NationalityId?: number | null;
+  CountryId?: number | null;
+  CityId?: number | null;
+  CountryPhoneCode?: string | null;
+  AddressLine1?: string | null;
+  AddressLine2?: string | null;
+  ZipCode?: string | null;
+  DepartementId?: number | null;
+  JobPositionId?: number | null;
+  ContractTypeId?: number | null;
+  ManagerId?: number | null;
+  StartDate?: string | null;
+  Salary?: number | null;
+}
+
 interface DashboardEmployee {
   Id: string | number;
   FirstName: string;
@@ -163,10 +277,26 @@ export class EmployeeService {
   }
 
   /**
+   * Get lookup values to build the employee creation form
+   */
+  getEmployeeFormData(): Observable<EmployeeFormData> {
+    return this.http
+      .get<EmployeeFormDataResponse>(`${this.EMPLOYEE_DETAILS_URL}/form-data`)
+      .pipe(map(response => this.mapEmployeeFormDataResponse(response)));
+  }
+
+  /**
    * Create new employee
    */
   createEmployee(employee: Partial<Employee>): Observable<Employee> {
     return this.http.post<Employee>(this.EMPLOYEES_URL, employee);
+  }
+
+  /**
+   * Create employee record through HR endpoint
+   */
+  createEmployeeRecord(payload: CreateEmployeeRequest): Observable<any> {
+    return this.http.post<any>(this.EMPLOYEE_DETAILS_URL, payload);
   }
 
   /**
@@ -199,6 +329,56 @@ export class EmployeeService {
    */
   getDocuments(employeeId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.EMPLOYEES_URL}/${employeeId}/documents`);
+  }
+
+  private mapEmployeeFormDataResponse(response: EmployeeFormDataResponse = {} as EmployeeFormDataResponse): EmployeeFormData {
+    const toLookupOption = (items?: LookupResponseItem[]): LookupOption[] =>
+      (items ?? []).map(item => ({ id: item.Id, label: item.Name }));
+
+    const toCountryOption = (items?: CountryResponseItem[]): CountryLookupOption[] =>
+      (items ?? []).map(item => ({
+        id: item.Id,
+        label: item.CountryName,
+        phoneCode: item.CountryPhoneCode
+      }));
+
+    const toCityOption = (items?: CityResponseItem[]): CityLookupOption[] =>
+      (items ?? []).map(item => ({
+        id: item.Id,
+        label: item.CityName,
+        countryId: item.CountryId,
+        countryName: item.CountryName
+      }));
+
+    const toDepartementOption = (items?: DepartementResponseItem[]): LookupOption[] =>
+      (items ?? []).map(item => ({ id: item.Id, label: item.DepartementName }));
+
+    const toJobPositionOption = (items?: JobPositionResponseItem[]): LookupOption[] =>
+      (items ?? []).map(item => ({ id: item.Id, label: item.Name }));
+
+    const toContractTypeOption = (items?: ContractTypeResponseItem[]): LookupOption[] =>
+      (items ?? []).map(item => ({ id: item.Id, label: item.ContractTypeName }));
+
+    const toManagerOption = (items?: PotentialManagerResponseItem[]): ManagerLookupOption[] =>
+      (items ?? []).map(item => ({
+        id: item.Id,
+        label: (item.FullName || `${item.FirstName ?? ''} ${item.LastName ?? ''}`).trim(),
+        departmentName: item.DepartementName
+      }));
+
+    return {
+      statuses: toLookupOption(response?.Statuses),
+      genders: toLookupOption(response?.Genders),
+      educationLevels: toLookupOption(response?.EducationLevels),
+      maritalStatuses: toLookupOption(response?.MaritalStatuses),
+      nationalities: toLookupOption(response?.Nationalities),
+      countries: toCountryOption(response?.Countries),
+      cities: toCityOption(response?.Cities),
+      departements: toDepartementOption(response?.Departements),
+      jobPositions: toJobPositionOption(response?.JobPositions),
+      contractTypes: toContractTypeOption(response?.ContractTypes),
+      potentialManagers: toManagerOption(response?.PotentialManagers)
+    };
   }
 
   private mapDashboardEmployeesResponse(response: DashboardEmployeesResponse): EmployeesResponse {
