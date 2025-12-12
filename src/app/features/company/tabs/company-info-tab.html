@@ -3,16 +3,16 @@
   <div class="page-header">
     <div class="page-header-content">
       <h2 class="page-title">
-        Informations Société
+        {{ 'company.info.title' | translate }}
       </h2>
       <p class="subtitle">
-        Gérez les informations légales et de contact de votre société
+        {{ 'company.info.subtitle' | translate }}
       </p>
     </div>
     <button
       pButton
       type="button"
-      label="Voir audit log"
+      [label]="'company.info.viewAuditLog' | translate"
       icon="pi pi-clock"
       class="p-button p-button-primary"
     ></button>
@@ -24,13 +24,13 @@
       <!-- Left Column: Informations Générales -->
       <div class="space-y-3">
         <h3 class="section-title mb-6">
-          Informations Générales
+          {{ 'company.info.generalInfo' | translate }}
         </h3>
 
         <!-- Raison Sociale -->
         <div class="form-field">
           <label class="form-label required">
-            Raison Sociale
+            {{ 'company.info.raisonSociale' | translate }}
           </label>
           @if (isEditMode()) {
             <input
@@ -46,7 +46,7 @@
         <!-- ICE -->
         <div class="form-field">
           <label class="form-label required">
-            ICE
+            {{ 'company.info.ice' | translate }}
           </label>
           @if (isEditMode()) {
             <input
@@ -62,7 +62,7 @@
         <!-- CNSS -->
         <div class="form-field">
           <label class="form-label required">
-            CNSS
+            {{ 'company.info.cnss' | translate }}
           </label>
           @if (isEditMode()) {
             <input
@@ -78,7 +78,7 @@
         <!-- Régime Fiscal -->
         <div class="form-field">
           <label class="form-label required">
-            Régime Fiscal
+            {{ 'company.info.regimeFiscal' | translate }}
           </label>
           @if (isEditMode()) {
             <p-select
@@ -98,7 +98,7 @@
         <!-- Address -->
         <div class="form-field">
           <label class="form-label required">
-            Adresse Complète
+            {{ 'company.info.address' | translate }}
           </label>
           @if (isEditMode()) {
             <input
@@ -115,13 +115,13 @@
       <!-- Right Column: Contact -->
       <div class="space-y-6">
         <h3 class="section-title mb-6">
-          Contact
+          {{ 'company.info.contact' | translate }}
         </h3>
 
         <!-- Email -->
         <div class="form-field">
           <label class="form-label required">
-            Email Officiel
+            {{ 'company.info.email' | translate }}
           </label>
           @if (isEditMode()) {
             <input
@@ -138,7 +138,7 @@
         <!-- Phone -->
         <div class="form-field">
           <label class="form-label required">
-            Téléphone
+            {{ 'company.info.phone' | translate }}
           </label>
           @if (isEditMode()) {
             <input
@@ -160,27 +160,27 @@
     <div class="flex items-start justify-between">
       <div class="flex-1">
         <h3 class="section-title mb-4">
-          Cabinet Comptable
+          {{ 'company.info.accountingFirm' | translate }}
         </h3>
 
         <div class="form-field">
           <label class="form-label">
-            Cabinet Associé
+            {{ 'company.info.associatedFirm' | translate }}
           </label>
           <p class="form-value mb-3">
-            Aucun cabinet associé
+            {{ 'company.info.noFirmAssociated' | translate }}
           </p>
         </div>
 
         <p class="text-sm text-gray-500">
-          Associez un cabinet comptable pour lui donner accès aux données de paie
+          {{ 'company.info.associateFirmHint' | translate }}
         </p>
       </div>
 
       <button
         pButton
         type="button"
-        label="Associer"
+        [label]="'company.info.associate' | translate"
         class="p-button"
       ></button>
     </div>

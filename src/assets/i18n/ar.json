@@ -11,23 +11,168 @@
     "payroll": "الرواتب",
     "reports": "التقارير"
   },
+  "dashboard": {
+    "title": "لوحة القيادة",
+    "subtitle": "إدارة الرواتب",
+    "newCompany": "شركة جديدة",
+    "vsLastMonth": "مقارنة بالشهر الماضي",
+    "charts": {
+      "payrollEvolution": "تطور كتلة الأجور",
+      "trend6Months": "الاتجاه خلال 6 أشهر الماضية",
+      "employeeDistribution": "توزيع الموظفين",
+      "byContractType": "حسب نوع العقد"
+    },
+    "recentPayslips": {
+      "title": "قسائم الراتب الأخيرة",
+      "subtitle": "مستندات الرواتب الأخيرة"
+    }
+  },
+  "company": {
+    "title": "إدارة الشركة",
+    "subtitle": "إدارة معلومات وإعدادات شركتك",
+    "status": "الحالة",
+    "active": "نشط",
+    "tabs": {
+      "info": "المعلومات",
+      "hrSettings": "إعدادات الموارد البشرية",
+      "users": "المستخدمون",
+      "documents": "المستندات"
+    },
+    "info": {
+      "title": "معلومات الشركة",
+      "subtitle": "إدارة المعلومات القانونية ومعلومات الاتصال الخاصة بشركتك",
+      "viewAuditLog": "عرض سجل التدقيق",
+      "generalInfo": "معلومات عامة",
+      "raisonSociale": "الاسم القانوني",
+      "ice": "ICE",
+      "cnss": "CNSS",
+      "regimeFiscal": "النظام الضريبي",
+      "address": "العنوان",
+      "email": "البريد الإلكتروني الرسمي",
+      "phone": "الهاتف",
+      "contact": "اتصال",
+      "accountingFirm": "مكتب المحاسبة",
+      "associatedFirm": "المكتب المرتبط",
+      "noFirmAssociated": "لا يوجد مكتب مرتبط",
+      "associateFirmHint": "اربط مكتب محاسبة لمنحه حق الوصول إلى بيانات الرواتب",
+      "associate": "ربط"
+    }
+  },
   "employees": {
     "title": "إدارة الموظفين",
     "subtitle": "قم بإدارة معلومات ومستندات موظفيك",
+    "searchPlaceholder": "البحث بالاسم أو المنصب...",
+    "filter": {
+      "department": "القسم"
+    },
     "stats": {
       "total": "إجمالي الموظفين",
       "active": "النشطون",
       "onLeave": "في إجازة",
       "missingDocs": "وثائق ناقصة"
     },
+    "profile": {
+      "title": "ملف الموظف",
+      "sections": {
+        "identity": "الهوية",
+        "contact": "التواصل",
+        "position": "الوظيفة والعقد",
+        "salary": "الراتب والعناصر الثابتة",
+        "legal": "المعلومات القانونية",
+        "documents": "المستندات",
+        "history": "السجل"
+      },
+      "identity": {
+        "firstName": "الاسم الشخصي",
+        "lastName": "الاسم العائلي",
+        "cin": "رقم البطاقة الوطنية",
+        "maritalStatus": "الوضع العائلي",
+        "birthDate": "تاريخ الازدياد",
+        "birthPlace": "مكان الازدياد"
+      },
+      "contact": {
+        "professionalEmail": "البريد المهني",
+        "personalEmail": "البريد الشخصي",
+        "phone": "الهاتف",
+        "address": "العنوان الكامل"
+      },
+      "position": {
+        "position": "الوظيفة",
+        "department": "القسم",
+        "manager": "المدير",
+        "contractType": "نوع العقد",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ الانتهاء",
+        "probationPeriod": "فترة التجربة",
+        "exitReason": "سبب الخروج"
+      },
+      "salary": {
+        "baseSalary": "الراتب الأساسي",
+        "transportAllowance": "منحة النقل",
+        "mealAllowance": "منحة الطعام",
+        "seniorityBonus": "منحة الأقدمية",
+        "benefitsInKind": "مزايا عينية",
+        "paymentMethod": "طريقة الدفع"
+      },
+      "legal": {
+        "cnss": "CNSS",
+        "amo": "AMO",
+        "cimr": "CIMR",
+        "annualLeave": "العطلة السنوية"
+      },
+      "documents": {
+        "cin": "البطاقة الوطنية",
+        "contract": "العقد",
+        "jobDescription": "الوصف الوظيفي",
+        "rib": "بيانات البنك"
+      },
+      "confirmChanges": {
+        "title": "تأكيد التعديلات",
+        "summary": "قمت بتعديل {{count}} حقل. راجعها قبل الحفظ:",
+        "before": "قبل",
+        "after": "بعد",
+        "manyChanges": "⚠️ تعدل عدة حقول دفعة واحدة. يرجى المراجعة بعناية."
+      },
+      "draft": {
+        "restored": "تم استعادة المسودة بتاريخ {{date}}",
+        "autoSaved": "حُفظت تلقائياً في {{time}}",
+        "saving": "جارٍ حفظ المسودة...",
+        "dismiss": "تجاهل"
+      },
+      "ui": {
+        "draftRestoredTitle": "تم استعادة المسودة بتاريخ {{date}}",
+        "draftRestoredTitleShort": "تم استعادة المسودة",
+        "draftRestoredSubtitle": "تمت استعادة تعديلاتك غير المحفوظة. راجعها قبل الحفظ.",
+        "applyDraft": "تطبيق المسودة",
+        "dismissDraft": "تجاهل",
+        "autoSaveAt": "تم الحفظ التلقائي في {{time}}",
+        "autoSavePending": "الحفظ التلقائي قيد الانتظار...",
+        "entryDate": "تاريخ الالتحاق",
+        "totalSalary": "إجمالي الراتب",
+        "documentUploadedOn": "تم الرفع بتاريخ {{date}}",
+        "documentMissing": "المستند مفقود",
+        "downloadDocument": "تحميل المستند",
+        "deleteDocument": "حذف المستند",
+        "uploadDocument": "رفع"
+      },
+      "noChanges": "لا توجد تغييرات للحفظ",
+      "saveError": "فشل الحفظ. حاول مجدداً.",
+      "saveSuccess": "تم حفظ التعديلات",
+      "loadError": "تعذر تحميل ملف الموظف"
+    },
     "create": {
       "eyebrow": "موظف جديد",
       "title": "إنشاء موظف",
       "subtitle": "اجمع بيانات الهوية والعقد ووسائل الاتصال قبل الانضمام.",
       "submit": "إنشاء الموظف",
+      "successTitle": "تم إنشاء الموظف",
+      "errorTitle": "فشل إنشاء الموظف",
       "success": "تم إنشاء الموظف بنجاح.",
       "error": "تعذر إنشاء الموظف. حاول مرة أخرى.",
       "emptyState": "تعذر تحميل بيانات النموذج، حاول بعد قليل.",
+      "placeholders": {
+        "firstName": "أمل"
+      },
       "sections": {
         "personal": "الهوية",
         "personalTitle": "المعلومات الشخصية",
@@ -112,7 +257,11 @@
     "role": {
       "admin": "مدير",
       "user": "مستخدم",
-      "manager": "مدير"
+      "manager": "مدير",
+      "hr": "الموارد البشرية",
+      "employee": "موظف",
+      "cabinet": "مكتب محاسبة",
+      "adminPayzen": "مدير PayZen"
     }
   },
   "common": {
@@ -134,14 +283,35 @@
     "yes": "نعم",
     "no": "لا",
     "actions": "الإجراءات",
-    "retry": "إعادة المحاولة",
-    "apply": "تطبيق"
+    "view": "عرض",
+    "viewAll": "عرض الكل",
+    "download": "تحميل",
+    "apply": "تطبيق",
+    "unsavedChanges": {
+      "title": "تعديلات غير محفوظة",
+      "message": "لديك تعديلات غير محفوظة ستُفقد إذا غادرت هذه الصفحة.",
+      "description": "تم تعديل {{count}} حقل.",
+      "continueEditing": "متابعة التعديل",
+      "discard": "تجاهل التعديلات",
+      "save": "حفظ التعديلات"
+    }
   },
   "language": {
     "select": "اختر اللغة",
     "en": "الإنجليزية",
     "ar": "العربية",
     "fr": "الفرنسية"
+  },
+  "common": {
+    "ok": "حسناً",
+    "unsavedChanges": {
+      "title": "تغييرات غير محفوظة",
+      "message": "لديك تغييرات غير محفوظة. هل أنت متأكد أنك تريد المغادرة؟",
+      "description": "لديك {{count}} تغييرات غير محفوظة.",
+      "continueEditing": "متابعة التعديل",
+      "discard": "تجاهل التغييرات",
+      "save": "حفظ التغييرات"
+    }
   }
 }
 

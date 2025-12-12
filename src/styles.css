@@ -373,6 +373,51 @@
     @apply bg-(--info-light) border-(--info)/30 text-(--info);
   }
 
+  /* Dialog shell helpers */
+  .app-dialog {
+    @apply rounded-lg shadow-lg;
+  }
+
+  .app-dialog .p-dialog-header,
+  .app-dialog .p-dialog-footer {
+    @apply px-6 py-4;
+  }
+
+  .app-dialog .p-dialog-content {
+    @apply px-6 py-5;
+  }
+
+  .app-dialog .p-scrollpanel-content {
+    padding-right: 1rem;
+  }
+
+  .app-dialog .p-dialog-footer {
+    border-top: 1px solid var(--border-color-subtle);
+  }
+
+  .app-dialog--narrow {
+    width: min(460px, 100vw - 2rem);
+  }
+
+  .app-dialog--medium {
+    width: min(650px, 100vw - 2rem);
+  }
+
+  .app-dialog--wide {
+    width: min(80vw, 1200px);
+  }
+
+  .app-dialog--scroll {
+    max-height: 80vh;
+  }
+
+  .app-dialog--scroll .p-dialog-content {
+    max-height: 60vh;
+    /* overflow-y: auto; */
+  }
+
+
+
   /* Typography */
   .heading {
     @apply text-2xl font-semibold text-(--text-primary);

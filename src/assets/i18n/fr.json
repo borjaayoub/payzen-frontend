@@ -11,6 +11,22 @@
     "payroll": "Paie",
     "reports": "Rapports"
   },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "subtitle": "Gestion de la paie",
+    "newCompany": "Nouvelle Société",
+    "vsLastMonth": "vs mois dernier",
+    "charts": {
+      "payrollEvolution": "Évolution de la Masse Salariale",
+      "trend6Months": "Tendance sur les 6 derniers mois",
+      "employeeDistribution": "Répartition des Employés",
+      "byContractType": "Par type de contrat"
+    },
+    "recentPayslips": {
+      "title": "Bulletins Récents",
+      "subtitle": "Documents de paie récents"
+    }
+  },
   "auth": {
     "login": {
       "welcome": "Bienvenue",
@@ -45,7 +61,11 @@
     "role": {
       "admin": "Administrateur",
       "user": "Utilisateur",
-      "manager": "Gestionnaire"
+      "manager": "Gestionnaire",
+      "hr": "RH",
+      "employee": "Employé",
+      "cabinet": "Cabinet",
+      "adminPayzen": "Admin PayZen"
     }
   },
   "common": {
@@ -68,17 +88,28 @@
     "no": "Non",
     "actions": "Actions",
     "view": "Voir",
+    "viewAll": "Voir Tous",
     "download": "Télécharger",
     "upload": "Uploader",
     "replace": "Remplacer",
     "back": "Retour",
     "clear": "Effacer",
     "retry": "Réessayer",
-    "apply": "Appliquer"
+    "apply": "Appliquer",
+    "unsavedChanges": {
+      "title": "Modifications non enregistrées",
+      "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+      "description": "Vous avez {{count}} modifications non enregistrées.",
+      "continueEditing": "Continuer la saisie",
+      "discard": "Ignorer les modifications",
+      "save": "Enregistrer"
+    }
   },
   "company": {
     "title": "Gestion de l'Entreprise",
     "subtitle": "Gérez les informations et paramètres de votre société",
+    "status": "Statut",
+    "active": "Actif",
     "tabs": {
       "info": "Informations",
       "hrSettings": "Paramètres RH",
@@ -87,13 +118,22 @@
     },
     "info": {
       "title": "Informations de la Société",
+      "subtitle": "Gérez les informations légales et de contact de votre société",
+      "viewAuditLog": "Voir audit log",
+      "generalInfo": "Informations Générales",
       "raisonSociale": "Raison Sociale",
       "ice": "ICE",
       "cnss": "CNSS",
       "regimeFiscal": "Régime Fiscal",
       "address": "Adresse",
       "email": "Email Officiel",
-      "phone": "Téléphone"
+      "phone": "Téléphone",
+      "contact": "Contact",
+      "accountingFirm": "Cabinet Comptable",
+      "associatedFirm": "Cabinet Associé",
+      "noFirmAssociated": "Aucun cabinet associé",
+      "associateFirmHint": "Associez un cabinet comptable pour lui donner accès aux données de paie",
+      "associate": "Associer"
     },
     "hrSettings": {
       "title": "Paramètres RH",
@@ -131,6 +171,10 @@
   "employees": {
     "title": "Gestion des Salariés",
     "subtitle": "Gérez les informations et documents de vos employés",
+    "searchPlaceholder": "Rechercher par nom ou poste...",
+    "filter": {
+      "department": "Département"
+    },
     "stats": {
       "total": "Total Salariés",
       "active": "Actifs",
@@ -204,16 +248,54 @@
         "contract": "Contrat",
         "jobDescription": "Fiche de Poste",
         "rib": "RIB"
-      }
+      },
+      "confirmChanges": {
+        "title": "Confirmer les modifications",
+        "summary": "Vous avez modifié {{count}} champ(s). Vérifiez avant d'enregistrer :",
+        "before": "Avant",
+        "after": "Après",
+        "manyChanges": "⚠️ Vous modifiez de nombreux champs. Merci de vérifier attentivement."
+      },
+      "draft": {
+        "restored": "Brouillon restauré du {{date}}",
+        "autoSaved": "Sauvegardé automatiquement à {{time}}",
+        "saving": "Sauvegarde du brouillon...",
+        "dismiss": "Ignorer"
+      },
+      "ui": {
+        "draftRestoredTitle": "Brouillon restauré du {{date}}",
+        "draftRestoredTitleShort": "Brouillon restauré",
+        "draftRestoredSubtitle": "Vos modifications non sauvegardées ont été restaurées. Vérifiez-les avant d'enregistrer.",
+        "applyDraft": "Appliquer le brouillon",
+        "dismissDraft": "Ignorer",
+        "autoSaveAt": "Sauvegarde auto {{time}}",
+        "autoSavePending": "Sauvegarde auto en attente...",
+        "entryDate": "Date d'entrée",
+        "totalSalary": "Salaire total",
+        "documentUploadedOn": "Uploadé le {{date}}",
+        "documentMissing": "Document manquant",
+        "downloadDocument": "Télécharger le document",
+        "deleteDocument": "Supprimer le document",
+        "uploadDocument": "Uploader"
+      },
+      "noChanges": "Aucun changement à enregistrer",
+      "saveError": "Échec de l'enregistrement. Veuillez réessayer.",
+      "saveSuccess": "Modifications enregistrées",
+      "loadError": "Échec du chargement de la fiche salarié"
     },
     "create": {
       "eyebrow": "Nouveau collaborateur",
       "title": "Créer un salarié",
       "subtitle": "Renseignez l'identité, le contrat et les contacts avant l'onboarding.",
       "submit": "Créer le salarié",
+      "successTitle": "Salarié créé",
+      "errorTitle": "Échec de création",
       "success": "Le salarié a été créé avec succès.",
       "error": "Impossible de créer le salarié. Veuillez réessayer.",
       "emptyState": "Les données du formulaire sont indisponibles pour le moment.",
+      "placeholders": {
+        "firstName": "Amal"
+      },
       "sections": {
         "personal": "Identité",
         "personalTitle": "Informations personnelles",

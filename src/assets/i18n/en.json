@@ -11,6 +11,22 @@
     "payroll": "Payroll",
     "reports": "Reports"
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Payroll management",
+    "newCompany": "New Company",
+    "vsLastMonth": "vs last month",
+    "charts": {
+      "payrollEvolution": "Payroll Evolution",
+      "trend6Months": "Trend over last 6 months",
+      "employeeDistribution": "Employee Distribution",
+      "byContractType": "By contract type"
+    },
+    "recentPayslips": {
+      "title": "Recent Payslips",
+      "subtitle": "Recent payroll documents"
+    }
+  },
   "auth": {
     "login": {
       "welcome": "Welcome",
@@ -45,7 +61,11 @@
     "role": {
       "admin": "Admin",
       "user": "User",
-      "manager": "Manager"
+      "manager": "Manager",
+      "hr": "HR",
+      "employee": "Employee",
+      "cabinet": "Cabinet",
+      "adminPayzen": "PayZen Admin"
     }
   },
   "common": {
@@ -68,17 +88,29 @@
     "no": "No",
     "actions": "Actions",
     "view": "View",
+    "viewAll": "View All",
     "download": "Download",
     "upload": "Upload",
     "replace": "Replace",
     "back": "Back",
     "clear": "Clear",
     "retry": "Retry",
-    "apply": "Apply"
+    "apply": "Apply",
+    "ok": "OK",
+    "unsavedChanges": {
+      "title": "Unsaved Changes",
+      "message": "You have unsaved changes. Are you sure you want to leave?",
+      "description": "You have {{count}} unsaved changes.",
+      "continueEditing": "Continue Editing",
+      "discard": "Discard Changes",
+      "save": "Save Changes"
+    }
   },
   "company": {
     "title": "Company Management",
     "subtitle": "Manage your company information and settings",
+    "status": "Status",
+    "active": "Active",
     "tabs": {
       "info": "Information",
       "hrSettings": "HR Settings",
@@ -87,13 +119,22 @@
     },
     "info": {
       "title": "Company Information",
+      "subtitle": "Manage your company's legal and contact information",
+      "viewAuditLog": "View Audit Log",
+      "generalInfo": "General Information",
       "raisonSociale": "Legal Name",
       "ice": "ICE",
       "cnss": "CNSS",
       "regimeFiscal": "Tax Regime",
       "address": "Address",
       "email": "Official Email",
-      "phone": "Phone"
+      "phone": "Phone",
+      "contact": "Contact",
+      "accountingFirm": "Accounting Firm",
+      "associatedFirm": "Associated Firm",
+      "noFirmAssociated": "No firm associated",
+      "associateFirmHint": "Associate an accounting firm to give them access to payroll data",
+      "associate": "Associate"
     },
     "hrSettings": {
       "title": "HR Settings",
@@ -131,6 +172,10 @@
   "employees": {
     "title": "Employee Management",
     "subtitle": "Manage your employees' information and documents",
+    "searchPlaceholder": "Search by name or position...",
+    "filter": {
+      "department": "Department"
+    },
     "stats": {
       "total": "Total Employees",
       "active": "Active",
@@ -204,16 +249,54 @@
         "contract": "Contract",
         "jobDescription": "Job Description",
         "rib": "Bank Details"
-      }
+      },
+      "confirmChanges": {
+        "title": "Confirm Changes",
+        "summary": "You have modified {{count}} field(s). Please review the changes before saving:",
+        "before": "Before",
+        "after": "After",
+        "manyChanges": "⚠️ You're modifying many fields at once. Please review carefully."
+      },
+      "draft": {
+        "restored": "Draft restored from {{date}}",
+        "autoSaved": "Auto-saved at {{time}}",
+        "saving": "Saving draft...",
+        "dismiss": "Dismiss"
+      },
+      "ui": {
+        "draftRestoredTitle": "Draft restored from {{date}}",
+        "draftRestoredTitleShort": "Draft restored",
+        "draftRestoredSubtitle": "Your unsaved changes were restored. Review them before saving.",
+        "applyDraft": "Apply Draft",
+        "dismissDraft": "Dismiss",
+        "autoSaveAt": "Auto-saved at {{time}}",
+        "autoSavePending": "Auto-save pending...",
+        "entryDate": "Entry date",
+        "totalSalary": "Total Salary",
+        "documentUploadedOn": "Uploaded on {{date}}",
+        "documentMissing": "Document missing",
+        "downloadDocument": "Download document",
+        "deleteDocument": "Delete document",
+        "uploadDocument": "Upload"
+      },
+      "noChanges": "No changes to save",
+      "saveError": "Failed to save changes. Please try again.",
+      "saveSuccess": "Changes saved successfully",
+      "loadError": "Failed to load employee profile"
     },
     "create": {
       "eyebrow": "New hire flow",
       "title": "Create Employee",
       "subtitle": "Collect identity, contract, and contact details before onboarding.",
       "submit": "Create employee",
+      "successTitle": "Employee created",
+      "errorTitle": "Creation failed",
       "success": "Employee created successfully.",
       "error": "Unable to create employee. Please try again.",
       "emptyState": "Form data is unavailable. Please retry in a moment.",
+      "placeholders": {
+        "firstName": "Amal"
+      },
       "sections": {
         "personal": "Identity",
         "personalTitle": "Personal information",
@@ -270,5 +353,6 @@
     "es": "Spanish",
     "fr": "French"
   }
+
 }
 

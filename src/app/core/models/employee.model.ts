@@ -54,7 +54,7 @@ export interface BackendEmployee {
   Phone: string;
   Address: string;
   Position: string;
-  Department: string;
+  DepartmentName: string;
   Manager?: string;
   ContractType: string;
   StartDate: string;

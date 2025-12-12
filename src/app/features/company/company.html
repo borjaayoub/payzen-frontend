@@ -10,8 +10,7 @@
             </div>
             <div>
               <h1 class="text-3xl font-bold text-gray-900">
-                <!-- {{ 'company.title' | translate }} -->
-                  Entreprise
+                {{ 'company.title' | translate }}
               </h1>
               <p class="text-sm text-gray-500 mt-1">
                 {{ 'company.subtitle' | translate }}
@@ -27,7 +26,7 @@
               <i class="pi pi-users"></i>
             </div>
             <div>
-              <button pButton type="button" label="Save" class="btn btn-primary"></button>
+              <button pButton type="button" [label]="'common.save' | translate" class="btn btn-primary"></button>
               <p class="stat-value">4</p>
             </div>
           </div>
@@ -37,8 +36,8 @@
               <i class="pi pi-check-circle"></i>
             </div>
             <div>
-              <p class="stat-label">Statut</p>
-              <p class="stat-value text-success">Actif</p>
+              <p class="stat-label">{{ 'company.status' | translate }}</p>
+              <p class="stat-value text-success">{{ 'company.active' | translate }}</p>
             </div>
           </div>
         </div>
@@ -55,7 +54,7 @@
           @for (tab of tabs; track tab.value) {
             <p-tab [value]="tab.value" class="flex items-center text-sm font-regular :font-medium gap-2 pr-6">
               <i [class]="tab.icon"></i>
-              <span>{{ tab.label }}</span>
+              <span>{{ tab.label | translate }}</span>
             </p-tab>
           }
         </p-tablist>

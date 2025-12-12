@@ -84,7 +84,7 @@
               type="text"
               class="w-full input"
               [(ngModel)]="searchQueryModel"
-              placeholder="Rechercher par nom ou poste..."
+              [placeholder]="'employees.searchPlaceholder' | translate"
               [attr.aria-label]="'common.search' | translate"
             />
           </p-iconfield>
@@ -97,7 +97,7 @@
             [(ngModel)]="selectedDepartmentModel"
             optionLabel="label"
             optionValue="value"
-            placeholder="Département"
+            [placeholder]="'employees.filter.department' | translate"
             class="w-full input"
           />
         </div>
@@ -113,18 +113,6 @@
             class="input"
           ></p-select>
         </div>
-
-        <!-- Apply Filters Button -->
-        <button
-          pButton
-          type="button"
-          icon="pi pi-filter"
-          class="shrink-0 btn btn-primary"
-          [label]="'common.apply' | translate"
-          (click)="applyFilters()"
-          [disabled]="isLoading()"
-          title="{{ 'common.apply' | translate }}"
-        ></button>
 
         <!-- Clear Filters -->
         <button

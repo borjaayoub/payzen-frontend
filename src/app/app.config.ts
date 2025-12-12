@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { importProvidersFrom } from '@angular/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { camelCaseInterceptor } from './core/interceptors/camelcase.interceptor';
 import { routes } from './app.routes';
 
 import { providePrimeNG } from 'primeng/config';
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, camelCaseInterceptor])),
     providePrimeNG({
       theme: {
         preset: PayZenTheme,

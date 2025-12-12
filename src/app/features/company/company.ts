@@ -33,25 +33,25 @@ export class CompanyPage {
 
   readonly tabs: Tab[] = [
     {
-      label: 'Informations',
+      label: 'company.tabs.info',
       icon: 'pi pi-info-circle',
       value: '0',
       route: '/company'
     },
     {
-      label: 'Paramètres RH',
+      label: 'company.tabs.hrSettings',
       icon: 'pi pi-cog',
       value: '1',
       route: '/company/hr-settings'
     },
     {
-      label: 'Utilisateurs',
+      label: 'company.tabs.users',
       icon: 'pi pi-users',
       value: '2',
       route: '/company/users'
     },
     {
-      label: 'Documents',
+      label: 'company.tabs.documents',
       icon: 'pi pi-file',
       value: '3',
       route: '/company/documents'

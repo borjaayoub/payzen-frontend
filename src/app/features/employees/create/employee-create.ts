@@ -6,6 +6,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import {
   CityLookupOption,
   CreateEmployeeRequest,
@@ -23,10 +25,12 @@ import {
     TranslateModule,
     ButtonModule,
     InputTextModule,
-    SelectModule
+    SelectModule,
+    ToastModule
   ],
   templateUrl: './employee-create.html',
-  styleUrl: './employee-create.css'
+  styleUrl: './employee-create.css',
+  providers: [MessageService]
 })
 export class EmployeeCreatePage implements OnInit {
   readonly isLoading = signal<boolean>(true);
@@ -41,7 +45,7 @@ export class EmployeeCreatePage implements OnInit {
     nationalities: [],
     countries: [],
     cities: [],
-    departements: [],
+    departments: [],
     jobPositions: [],
     contractTypes: [],
     potentialManagers: []
@@ -51,6 +55,7 @@ export class EmployeeCreatePage implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly messageService = inject(MessageService);
 
   readonly employeeForm = this.fb.group({
     firstName: ['', Validators.required],
@@ -70,7 +75,7 @@ export class EmployeeCreatePage implements OnInit {
     addressLine1: [''],
     addressLine2: [''],
     zipCode: [''],
-    departementId: [null, Validators.required],
+    departmentId: [null, Validators.required],
     jobPositionId: [null, Validators.required],
     contractTypeId: [null, Validators.required],
     managerId: [null],
@@ -141,7 +146,7 @@ export class EmployeeCreatePage implements OnInit {
       AddressLine1: value.addressLine1 || null,
       AddressLine2: value.addressLine2 || null,
       ZipCode: value.zipCode || null,
-      DepartementId: value.departementId ? Number(value.departementId) : null,
+      DepartementId: value.departmentId ? Number(value.departmentId) : null,
       JobPositionId: value.jobPositionId ? Number(value.jobPositionId) : null,
       ContractTypeId: value.contractTypeId ? Number(value.contractTypeId) : null,
       ManagerId: value.managerId ? Number(value.managerId) : null,
@@ -157,6 +162,11 @@ export class EmployeeCreatePage implements OnInit {
       next: () => {
         this.isSubmitting.set(false);
         this.successMessage.set(this.translate.instant('employees.create.success'));
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('employees.create.successTitle'),
+          detail: this.translate.instant('employees.create.success')
+        });
         this.employeeForm.reset();
         const defaultCountryId = this.formData().countries[0]?.id ?? null;
         if (defaultCountryId) {
@@ -167,7 +177,13 @@ export class EmployeeCreatePage implements OnInit {
       error: (err) => {
         console.error('Error creating employee', err);
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || this.translate.instant('employees.create.error'));
+        const errorText = err.error?.message || this.translate.instant('employees.create.error');
+        this.errorMessage.set(errorText);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('employees.create.errorTitle'),
+          detail: errorText
+        });
       }
     });
   }

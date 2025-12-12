@@ -1,3 +1,17 @@
+<p-toast position="top-right" [baseZIndex]="5000">
+  <ng-template let-message pTemplate="message">
+    <div class="toast-message" [ngClass]="message.severity">
+      <div class="toast-icon">
+        <i class="pi" [ngClass]="message.icon || (message.severity === 'success' ? 'pi-check-circle' : 'pi-exclamation-triangle')"></i>
+      </div>
+      <div>
+        <p class="toast-title">{{ message.summary }}</p>
+        <p class="toast-detail">{{ message.detail }}</p>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-5xl mx-auto px-6 py-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -73,13 +87,13 @@
               </div>
               <div class="grid gap-5 md:grid-cols-2">
                 <div class="form-field">
-                  <label class="field-label" for="firstName">{{ 'employees.create.form.firstName' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="firstName">{{ 'employees.create.form.firstName' | translate }}</label>
                   <input
                     id="firstName"
                     pInputText
                     type="text"
                     class="input"
-                    placeholder="Amal"
+                    [placeholder]="'employees.create.placeholders.firstName' | translate"
                     formControlName="firstName"
                   />
                   @if (isInvalid('firstName')) {
@@ -88,7 +102,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label" for="lastName">{{ 'employees.create.form.lastName' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="lastName">{{ 'employees.create.form.lastName' | translate }}</label>
                   <input
                     id="lastName"
                     pInputText
@@ -103,7 +117,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label" for="email">{{ 'employees.create.form.email' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="email">{{ 'employees.create.form.email' | translate }}</label>
                   <input
                     id="email"
                     pInputText
@@ -118,7 +132,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label" for="cinNumber">{{ 'employees.create.form.cin' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="cinNumber">{{ 'employees.create.form.cin' | translate }}</label>
                   <input
                     id="cinNumber"
                     pInputText
@@ -133,7 +147,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label" for="birthDate">{{ 'employees.create.form.birthDate' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="birthDate">{{ 'employees.create.form.birthDate' | translate }}</label>
                   <input
                     id="birthDate"
                     type="date"
@@ -146,7 +160,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label" for="phone">{{ 'employees.create.form.phone' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="phone">{{ 'employees.create.form.phone' | translate }}</label>
                   <div class="phone-input-group">
                     <p-select
                       class="phone-code-select"
@@ -201,7 +215,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.status' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.status' | translate }}</label>
                   <p-select
                     [options]="data.statuses"
                     optionLabel="label"
@@ -259,21 +273,21 @@
               </div>
               <div class="grid gap-5 md:grid-cols-2">
                 <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.department' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.department' | translate }}</label>
                   <p-select
-                    [options]="data.departements"
+                    [options]="data.departments"
                     optionLabel="label"
                     optionValue="id"
                     [placeholder]="'employees.create.form.departmentPlaceholder' | translate"
-                    formControlName="departementId"
+                    formControlName="departmentId"
                   ></p-select>
-                  @if (isInvalid('departementId')) {
+                  @if (isInvalid('departmentId')) {
                     <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
                   }
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.jobPosition' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.jobPosition' | translate }}</label>
                   <p-select
                     [options]="data.jobPositions"
                     optionLabel="label"
@@ -287,7 +301,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.contractType' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.contractType' | translate }}</label>
                   <p-select
                     [options]="data.contractTypes"
                     optionLabel="label"
@@ -312,7 +326,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label class="field-label" for="startDate">{{ 'employees.create.form.startDate' | translate }}</label>
+                  <label class="field-label after:text-red-500 after:content-['*']" for="startDate">{{ 'employees.create.form.startDate' | translate }}</label>
                   <input
                     id="startDate"
                     type="date"

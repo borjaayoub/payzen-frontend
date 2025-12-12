@@ -325,17 +325,19 @@ export class AuthService {
   }
 
   private normalizeUserPayload(userRaw: any): User {
-    const permissions = userRaw?.permissions ?? userRaw?.Permissions ?? [];
+    const permissions = Array.isArray(userRaw?.permissions) ? userRaw.permissions : [];
+    const rolesArray = Array.isArray(userRaw?.roles) ? userRaw.roles : [];
+    const resolvedRole = userRaw?.role ?? rolesArray[0];
     return {
-      id: this.normalizeString(userRaw?.id ?? userRaw?.Id) ?? '',
-      email: this.normalizeString(userRaw?.email ?? userRaw?.Email) ?? '',
-      username: this.normalizeString(userRaw?.username ?? userRaw?.Username) ?? '',
-      firstName: this.normalizeString(userRaw?.firstName ?? userRaw?.FirstName) ?? '',
-      lastName: this.normalizeString(userRaw?.lastName ?? userRaw?.LastName) ?? '',
-      role: this.mapBackendRole(userRaw?.role ?? userRaw?.Role ?? userRaw?.Roles?.[0]),
-      employee_id: this.normalizeString(userRaw?.employee_id ?? userRaw?.employeeId ?? userRaw?.EmployeeId ?? userRaw?.EmployeeID),
-      companyId: this.normalizeString(userRaw?.companyId ?? userRaw?.CompanyId ?? userRaw?.CompanyID),
-      permissions: Array.isArray(permissions) ? permissions : []
+      id: this.normalizeString(userRaw?.id) ?? '',
+      email: this.normalizeString(userRaw?.email) ?? '',
+      username: this.normalizeString(userRaw?.username) ?? '',
+      firstName: this.normalizeString(userRaw?.firstName) ?? '',
+      lastName: this.normalizeString(userRaw?.lastName) ?? '',
+      role: this.mapBackendRole(resolvedRole),
+      employee_id: this.normalizeString(userRaw?.employeeId),
+      companyId: this.normalizeString(userRaw?.companyId),
+      permissions
     };
   }
 

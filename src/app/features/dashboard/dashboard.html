@@ -2,13 +2,13 @@
   <!-- Header Section -->
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="heading">Tableau de bord</h1>
-      <p class="subheading mt-1">Gestion de la paie</p>
+      <h1 class="heading">{{ 'dashboard.title' | translate }}</h1>
+      <p class="subheading mt-1">{{ 'dashboard.subtitle' | translate }}</p>
     </div>
     <button
       pButton
       type="button"
-      label="Nouvelle Société"
+      [label]="'dashboard.newCompany' | translate"
       icon="pi pi-building"
       class="btn btn-primary"
       (click)="openCompanySettings()"
@@ -34,7 +34,7 @@
               >
                 {{ metric.change }}
               </span>
-              <span class="text-xs text-(--text-secondary) ml-1">vs mois dernier</span>
+              <span class="text-xs text-(--text-secondary) ml-1">{{ 'dashboard.vsLastMonth' | translate }}</span>
             </div>
           </div>
           <div [class]="'flex items-center justify-center w-12 h-12 rounded-lg ' + metric.bgColor">
@@ -53,8 +53,8 @@
       <p-card styleClass="card">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-            <h3 class="card-title">Évolution de la Masse Salariale</h3>
-            <p class="text-sm text-(--text-secondary) mt-1">Tendance sur les 6 derniers mois</p>
+            <h3 class="card-title">{{ 'dashboard.charts.payrollEvolution' | translate }}</h3>
+            <p class="text-sm text-(--text-secondary) mt-1">{{ 'dashboard.charts.trend6Months' | translate }}</p>
           </div>
         </ng-template>
         <div class="h-[300px]">
@@ -66,8 +66,8 @@
       <p-card styleClass="card">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-            <h3 class="card-title">Répartition des Employés</h3>
-            <p class="text-sm text-(--text-secondary) mt-1">Par type de contrat</p>
+            <h3 class="card-title">{{ 'dashboard.charts.employeeDistribution' | translate }}</h3>
+            <p class="text-sm text-(--text-secondary) mt-1">{{ 'dashboard.charts.byContractType' | translate }}</p>
           </div>
         </ng-template>
         <div class="flex items-center justify-center h-[300px]">
@@ -88,12 +88,12 @@
                   <i class="pi pi-file-edit text-(--primary)"></i>
                 </div>
                 <div>
-                  <h3 class="card-title text-base">Bulletins Récents</h3>
-                  <p class="text-xs text-(--text-secondary)">Documents de paie récents</p>
+                  <h3 class="card-title text-base">{{ 'dashboard.recentPayslips.title' | translate }}</h3>
+                  <p class="text-xs text-(--text-secondary)">{{ 'dashboard.recentPayslips.subtitle' | translate }}</p>
                 </div>
               </div>
               <a href="/payslips" class="text-sm font-medium text-(--primary) hover:text-(--primary-hover) flex items-center gap-1">
-                Voir Tous
+                {{ 'common.viewAll' | translate }}
                 <i class="pi pi-arrow-right text-xs"></i>
               </a>
             </div>

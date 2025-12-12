@@ -118,3 +118,25 @@
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+.toast-message {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.5rem;
+  min-width: 16rem;
+}
+
+.toast-icon {
+  font-size: 1.25rem;
+}
+
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.toast-detail {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}

@@ -8,6 +8,7 @@ import { EmployeeProfile } from './features/employees/profile/employee-profile';
 import { EmployeeCreatePage } from './features/employees/create/employee-create';
 import { LoginPage } from './features/auth/login/login';
 import { authGuard, guestGuard, rhGuard } from '@app/core/guards/auth.guard';
+import { unsavedChangesGuard } from '@app/core/guards/unsaved-changes.guard';
 
 export const routes: Routes = [
   {
@@ -54,7 +55,8 @@ export const routes: Routes = [
       {
         path: 'employees/:id',
         component: EmployeeProfile,
-        canActivate: [rhGuard]
+        canActivate: [rhGuard],
+        canDeactivate: [unsavedChangesGuard]
       }
     ]
   },

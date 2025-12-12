@@ -64,12 +64,12 @@ export class Sidebar {
   readonly userRoleLabel = computed(() => {
     const role = this.currentUser()?.role;
     const roleLabels: Record<string, string> = {
-      [UserRole.ADMIN]: 'Admin Société',
-      [UserRole.RH]: 'RH',
-      [UserRole.MANAGER]: 'Manager',
-      [UserRole.EMPLOYEE]: 'Employé',
-      [UserRole.CABINET]: 'Cabinet',
-      [UserRole.ADMIN_PAYZEN]: 'Admin PayZen'
+      [UserRole.ADMIN]: 'user.role.admin',
+      [UserRole.RH]: 'user.role.hr',
+      [UserRole.MANAGER]: 'user.role.manager',
+      [UserRole.EMPLOYEE]: 'user.role.employee',
+      [UserRole.CABINET]: 'user.role.cabinet',
+      [UserRole.ADMIN_PAYZEN]: 'user.role.adminPayzen'
     };
     return role ? roleLabels[role] || role : '';
   });

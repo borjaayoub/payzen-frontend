@@ -41,61 +41,61 @@ export interface EmployeeStats {
 }
 
 interface LookupResponseItem {
-  Id: number;
-  Name: string;
+  id: number;
+  name: string;
 }
 
 interface CountryResponseItem {
-  Id: number;
-  CountryName: string;
-  CountryPhoneCode: string;
+  id: number;
+  countryName: string;
+  countryPhoneCode: string;
 }
 
 interface CityResponseItem {
-  Id: number;
-  CityName: string;
-  CountryId: number;
-  CountryName: string;
+  id: number;
+  cityName: string;
+  countryId: number;
+  countryName: string;
 }
 
 interface DepartementResponseItem {
-  Id: number;
-  DepartementName: string;
-  CompanyId: number;
+  id: number;
+  departementName: string;
+  companyId: number;
 }
 
 interface JobPositionResponseItem {
-  Id: number;
-  Name: string;
-  CompanyId: number;
+  id: number;
+  name: string;
+  companyId: number;
 }
 
 interface ContractTypeResponseItem {
-  Id: number;
-  ContractTypeName: string;
-  CompanyId: number;
+  id: number;
+  contractTypeName: string;
+  companyId: number;
 }
 
 interface PotentialManagerResponseItem {
-  Id: number;
-  FirstName: string;
-  LastName: string;
-  FullName: string;
-  DepartementName: string;
+  id: number;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  departementName: string;
 }
 
 interface EmployeeFormDataResponse {
-  Statuses?: LookupResponseItem[];
-  Genders?: LookupResponseItem[];
-  EducationLevels?: LookupResponseItem[];
-  MaritalStatuses?: LookupResponseItem[];
-  Nationalities?: LookupResponseItem[];
-  Countries?: CountryResponseItem[];
-  Cities?: CityResponseItem[];
-  Departements?: DepartementResponseItem[];
-  JobPositions?: JobPositionResponseItem[];
-  ContractTypes?: ContractTypeResponseItem[];
-  PotentialManagers?: PotentialManagerResponseItem[];
+  statuses?: LookupResponseItem[];
+  genders?: LookupResponseItem[];
+  educationLevels?: LookupResponseItem[];
+  maritalStatuses?: LookupResponseItem[];
+  nationalities?: LookupResponseItem[];
+  countries?: CountryResponseItem[];
+  cities?: CityResponseItem[];
+  departements?: DepartementResponseItem[];
+  jobPositions?: JobPositionResponseItem[];
+  contractTypes?: ContractTypeResponseItem[];
+  potentialManagers?: PotentialManagerResponseItem[];
 }
 
 export interface LookupOption {
@@ -124,7 +124,7 @@ export interface EmployeeFormData {
   nationalities: LookupOption[];
   countries: CountryLookupOption[];
   cities: CityLookupOption[];
-  departements: LookupOption[];
+  departments: LookupOption[];
   jobPositions: LookupOption[];
   contractTypes: LookupOption[];
   potentialManagers: ManagerLookupOption[];
@@ -138,9 +138,7 @@ export interface CreateEmployeeRequest {
   Phone: string;
   Email: string;
   StatusId: number;
-
   GenderId?: number | null;
-  
   EducationLevelId?: number | null;
   MaritalStatusId?: number | null;
   NationalityId?: number | null;
@@ -161,73 +159,73 @@ export interface CreateEmployeeRequest {
 }
 
 interface DashboardEmployee {
-  Id: string | number;
-  FirstName: string;
-  LastName: string;
-  Position: string;
-  Department: string;
-  Status: string;
-  StartDate: string;
-  MissingDocuments: number;
-  ContractType: string;
-  Manager?: string | null;
+  id: string | number;
+  firstName: string;
+  lastName: string;
+  position: string;
+  department: string;
+  status: string;
+  startDate: string;
+  missingDocuments: number;
+  contractType: string;
+  manager?: string | null;
 }
 
 interface DashboardEmployeesResponse {
-  TotalEmployees: number;
-  ActiveEmployees: number;
-  Employees: DashboardEmployee[];
-  Departments?: string[];
-  Statuses?: string[];
+  totalEmployees: number;
+  activeEmployees: number;
+  employees: DashboardEmployee[];
+  departments?: string[];
+  statuses?: string[];
 }
 
 interface EmployeeAddressResponse {
-  AddressLine1?: string;
-  AddressLine2?: string;
-  ZipCode?: string;
-  CityName?: string;
-  CountryName?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  zipCode?: string;
+  cityName?: string;
+  countryName?: string;
 }
 
 interface SalaryComponentResponse {
-  ComponentName: string;
-  Amount: number;
+  componentName: string;
+  amount: number;
 }
 
 interface EmployeeDetailsResponse {
-  Id: string | number;
-  FirstName: string;
-  LastName: string;
-  CinNumber: string;
-  MaritalStatusName: string;
-  BirthDate: string;
-  StatusName: string;
-  Email: string;
-  Phone: string | number;
-  CountryPhoneCode?: string | null;
-  Address?: EmployeeAddressResponse;
-  JobPositionName: string;
-  Department?: string;
-  DepartmentName?: string;
-  ManagerName?: string | null;
-  ContractStartDate: string;
-  ContractTypeName: string;
-  BaseSalary: number;
-  SalaryComponents?: SalaryComponentResponse[];
-  TotalSalary?: number;
-  CNSS?: string | number;
-  AMO?: string | number;
-  CIMR?: string | number;
-  CreatedAt?: string;
-  UpdatedAt?: string;
-  CompanyId?: string | number;
-  UserId?: string | number;
-  MissingDocuments?: number;
-  SalaryPaymentMethod?: string;
-  AnnualLeave?: number;
-  ProbationPeriod?: string;
+  id: string | number;
+  firstName: string;
+  lastName: string;
+  cinNumber: string;
+  maritalStatusName: string;
+  birthDate: string;
+  statusName: string;
+  email: string;
+  phone: string | number;
+  countryPhoneCode?: string | null;
+  address?: EmployeeAddressResponse;
+  jobPositionName: string;
+  departments?: string | null;
+  department?: string;
+  departmentName?: string;
+  managerName?: string | null;
+  contractStartDate: string;
+  contractTypeName: string;
+  baseSalary: number;
+  salaryComponents?: SalaryComponentResponse[];
+  totalSalary?: number;
+  cnss?: string | number;
+  amo?: string | number;
+  cimr?: string | number;
+  createdAt?: string;
+  updatedAt?: string;
+  companyId?: string | number;
+  userId?: string | number;
+  missingDocuments?: number;
+  salaryPaymentMethod?: string;
+  annualLeave?: number;
+  probationPeriod?: string;
 }
-
 
 @Injectable({
   providedIn: 'root'
@@ -313,6 +311,15 @@ export class EmployeeService {
   }
 
   /**
+   * Patch employee profile details (field-level updates)
+   */
+  patchEmployeeProfile(id: string, payload: Partial<EmployeeProfileModel>): Observable<EmployeeProfileModel> {
+    return this.http
+      .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_DETAILS_URL}/${id}`, payload)
+      .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
+  }
+
+  /**
    * Delete employee
    */
   deleteEmployee(id: string): Observable<void> {
@@ -339,62 +346,62 @@ export class EmployeeService {
 
   private mapEmployeeFormDataResponse(response: EmployeeFormDataResponse = {} as EmployeeFormDataResponse): EmployeeFormData {
     const toLookupOption = (items?: LookupResponseItem[]): LookupOption[] =>
-      (items ?? []).map(item => ({ id: item.Id, label: item.Name }));
+      (items ?? []).map(item => ({ id: item.id, label: item.name }));
 
     const toCountryOption = (items?: CountryResponseItem[]): CountryLookupOption[] =>
       (items ?? []).map(item => ({
-        id: item.Id,
-        label: item.CountryName,
-        phoneCode: item.CountryPhoneCode
+        id: item.id,
+        label: item.countryName,
+        phoneCode: item.countryPhoneCode
       }));
 
     const toCityOption = (items?: CityResponseItem[]): CityLookupOption[] =>
       (items ?? []).map(item => ({
-        id: item.Id,
-        label: item.CityName,
-        countryId: item.CountryId,
-        countryName: item.CountryName
+        id: item.id,
+        label: item.cityName,
+        countryId: item.countryId,
+        countryName: item.countryName
       }));
 
-    const toDepartementOption = (items?: DepartementResponseItem[]): LookupOption[] =>
-      (items ?? []).map(item => ({ id: item.Id, label: item.DepartementName }));
+    const toDepartmentOption = (items?: DepartementResponseItem[]): LookupOption[] =>
+      (items ?? []).map(item => ({ id: item.id, label: item.departementName }));
 
     const toJobPositionOption = (items?: JobPositionResponseItem[]): LookupOption[] =>
-      (items ?? []).map(item => ({ id: item.Id, label: item.Name }));
+      (items ?? []).map(item => ({ id: item.id, label: item.name }));
 
     const toContractTypeOption = (items?: ContractTypeResponseItem[]): LookupOption[] =>
-      (items ?? []).map(item => ({ id: item.Id, label: item.ContractTypeName }));
+      (items ?? []).map(item => ({ id: item.id, label: item.contractTypeName }));
 
     const toManagerOption = (items?: PotentialManagerResponseItem[]): ManagerLookupOption[] =>
       (items ?? []).map(item => ({
-        id: item.Id,
-        label: (item.FullName || `${item.FirstName ?? ''} ${item.LastName ?? ''}`).trim(),
-        departmentName: item.DepartementName
+        id: item.id,
+        label: (item.fullName || `${item.firstName ?? ''} ${item.lastName ?? ''}`).trim(),
+        departmentName: item.departementName
       }));
 
     return {
-      statuses: toLookupOption(response?.Statuses),
-      genders: toLookupOption(response?.Genders),
-      educationLevels: toLookupOption(response?.EducationLevels),
-      maritalStatuses: toLookupOption(response?.MaritalStatuses),
-      nationalities: toLookupOption(response?.Nationalities),
-      countries: toCountryOption(response?.Countries),
-      cities: toCityOption(response?.Cities),
-      departements: toDepartementOption(response?.Departements),
-      jobPositions: toJobPositionOption(response?.JobPositions),
-      contractTypes: toContractTypeOption(response?.ContractTypes),
-      potentialManagers: toManagerOption(response?.PotentialManagers)
+      statuses: toLookupOption(response?.statuses),
+      genders: toLookupOption(response?.genders),
+      educationLevels: toLookupOption(response?.educationLevels),
+      maritalStatuses: toLookupOption(response?.maritalStatuses),
+      nationalities: toLookupOption(response?.nationalities),
+      countries: toCountryOption(response?.countries),
+      cities: toCityOption(response?.cities),
+      departments: toDepartmentOption(response?.departements),
+      jobPositions: toJobPositionOption(response?.jobPositions),
+      contractTypes: toContractTypeOption(response?.contractTypes),
+      potentialManagers: toManagerOption(response?.potentialManagers)
     };
   }
 
   private mapDashboardEmployeesResponse(response: DashboardEmployeesResponse): EmployeesResponse {
-    const employees = (response?.Employees ?? []).map(emp => this.mapDashboardEmployee(emp));
-    const total = response?.TotalEmployees ?? employees.length;
-    const active = response?.ActiveEmployees ?? employees.filter(emp => emp.status === 'active').length;
-    const departments = Array.from(new Set(response?.Departments ?? employees
+    const employees = (response?.employees ?? []).map(emp => this.mapDashboardEmployee(emp));
+    const total = response?.totalEmployees ?? employees.length;
+    const active = response?.activeEmployees ?? employees.filter(emp => emp.status === 'active').length;
+    const departments = Array.from(new Set(response?.departments ?? employees
       .map(emp => emp.department)
       .filter(dep => !!dep))) as string[];
-    const statuses = Array.from(new Set(response?.Statuses ?? employees
+    const statuses = Array.from(new Set(response?.statuses ?? employees
       .map(emp => emp.status)
       .filter(status => !!status))) as string[];
 
@@ -403,63 +410,63 @@ export class EmployeeService {
 
   private mapDashboardEmployee(employee: DashboardEmployee): Employee {
     return {
-      id: this.toStringValue(employee.Id),
-      firstName: employee.FirstName ?? '',
-      lastName: employee.LastName ?? '',
-      position: employee.Position ?? 'Non assigné',
-      department: employee.Department ?? '',
-      status: this.mapEmployeeStatus(employee.Status),
-      startDate: employee.StartDate ?? '',
-      missingDocuments: this.toNumberValue(employee.MissingDocuments),
-      contractType: this.mapContractType(employee.ContractType),
-      manager: employee.Manager ?? undefined
+      id: this.toStringValue(employee.id),
+      firstName: employee.firstName ?? '',
+      lastName: employee.lastName ?? '',
+      position:  employee.position ?? 'Non assigné',
+      department: employee.department ?? '',
+      status: this.mapEmployeeStatus(employee.status),
+      startDate: employee.startDate ?? '',
+      missingDocuments: this.toNumberValue(employee.missingDocuments),
+      contractType: this.mapContractType(employee.contractType),
+      manager: employee.manager ?? undefined
     };
   }
 
   private mapEmployeeDetailsResponse(payload: EmployeeDetailsResponse): EmployeeProfileModel {
-    const salaryComponents = payload.SalaryComponents ?? [];
+    const salaryComponents = payload.salaryComponents ?? [];
     const transportAllowance = this.findSalaryComponentAmount(salaryComponents, ['transport']);
     const mealAllowance = this.findSalaryComponentAmount(salaryComponents, ['meal', 'restauration']);
     const seniorityBonus = this.findSalaryComponentAmount(salaryComponents, ['ancien', 'seniority']);
     const otherBenefits = this.collectOtherBenefits(salaryComponents, ['transport', 'meal', 'restauration', 'ancien', 'seniority']);
-
+    
     const detail: EmployeeProfileModel = {
-      id: this.toStringValue(payload.Id),
-      firstName: payload.FirstName ?? '',
-      lastName: payload.LastName ?? '',
+      id: this.toStringValue(payload.id),
+      firstName: payload.firstName ?? '',
+      lastName: payload.lastName ?? '',
       photo: undefined,
-      cin: payload.CinNumber ?? '',
-      maritalStatus: this.mapMaritalStatus(payload.MaritalStatusName),
-      birthDate: payload.BirthDate ?? '',
-      birthPlace: payload.Address?.CityName ?? '',
-      professionalEmail: payload.Email ?? '',
-      personalEmail: payload.Email ?? '',
-      phone: this.composePhone(payload.CountryPhoneCode, payload.Phone),
-      address: this.formatAddress(payload.Address),
-      position: payload.JobPositionName ?? 'Non assigné',
-      department: payload.Department ?? payload.DepartmentName ?? '',
-      manager: payload.ManagerName ?? '',
-      contractType: this.mapContractType(payload.ContractTypeName),
-      startDate: payload.ContractStartDate ?? '',
+      cin: payload.cinNumber ?? '',
+      maritalStatus: this.mapMaritalStatus(payload.maritalStatusName),
+      birthDate: payload.birthDate ?? '',
+      birthPlace: payload.address?.cityName ?? '',
+      professionalEmail: payload.email ?? '',
+      personalEmail: payload.email ?? '',
+      phone: this.composePhone(payload.countryPhoneCode, payload.phone),
+      address: this.formatAddress(payload.address),
+      position: payload.jobPositionName ?? 'Non assigné',
+      department: payload.department ?? payload.departmentName ?? payload.departments ?? '',
+      manager: payload.managerName ?? '',
+      contractType: this.mapContractType(payload.contractTypeName),
+      startDate: payload.contractStartDate ?? '',
       endDate: undefined,
-      probationPeriod: payload.ProbationPeriod ?? '',
+      probationPeriod: payload.probationPeriod ?? '',
       exitReason: undefined,
-      baseSalary: payload.BaseSalary ?? 0,
+      baseSalary: payload.baseSalary ?? 0,
       transportAllowance,
       mealAllowance,
       seniorityBonus,
       benefitsInKind: otherBenefits,
-      paymentMethod: this.mapPaymentMethod(payload.SalaryPaymentMethod),
-      cnss: this.toStringValue(payload.CNSS),
-      amo: this.toStringValue(payload.AMO),
-      cimr: this.toStringValue(payload.CIMR) || undefined,
-      annualLeave: payload.AnnualLeave ?? 0,
-      status: this.mapEmployeeStatus(payload.StatusName),
-      missingDocuments: payload.MissingDocuments ?? 0,
-      companyId: this.toStringValue(payload.CompanyId) || undefined,
-      userId: this.toStringValue(payload.UserId) || undefined,
-      createdAt: payload.CreatedAt ? new Date(payload.CreatedAt) : undefined,
-      updatedAt: payload.UpdatedAt ? new Date(payload.UpdatedAt) : undefined
+      paymentMethod: this.mapPaymentMethod(payload.salaryPaymentMethod),
+      cnss: this.toStringValue(payload.cnss),
+      amo: this.toStringValue(payload.amo),
+      cimr: this.toStringValue(payload.cimr) || undefined,
+      annualLeave: payload.annualLeave ?? 0,
+      status: this.mapEmployeeStatus(payload.statusName),
+      missingDocuments: payload.missingDocuments ?? 0,
+      companyId: this.toStringValue(payload.companyId) || undefined,
+      userId: this.toStringValue(payload.userId) || undefined,
+      createdAt: payload.createdAt ? new Date(payload.createdAt) : undefined,
+      updatedAt: payload.updatedAt ? new Date(payload.updatedAt) : undefined
     };
 
     return detail;
@@ -504,7 +511,7 @@ export class EmployeeService {
     if (!address) {
       return '';
     }
-    const parts = [address.AddressLine1, address.AddressLine2, address.CityName, address.ZipCode, address.CountryName]
+      const parts = [address.addressLine1, address.addressLine2, address.cityName, address.zipCode, address.countryName]
       .filter(part => !!part)
       .map(part => part?.trim());
     return parts.join(', ');
@@ -512,9 +519,9 @@ export class EmployeeService {
 
   private findSalaryComponentAmount(components: SalaryComponentResponse[], keywords: string[]): number {
     const match = components.find(component =>
-      keywords.some(keyword => component.ComponentName?.toLowerCase().includes(keyword))
+      keywords.some(keyword => component.componentName?.toLowerCase().includes(keyword))
     );
-    return match ? Number(match.Amount) || 0 : 0;
+    return match ? Number(match.amount) || 0 : 0;
   }
 
   private collectOtherBenefits(
@@ -523,9 +530,9 @@ export class EmployeeService {
   ): string | undefined {
     const others = components
       .filter(component =>
-        !excludedKeywords.some(keyword => component.ComponentName?.toLowerCase().includes(keyword))
+          !excludedKeywords.some(keyword => component.componentName?.toLowerCase().includes(keyword))
       )
-      .map(component => `${component.ComponentName}: ${component.Amount} MAD`);
+        .map(component => `${component.componentName}: ${component.amount} MAD`);
     return others.length ? others.join(' | ') : undefined;
   }
 
