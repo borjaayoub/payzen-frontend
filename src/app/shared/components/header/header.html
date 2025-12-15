@@ -7,28 +7,7 @@
     <!-- Language Switcher -->
     <div class="flex items-center gap-2">
       <span class="text-sm text-gray-600">{{ 'language.select' | translate }}:</span>
-      <p-select
-        [options]="languages"
-        [(ngModel)]="selectedLanguage"
-        optionLabel="label"
-        optionValue="value"
-        (onChange)="onLanguageChange($event)"
-        [style]="{'min-width': '150px'}"
-        styleClass="language-dropdown"
-      >
-        <ng-template pTemplate="selectedItem" let-option>
-          <div class="flex items-center gap-2" *ngIf="option">
-            <span>{{ option.flag }}</span>
-            <span>{{ option.label }}</span>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="item" let-option>
-          <div class="flex items-center gap-2">
-            <span>{{ option.flag }}</span>
-            <span>{{ option.label }}</span>
-          </div>
-        </ng-template>
-      </p-select>
+      <app-language-switcher></app-language-switcher>
     </div>
   </div>
 </header>

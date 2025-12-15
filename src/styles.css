@@ -198,73 +198,36 @@
 @layer components {
   /* Sidebar Component */
   .sidebar {
-    @apply fixed left-0 top-0 py-4 px-2 h-screen bg-(--bg-page)! border-r border-(--border-color-subtle)! overflow-y-auto transition-all;
+    @apply fixed inset-y-0 left-0 z-40 h-full bg-(--bg-element) border-r border-(--border-color-subtle) overflow-y-auto transition-transform duration-300 -translate-x-full;
+  }
+
+  .sidebar.open {
+    @apply translate-x-0;
   }
 
   /* Sidebar responsive behavior */
   @media (min-width: 1024px) {
     .sidebar {
-      width: 140px;
-    }
-
-    .main-content {
-      margin-left: 240px;
-    }
-  }
-
-  @media (min-width: 641px) and (max-width: 1023px) {
-    .sidebar {
-      width: 60px;
-    }
-
-    .sidebar-item span {
-      display: none;
-    }
-
-    .main-content {
-      margin-left: 60px;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .sidebar {
-      transform: translateX(-100%);
-      z-index: 1000;
-    }
-
-    .sidebar.open {
-      transform: translateX(0);
-    }
-
-    .main-content {
-      margin-left: 0;
+      @apply static translate-x-0;
     }
   }
 
   /* Sidebar Item Active State */
   .sidebar-item {
-    @apply relative flex items-center gap-3 px-4 py-3 rounded transition-colors cursor-pointer text-gray-600;
-  }
-
-  .sidebar-item:hover {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
+    @apply relative flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-gray-500 hover:bg-gray-50 hover:text-gray-900;
   }
 
   .sidebar-item.active {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
+    @apply bg-(--primary-50) text-(--primary-700);
   }
 
+  .sidebar-item.active i {
+    @apply text-(--primary-600);
+  }
+
+  /* Removed the old left-border style for a cleaner look */
   .sidebar-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--color-primary);
-    border-radius: 0 4px 4px 0;
+    content: none;
   }
 
   /* Buttons */

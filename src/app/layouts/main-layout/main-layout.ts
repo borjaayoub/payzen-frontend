@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { Header } from '../../shared/components/header/header';
+import { LanguageSwitcher } from '../../shared/components/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-main-layout',
@@ -16,6 +17,7 @@ import { Header } from '../../shared/components/header/header';
   imports: [
     Sidebar,
     Header,
+    LanguageSwitcher,
     CommonModule,
     RouterModule,
     InputTextModule,

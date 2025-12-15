@@ -374,8 +374,8 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
   getStatusSeverity(): TagVariant {
     const status = this.employee().status;
-    if (status === 'active') return 'warning';
-    if (status === 'on_leave') return 'success';
+    if (status === 'active') return 'success';
+    if (status === 'on_leave') return 'warning';
     return 'danger';
   }
 
