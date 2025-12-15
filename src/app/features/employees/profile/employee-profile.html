@@ -419,7 +419,7 @@
                       [ngModel]="employee().position"
                       (ngModelChange)="updateField('position', $event)"
                       optionLabel="label"
-                      optionValue="value"
+                      optionValue="label"
                       [placeholder]="'employees.profile.position.position' | translate"
                       class="w-full input"
                     ></p-select>
@@ -436,7 +436,7 @@
                       [ngModel]="employee().department"
                       (ngModelChange)="updateField('department', $event)"
                       optionLabel="label"
-                      optionValue="value"
+                      optionValue="label"
                       [placeholder]="'employees.profile.position.department' | translate"
                       class="w-full input"
                     ></p-select>
@@ -453,7 +453,7 @@
                       [ngModel]="employee().manager"
                       (ngModelChange)="updateField('manager', $event)"
                       optionLabel="label"
-                      optionValue="value"
+                      optionValue="label"
                       [placeholder]="'employees.profile.position.manager' | translate"
                       class="w-full input"
                     ></p-select>
@@ -697,10 +697,10 @@
                   <div class="pb-6">
                     <div class="flex items-start justify-between mb-2">
                       <h4 class="font-semibold text-gray-900">{{ event.title }}</h4>
-                      <span class="text-xs text-gray-500">{{ event.date | date: 'dd/MM/yyyy' }}</span>
+                      <span class="text-xs text-gray-500">{{ event.date }}</span>
                     </div>
                     <p class="text-sm text-gray-500 mb-1">{{ event.description }}</p>
-                    <p class="text-xs text-gray-500 italic">Par: {{ event.author }}</p>
+                    <p class="text-xs text-gray-500 italic">Par: {{ event.modifiedBy?.name }}</p>
                   </div>
                 </ng-template>
               </p-timeline>

@@ -18,7 +18,7 @@ import {
   EmployeeFormData,
   LookupOption
 } from '@app/core/services/employee.service';
-import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
+import { Employee as EmployeeProfileModel, EmployeeEvent } from '@app/core/models/employee.model';
 import { DraftService } from '@app/core/services/draft.service';
 import { ChangeTracker, ChangeSet } from '@app/core/utils/change-tracker.util';
 import { ChangeConfirmationDialog } from '@app/shared/components/change-confirmation-dialog/change-confirmation-dialog';
@@ -36,14 +36,6 @@ interface Document {
   uploadDate: string;
   status: 'uploaded' | 'missing';
   url?: string;
-}
-
-interface HistoryEvent {
-  date: string;
-  type: 'salary_change' | 'position_change' | 'note';
-  title: string;
-  description: string;
-  author: string;
 }
 
 @Component({
@@ -222,29 +214,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     }
   ]);
 
-  readonly history = signal<HistoryEvent[]>([
-    {
-      date: '2024-01-01',
-      type: 'salary_change',
-      title: 'Augmentation de salaire',
-      description: 'Salaire de base: 13000 MAD → 15000 MAD',
-      author: 'Fatima Zahra (RH)'
-    },
-    {
-      date: '2023-06-15',
-      type: 'position_change',
-      title: 'Promotion',
-      description: 'Développeur → Développeur Senior',
-      author: 'Ahmed Bennani (Manager)'
-    },
-    {
-      date: '2023-01-15',
-      type: 'note',
-      title: 'Fin de période d\'essai',
-      description: 'Période d\'essai validée avec succès',
-      author: 'Fatima Zahra (RH)'
-    }
-  ]);
+  readonly history = computed(() => this.employee().events || []);
 
   readonly maritalStatusOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['maritalStatus'] }> = [
     { id: 1, label: 'Célibataire', value: 'single' },
@@ -643,8 +613,11 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
   getEventIcon(type: string): string {
     const iconMap: Record<string, string> = {
+      salary_increase: 'pi pi-dollar',
       salary_change: 'pi pi-dollar',
       position_change: 'pi pi-briefcase',
+      address_updated: 'pi pi-map-marker',
+      general_update: 'pi pi-user-edit',
       note: 'pi pi-file-edit'
     };
     return iconMap[type] || 'pi pi-circle';
@@ -652,8 +625,11 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
   getEventColor(type: string): string {
     const colorMap: Record<string, string> = {
+      salary_increase: 'text-green-600',
       salary_change: 'text-green-600',
       position_change: 'text-blue-600',
+      address_updated: 'text-orange-600',
+      general_update: 'text-purple-600',
       note: 'text-gray-600'
     };
     return colorMap[type] || 'text-gray-600';

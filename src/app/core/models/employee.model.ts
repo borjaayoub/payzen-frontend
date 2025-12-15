@@ -43,6 +43,20 @@ export interface Employee {
   userId?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  events?: EmployeeEvent[];
+}
+
+export interface EmployeeEvent {
+  type: string;
+  title: string;
+  date: string;
+  description: string;
+  details?: any;
+  modifiedBy?: {
+    name: string;
+    role: string;
+  };
+  timestamp: string;
 }
 
 // Backend employee response format (PascalCase from C#)
