@@ -32,6 +32,7 @@
       (ngModelChange)="handleChange($event)"
       (onBlur)="handleBlur()"
       [attr.aria-invalid]="ariaInvalid"
+      [attr.aria-label]="ariaLabel || (hideLabel ? label : null)"
     ></p-select>
   </div>
 

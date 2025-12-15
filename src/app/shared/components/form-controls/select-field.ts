@@ -29,6 +29,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
   @Input() showErrors = true;
   @Input() errorMessages?: Record<string, ErrorMessageResolver>;
   @Input() inputId?: string;
+  @Input() ariaLabel?: string;
 
   value: any = null;
   private readonly uid = `select-${Math.random().toString(36).slice(2, 8)}`;

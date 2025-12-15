@@ -140,6 +140,7 @@
                       [filter]="true"
                       [appendTo]="'body'"
                       formControlName="phoneCountryId"
+                      [ariaLabel]="'employees.create.form.phoneCountry' | translate"
                     ></app-select-field>
 
                     <app-input-field
@@ -149,6 +150,7 @@
                       [showErrors]="false"
                       [placeholder]="'1234-5678'"
                       formControlName="phone"
+                      [ariaLabel]="'employees.create.form.phone' | translate"
                     ></app-input-field>
                   </div>
                   @if (isInvalid('phoneCountryId')) {

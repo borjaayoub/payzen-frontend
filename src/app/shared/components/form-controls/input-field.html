@@ -31,6 +31,7 @@
       [disabled]="disabled"
       [attr.autocomplete]="autocomplete || null"
       [attr.aria-invalid]="ariaInvalid"
+      [attr.aria-label]="ariaLabel || (hideLabel ? label : null)"
       [value]="value ?? ''"
       (input)="handleInput($any($event.target).value)"
       (blur)="handleBlur()"

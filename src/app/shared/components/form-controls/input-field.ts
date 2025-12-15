@@ -25,6 +25,7 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Input() errorMessages?: Record<string, ErrorMessageResolver>;
   @Input() autocomplete?: string;
   @Input() inputId?: string;
+  @Input() ariaLabel?: string;
 
   value: any = '';
   private readonly uid = `input-${Math.random().toString(36).slice(2, 8)}`;
