@@ -146,44 +146,44 @@
         [tableStyle]="{'min-width': '50rem'}"
       >
         <ng-template pTemplate="header">
-          <tr class="bg-gray-50">
-            <th pSortableColumn="firstName" class="font-semibold">
+          <tr>
+            <th pSortableColumn="firstName" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.employee' | translate }}
                 <p-sortIcon field="firstName"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="position" class="font-semibold">
+            <th pSortableColumn="position" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.position' | translate }}
                 <p-sortIcon field="position"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="department" class="font-semibold">
+            <th pSortableColumn="department" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.department' | translate }}
                 <p-sortIcon field="department"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="contractType" class="font-semibold">
+            <th pSortableColumn="contractType" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.contract' | translate }}
                 <p-sortIcon field="contractType"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="startDate" class="font-semibold">
+            <th pSortableColumn="startDate" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.startDate' | translate }}
                 <p-sortIcon field="startDate"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="status" class="font-semibold">
+            <th pSortableColumn="status" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.status' | translate }}
                 <p-sortIcon field="status"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="missingDocuments" class="font-semibold">
+            <th pSortableColumn="missingDocuments" class="saas-table-header">
               <div class="flex items-center gap-2">
                 {{ 'employees.table.documents' | translate }}
                 <p-sortIcon field="missingDocuments"></p-sortIcon>
@@ -193,10 +193,10 @@
         </ng-template>
 
         <ng-template pTemplate="body" let-employee>
-          <tr class="hover:bg-gray-50 transition cursor-pointer" (click)="viewEmployee(employee)">
+          <tr class="saas-table-row cursor-pointer" (click)="viewEmployee(employee)">
             <!-- Employee -->
-            <td>
-              <div class="flex items-center gap-3 py-2">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
                 @if (employee.photo) {
                   <p-avatar
                     [image]="employee.photo"
@@ -214,27 +214,27 @@
                 <div>
                   <p class="font-medium text-(--text-primary)">{{ getFullName(employee) }}</p>
                   @if (employee.manager) {
-                    <p class="text-xs text-(--text-secondary)">Manager: {{ employee.manager }}</p>
+                    <a [routerLink]="[]" class="text-xs text-(--text-secondary) hover:text-(--primary) hover:underline" (click)="$event.stopPropagation()">Manager: {{ employee.manager }}</a>
                   }
                 </div>
               </div>
             </td>
 
             <!-- Position -->
-            <td>
-              <span class="text-(--primary)">{{ employee.position }}</span>
+            <td class="px-6 py-4">
+              <span class="text-(--text-primary)">{{ employee.position }}</span>
             </td>
 
             <!-- Department -->
-            <td>
-              <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md text-sm">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2 text-gray-600">
                 <i class="pi pi-building text-xs"></i>
-                {{ employee.department }}
-              </span>
+                <span>{{ employee.department }}</span>
+              </div>
             </td>
 
             <!-- Contract Type -->
-            <td>
+            <td class="px-6 py-4">
               <app-tag
                 [label]="employee.contractType"
                 [variant]="getContractTypeVariant(employee.contractType)"
@@ -243,14 +243,14 @@
             </td>
 
             <!-- Start Date -->
-            <td>
+            <td class="px-6 py-4">
               <span class="text-sm text-(--secondary)">
                 {{ employee.startDate | date: 'dd/MM/yyyy' }}
               </span>
             </td>
 
             <!-- Status -->
-            <td>
+            <td class="px-6 py-4">
               <app-tag
                 [label]="getStatusLabel(employee.status)"
                 [variant]="getStatusSeverity(employee.status)"
@@ -259,18 +259,18 @@
             </td>
 
             <!-- Missing Documents Badge -->
-            <td>
+            <td class="px-6 py-4">
               @if (employee.missingDocuments > 0) {
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-(--danger)/10 border border-(--danger)/20 rounded-md">
-                  <i class="pi pi-exclamation-triangle text-(--danger) text-xs"></i>
-                  <span class="text-sm font-medium text-(--danger)">
+                <span class="inline-flex items-center gap-2 text-(--danger)">
+                  <i class="pi pi-exclamation-triangle text-xs"></i>
+                  <span class="text-sm font-medium">
                     {{ employee.missingDocuments }} manquant(s)
                   </span>
                 </span>
               } @else {
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-(--success)/10 border border-(--success)/20 rounded-md">
-                  <i class="pi pi-check-circle text-(--success) text-xs"></i>
-                  <span class="text-sm font-medium text-(--success)">Complet</span>
+                <span class="inline-flex items-center gap-2 text-(--success)">
+                  <i class="pi pi-check-circle text-xs"></i>
+                  <span class="text-sm font-medium">Complet</span>
                 </span>
               }
             </td>
@@ -279,11 +279,21 @@
 
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="8" class="text-center py-8">
-              <div class="flex flex-col items-center gap-3">
-                <i class="pi pi-users text-4xl text-(--text-secondary)"></i>
-                <p class="text-(--text-muted)">{{ 'employees.noEmployees' | translate }}</p>
-              </div>
+            <td colspan="7" class="p-0 border-none">
+              <app-empty-state
+                [title]="'employees.noEmployees' | translate"
+                [description]="'employees.noEmployeesDesc' | translate"
+                icon="pi pi-users"
+              >
+                <button
+                  pButton
+                  type="button"
+                  [label]="'employees.addEmployee' | translate"
+                  class="btn btn-primary mt-4"
+                  icon="pi pi-user-plus"
+                  (click)="addEmployee()"
+                ></button>
+              </app-empty-state>
             </td>
           </tr>
         </ng-template>

@@ -434,6 +434,39 @@
   .tag {
     @apply leading-none px-1.5 py-0.5 rounded-sm text-sm font-medium;
   }
+
+  /* SaaS Table Styles */
+  .saas-table-header {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50/50 border-b border-gray-100;
+  }
+
+  .saas-table-row {
+    @apply hover:bg-gray-50/80 transition-colors duration-200 border-b border-gray-100;
+  }
+
+  /* Read-only Field */
+  .read-only-value, .form-value {
+    @apply text-gray-900 border border-gray-200 bg-gray-50 rounded-md px-3 py-2;
+  }
+
+  /* Ghost Button */
+  .btn-ghost {
+    @apply text-gray-500 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors;
+  }
+
+  /* SaaS Table Styles */
+  .saas-table-header {
+    @apply bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 py-3 px-6 text-left;
+  }
+
+  .saas-table-row {
+    @apply hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0;
+  }
+
+  /* Read-only Value Style */
+  .read-only-value {
+    @apply px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm;
+  }
 }
 
 

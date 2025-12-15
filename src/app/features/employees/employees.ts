@@ -1,5 +1,5 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,7 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TagComponent } from '../../shared/components/tag/tag.component';
 import { TagVariant } from '../../shared/components/tag/tag.types';
-import { TagModule } from 'primeng/tag';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -20,6 +20,7 @@ import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesRes
   selector: 'app-employees',
   imports: [
     CommonModule,
+    RouterModule,
     FormsModule,
     TranslateModule,
     TableModule,
@@ -27,6 +28,7 @@ import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesRes
     InputTextModule,
     SelectModule,
     TagComponent,
+    EmptyState,
     AvatarModule,
     BadgeModule,
     IconFieldModule,
