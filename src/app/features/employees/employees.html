@@ -202,6 +202,7 @@
                     [image]="employee.photo"
                     shape="circle"
                     size="normal"
+                    class="shrink-0"
                   ></p-avatar>
                 } @else {
                   <p-avatar
@@ -209,12 +210,13 @@
                     shape="circle"
                     size="normal"
                     styleClass="bg-(--primary)/10 text-(--text-primary) font-semibold"
+                    class="shrink-0"
                   ></p-avatar>
                 }
-                <div>
-                  <p class="font-medium text-(--text-primary)">{{ getFullName(employee) }}</p>
+                <div class="min-w-0 flex-1 max-w-[10rem] md:max-w-[14rem]">
+                  <p class="font-medium text-(--text-primary) truncate" title="{{ getFullName(employee) }}">{{ getFullName(employee) }}</p>
                   @if (employee.manager) {
-                    <a [routerLink]="[]" class="text-xs text-(--text-secondary) hover:text-(--primary) hover:underline" (click)="$event.stopPropagation()">Manager: {{ employee.manager }}</a>
+                    <a [routerLink]="[]" class="text-xs text-(--text-secondary) hover:text-(--primary) hover:underline truncate block" (click)="$event.stopPropagation()">Manager: {{ employee.manager }}</a>
                   }
                 </div>
               </div>

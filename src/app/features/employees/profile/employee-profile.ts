@@ -523,6 +523,10 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
     this.employeeService.patchEmployeeProfile(this.employeeId()!, patch).subscribe({
       next: (response: EmployeeProfileModel) => {
+        // Reload the full employee profile to ensure we have the latest data, including history events
+        this.loadEmployeeDetails(this.employeeId()!);
+        
+        // We still update the local state optimistically/partially to show success immediately
         const merged = { ...this.originalEmployee!, ...patch, ...(response ?? {}) } as EmployeeProfileModel;
         this.handleSaveSuccess(merged);
       },

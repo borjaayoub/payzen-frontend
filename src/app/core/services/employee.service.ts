@@ -193,16 +193,16 @@ interface SalaryComponentResponse {
 }
 
 interface BackendEventResponse {
-  Type: string;
-  Title: string;
-  Date: string;
-  Description: string;
-  Details?: any;
-  ModifiedBy?: {
-    Name: string;
-    Role: string;
+  type: string;
+  title: string;
+  date: string;
+  description: string;
+  details?: any;
+  modifiedBy?: {
+    name: string;
+    role: string;
   };
-  Timestamp: string;
+  timestamp: string;
 }
 
 interface EmployeeDetailsResponse {
@@ -238,7 +238,7 @@ interface EmployeeDetailsResponse {
   salaryPaymentMethod?: string;
   annualLeave?: number;
   probationPeriod?: string;
-  Events?: BackendEventResponse[];
+  events?: BackendEventResponse[];
 }
 
 @Injectable({
@@ -496,17 +496,17 @@ export class EmployeeService {
       userId: this.toStringValue(payload.userId) || undefined,
       createdAt: payload.createdAt ? new Date(payload.createdAt) : undefined,
       updatedAt: payload.updatedAt ? new Date(payload.updatedAt) : undefined,
-      events: (payload.Events || []).map(event => ({
-        type: event.Type,
-        title: event.Title,
-        date: event.Date,
-        description: event.Description,
-        details: event.Details,
-        modifiedBy: event.ModifiedBy ? {
-          name: event.ModifiedBy.Name,
-          role: event.ModifiedBy.Role
+      events: (payload.events || []).map(event => ({
+        type: event.type,
+        title: event.title,
+        date: event.date,
+        description: event.description,
+        details: event.details,
+        modifiedBy: event.modifiedBy ? {
+          name: event.modifiedBy.name,
+          role: event.modifiedBy.role
         } : undefined,
-        timestamp: event.Timestamp
+        timestamp: event.timestamp
       }))
     };
 
