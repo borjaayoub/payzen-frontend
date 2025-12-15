@@ -7,12 +7,18 @@ export interface Employee {
   photo?: string;
   cin: string;
   maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
-  birthDate: string;
+  dateOfBirth: string;
   birthPlace: string;
   professionalEmail: string;
   personalEmail: string;
   phone: string;
   address: string;
+  countryId?: number;
+  countryName?: string;
+  city?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  zipCode?: string;
   position: string;
   department: string;
   manager?: string;
@@ -47,7 +53,7 @@ export interface BackendEmployee {
   Photo?: string;
   Cin: string;
   MaritalStatus: string;
-  BirthDate: string;
+  DateOfBirth: string;
   BirthPlace: string;
   ProfessionalEmail: string;
   PersonalEmail: string;
@@ -86,7 +92,7 @@ export interface CreateEmployeeRequest {
   photo?: string;
   cin: string;
   maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
-  birthDate: string;
+  dateOfBirth: string;
   birthPlace: string;
   professionalEmail: string;
   personalEmail: string;
@@ -121,7 +127,7 @@ export interface UpdateEmployeeRequest {
   photo?: string;
   cin?: string;
   maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed';
-  birthDate?: string;
+  dateOfBirth?: string;
   birthPlace?: string;
   professionalEmail?: string;
   personalEmail?: string;

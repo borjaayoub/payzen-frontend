@@ -331,7 +331,7 @@
         "manager": "Manager direct",
         "managerPlaceholder": "Affecter un manager (optionnel)",
         "startDate": "Date d'entrée",
-        "salary": "Salaire mensuel (MAD)",
+        "salary": "Salaire brut",
         "country": "Pays",
         "countryPlaceholder": "Sélectionnez un pays",
         "city": "Ville",

@@ -29,7 +29,7 @@
       <button
         type="button"
         pButton
-        class="btn btn-secondary"
+        class="btn btn-secondary-outline"
         icon="pi pi-arrow-left"
         [label]="'common.back' | translate"
         [attr.aria-label]="'common.back' | translate"
@@ -86,114 +86,70 @@
                 </div>
               </div>
               <div class="grid gap-5 md:grid-cols-2">
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="firstName">{{ 'employees.create.form.firstName' | translate }}</label>
-                  <input
-                    id="firstName"
-                    pInputText
-                    type="text"
-                    class="input"
-                    [placeholder]="'employees.create.placeholders.firstName' | translate"
-                    formControlName="firstName"
-                  />
-                  @if (isInvalid('firstName')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
+                <app-input-field
+                  [label]="'employees.create.form.firstName' | translate"
+                  [placeholder]="'Amal'"
+                  [requiredMark]="true"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="firstName"
+                ></app-input-field>
+
+                <app-input-field
+                  [label]="'employees.create.form.lastName' | translate"
+                  [placeholder]="'El Idrissi'"
+                  [requiredMark]="true"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="lastName"
+                ></app-input-field>
+
+                <app-input-field
+                  [label]="'employees.create.form.email' | translate"
+                  type="email"
+                  [placeholder]="'amal@entreprise.ma'"
+                  [requiredMark]="true"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate), email: ('employees.create.validation.email' | translate) }"
+                  formControlName="email"
+                ></app-input-field>
+
+                <app-input-field
+                  [label]="'employees.create.form.cin' | translate"
+                  [placeholder]="'AA123456'"
+                  [requiredMark]="true"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="cinNumber"
+                ></app-input-field>
+
+                <app-input-field
+                  [label]="'employees.create.form.birthDate' | translate"
+                  type="date"
+                  [requiredMark]="true"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="birthDate"
+                ></app-input-field>
 
                 <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="lastName">{{ 'employees.create.form.lastName' | translate }}</label>
-                  <input
-                    id="lastName"
-                    pInputText
-                    type="text"
-                    class="input"
-                    placeholder="El Idrissi"
-                    formControlName="lastName"
-                  />
-                  @if (isInvalid('lastName')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="email">{{ 'employees.create.form.email' | translate }}</label>
-                  <input
-                    id="email"
-                    pInputText
-                    type="email"
-                    class="input"
-                    placeholder="amal@entreprise.ma"
-                    formControlName="email"
-                  />
-                  @if (isInvalid('email')) {
-                    <p class="field-error">{{ 'employees.create.validation.email' | translate }}</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="cinNumber">{{ 'employees.create.form.cin' | translate }}</label>
-                  <input
-                    id="cinNumber"
-                    pInputText
-                    type="text"
-                    class="input"
-                    placeholder="AA123456"
-                    formControlName="cinNumber"
-                  />
-                  @if (isInvalid('cinNumber')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="birthDate">{{ 'employees.create.form.birthDate' | translate }}</label>
-                  <input
-                    id="birthDate"
-                    type="date"
-                    class="input"
-                    formControlName="birthDate"
-                  />
-                  @if (isInvalid('birthDate')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="phone">{{ 'employees.create.form.phone' | translate }}</label>
-                  <div class="phone-input-group">
-                    <p-select
-                      class="phone-code-select"
-                      formControlName="phoneCountryId"
+                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.phone' | translate }}</label>
+                  <div class="phone-combo">
+                    <app-select-field
+                      class=""
+                      [hideLabel]="true"
+                      [showErrors]="false"
                       [options]="data.countries"
+                      optionLabel="phoneCode"
                       optionValue="id"
-                      [placeholder]="'employees.create.form.phoneCountryPlaceholder' | translate"
-                      [attr.aria-label]="'employees.create.form.phoneCountry' | translate"
-                      appendTo="body"
-                    >
-                      <ng-template pTemplate="selectedItem" let-option>
-                        <div class="phone-select-selected" *ngIf="option; else emptyCode">
-                          <span class="country-label">{{ option.phoneCode }}</span>
-                        </div>
-                        <ng-template #emptyCode>
-                          <span class="country-placeholder">{{ 'employees.create.form.phoneCountryPlaceholder' | translate }}</span>
-                        </ng-template>
-                      </ng-template>
-                      <ng-template pTemplate="item" let-option>
-                        <div class="phone-select-option">
-                          <span class="country-label">{{ option.label }}</span>
-                          <span class="country-code">{{ option.phoneCode }}</span>
-                        </div>
-                      </ng-template>
-                    </p-select>
-                    <input
-                      id="phone"
-                      pInputText
+                      [filter]="true"
+                      [appendTo]="'body'"
+                      formControlName="phoneCountryId"
+                    ></app-select-field>
+
+                    <app-input-field
+                      class="phone-combo__number"
                       type="tel"
-                      class="input"
-                      placeholder="576 908 413"
+                      [hideLabel]="true"
+                      [showErrors]="false"
+                      [placeholder]="'1234-5678'"
                       formControlName="phone"
-                    />
+                    ></app-input-field>
                   </div>
                   @if (isInvalid('phoneCountryId')) {
                     <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
@@ -203,63 +159,59 @@
                   }
                 </div>
 
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.gender' | translate }}</label>
-                  <p-select
-                    [options]="data.genders"
-                    optionLabel="label"
-                    optionValue="id"
-                    placeholder="--"
-                    formControlName="genderId"
-                  ></p-select>
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.gender' | translate"
+                  [placeholder]="'--'"
+                  [options]="data.genders"
+                  optionLabel="label"
+                  optionValue="id"
+                  [filter]="true"
+                  [showClear]="true"
+                  formControlName="genderId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.status' | translate }}</label>
-                  <p-select
-                    [options]="data.statuses"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.statusPlaceholder' | translate"
-                    formControlName="statusId"
-                  ></p-select>
-                  @if (isInvalid('statusId')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.status' | translate"
+                  [requiredMark]="true"
+                  [options]="data.statuses"
+                  optionLabel="label"
+                  optionValue="id"
+                  [placeholder]="'employees.create.form.statusPlaceholder' | translate"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="statusId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.maritalStatus' | translate }}</label>
-                  <p-select
-                    [options]="data.maritalStatuses"
-                    optionLabel="label"
-                    optionValue="id"
-                    placeholder="--"
-                    formControlName="maritalStatusId"
-                  ></p-select>
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.maritalStatus' | translate"
+                  [placeholder]="'--'"
+                  [options]="data.maritalStatuses"
+                  optionLabel="label"
+                  optionValue="id"
+                  [filter]="true"
+                  formControlName="maritalStatusId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.educationLevel' | translate }}</label>
-                  <p-select
-                    [options]="data.educationLevels"
-                    optionLabel="label"
-                    optionValue="id"
-                    placeholder="--"
-                    formControlName="educationLevelId"
-                  ></p-select>
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.educationLevel' | translate"
+                  [placeholder]="'--'"
+                  [options]="data.educationLevels"
+                  optionLabel="label"
+                  optionValue="id"
+                  [filter]="true"
+                  formControlName="educationLevelId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.nationality' | translate }}</label>
-                  <p-select
-                    [options]="data.nationalities"
-                    optionLabel="label"
-                    optionValue="id"
-                    placeholder="--"
-                    formControlName="nationalityId"
-                  ></p-select>
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.nationality' | translate"
+                  [placeholder]="'--'"
+                  [options]="data.nationalities"
+                  optionLabel="label"
+                  optionValue="id"
+                  [filter]="true"
+                  formControlName="nationalityId"
+                ></app-select-field>
               </div>
             </section>
 
@@ -272,83 +224,70 @@
                 </div>
               </div>
               <div class="grid gap-5 md:grid-cols-2">
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.department' | translate }}</label>
-                  <p-select
-                    [options]="data.departments"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.departmentPlaceholder' | translate"
-                    formControlName="departmentId"
-                  ></p-select>
-                  @if (isInvalid('departmentId')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.department' | translate"
+                  [requiredMark]="true"
+                  [options]="data.departments"
+                  optionLabel="label"
+                  optionValue="id"
+                  [placeholder]="'employees.create.form.departmentPlaceholder' | translate"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="departmentId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.jobPosition' | translate }}</label>
-                  <p-select
-                    [options]="data.jobPositions"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.jobPositionPlaceholder' | translate"
-                    formControlName="jobPositionId"
-                  ></p-select>
-                  @if (isInvalid('jobPositionId')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.jobPosition' | translate"
+                  [requiredMark]="true"
+                  [options]="data.jobPositions"
+                  optionLabel="label"
+                  optionValue="id"
+                  [placeholder]="'employees.create.form.jobPositionPlaceholder' | translate"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="jobPositionId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.contractType' | translate }}</label>
-                  <p-select
-                    [options]="data.contractTypes"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.contractTypePlaceholder' | translate"
-                    formControlName="contractTypeId"
-                  ></p-select>
-                  @if (isInvalid('contractTypeId')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.contractType' | translate"
+                  [requiredMark]="true"
+                  [options]="data.contractTypes"
+                  optionLabel="label"
+                  optionValue="id"
+                  [placeholder]="'employees.create.form.contractTypePlaceholder' | translate"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="contractTypeId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.manager' | translate }}</label>
-                  <p-select
-                    [options]="data.potentialManagers"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.managerPlaceholder' | translate"
-                    formControlName="managerId"
-                  ></p-select>
-                </div>
+                <app-select-field
+                  [label]="'employees.create.form.manager' | translate"
+                  [options]="data.potentialManagers"
+                  optionLabel="label"
+                  optionValue="id"
+                  [placeholder]="'employees.create.form.managerPlaceholder' | translate"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  formControlName="managerId"
+                ></app-select-field>
 
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']" for="startDate">{{ 'employees.create.form.startDate' | translate }}</label>
-                  <input
-                    id="startDate"
-                    type="date"
-                    class="input"
-                    formControlName="startDate"
-                  />
-                  @if (isInvalid('startDate')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                </div>
+                <app-input-field
+                  [label]="'employees.create.form.startDate' | translate"
+                  type="date"
+                  [requiredMark]="true"
+                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
+                  formControlName="startDate"
+                ></app-input-field>
 
-                <div class="form-field">
-                  <label class="field-label" for="salary">{{ 'employees.create.form.salary' | translate }}</label>
-                  <input
-                    id="salary"
-                    type="number"
-                    min="0"
-                    class="input"
-                    formControlName="salary"
-                    placeholder="12000"
-                  />
-                </div>
+                <app-input-field
+                  [label]="'employees.create.form.salary' | translate"
+                  type="number"
+                  placeholder="12000"
+                  formControlName="salary"
+                ></app-input-field>
               </div>
             </section>
 
@@ -361,42 +300,46 @@
                 </div>
               </div>
               <div class="grid gap-5 md:grid-cols-2">
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.country' | translate }}</label>
-                  <p-select
-                    [options]="data.countries"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.countryPlaceholder' | translate"
-                    formControlName="countryId"
-                  ></p-select>
+                <app-select-field
+                  [label]="'employees.create.form.country' | translate"
+                  [placeholder]="'employees.create.form.countryPlaceholder' | translate"
+                  [options]="data.countries"
+                  optionLabel="label"
+                  optionValue="id"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  formControlName="countryId"
+                ></app-select-field>
+
+                <app-select-field
+                  [label]="'employees.create.form.city' | translate"
+                  [placeholder]="'employees.create.form.cityPlaceholder' | translate"
+                  [options]="cityOptions()"
+                  optionLabel="label"
+                  optionValue="id"
+                  [filter]="true"
+                  [appendTo]="'body'"
+                  formControlName="cityId"
+                ></app-select-field>
+
+                <div class="md:col-span-2">
+                  <app-input-field
+                    [label]="'employees.create.form.addressLine1' | translate"
+                    formControlName="addressLine1"
+                  ></app-input-field>
                 </div>
 
-                <div class="form-field">
-                  <label class="field-label">{{ 'employees.create.form.city' | translate }}</label>
-                  <p-select
-                    [options]="cityOptions()"
-                    optionLabel="label"
-                    optionValue="id"
-                    [placeholder]="'employees.create.form.cityPlaceholder' | translate"
-                    formControlName="cityId"
-                  ></p-select>
+                <div class="md:col-span-2">
+                  <app-input-field
+                    [label]="'employees.create.form.addressLine2' | translate"
+                    formControlName="addressLine2"
+                  ></app-input-field>
                 </div>
 
-                <div class="form-field md:col-span-2">
-                  <label class="field-label" for="addressLine1">{{ 'employees.create.form.addressLine1' | translate }}</label>
-                  <input id="addressLine1" pInputText type="text" class="input" formControlName="addressLine1" />
-                </div>
-
-                <div class="form-field md:col-span-2">
-                  <label class="field-label" for="addressLine2">{{ 'employees.create.form.addressLine2' | translate }}</label>
-                  <input id="addressLine2" pInputText type="text" class="input" formControlName="addressLine2" />
-                </div>
-
-                <div class="form-field">
-                  <label class="field-label" for="zipCode">{{ 'employees.create.form.zipCode' | translate }}</label>
-                  <input id="zipCode" pInputText type="text" class="input" formControlName="zipCode" />
-                </div>
+                <app-input-field
+                  [label]="'employees.create.form.zipCode' | translate"
+                  formControlName="zipCode"
+                ></app-input-field>
               </div>
             </section>
 

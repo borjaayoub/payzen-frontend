@@ -307,9 +307,9 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.identity.birthDate' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText type="date" [ngModel]="employee().birthDate" (ngModelChange)="updateField('birthDate', $event)" class="w-full input" title="{{ 'employees.profile.identity.birthDate' | translate }}" />
+                    <input pInputText type="date" [ngModel]="employee().dateOfBirth" (ngModelChange)="updateField('dateOfBirth', $event)" class="w-full input" title="{{ 'employees.profile.identity.birthDate' | translate }}" />
                   } @else {
-                    <p class="form-value">{{ employee().birthDate | date: 'dd/MM/yyyy' }}</p>
+                    <p class="form-value">{{ employee().dateOfBirth | date: 'dd/MM/yyyy' }}</p>
                   }
                 </div>
 
@@ -349,12 +349,57 @@
                   }
                 </div>
 
-                <div class="form-field md:col-span-2">
-                  <label class="form-label required">{{ 'employees.profile.contact.address' | translate }}</label>
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.create.form.country' | translate }}</label>
                   @if (isEditMode()) {
-                    <textarea pTextarea [ngModel]="employee().address" (ngModelChange)="updateField('address', $event)" rows="3" class="w-full input" title="{{ 'employees.profile.contact.address' | translate }}"></textarea>
+                    <p-select
+                      [options]="formData().countries"
+                      [ngModel]="employee().countryId"
+                      (ngModelChange)="updateField('countryId', $event)"
+                      optionLabel="label"
+                      optionValue="id"
+                      [filter]="true"
+                      [placeholder]="'employees.create.form.countryPlaceholder' | translate"
+                      styleClass="w-full input"
+                    ></p-select>
                   } @else {
-                    <p class="form-value">{{ employee().address }}</p>
+                    <p class="form-value">{{ employee().countryName || '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.create.form.city' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [ngModel]="employee().city" (ngModelChange)="updateField('city', $event)" class="w-full input" [placeholder]="'employees.create.form.cityPlaceholder' | translate" title="{{ 'employees.create.form.city' | translate }}" />
+                  } @else {
+                    <p class="form-value">{{ employee().city || '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field md:col-span-2">
+                  <label class="form-label">{{ 'employees.create.form.addressLine1' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [ngModel]="employee().addressLine1" (ngModelChange)="updateField('addressLine1', $event)" class="w-full input" title="{{ 'employees.create.form.addressLine1' | translate }}" />
+                  } @else {
+                    <p class="form-value">{{ employee().addressLine1 || '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field md:col-span-2">
+                  <label class="form-label">{{ 'employees.create.form.addressLine2' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [ngModel]="employee().addressLine2" (ngModelChange)="updateField('addressLine2', $event)" class="w-full input" title="{{ 'employees.create.form.addressLine2' | translate }}" />
+                  } @else {
+                    <p class="form-value">{{ employee().addressLine2 || '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.create.form.zipCode' | translate }}</label>
+                  @if (isEditMode()) {
+                    <input pInputText [ngModel]="employee().zipCode" (ngModelChange)="updateField('zipCode', $event)" class="w-full input" title="{{ 'employees.create.form.zipCode' | translate }}" />
+                  } @else {
+                    <p class="form-value">{{ employee().zipCode || '-' }}</p>
                   }
                 </div>
               </div>
@@ -370,7 +415,15 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.position.position' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [ngModel]="employee().position" (ngModelChange)="updateField('position', $event)" class="w-full input" title="{{ 'employees.profile.position.position' | translate }}" />
+                    <p-select
+                      [options]="formData().jobPositions"
+                      [ngModel]="employee().position"
+                      (ngModelChange)="updateField('position', $event)"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'employees.profile.position.position' | translate"
+                      class="w-full input"
+                    ></p-select>
                   } @else {
                     <p class="form-value">{{ employee().position }}</p>
                   }
@@ -379,7 +432,15 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.position.department' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [ngModel]="employee().department" (ngModelChange)="updateField('department', $event)" class="w-full input" title="{{ 'employees.profile.position.department' | translate }}" />
+                    <p-select
+                      [options]="formData().departments"
+                      [ngModel]="employee().department"
+                      (ngModelChange)="updateField('department', $event)"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'employees.profile.position.department' | translate"
+                      class="w-full input"
+                    ></p-select>
                   } @else {
                     <p class="form-value">{{ employee().department }}</p>
                   }
@@ -388,7 +449,15 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.position.manager' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [ngModel]="employee().manager" (ngModelChange)="updateField('manager', $event)" class="w-full input" title="{{ 'employees.profile.position.manager' | translate }}" />
+                    <p-select
+                      [options]="formData().potentialManagers"
+                      [ngModel]="employee().manager"
+                      (ngModelChange)="updateField('manager', $event)"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'employees.profile.position.manager' | translate"
+                      class="w-full input"
+                    ></p-select>
                   } @else {
                     <p class="form-value">{{ employee().manager }}</p>
                   }
@@ -403,7 +472,7 @@
                       (ngModelChange)="updateField('contractType', $event)"
                       optionLabel="label"
                       optionValue="value"
-                      styleClass="w-full input"
+                      class="w-full input"
                     ></p-select>
                   } @else {
                     <p class="form-value">{{ employee().contractType }}</p>

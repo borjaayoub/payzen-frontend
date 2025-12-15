@@ -291,7 +291,7 @@
   }
 
   .btn-secondary-outline {
-    @apply text-gray-600 bg-white border border-gray-300 hover:bg-gray-200 hover:text-gray-900;
+    @apply text-gray-600 bg-(--bg-page) border border-gray-300 hover:bg-gray-200 hover:text-gray-900;
   }
 
   .btn-success {

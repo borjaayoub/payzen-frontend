@@ -8,6 +8,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { InputFieldComponent } from '@app/shared/components/form-controls/input-field';
+import { SelectFieldComponent } from '@app/shared/components/form-controls/select-field';
 import {
   CityLookupOption,
   CreateEmployeeRequest,
@@ -26,7 +28,9 @@ import {
     ButtonModule,
     InputTextModule,
     SelectModule,
-    ToastModule
+    ToastModule,
+    InputFieldComponent,
+    SelectFieldComponent
   ],
   templateUrl: './employee-create.html',
   styleUrl: './employee-create.css',
@@ -70,7 +74,7 @@ export class EmployeeCreatePage implements OnInit {
     educationLevelId: [null],
     maritalStatusId: [null],
     nationalityId: [null],
-    countryId: [null],
+    countryId: [null as number | null],
     cityId: [null],
     addressLine1: [''],
     addressLine2: [''],
@@ -107,8 +111,14 @@ export class EmployeeCreatePage implements OnInit {
     this.employeeService.getEmployeeFormData().subscribe({
       next: (data) => {
         this.formData.set(data);
-        if (!this.employeeForm.controls.phoneCountryId.value && data.countries.length) {
-          this.employeeForm.controls.phoneCountryId.setValue(data.countries[0].id);
+        if (data.countries.length) {
+          const defaultCountry = this.findDefaultCountry(data.countries);
+          if (!this.employeeForm.controls.phoneCountryId.value) {
+            this.employeeForm.controls.phoneCountryId.setValue(defaultCountry?.id ?? data.countries[0].id);
+          }
+          if (!this.employeeForm.controls.countryId.value) {
+            this.employeeForm.controls.countryId.setValue(defaultCountry?.id ?? data.countries[0].id);
+          }
         }
         this.isLoading.set(false);
       },
@@ -129,29 +139,31 @@ export class EmployeeCreatePage implements OnInit {
     const value = this.employeeForm.value;
     const selectedPhoneCode = this.phoneCode();
     const payload: CreateEmployeeRequest = {
-      FirstName: value.firstName ?? '',
-      LastName: value.lastName ?? '',
-      Email: value.email ?? '',
-      Phone: [selectedPhoneCode, value.phone].filter(Boolean).join(' ').trim(),
-      DateOfBirth: value.birthDate ?? '',
-      CinNumber: value.cinNumber || null,
-      StatusId: Number(value.statusId),
-      GenderId: value.genderId ? Number(value.genderId) : null,
-      EducationLevelId: value.educationLevelId ? Number(value.educationLevelId) : null,
-      MaritalStatusId: value.maritalStatusId ? Number(value.maritalStatusId) : null,
-      NationalityId: value.nationalityId ? Number(value.nationalityId) : null,
-      CountryId: value.countryId ? Number(value.countryId) : null,
-      CityId: value.cityId ? Number(value.cityId) : null,
-      CountryPhoneCode: selectedPhoneCode || null,
-      AddressLine1: value.addressLine1 || null,
-      AddressLine2: value.addressLine2 || null,
-      ZipCode: value.zipCode || null,
-      DepartementId: value.departmentId ? Number(value.departmentId) : null,
-      JobPositionId: value.jobPositionId ? Number(value.jobPositionId) : null,
-      ContractTypeId: value.contractTypeId ? Number(value.contractTypeId) : null,
-      ManagerId: value.managerId ? Number(value.managerId) : null,
-      StartDate: value.startDate || null,
-      Salary: value.salary != null ? Number(value.salary) : null
+      firstName: value.firstName ?? '',
+      lastName: value.lastName ?? '',
+      email: value.email ?? '',
+      phone: [selectedPhoneCode, value.phone].filter(Boolean).join(' ').trim(),
+      dateOfBirth: value.birthDate ?? '',
+      cinNumber: value.cinNumber || null,
+      statusId: Number(value.statusId),
+      genderId: value.genderId ? Number(value.genderId) : null,
+      educationLevelId: value.educationLevelId ? Number(value.educationLevelId) : null,
+      maritalStatusId: value.maritalStatusId ? Number(value.maritalStatusId) : null,
+      nationalityId: value.nationalityId ? Number(value.nationalityId) : null,
+      countryId: value.countryId ? Number(value.countryId) : null,
+      cityId: value.cityId ? Number(value.cityId) : null,
+      countryPhoneCode: selectedPhoneCode || null,
+      addressLine1: value.addressLine1 || null,
+      addressLine2: value.addressLine2 || null,
+      zipCode: value.zipCode || null,
+      departementId: value.departmentId ? Number(value.departmentId) : null,
+      jobPositionId: value.jobPositionId ? Number(value.jobPositionId) : null,
+      contractTypeId: value.contractTypeId ? Number(value.contractTypeId) : null,
+      managerId: value.managerId ? Number(value.managerId) : null,
+      startDate: value.startDate || null,
+      salary: value.salary != null ? Number(value.salary) : null,
+      cnssNumber: null,
+      cimrNumber: null
     };
 
     this.isSubmitting.set(true);
@@ -168,9 +180,9 @@ export class EmployeeCreatePage implements OnInit {
           detail: this.translate.instant('employees.create.success')
         });
         this.employeeForm.reset();
-        const defaultCountryId = this.formData().countries[0]?.id ?? null;
-        if (defaultCountryId) {
-          this.employeeForm.controls.phoneCountryId.setValue(defaultCountryId);
+        const defaultCountry = this.findDefaultCountry(this.formData().countries);
+        if (defaultCountry) {
+          this.employeeForm.controls.phoneCountryId.setValue(defaultCountry.id);
         }
         setTimeout(() => this.router.navigate(['/employees']), 800);
       },
@@ -207,5 +219,17 @@ export class EmployeeCreatePage implements OnInit {
 
   trackByManager(_: number, manager: ManagerLookupOption): number {
     return manager.id;
+  }
+
+  /**
+   * Finds the default country from the list.
+   * Returns "Maroc" if found (case-insensitive), otherwise returns the first country.
+   */
+  private findDefaultCountry(countries: { id: number; label: string }[]): { id: number; label: string } | null {
+    if (!countries.length) {
+      return null;
+    }
+    const morocco = countries.find(c => c.label.toLowerCase() === 'maroc');
+    return morocco ?? countries[0];
   }
 }

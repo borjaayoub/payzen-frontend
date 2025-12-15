@@ -1,0 +1,67 @@
+.fc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.fc-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.fc-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fc-required {
+  color: var(--danger);
+}
+
+.fc-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.fc-description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: -0.2rem;
+}
+
+.fc-control {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.fc-addon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fc-input {
+  flex: 1 1 auto;
+}
+
+.fc-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+
+.fc-invalid .fc-input {
+  border-color: var(--danger);
+}
+
+.fc-disabled {
+  opacity: 0.65;
+}

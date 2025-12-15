@@ -1,0 +1,45 @@
+<div class="fc-field" [class.fc-invalid]="invalid" [class.fc-disabled]="disabled">
+  <div class="fc-label-row" *ngIf="!hideLabel">
+    <label class="fc-label" [for]="resolvedInputId">
+      <span>{{ label }}</span>
+      @if(requiredMark) {
+        <span class="fc-required">*</span>
+      }
+    </label>
+    @if(hint) {
+      <span class="fc-hint">{{ hint }}</span>
+    }
+  </div>
+
+  @if(description) {
+    <p class="fc-description">{{ description }}</p>
+  }
+
+  <div class="fc-control">
+    <p-select
+      class="input"
+      [id]="resolvedInputId"
+      [class]="invalid ? 'fc-select fc-select-invalid' : 'fc-select'"
+      [options]="options"
+      [optionLabel]="optionLabel"
+      [optionValue]="optionValue"
+      [optionDisabled]="optionDisabled"
+      [placeholder]="placeholder"
+      [appendTo]="appendTo"
+      [disabled]="disabled"
+      [panelStyleClass]="'fc-select-panel'"
+      [ngModel]="value"
+      (ngModelChange)="handleChange($event)"
+      (onBlur)="handleBlur()"
+      [attr.aria-invalid]="ariaInvalid"
+    ></p-select>
+  </div>
+
+  @if(errorList.length) {
+    <div class="fc-errors">
+      @for(error of errorList; track error) {
+        <span>{{ error }}</span>
+      }
+    </div>
+  }
+</div>

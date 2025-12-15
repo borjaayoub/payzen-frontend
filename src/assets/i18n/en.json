@@ -332,7 +332,7 @@
         "manager": "Direct manager",
         "managerPlaceholder": "Assign a manager (optional)",
         "startDate": "Start date",
-        "salary": "Monthly salary (MAD)",
+        "salary": "Gross salary",
         "country": "Country",
         "countryPlaceholder": "Select a country",
         "city": "City",

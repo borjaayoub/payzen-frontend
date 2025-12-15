@@ -131,31 +131,31 @@ export interface EmployeeFormData {
 }
 
 export interface CreateEmployeeRequest {
-  FirstName: string;
-  LastName: string;
-  CinNumber?: string | null;
-  DateOfBirth: string;
-  Phone: string;
-  Email: string;
-  StatusId: number;
-  GenderId?: number | null;
-  EducationLevelId?: number | null;
-  MaritalStatusId?: number | null;
-  NationalityId?: number | null;
-  CountryId?: number | null;
-  CityId?: number | null;
-  CountryPhoneCode?: string | null;
-  AddressLine1?: string | null;
-  AddressLine2?: string | null;
-  ZipCode?: string | null;
-  DepartementId?: number | null;
-  JobPositionId?: number | null;
-  ContractTypeId?: number | null;
-  ManagerId?: number | null;
-  StartDate?: string | null;
-  Salary?: number | null;
-  CnssNumber?: string | null;
-  CimrNumber?: string | null;
+  firstName: string;
+  lastName: string;
+  cinNumber?: string | null;
+  dateOfBirth: string;
+  phone: string;
+  email: string;
+  statusId: number;
+  genderId?: number | null;
+  educationLevelId?: number | null;
+  maritalStatusId?: number | null;
+  nationalityId?: number | null;
+  countryId?: number | null;
+  cityId?: number | null;
+  countryPhoneCode?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  zipCode?: string | null;
+  departementId?: number | null;
+  jobPositionId?: number | null;
+  contractTypeId?: number | null;
+  managerId?: number | null;
+  startDate?: string | null;
+  salary?: number | null;
+  cnssNumber?: string | null;
+  cimrNumber?: string | null;
 }
 
 interface DashboardEmployee {
@@ -198,7 +198,7 @@ interface EmployeeDetailsResponse {
   lastName: string;
   cinNumber: string;
   maritalStatusName: string;
-  birthDate: string;
+  dateOfBirth: string;
   statusName: string;
   email: string;
   phone: string | number;
@@ -430,6 +430,14 @@ export class EmployeeService {
     const seniorityBonus = this.findSalaryComponentAmount(salaryComponents, ['ancien', 'seniority']);
     const otherBenefits = this.collectOtherBenefits(salaryComponents, ['transport', 'meal', 'restauration', 'ancien', 'seniority']);
     
+    // Handle potential PascalCase from backend for Address object
+    const addressPayload = payload.address || (payload as any).Address;
+    const cityName = addressPayload?.cityName || addressPayload?.CityName || '';
+    const countryName = addressPayload?.countryName || addressPayload?.CountryName || '';
+    const addressLine1 = addressPayload?.addressLine1 || addressPayload?.AddressLine1 || '';
+    const addressLine2 = addressPayload?.addressLine2 || addressPayload?.AddressLine2 || '';
+    const zipCode = addressPayload?.zipCode || addressPayload?.ZipCode || '';
+
     const detail: EmployeeProfileModel = {
       id: this.toStringValue(payload.id),
       firstName: payload.firstName ?? '',
@@ -437,12 +445,19 @@ export class EmployeeService {
       photo: undefined,
       cin: payload.cinNumber ?? '',
       maritalStatus: this.mapMaritalStatus(payload.maritalStatusName),
-      birthDate: payload.birthDate ?? '',
-      birthPlace: payload.address?.cityName ?? '',
+      dateOfBirth: payload.dateOfBirth ?? '',
+      birthPlace: cityName, // Use extracted city name
       professionalEmail: payload.email ?? '',
       personalEmail: payload.email ?? '',
       phone: this.composePhone(payload.countryPhoneCode, payload.phone),
-      address: this.formatAddress(payload.address),
+      address: this.formatAddress(addressPayload),
+      // Map individual address fields from the nested address object
+      countryId: undefined, // Backend doesn't return ID, only name
+      countryName: countryName,
+      city: cityName,
+      addressLine1: addressLine1,
+      addressLine2: addressLine2,
+      zipCode: zipCode,
       position: payload.jobPositionName ?? 'Non assigné',
       department: payload.department ?? payload.departmentName ?? payload.departments ?? '',
       manager: payload.managerName ?? '',
@@ -507,11 +522,18 @@ export class EmployeeService {
     return `${cleanCode} ${cleanPhone}`.trim();
   }
 
-  private formatAddress(address?: EmployeeAddressResponse): string {
+  private formatAddress(address?: any): string {
     if (!address) {
       return '';
     }
-      const parts = [address.addressLine1, address.addressLine2, address.cityName, address.zipCode, address.countryName]
+    
+    const line1 = address.addressLine1 || address.AddressLine1;
+    const line2 = address.addressLine2 || address.AddressLine2;
+    const city = address.cityName || address.CityName;
+    const zip = address.zipCode || address.ZipCode;
+    const country = address.countryName || address.CountryName;
+
+    const parts = [line1, line2, city, zip, country]
       .filter(part => !!part)
       .map(part => part?.trim());
     return parts.join(', ');

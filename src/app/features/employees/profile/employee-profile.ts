@@ -91,8 +91,8 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
   private readonly TAB_IDS = ['0', '1', '2', '3', '4', '5', '6'] as const;
   private readonly TAB_FIELD_MAP: Record<string, (keyof EmployeeProfileModel)[]> = {
-    '0': ['firstName', 'lastName', 'cin', 'maritalStatus', 'birthDate', 'birthPlace'],
-    '1': ['professionalEmail', 'personalEmail', 'phone', 'address'],
+    '0': ['firstName', 'lastName', 'cin', 'maritalStatus', 'dateOfBirth', 'birthPlace'],
+    '1': ['professionalEmail', 'personalEmail', 'phone', 'address', 'countryId', 'countryName', 'city', 'addressLine1', 'addressLine2', 'zipCode'],
     '2': ['position', 'department', 'manager', 'contractType', 'startDate', 'endDate', 'probationPeriod'],
     '3': ['baseSalary', 'transportAllowance', 'mealAllowance', 'seniorityBonus', 'benefitsInKind', 'paymentMethod'],
     '4': ['cnss', 'amo', 'cimr', 'annualLeave'],
@@ -143,12 +143,18 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     lastName: 'Last Name',
     cin: 'National ID',
     maritalStatus: 'Marital Status',
-    birthDate: 'Date of Birth',
+    dateOfBirth: 'Date of Birth',
     birthPlace: 'Place of Birth',
     professionalEmail: 'Professional Email',
     personalEmail: 'Personal Email',
     phone: 'Phone',
     address: 'Address',
+    countryId: 'Country',
+    countryName: 'Country',
+    city: 'City',
+    addressLine1: 'Address Line 1',
+    addressLine2: 'Address Line 2',
+    zipCode: 'Zip Code',
     position: 'Position',
     department: 'Department',
     manager: 'Manager',
@@ -413,6 +419,13 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
   getPaymentMethodLabel(): string {
     return this.paymentMethodMap[this.employee().paymentMethod] || '';
+  }
+
+  getCountryLabel(): string {
+    const countryId = this.employee().countryId;
+    if (!countryId) return '-';
+    const country = this.formData().countries.find(c => c.id === countryId);
+    return country?.label || '-';
   }
 
   // Helper to update employee signal (triggers effect)
@@ -822,12 +835,18 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       photo: undefined,
       cin: '',
       maritalStatus: 'single',
-      birthDate: '',
+      dateOfBirth: '',
       birthPlace: '',
       professionalEmail: '',
       personalEmail: '',
       phone: '',
       address: '',
+      countryId: undefined,
+      countryName: '',
+      city: '',
+      addressLine1: '',
+      addressLine2: '',
+      zipCode: '',
       position: '',
       department: '',
       manager: '',

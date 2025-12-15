@@ -140,3 +140,15 @@
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
+
+.phone-combo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .phone-combo {
+    grid-template-columns: 1fr;
+  }
+}
