@@ -157,12 +157,11 @@
               </h1>
               <p class="text-(--text-secondary) mb-2">{{ employee().position }}</p>
               <div class="flex items-center gap-2">
-                <p-tag
-                  [value]="getStatusLabel()"
-                  [severity]="getStatusSeverity()"
-                  [rounded]="true"
-                  class="tag"
-                ></p-tag>
+                <app-tag
+                  [label]="getStatusLabel()"
+                  [variant]="getStatusSeverity()"
+                  size="sm"
+                ></app-tag>
                 <span class="text-sm text-(--text-secondary)">
                   {{ employee().department }}
                 </span>

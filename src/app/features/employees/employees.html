@@ -147,13 +147,48 @@
       >
         <ng-template pTemplate="header">
           <tr class="bg-gray-50">
-            <th class="font-semibold">{{ 'employees.table.employee' | translate }}</th>
-            <th class="font-semibold">{{ 'employees.table.position' | translate }}</th>
-            <th class="font-semibold">{{ 'employees.table.department' | translate }}</th>
-            <th class="font-semibold">{{ 'employees.table.contract' | translate }}</th>
-            <th class="font-semibold">{{ 'employees.table.startDate' | translate }}</th>
-            <th class="font-semibold">{{ 'employees.table.status' | translate }}</th>
-            <th class="font-semibold">{{ 'employees.table.documents' | translate }}</th>
+            <th pSortableColumn="firstName" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.employee' | translate }}
+                <p-sortIcon field="firstName"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="position" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.position' | translate }}
+                <p-sortIcon field="position"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="department" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.department' | translate }}
+                <p-sortIcon field="department"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="contractType" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.contract' | translate }}
+                <p-sortIcon field="contractType"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="startDate" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.startDate' | translate }}
+                <p-sortIcon field="startDate"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="status" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.status' | translate }}
+                <p-sortIcon field="status"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="missingDocuments" class="font-semibold">
+              <div class="flex items-center gap-2">
+                {{ 'employees.table.documents' | translate }}
+                <p-sortIcon field="missingDocuments"></p-sortIcon>
+              </div>
+            </th>
           </tr>
         </ng-template>
 
@@ -200,12 +235,11 @@
 
             <!-- Contract Type -->
             <td>
-              <span
-                [class]="getContractTypeColor(employee.contractType)"
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
-              >
-                {{ employee.contractType }}
-              </span>
+              <app-tag
+                [label]="employee.contractType"
+                [variant]="getContractTypeVariant(employee.contractType)"
+                size="sm"
+              ></app-tag>
             </td>
 
             <!-- Start Date -->
@@ -217,11 +251,11 @@
 
             <!-- Status -->
             <td>
-              <p-tag
-                [value]="getStatusLabel(employee.status)"
-                [severity]="getStatusSeverity(employee.status)"
-                [rounded]="true"
-              ></p-tag>
+              <app-tag
+                [label]="getStatusLabel(employee.status)"
+                [variant]="getStatusSeverity(employee.status)"
+                size="sm"
+              ></app-tag>
             </td>
 
             <!-- Missing Documents Badge -->

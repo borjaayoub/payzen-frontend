@@ -27,6 +27,9 @@ import { CanComponentDeactivate } from '@app/core/guards/unsaved-changes.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 
+import { TagComponent } from '../../../shared/components/tag/tag.component';
+import { TagVariant } from '../../../shared/components/tag/tag.types';
+
 interface Document {
   type: string;
   name: string;
@@ -57,7 +60,7 @@ interface HistoryEvent {
     SelectModule,
     InputNumberModule,
     TextareaModule,
-    TagModule,
+    TagComponent,
     AvatarModule,
     FileUploadModule,
     TimelineModule,
@@ -399,10 +402,10 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     return `${firstInitial}${lastInitial}`.toUpperCase();
   }
 
-  getStatusSeverity(): 'success' | 'warn' | 'danger' {
+  getStatusSeverity(): TagVariant {
     const status = this.employee().status;
-    if (status === 'active') return 'success';
-    if (status === 'on_leave') return 'warn';
+    if (status === 'active') return 'warning';
+    if (status === 'on_leave') return 'success';
     return 'danger';
   }
 

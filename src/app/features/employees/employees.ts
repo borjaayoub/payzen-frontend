@@ -7,6 +7,8 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { TagComponent } from '../../shared/components/tag/tag.component';
+import { TagVariant } from '../../shared/components/tag/tag.types';
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
@@ -24,7 +26,7 @@ import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesRes
     ButtonModule,
     InputTextModule,
     SelectModule,
-    TagModule,
+    TagComponent,
     AvatarModule,
     BadgeModule,
     IconFieldModule,
@@ -182,13 +184,13 @@ export class EmployeesPage implements OnInit {
     return `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`;
   }
 
-  getStatusSeverity(status: string): 'success' | 'warn' | 'danger' {
-    const severityMap: Record<string, 'success' | 'warn' | 'danger'> = {
+  getStatusSeverity(status: string): TagVariant {
+    const severityMap: Record<string, TagVariant> = {
       active: 'success',
-      on_leave: 'warn',
+      on_leave: 'warning',
       inactive: 'danger'
     };
-    return severityMap[status] || 'warn';
+    return severityMap[status] || 'warning';
   }
 
   getStatusLabel(status: string): string {
@@ -200,13 +202,13 @@ export class EmployeesPage implements OnInit {
     return labelMap[status] || status;
   }
 
-  getContractTypeColor(type: string): string {
-    const colorMap: Record<string, string> = {
-      CDI: 'bg-green-100 text-green-600',
-      CDD: 'bg-blue-100 text-blue-600',
-      Stage: 'bg-purple-100 text-purple-600'
+  getContractTypeVariant(type: string): TagVariant {
+    const variantMap: Record<string, TagVariant> = {
+      CDI: 'success',
+      CDD: 'info',
+      Stage: 'warning'
     };
-    return colorMap[type] || 'bg-gray-100 text-gray-600';
+    return variantMap[type] || 'default';
   }
 
   viewEmployee(employee: Employee) {
