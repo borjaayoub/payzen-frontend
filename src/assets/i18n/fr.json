@@ -96,6 +96,7 @@
     "clear": "Effacer",
     "retry": "Réessayer",
     "apply": "Appliquer",
+    "ok": "OK",
     "unsavedChanges": {
       "title": "Modifications non enregistrées",
       "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
@@ -349,7 +350,7 @@
   "language": {
     "select": "Sélectionner la Langue",
     "en": "Anglais",
-    "es": "Espagnol",
+    "ar": "Arabe",
     "fr": "Français"
   }
 }

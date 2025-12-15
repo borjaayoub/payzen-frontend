@@ -43,15 +43,22 @@ export class Sidebar {
 
   // === Internal state ===
   private readonly isCollapsedSignal = signal(this.Collapsed());
+  private readonly isContentCollapsedSignal = signal(this.Collapsed());
   private readonly authService = inject(AuthService);
+  private toggleTimeout: any;
 
   constructor() {
     // Sync internal state when input changes externally
-    effect(() => this.isCollapsedSignal.set(this.Collapsed()));
+    effect(() => {
+      const val = this.Collapsed();
+      this.isCollapsedSignal.set(val);
+      this.isContentCollapsedSignal.set(val);
+    });
   }
 
   // === Exposed collapsed state for templates ===
-  readonly isSidebarCollapsed = computed(() => this.isCollapsedSignal());
+  // This now reflects the delayed content state
+  readonly isSidebarCollapsed = computed(() => this.isContentCollapsedSignal());
 
   // === Current user info ===
   readonly currentUser = this.authService.currentUser;
@@ -86,6 +93,23 @@ export class Sidebar {
     const next = !this.isCollapsedSignal();
     this.isCollapsedSignal.set(next);
     this.CollapsedChange.emit(next);
+
+    // Clear any existing timeout to handle rapid toggles
+    if (this.toggleTimeout) {
+      clearTimeout(this.toggleTimeout);
+    }
+
+    if (next) {
+      // Collapsing: Delay content change to allow width animation to start/finish
+      this.toggleTimeout = setTimeout(() => {
+        this.isContentCollapsedSignal.set(true);
+      }, 200); // 200ms delay for smoother collapse
+    } else {
+      // Expanding: Delay content change slightly less or same
+      this.toggleTimeout = setTimeout(() => {
+        this.isContentCollapsedSignal.set(false);
+      }, 200);
+    }
   }
 
   // === All Navigation Items with Permission Config ===
@@ -94,12 +118,6 @@ export class Sidebar {
       label: 'nav.dashboard', 
       icon: 'pi pi-home', 
       routerLink: '/dashboard',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.ADMIN_PAYZEN]
-    },
-    { 
-      label: 'nav.company', 
-      icon: 'pi pi-building', 
-      routerLink: '/company',
       requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.ADMIN_PAYZEN]
     },
     { 

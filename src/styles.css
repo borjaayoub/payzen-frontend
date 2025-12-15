@@ -305,8 +305,7 @@
 
   /* Input */
   .input {
-    @apply w-full px-3 py-2 border border-(--border-color-medium) rounded-md placeholder:text-(--text-muted) placeholder:text-sm transition-colors;
-    
+    @apply w-full px-3 py-2 border border-(--border-color-medium) rounded-md placeholder:text-(--text-muted) placeholder:text-sm transition-colors min-h-[42px];
   }
 
   .input:focus {
@@ -409,7 +408,7 @@
 
   /* Read-only Field */
   .read-only-value, .form-value {
-    @apply text-gray-900 border border-gray-200 bg-gray-50 rounded-md px-3 py-2;
+    @apply text-gray-900 border border-gray-200 bg-gray-50 rounded-md px-3 py-2 min-h-[42px] flex items-center;
   }
 
   /* Ghost Button */
@@ -428,7 +427,7 @@
 
   /* Read-only Value Style */
   .read-only-value {
-    @apply px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm;
+    @apply px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm min-h-[42px] flex items-center;
   }
 }
 
@@ -445,20 +444,8 @@
   @apply right-0 left-auto border-r-0 border-l;
 }
 
-[dir="rtl"] .sidebar-item {
-  @apply flex-row-reverse text-right;
-}
-
-[dir="rtl"] .sidebar-item.active::before {
-  left: auto;
-  right: 0;
-  border-radius: 4px 0 0 4px;
-}
-
 /* Header and navigation */
-[dir="rtl"] header {
-  @apply flex-row-reverse;
-}
+/* Removed flex-row-reverse to allow natural RTL flow */
 
 /* Form elements */
 [dir="rtl"] input,
@@ -484,10 +471,25 @@
 }
 
 /* Don't reverse these specific layouts */
-[dir="rtl"] .flex-col {
-  flex-direction: column !important;
+/* Removed flex-col overrides that were breaking responsive layouts */
+
+/* Fix PrimeNG IconField in RTL */
+[dir="rtl"] .p-iconfield-left .p-inputtext {
+  padding-left: 0.75rem;
+  padding-right: 2.5rem;
 }
 
-[dir="rtl"] .flex-col-reverse {
-  flex-direction: column-reverse !important;
+[dir="rtl"] .p-iconfield-left .p-inputicon {
+  right: 0.75rem;
+  left: auto;
+}
+
+[dir="rtl"] .p-iconfield-right .p-inputtext {
+  padding-right: 0.75rem;
+  padding-left: 2.5rem;
+}
+
+[dir="rtl"] .p-iconfield-right .p-inputicon {
+  left: 0.75rem;
+  right: auto;
 }

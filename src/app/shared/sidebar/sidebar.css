@@ -1,1 +1,5 @@
 :host { display: block; height: 100%; }
+
+[dir='rtl'] .sidebar-toggle-icon {
+  transform: rotate(180deg);
+}

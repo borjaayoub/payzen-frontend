@@ -1,11 +1,11 @@
 <aside
   [style.width.px]="currentWidth()"
   styleClass="sidebar"
-  class="sidebar flex flex-col font-sans shadow-md"
+  class="sidebar flex flex-col font-sans shadow-md transition-all duration-300 ease-in-out overflow-hidden h-full bg-white border-r border-gray-200"
   [ngClass]="className()"
 >
   <!-- Brand -->
-  <div class="flex items-center justify-between px-6 py-6">
+  <div class="flex items-center py-6" [class.px-6]="!isSidebarCollapsed()" [class.px-2]="isSidebarCollapsed()" [class.justify-between]="!isSidebarCollapsed()" [class.justify-center]="isSidebarCollapsed()">
     @if (!isSidebarCollapsed()) {
       <div class="flex items-center gap-2">
         <span class="text-(--color-primary) font-bold text-2xl tracking-tight">{{ 'app.name' | translate }}</span>
@@ -14,17 +14,27 @@
         </span>
       </div>
     }
+
+    @if (Collapsible()) {
+      <button
+        pButton
+        type="button"
+        [icon]="isSidebarCollapsed() ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
+        class="p-button-text p-button-rounded p-button-sm text-gray-400 hover:text-gray-600 sidebar-toggle-icon w-8 h-8"
+        (click)="toggle()"
+      ></button>
+    }
   </div>
 
   <!-- Nav -->
   <nav
-    [class]="'flex-1 flex flex-col overflow-y-auto ' + (isSidebarCollapsed() ? 'gap-1 px-2 pt-2' : 'gap-1 px-3 pt-2')"
+    [class]="'flex-1 flex flex-col overflow-y-auto overflow-x-hidden ' + (isSidebarCollapsed() ? 'gap-1 px-2 pt-2' : 'gap-1 px-3 pt-2')"
     role="navigation"
     [attr.aria-label]="'nav.mainMenu' | translate"
   >
     <app-sidebar-group>
       @if (!isSidebarCollapsed()) {
-        <app-sidebar-group-label class="px-3 mb-2 mt-2">{{ 'nav.mainMenu' | translate }}</app-sidebar-group-label>
+        <app-sidebar-group-label class="px-3 mb-2 mt-2 whitespace-nowrap">{{ 'nav.mainMenu' | translate }}</app-sidebar-group-label>
       }
 
       @for (item of menuItems(); track item.label) {
@@ -38,10 +48,10 @@
           [pTooltip]="isSidebarCollapsed() ? (item.label | translate) : ''"
           tooltipPosition="right"
         >
-          <i [class]="item.icon + (isSidebarCollapsed() ? '' : ' mr-3')" class="text-lg transition-colors group-hover:text-(--primary)" aria-hidden="true"></i>
+          <i [class]="item.icon + (isSidebarCollapsed() ? '' : ' me-3')" class="text-lg transition-colors group-hover:text-(--primary)" aria-hidden="true"></i>
 
           @if (!isSidebarCollapsed()) {
-            <span class="font-medium text-sm">{{ item.label | translate }}</span>
+            <span class="font-medium text-sm whitespace-nowrap">{{ item.label | translate }}</span>
           }
         </a>
       }
@@ -60,7 +70,7 @@
       tooltipPosition="right"
       [attr.aria-label]="'User profile: ' + userDisplayName()"
     >
-      <p-avatar icon="pi pi-user" shape="circle" styleClass="bg-gray-100 text-gray-600"></p-avatar>
+      <p-avatar icon="pi pi-user" shape="circle" class="bg-gray-100 text-gray-600"></p-avatar>
 
       @if (!isSidebarCollapsed()) {
         <div class="flex-1 text-left overflow-hidden">

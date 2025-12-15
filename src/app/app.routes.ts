@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { AuthLayout } from './layouts/auth-layout/auth-layout';
 import { Dashboard } from './features/dashboard/dashboard';
-import { CompanyPage } from './features/company/company';
 import { EmployeesPage } from './features/employees/employees';
 import { EmployeeProfile } from './features/employees/profile/employee-profile';
 import { EmployeeCreatePage } from './features/employees/create/employee-create';
@@ -37,10 +36,6 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: Dashboard
-      },
-      {
-        path: 'company',
-        component: CompanyPage
       },
       {
         path: 'employees',
