@@ -33,6 +33,11 @@ export class LoginPage {
   loginForm: FormGroup;
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly showPassword = signal(false);
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update(v => !v);
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -41,8 +46,7 @@ export class LoginPage {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 

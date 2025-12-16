@@ -67,7 +67,10 @@ export class AuthService {
     const token = this.getStoredToken();
     const user = this.getStoredUser();
     
-    if (token && user) {
+    // Validate token before restoring auth state
+    if (token && user && this.isTokenValid(token)) {
+      this.currentUser.set(user);
+      this.isAuthenticated.set(true);
       this.updateAuthState({
         user,
         token,
@@ -75,6 +78,49 @@ export class AuthService {
         isLoading: false,
         error: null
       });
+    } else {
+      // Clear invalid/expired session
+      this.clearStorage();
+      this.currentUser.set(null);
+      this.isAuthenticated.set(false);
+    }
+  }
+
+  /**
+   * Check if JWT token is valid and not expired
+   */
+  private isTokenValid(token: string): boolean {
+    try {
+      const payload = this.decodeToken(token);
+      if (!payload) return false;
+      
+      // Check expiration
+      const exp = payload.exp;
+      if (!exp) return true; // No expiration claim, assume valid
+      
+      const expirationDate = new Date(exp * 1000);
+      const now = new Date();
+      
+      // Add 30 second buffer to account for clock skew
+      return expirationDate.getTime() > now.getTime() + 30000;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Decode JWT token payload
+   */
+  private decodeToken(token: string): any {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch {
+      return null;
     }
   }
 

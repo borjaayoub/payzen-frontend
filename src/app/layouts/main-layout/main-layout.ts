@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -32,6 +32,8 @@ import { LanguageSwitcher } from '../../shared/components/language-switcher/lang
 export class MainLayout {
   isSidebarOpen = signal(false);
   searchQuery = signal('');
+  readonly isTablet = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Menu items - Using PrimeIcons (pi pi-*)
   menuItems: MenuItem[] = [
@@ -62,7 +64,33 @@ export class MainLayout {
     }
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      const mql = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
+
+      const update = () => {
+        this.isTablet.set(mql.matches);
+        // Ensure the temporary mobile drawer state doesn't apply on tablet.
+        if (mql.matches) {
+          this.isSidebarOpen.set(false);
+        }
+      };
+
+      update();
+
+      const listener = () => update();
+      if (typeof mql.addEventListener === 'function') {
+        mql.addEventListener('change', listener);
+        this.destroyRef.onDestroy(() => mql.removeEventListener('change', listener));
+      } else {
+        // Safari < 14
+        // eslint-disable-next-line deprecation/deprecation
+        mql.addListener(listener);
+        // eslint-disable-next-line deprecation/deprecation
+        this.destroyRef.onDestroy(() => mql.removeListener(listener));
+      }
+    }
+  }
 
   toggleSidebar() {
     this.isSidebarOpen.update(open => !open);

@@ -39,6 +39,8 @@ export class Sidebar {
   readonly Collapsible = input<boolean>(false);
   readonly Collapsed = input<boolean>(false);
   readonly CollapsedChange = output<boolean>();
+  readonly showCloseButton = input<boolean>(false);
+  readonly closeButtonClick = output<void>();
   readonly className = input<string | string[] | Record<string, boolean> | null>(null);
 
   // === Internal state ===
@@ -137,7 +139,7 @@ export class Sidebar {
       icon: 'pi pi-chart-bar', 
       routerLink: '/reports',
       requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.CABINET, UserRole.ADMIN_PAYZEN]
-    },
+    }
   ];
 
   // === Filtered menu items based on user role ===
@@ -158,5 +160,9 @@ export class Sidebar {
   // === Methods ===
   logout(): void {
     this.authService.logout();
+  }
+
+  closeSidebar(): void {
+    this.closeButtonClick.emit();
   }
 }

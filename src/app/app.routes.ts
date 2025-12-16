@@ -52,6 +52,10 @@ export const routes: Routes = [
         component: EmployeeProfile,
         canActivate: [rhGuard],
         canDeactivate: [unsavedChangesGuard]
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/settings/settings').then(m => m.SettingsComponent)
       }
     ]
   },

@@ -10,5 +10,5 @@ import { LanguageSwitcher } from '../../shared/components/language-switcher/lang
   styleUrl: './auth-layout.css',
 })
 export class AuthLayout {
-
+  readonly currentYear = new Date().getFullYear();
 }

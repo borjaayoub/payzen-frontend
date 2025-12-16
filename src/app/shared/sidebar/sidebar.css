@@ -3,3 +3,8 @@
 [dir='rtl'] .sidebar-toggle-icon {
   transform: rotate(180deg);
 }
+
+/* Fade animation for collapsing content */
+:host .transition-opacity {
+  transition: opacity 0.15s ease-out;
+}
