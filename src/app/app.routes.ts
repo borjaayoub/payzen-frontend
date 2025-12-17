@@ -54,8 +54,8 @@ export const routes: Routes = [
         canDeactivate: [unsavedChangesGuard]
       },
       {
-        path: 'settings',
-        loadComponent: () => import('./features/settings/settings').then(m => m.SettingsComponent)
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent)
       }
     ]
   },

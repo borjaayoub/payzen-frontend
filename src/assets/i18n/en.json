@@ -8,9 +8,23 @@
     "dashboard": "Dashboard",
     "company": "Company",
     "settings": "Settings",
+    "profile": "Profile",
     "employees": "Employees",
     "payroll": "Payroll",
     "reports": "Reports"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalSettings": "Personal Settings",
+    "appSettings": "App Settings",
+    "personalInfo": "Personal Information",
+    "personalInfoDesc": "Manage your personal details, password, and contact information here.",
+    "appPreferences": "Application Preferences",
+    "appPreferencesDesc": "Customize your application experience, notifications, and display settings.",
+    "fullName": "Full Name",
+    "email": "Email",
+    "theme": "Theme",
+    "comingSoon": "Coming soon"
   },
   "dashboard": {
     "title": "Dashboard",
