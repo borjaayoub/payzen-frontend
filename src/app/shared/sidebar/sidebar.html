@@ -75,8 +75,8 @@
   <!-- User Profile -->
   <div class="mt-auto border-t border-gray-200">
     <div class="p-4">
-      <a
-        routerLink="/profile"
+      <div
+        (click)="profileMenu.toggle($event)"
         [class]="'w-full hover:bg-gray-50 flex cursor-pointer items-center rounded-lg transition-all duration-200 border border-transparent hover:border-gray-200 p-2 ' + (isSidebarCollapsed() ? 'justify-center' : 'gap-3')"
         [pTooltip]="isSidebarCollapsed() ? userDisplayName() : ''"
         tooltipPosition="right"
@@ -91,36 +91,49 @@
             <div class="font-semibold text-sm text-gray-900 truncate">{{ userDisplayName() }}</div>
             <div class="text-xs text-gray-500 truncate">{{ userRoleLabel() | translate }}</div>
           </div>
-          <i class="pi pi-cog text-xs text-gray-400 group-hover:text-gray-600 transition-colors"></i>
-        }
-      </a>
-
-      <div class="mt-2">
-        @if (!isSidebarCollapsed()) {
-          <!-- Logout Button (expanded) -->
-          <button
-            pButton
-            type="button"
-            class="w-full btn btn-ghost text-gray-500 hover:text-red-600 hover:bg-red-50 justify-center px-2"
-            [label]="'auth.logout' | translate"
-            icon="pi pi-sign-out"
-            (click)="logout()"
-          ></button>
-        } @else {
-          <!-- Logout Button (collapsed) -->
-          <div class="flex justify-center">
-            <button
-              pButton
-              type="button"
-              class="p-button-text p-button-rounded text-gray-500 hover:text-red-600 hover:bg-red-50"
-              icon="pi pi-sign-out"
-              (click)="logout()"
-              [pTooltip]="'auth.logout' | translate"
-              tooltipPosition="right"
-            ></button>
-          </div>
+          <i class="pi pi-chevron-up text-xs text-gray-400 group-hover:text-gray-600 transition-colors"></i>
         }
       </div>
+
+      <p-menu #profileMenu [model]="profileMenuItems()" [popup]="true" appendTo="body" styleClass="profile-menu shadow-lg border border-gray-200 rounded-xl overflow-hidden min-w-[240px]">
+        <ng-template pTemplate="item" let-item>
+            @if (!item.separator) {
+                <!-- User Header -->
+                @if (item.id === 'user-header') {
+                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-(--primary)/10 flex items-center justify-center">
+                                <i class="pi pi-user text-(--primary)"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-sm text-gray-900 truncate">{{ userDisplayName() }}</div>
+                                <div class="text-xs text-gray-500 truncate">{{ item.label }}</div>
+                            </div>
+                        </div>
+                    </div>
+                } @else if (item.id === 'logout') {
+                    <!-- Logout Item -->
+                    <button 
+                        type="button"
+                        class="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+                        (click)="logout(); profileMenu.hide()">
+                        <i [class]="item.icon" class="text-base"></i>
+                        <span class="font-medium text-sm">{{ item.label | translate }}</span>
+                    </button>
+                } @else {
+                    <!-- Regular Menu Item -->
+                    <a [routerLink]="item.routerLink" 
+                       [attr.href]="item.url"
+                       [attr.target]="item.target"
+                       class="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 hover:text-(--primary) no-underline transition-colors duration-150 cursor-pointer group"
+                       (click)="item.command ? item.command({originalEvent: $event, item: item}) : null; profileMenu.hide()">
+                        <i [class]="item.icon" class="text-base text-gray-400 group-hover:text-(--primary) transition-colors"></i>
+                        <span class="font-medium text-sm">{{ item.label | translate }}</span>
+                    </a>
+                }
+            }
+        </ng-template>
+      </p-menu>
     </div>
   </div>
 </aside>

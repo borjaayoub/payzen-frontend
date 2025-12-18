@@ -1,0 +1,58 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900">{{ 'company.users.title' | translate }}</h3>
+      <p class="text-sm text-gray-500">{{ 'company.users.subtitle' | translate }}</p>
+    </div>
+    <button pButton icon="pi pi-user-plus" [label]="'company.users.invite' | translate" class="p-button-primary"></button>
+  </div>
+
+  <!-- Users List -->
+  <div class="border rounded-lg overflow-hidden">
+    <p-table [value]="users" [rowHover]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="w-[40%]">{{ 'company.users.table.user' | translate }}</th>
+          <th class="w-[30%]">{{ 'company.users.table.role' | translate }}</th>
+          <th class="w-[20%]">{{ 'company.users.table.status' | translate }}</th>
+          <th class="w-[10%]"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <p-avatar [label]="user.initials" shape="circle" size="normal" [styleClass]="'bg-' + user.color + '-100 text-' + user.color + '-700'"></p-avatar>
+              <div>
+                <div class="font-medium text-gray-900">{{ user.name }}</div>
+                <div class="text-sm text-gray-500">{{ user.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {{ user.role | translate }}
+            </span>
+          </td>
+          <td>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-green-100 text-green-700': user.status === 'active',
+                'bg-yellow-100 text-yellow-700': user.status === 'pending'
+              }">
+              <span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
+                'bg-green-500': user.status === 'active',
+                'bg-yellow-500': user.status === 'pending'
+              }"></span>
+              {{ 'company.status.' + user.status | translate }}
+            </span>
+          </td>
+          <td class="text-right">
+            <button pButton icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-secondary p-button-sm"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

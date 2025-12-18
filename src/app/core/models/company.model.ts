@@ -3,6 +3,8 @@ export interface Company {
   id: string;
   legalName: string;              // Raison sociale
   ice: string;                     // ICE number
+  rc?: string;                     // Registre de Commerce
+  patente?: string;                // Patente
   cnss: string;                    // CNSS number
   address: string;
   city: string;
@@ -35,12 +37,17 @@ export interface HRParameters {
   workingDays: string[];
   workingHoursPerDay: number;
   workingHoursPerWeek: number;
+  standardHoursPerDay?: number;
   leaveCalculationMode: string;
   absenceCalculationMode: string;
   annualLeaveDays: number;
   publicHolidays: string[];
   probationPeriodDays: number;
   noticePeriodDays: number;
+  defaultPaymentMode?: 'virement' | 'cheque' | 'especes';
+  leaveAccrualRate?: 1.5 | 2.0;
+  includeSaturdays?: boolean;
+  rib?: string;
 }
 
 // Working day type

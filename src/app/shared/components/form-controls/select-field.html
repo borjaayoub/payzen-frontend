@@ -16,24 +16,51 @@
   }
 
   <div class="fc-control">
-    <p-select
-      class="input"
-      [id]="resolvedInputId"
-      [class]="invalid ? 'fc-select fc-select-invalid' : 'fc-select'"
-      [options]="options"
-      [optionLabel]="optionLabel"
-      [optionValue]="optionValue"
-      [optionDisabled]="optionDisabled"
-      [placeholder]="placeholder"
-      [appendTo]="appendTo"
-      [disabled]="disabled"
-      [panelStyleClass]="'fc-select-panel'"
-      [ngModel]="value"
-      (ngModelChange)="handleChange($event)"
-      (onBlur)="handleBlur()"
-      [attr.aria-invalid]="ariaInvalid"
-      [attr.aria-label]="ariaLabel || (hideLabel ? label : null)"
-    ></p-select>
+    @if (variant === 'autocomplete') {
+      <p-autoComplete
+        class="input"
+        [inputId]="resolvedInputId"
+        [class]="invalid ? 'fc-select fc-select-invalid' : 'fc-select'"
+        [suggestions]="filteredOptions"
+        (completeMethod)="search($event)"
+        [optionLabel]="optionLabel"
+        [dataKey]="optionValue"
+        [dropdown]="true"
+        [forceSelection]="true"
+        [placeholder]="placeholder"
+        [appendTo]="appendTo"
+        [disabled]="disabled"
+        [panelStyleClass]="'fc-select-panel fc-no-filter-icon'"
+        [ngModel]="value"
+        (onSelect)="onSelect($event)"
+        (onClear)="onClear()"
+        (onBlur)="handleBlur()"
+        [showClear]="showClear"
+        [attr.aria-invalid]="ariaInvalid"
+        [attr.aria-label]="ariaLabel || (hideLabel ? label : null)"
+      ></p-autoComplete>
+    } @else {
+      <p-select
+        class="input"
+        [id]="resolvedInputId"
+        [class]="invalid ? 'fc-select fc-select-invalid' : 'fc-select'"
+        [options]="options"
+        [optionLabel]="optionLabel"
+        [optionValue]="optionValue"
+        [optionDisabled]="optionDisabled"
+        [placeholder]="placeholder"
+        [appendTo]="appendTo"
+        [disabled]="disabled"
+        [filter]="filter"
+        [showClear]="showClear"
+        [panelStyleClass]="'fc-select-panel fc-no-filter-icon'"
+        [ngModel]="value"
+        (ngModelChange)="handleChange($event)"
+        (onBlur)="handleBlur()"
+        [attr.aria-invalid]="ariaInvalid"
+        [attr.aria-label]="ariaLabel || (hideLabel ? label : null)"
+      ></p-select>
+    }
   </div>
 
   @if(errorList.length) {

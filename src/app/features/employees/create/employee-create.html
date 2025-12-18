@@ -90,6 +90,7 @@
                   [label]="'employees.create.form.firstName' | translate"
                   [placeholder]="'Amal'"
                   [requiredMark]="true"
+                  icon="pi pi-user"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="firstName"
                 ></app-input-field>
@@ -98,6 +99,7 @@
                   [label]="'employees.create.form.lastName' | translate"
                   [placeholder]="'El Idrissi'"
                   [requiredMark]="true"
+                  icon="pi pi-user"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="lastName"
                 ></app-input-field>
@@ -107,6 +109,7 @@
                   type="email"
                   [placeholder]="'amal@entreprise.ma'"
                   [requiredMark]="true"
+                  icon="pi pi-envelope"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate), email: ('employees.create.validation.email' | translate) }"
                   formControlName="email"
                 ></app-input-field>
@@ -115,6 +118,7 @@
                   [label]="'employees.create.form.cin' | translate"
                   [placeholder]="'AA123456'"
                   [requiredMark]="true"
+                  icon="pi pi-id-card"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="cinNumber"
                 ></app-input-field>
@@ -123,6 +127,7 @@
                   [label]="'employees.create.form.birthDate' | translate"
                   type="date"
                   [requiredMark]="true"
+                  icon="pi pi-calendar"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="birthDate"
                 ></app-input-field>
@@ -149,6 +154,7 @@
                       [hideLabel]="true"
                       [showErrors]="false"
                       [placeholder]="'1234-5678'"
+                      icon="pi pi-phone"
                       formControlName="phone"
                       [ariaLabel]="'employees.create.form.phone' | translate"
                     ></app-input-field>
@@ -280,6 +286,7 @@
                   [label]="'employees.create.form.startDate' | translate"
                   type="date"
                   [requiredMark]="true"
+                  icon="pi pi-calendar"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="startDate"
                 ></app-input-field>
@@ -288,6 +295,7 @@
                   [label]="'employees.create.form.salary' | translate"
                   type="number"
                   placeholder="12000"
+                  icon="pi pi-money-bill"
                   formControlName="salary"
                 ></app-input-field>
               </div>
@@ -320,6 +328,7 @@
                   optionLabel="label"
                   optionValue="id"
                   [filter]="true"
+                  variant="autocomplete"
                   [appendTo]="'body'"
                   formControlName="cityId"
                 ></app-select-field>
@@ -327,6 +336,7 @@
                 <div class="md:col-span-2">
                   <app-input-field
                     [label]="'employees.create.form.addressLine1' | translate"
+                    icon="pi pi-map-marker"
                     formControlName="addressLine1"
                   ></app-input-field>
                 </div>
@@ -334,12 +344,14 @@
                 <div class="md:col-span-2">
                   <app-input-field
                     [label]="'employees.create.form.addressLine2' | translate"
+                    icon="pi pi-map-marker"
                     formControlName="addressLine2"
                   ></app-input-field>
                 </div>
 
                 <app-input-field
                   [label]="'employees.create.form.zipCode' | translate"
+                  icon="pi pi-map"
                   formControlName="zipCode"
                 ></app-input-field>
               </div>

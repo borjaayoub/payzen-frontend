@@ -38,6 +38,11 @@ export const routes: Routes = [
         component: Dashboard
       },
       {
+        path: 'company',
+        loadComponent: () => import('./features/company/company.component').then(m => m.CompanyComponent),
+        canActivate: [rhGuard]
+      },
+      {
         path: 'employees',
         component: EmployeesPage,
         canActivate: [rhGuard]

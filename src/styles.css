@@ -329,13 +329,52 @@
 
   /* Select/Dropdown Panel Styling */
   .p-select-overlay,
-  .p-dropdown-panel {
-    @apply border border-gray-200 rounded-md shadow-lg mt-1 overflow-hidden;
+  .p-dropdown-panel,
+  .p-autocomplete-panel {
+    @apply border border-gray-200 rounded-md shadow-lg mt-1 overflow-hidden bg-white;
   }
 
   .p-select-option,
-  .p-dropdown-item {
+  .p-dropdown-item,
+  .p-autocomplete-item {
     @apply px-3 py-2 text-sm text-gray-700 transition-all duration-150 cursor-pointer;
+  }
+
+  .p-autocomplete-item:hover,
+  .p-dropdown-item:hover {
+    @apply bg-gray-50;
+  }
+
+  .p-autocomplete-item.p-highlight,
+  .p-dropdown-item.p-highlight {
+    @apply bg-blue-50 text-blue-600 font-medium;
+  }
+
+  /* Dropdown Filter Input */
+  .p-select-filter-container,
+  .p-dropdown-filter-container {
+    @apply p-2 border-b border-gray-100;
+  }
+
+  .p-select-filter,
+  .p-dropdown-filter {
+    @apply w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500;
+  }
+
+  .p-select-filter-icon,
+  .p-dropdown-filter-icon,
+  .fc-no-filter-icon .p-select-filter-icon,
+  .fc-no-filter-icon .p-icon,
+  .p-select-overlay .p-icon-wrapper,
+  .p-select-filter-container .p-icon,
+  .p-select-filter-container svg,
+  .p-iconfield .p-inputicon:has(.p-icon) {
+    @apply !hidden;
+  }
+
+  .fc-no-filter-icon .p-select-filter,
+  .p-select-filter {
+    @apply w-full !px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500;
   }
 
   .p-select-option:hover,

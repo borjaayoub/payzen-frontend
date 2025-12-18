@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { SidebarGroupComponent } from './sidebar-group/sidebar-group.component';
@@ -24,6 +25,7 @@ interface MenuItemConfig extends MenuItem {
     RouterLinkActive,
     AvatarModule,
     ButtonModule,
+    MenuModule,
     TranslateModule,
     TooltipModule,
     SidebarGroupComponent,
@@ -155,6 +157,91 @@ export class Sidebar {
       // Check if user's role is in the required roles
       return item.requiredRoles.includes(user.role as UserRole);
     });
+  });
+
+  // === Profile Menu Items ===
+  readonly profileMenuItems = computed<MenuItem[]>(() => {
+    const user = this.currentUser();
+    const items: MenuItem[] = [];
+
+    // 1. User Info Header
+    if (user) {
+      items.push({
+        id: 'user-header',
+        label: user.email,
+        icon: 'pi pi-envelope',
+        disabled: true
+      });
+      items.push({ separator: true });
+    }
+
+    // 2. Mon Compte (Personal)
+    items.push({
+      label: 'nav.myProfile',
+      icon: 'pi pi-user',
+      routerLink: '/profile'
+    });
+    items.push({
+      label: 'nav.security',
+      icon: 'pi pi-lock',
+      command: () => { /* TODO: Open security settings */ }
+    });
+
+    items.push({ separator: true });
+
+    // 3. App Experience (Preferences)
+    items.push({
+      label: 'nav.theme',
+      icon: 'pi pi-moon',
+      command: () => { /* TODO: Toggle theme */ }
+    });
+    items.push({
+      label: 'nav.language',
+      icon: 'pi pi-globe',
+      command: () => { /* TODO: Open language switcher */ }
+    });
+
+    // 4. Gestion (Specific to Cabinets & Admins)
+    if (user && [UserRole.CABINET, UserRole.ADMIN, UserRole.RH].includes(user.role as UserRole)) {
+      items.push({ separator: true });
+
+      if (user.role === UserRole.CABINET || user.role === UserRole.ADMIN) {
+        items.push({
+          label: 'nav.switchCompany',
+          icon: 'pi pi-building',
+          command: () => { /* TODO: Switch company logic */ }
+        });
+      }
+
+      if ([UserRole.ADMIN, UserRole.RH, UserRole.ADMIN_PAYZEN].includes(user.role as UserRole)) {
+        items.push({
+          label: 'nav.companySettings',
+          icon: 'pi pi-cog',
+          routerLink: '/company'
+        });
+      }
+    }
+
+    items.push({ separator: true });
+
+    // 5. Support
+    items.push({
+      label: 'nav.help',
+      icon: 'pi pi-question-circle',
+      url: 'https://docs.payzen.ma',
+      target: '_blank'
+    });
+
+    items.push({ separator: true });
+
+    // 6. Logout
+    items.push({
+      id: 'logout',
+      label: 'auth.logout',
+      icon: 'pi pi-sign-out'
+    });
+
+    return items;
   });
 
   // === Methods ===

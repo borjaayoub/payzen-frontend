@@ -2,13 +2,15 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Optional, Self } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormsModule, NgControl, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 export type ErrorMessageResolver = string | ((error: any) => string);
 
 @Component({
   selector: 'app-input-field',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, IconFieldModule, InputIconModule],
   templateUrl: './input-field.html',
   styleUrls: ['./input-field.css'],
 })
@@ -26,6 +28,8 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Input() autocomplete?: string;
   @Input() inputId?: string;
   @Input() ariaLabel?: string;
+  @Input() icon?: string;
+  @Input() iconPosition: 'left' | 'right' = 'left';
 
   value: any = '';
   private readonly uid = `input-${Math.random().toString(36).slice(2, 8)}`;

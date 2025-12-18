@@ -1,0 +1,147 @@
+<div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Left Column: Info/Help -->
+  <div class="lg:col-span-1">
+    <div class="p-6 bg-(--info-light) rounded-lg border border-(--info-light)">
+      <h3 class="text-lg font-semibold text-(--info-dark) mb-2">
+        <i class="pi pi-info-circle mr-2"></i>
+        {{ 'company.hrSettings.helpTitle' | translate }}
+      </h3>
+      <p class="text-sm text-(--info-dark) mb-4">
+        {{ 'company.hrSettings.helpDescription' | translate }}
+      </p>
+      <ul class="list-disc list-inside text-sm text-(--info-dark) space-y-2">
+        <li>{{ 'company.hrSettings.helpPoint1' | translate }}</li>
+        <li>{{ 'company.hrSettings.helpPoint2' | translate }}</li>
+        <li>{{ 'company.hrSettings.helpPoint3' | translate }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right Column: Form -->
+  <div class="lg:col-span-2">
+    <form [formGroup]="hrForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Working Schedule -->
+      <div class="mb-8">
+        <h3 class="section-title flex items-center gap-2 mb-4">
+          <i class="pi pi-calendar text-(--primary)"></i>
+          {{ 'company.hrSettings.workingSchedule' | translate }}
+        </h3>
+        
+        <div class="grid grid-cols-1 gap-6">
+          <div class="form-field">
+            <label class="form-label mb-2 block">{{ 'company.hrSettings.workingDays' | translate }}</label>
+            <p-selectButton 
+              [options]="workingDaysOptions" 
+              formControlName="workingDays" 
+              [multiple]="true" 
+              optionLabel="label" 
+              optionValue="value"
+              styleClass="w-full">
+            </p-selectButton>
+          </div>
+
+          <div class="form-field">
+            <label for="standardHoursPerDay" class="form-label">
+              {{ 'company.hrSettings.standardHoursPerDay' | translate }}
+            </label>
+            <p-inputNumber 
+              id="standardHoursPerDay"
+              formControlName="standardHoursPerDay" 
+              [min]="0"
+              [max]="24"
+              [minFractionDigits]="1"
+              suffix=" hours"
+              styleClass="w-full input">
+            </p-inputNumber>
+            <small class="text-gray-500">{{ 'company.hrSettings.standardHoursHint' | translate }}</small>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-6 border-(--border-color-subtle)">
+
+      <!-- Leave Rules -->
+      <div class="mb-8">
+        <h3 class="section-title flex items-center gap-2 mb-4">
+          <i class="pi pi-sun text-(--primary)"></i>
+          {{ 'company.hrSettings.leaveRules' | translate }}
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-field">
+            <label for="leaveRate" class="form-label">
+              {{ 'company.hrSettings.leaveRate' | translate }}
+            </label>
+            <p-select 
+              id="leaveRate"
+              [options]="leaveRateOptions" 
+              formControlName="leaveAccrualRate" 
+              optionLabel="label" 
+              optionValue="value"
+              styleClass="w-full input">
+            </p-select>
+          </div>
+
+          <div class="form-field flex flex-col">
+            <label class="form-label mb-2">{{ 'company.hrSettings.includeSaturdays' | translate }}</label>
+            <div class="flex items-center gap-4 mt-2">
+              <div class="flex items-center gap-2">
+                <p-radioButton name="includeSaturdays" [value]="true" formControlName="includeSaturdays" inputId="satYes"></p-radioButton>
+                <label for="satYes" class="cursor-pointer">{{ 'common.yes' | translate }}</label>
+              </div>
+              <div class="flex items-center gap-2">
+                <p-radioButton name="includeSaturdays" [value]="false" formControlName="includeSaturdays" inputId="satNo"></p-radioButton>
+                <label for="satNo" class="cursor-pointer">{{ 'common.no' | translate }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-6 border-(--border-color-subtle)">
+
+      <!-- Salary & Payment -->
+      <div class="mb-6">
+        <h3 class="section-title flex items-center gap-2 mb-4">
+          <i class="pi pi-wallet text-(--primary)"></i>
+          {{ 'company.hrSettings.salaryPayment' | translate }}
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-field md:col-span-2">
+            <label for="rib" class="form-label">
+              {{ 'company.hrSettings.rib' | translate }}
+            </label>
+            <input pInputText id="rib" formControlName="rib" class="w-full input" placeholder="24 digits" />
+          </div>
+          
+          <div class="form-field">
+            <label for="paymentMode" class="form-label">
+              {{ 'company.hrSettings.paymentMode' | translate }}
+            </label>
+            <p-select 
+              id="paymentMode"
+              [options]="paymentModeOptions" 
+              formControlName="defaultPaymentMode" 
+              optionLabel="label" 
+              optionValue="value"
+              styleClass="w-full input">
+            </p-select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <p-button 
+          type="submit" 
+          [label]="'common.save' | translate" 
+          [loading]="loading()" 
+          icon="pi pi-check"
+          styleClass="btn btn-primary">
+        </p-button>
+      </div>
+    </form>
+  </div>
+</div>
+<p-toast></p-toast>

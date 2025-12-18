@@ -1,25 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Optional, Self } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, Optional, Self, SimpleChanges } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormsModule, NgControl, ReactiveFormsModule } from '@angular/forms';
+import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
 import { ErrorMessageResolver } from './input-field';
 
 @Component({
   selector: 'app-select-field',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SelectModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AutoCompleteModule, SelectModule],
   templateUrl: './select-field.html',
   styleUrls: ['./select-field.css'],
 })
-export class SelectFieldComponent implements ControlValueAccessor {
+export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnChanges {
   @Input() label = '';
   @Input() placeholder = '';
   @Input() hint?: string;
   @Input() description?: string;
   @Input() requiredMark = false;
   @Input() hideLabel = false;
+  @Input() variant: 'select' | 'autocomplete' = 'select';
   @Input() filter = true;
-  @Input() showClear = true;
+  @Input() showClear = false;
   @Input() appendTo: any = 'body';
   @Input() optionLabel = 'label';
   @Input() optionValue?: string;
@@ -32,6 +34,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
   @Input() ariaLabel?: string;
 
   value: any = null;
+  filteredOptions: any[] = [];
   private readonly uid = `select-${Math.random().toString(36).slice(2, 8)}`;
 
   private onChange: (value: any) => void = () => {};
@@ -41,6 +44,56 @@ export class SelectFieldComponent implements ControlValueAccessor {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+  }
+
+  ngOnInit() {
+    this.filteredOptions = [...this.options];
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['options']) {
+      this.filteredOptions = [...this.options];
+      // Re-evaluate value if options changed and we have a value
+      if (this.value && this.optionValue) {
+        this.updateValueFromOptions();
+      }
+    }
+  }
+
+  private updateValueFromOptions() {
+    // If we have a value (ID) and optionValue is set, we need to find the full object
+    // But wait, this.value might already be the object if set via UI
+    // We need to check if this.value is the ID or the Object
+    
+    // This is tricky. writeValue sets this.value to the model value (ID).
+    // So we should try to find the object matching this ID.
+    if (this.optionValue && this.value !== null && typeof this.value !== 'object') {
+       const found = this.options.find(opt => opt[this.optionValue!] === this.value);
+       if (found) {
+         this.value = found;
+       }
+    }
+  }
+
+  search(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredOptions = this.options.filter((option) => {
+      const label = option[this.optionLabel];
+      return label && label.toString().toLowerCase().includes(query);
+    });
+  }
+
+  onSelect(event: AutoCompleteSelectEvent) {
+    let val = event.value;
+    if (this.optionValue) {
+      val = val[this.optionValue];
+    }
+    this.onChange(val);
+  }
+  
+  onClear() {
+    this.value = null;
+    this.onChange(null);
   }
 
   private readonly defaultErrorMap: Record<string, (error: any) => string> = {
@@ -88,6 +141,9 @@ export class SelectFieldComponent implements ControlValueAccessor {
 
   writeValue(value: any): void {
     this.value = value ?? null;
+    if (this.optionValue && this.value !== null) {
+      this.updateValueFromOptions();
+    }
   }
 
   registerOnChange(fn: (value: any) => void): void {

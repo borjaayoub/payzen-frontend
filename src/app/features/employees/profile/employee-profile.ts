@@ -84,15 +84,13 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private pendingDraftData: Partial<EmployeeProfileModel> | null = null;
   private pendingDraftTimestamp: Date | null = null;
 
-  private readonly TAB_IDS = ['0', '1', '2', '3', '4', '5', '6'] as const;
+  private readonly TAB_IDS = ['0', '1', '2', '3', '4'] as const;
   private readonly TAB_FIELD_MAP: Record<string, (keyof EmployeeProfileModel)[]> = {
     '0': ['firstName', 'lastName', 'cin', 'maritalStatus', 'dateOfBirth', 'birthPlace'],
-    '1': ['professionalEmail', 'personalEmail', 'phone', 'address', 'countryId', 'countryName', 'city', 'addressLine1', 'addressLine2', 'zipCode'],
-    '2': ['position', 'department', 'manager', 'contractType', 'startDate', 'endDate', 'probationPeriod'],
+    '1': ['personalEmail', 'phone', 'address', 'countryId', 'countryName', 'city', 'addressLine1', 'addressLine2', 'zipCode'],
+    '2': ['position', 'department', 'manager', 'contractType', 'status', 'startDate', 'endDate', 'probationPeriod'],
     '3': ['baseSalary', 'transportAllowance', 'mealAllowance', 'seniorityBonus', 'benefitsInKind', 'paymentMethod'],
-    '4': ['cnss', 'amo', 'cimr', 'annualLeave'],
-    '5': [],
-    '6': []
+    '4': ['cnss', 'amo', 'cimr', 'annualLeave']
   };
 
   // UI State
@@ -154,6 +152,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     department: 'Department',
     manager: 'Manager',
     contractType: 'Contract Type',
+    status: 'Employment Status',
     startDate: 'Start Date',
     endDate: 'End Date',
     probationPeriod: 'Probation Period',
@@ -217,10 +216,10 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   readonly history = computed(() => this.employee().events || []);
 
   readonly maritalStatusOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['maritalStatus'] }> = [
-    { id: 1, label: 'Célibataire', value: 'single' },
-    { id: 2, label: 'Marié(e)', value: 'married' },
-    { id: 3, label: 'Divorcé(e)', value: 'divorced' },
-    { id: 4, label: 'Veuf(ve)', value: 'widowed' }
+    { id: 1, label: 'Single', value: 'single' },
+    { id: 2, label: 'Married', value: 'married' },
+    { id: 3, label: 'Divorced', value: 'divorced' },
+    { id: 4, label: 'Widowed', value: 'widowed' }
   ];
   readonly maritalStatusMap: Record<string, string> = {
     'single': 'Célibataire',
@@ -233,6 +232,12 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     { id: 1, label: 'CDI', value: 'CDI' },
     { id: 2, label: 'CDD', value: 'CDD' },
     { id: 3, label: 'Stage', value: 'Stage' }
+  ];
+
+  readonly statusOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['status'] }> = [
+    { id: 1, label: 'Actif', value: 'active' },
+    { id: 2, label: 'En congé', value: 'on_leave' },
+    { id: 3, label: 'Inactif', value: 'inactive' }
   ];
 
   readonly paymentMethodOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['paymentMethod'] }> = [
@@ -269,7 +274,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
           this.originalEmployee,
           currentEmployee,
           this.FIELD_LABELS,
-          ['id', 'photo', 'status', 'missingDocuments']
+          ['id', 'photo', 'missingDocuments']
         );
         this.changeSet.set(changes);
         this.updateTabChangeSets(changes);
@@ -508,7 +513,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     const patch = ChangeTracker.generatePatch(
       this.originalEmployee,
       this.employee(),
-      ['id', 'photo', 'status', 'missingDocuments']
+      ['id', 'photo', 'missingDocuments']
     );
 
     if (Object.keys(patch).length === 0) {
@@ -718,7 +723,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       this.originalEmployee,
       this.employee(),
       this.FIELD_LABELS,
-      ['id', 'photo', 'status', 'missingDocuments']
+      ['id', 'photo', 'missingDocuments']
     );
 
     this.changeSet.set(changes);

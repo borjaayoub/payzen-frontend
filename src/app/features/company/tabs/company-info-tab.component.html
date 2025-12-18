@@ -1,0 +1,146 @@
+<div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Banner -->
+  <div class="lg:col-span-3 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+    <i class="pi pi-info-circle text-blue-500 text-xl mt-0.5"></i>
+    <div>
+      <h4 class="font-medium text-blue-900">{{ 'company.info.bannerTitle' | translate }}</h4>
+      <p class="text-sm text-blue-700 mt-1">{{ 'company.info.bannerDescription' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Left Column: Logo & Basic Info -->
+  <div class="lg:col-span-1">
+    <div class="flex flex-col items-center p-6 bg-(--bg-page) rounded-lg border border-(--border-color-subtle)">
+      <div class="relative w-32 h-32 mb-4 rounded-full overflow-hidden bg-white border-2 border-(--border-color-subtle) flex items-center justify-center">
+        <img [src]="company()?.logoUrl || 'assets/images/placeholder-company.png'" alt="Company Logo" class="object-contain w-full h-full">
+      </div>
+      
+      <div class="w-full">
+        <p-fileUpload 
+          mode="basic" 
+          [chooseLabel]="'company.info.changeLogo' | translate" 
+          name="logo" 
+          accept="image/*" 
+          maxFileSize="1000000" 
+          [customUpload]="true"
+          (uploadHandler)="onUpload($event)"
+          [auto]="true"
+          styleClass="w-full btn btn-secondary">
+        </p-fileUpload>
+      </div>
+      
+      <div class="mt-6 w-full text-center">
+        <h3 class="text-lg font-semibold text-(--text-primary)">{{ company()?.legalName }}</h3>
+        <p class="text-sm text-(--text-secondary)">{{ company()?.city }}, {{ company()?.country }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Form -->
+  <div class="lg:col-span-2">
+    <div>
+      
+      <!-- Legal Entity Section (Read-Only) -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="section-title flex items-center gap-2">
+            <i class="pi pi-building text-(--primary)"></i>
+            {{ 'company.info.legalEntity' | translate }}
+          </h3>
+          <span class="text-xs text-(--text-secondary) bg-(--bg-page) px-2 py-1 rounded border border-(--border-color-subtle) flex items-center gap-1">
+            <i class="pi pi-lock text-xs"></i>
+            {{ 'company.info.managedByBackoffice' | translate }}
+          </span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-field">
+            <label for="legalName" class="form-label">{{ 'company.info.raisonSociale' | translate }}</label>
+            <input pInputText id="legalName" [value]="company()?.legalName" [disabled]="true" class="w-full input bg-gray-100" />
+          </div>
+          
+          <div class="form-field">
+            <label for="ice" class="form-label">{{ 'company.info.ice' | translate }}</label>
+            <input pInputText id="ice" [value]="company()?.ice" [disabled]="true" class="w-full input bg-gray-100" />
+          </div>
+
+          <div class="form-field">
+            <label for="rc" class="form-label">{{ 'company.info.rc' | translate }}</label>
+            <input pInputText id="rc" [value]="company()?.rc" [disabled]="true" class="w-full input bg-gray-100" />
+          </div>
+
+          <div class="form-field">
+            <label for="patente" class="form-label">{{ 'company.info.patente' | translate }}</label>
+            <input pInputText id="patente" [value]="company()?.patente" [disabled]="true" class="w-full input bg-gray-100" />
+          </div>
+          
+          <div class="form-field">
+            <label for="cnss" class="form-label">{{ 'company.info.cnss' | translate }}</label>
+            <input pInputText id="cnss" [value]="company()?.cnss" [disabled]="true" class="w-full input bg-gray-100" />
+          </div>
+
+          <div class="form-field">
+            <label for="taxRegime" class="form-label">{{ 'company.info.regimeFiscal' | translate }}</label>
+            <input pInputText id="taxRegime" [value]="company()?.taxRegime" [disabled]="true" class="w-full input bg-gray-100" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Operational Details Section (Editable) -->
+      <div class="mb-6">
+        <h3 class="section-title flex items-center gap-2 mb-4">
+          <i class="pi pi-briefcase text-(--primary)"></i>
+          {{ 'company.info.operationalDetails' | translate }}
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-field">
+            <label class="form-label">{{ 'company.info.email' | translate }}</label>
+            <app-editable-field 
+              [value]="company()?.email" 
+              [label]="'company.info.email' | translate"
+              (save)="updateField('email', $event)">
+            </app-editable-field>
+          </div>
+          
+          <div class="form-field">
+            <label class="form-label">{{ 'company.info.phone' | translate }}</label>
+            <app-editable-field 
+              [value]="company()?.phone" 
+              [label]="'company.info.phone' | translate"
+              (save)="updateField('phone', $event)">
+            </app-editable-field>
+          </div>
+          
+          <div class="form-field md:col-span-2">
+            <label class="form-label">{{ 'company.info.address' | translate }}</label>
+            <app-editable-field 
+              [value]="company()?.address" 
+              [label]="'company.info.address' | translate"
+              (save)="updateField('address', $event)">
+            </app-editable-field>
+          </div>
+          
+          <div class="form-field">
+            <label class="form-label">{{ 'company.info.city' | translate }}</label>
+            <app-editable-field 
+              [value]="company()?.city" 
+              [label]="'company.info.city' | translate"
+              (save)="updateField('city', $event)">
+            </app-editable-field>
+          </div>
+          
+          <div class="form-field">
+            <label class="form-label">{{ 'company.info.website' | translate }}</label>
+            <app-editable-field 
+              [value]="company()?.website" 
+              [label]="'company.info.website' | translate"
+              (save)="updateField('website', $event)">
+            </app-editable-field>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p-toast></p-toast>
