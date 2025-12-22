@@ -20,7 +20,7 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
   @Input() requiredMark = false;
   @Input() hideLabel = false;
   @Input() variant: 'select' | 'autocomplete' = 'select';
-  @Input() filter = true;
+  @Input() filter = false;
   @Input() showClear = false;
   @Input() appendTo: any = 'body';
   @Input() optionLabel = 'label';

@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -87,16 +88,28 @@ export class EmployeeCreatePage implements OnInit {
     salary: [null, Validators.min(0)]
   });
 
+  readonly selectedCountryId = toSignal(this.employeeForm.controls.countryId.valueChanges, {
+    initialValue: null
+  });
+
+  constructor() {
+    this.employeeForm.controls.countryId.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.employeeForm.controls.cityId.setValue(null);
+      });
+  }
+
   readonly phoneCode = computed(() => {
     const phoneCountryId = this.employeeForm.controls.phoneCountryId.value;
     return this.formData().countries.find(country => country.id === phoneCountryId)?.phoneCode ?? '';
   });
 
   readonly cityOptions = computed<CityLookupOption[]>(() => {
-    const countryId = this.employeeForm.controls.countryId.value;
+    const countryId = this.selectedCountryId();
     const cities = this.formData().cities;
     if (!countryId) {
-      return cities;
+      return [];
     }
     return cities.filter(city => city.countryId === Number(countryId));
   });

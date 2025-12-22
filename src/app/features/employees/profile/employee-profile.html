@@ -351,16 +351,17 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.create.form.country' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-select
-                      [options]="formData().countries"
-                      [ngModel]="employee().countryId"
-                      (ngModelChange)="updateField('countryId', $event)"
-                      optionLabel="label"
-                      optionValue="id"
-                      [filter]="true"
+                    <p-autoComplete
+                      [suggestions]="filteredCountries()"
+                      (completeMethod)="searchCountry($event)"
+                      [ngModel]="selectedCountry()"
+                      (ngModelChange)="onCountryChange($event)"
+                      field="label"
+                      [forceSelection]="false"
                       [placeholder]="'employees.create.form.countryPlaceholder' | translate"
-                      styleClass="w-full input"
-                    ></p-select>
+                      styleClass="w-full"
+                      inputStyleClass="w-full input"
+                    ></p-autoComplete>
                   } @else {
                     <p class="read-only-value">{{ employee().countryName || '-' }}</p>
                   }
@@ -369,7 +370,17 @@
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.create.form.city' | translate }}</label>
                   @if (isEditMode()) {
-                    <input pInputText [ngModel]="employee().city" (ngModelChange)="updateField('city', $event)" class="w-full input" [placeholder]="'employees.create.form.cityPlaceholder' | translate" title="{{ 'employees.create.form.city' | translate }}" />
+                    <p-autoComplete
+                      [suggestions]="filteredCities()"
+                      (completeMethod)="searchCity($event)"
+                      [ngModel]="selectedCity()"
+                      (ngModelChange)="onCityChange($event)"
+                      field="label"
+                      [forceSelection]="false"
+                      [placeholder]="'employees.create.form.cityPlaceholder' | translate"
+                      styleClass="w-full"
+                      inputStyleClass="w-full input"
+                    ></p-autoComplete>
                   } @else {
                     <p class="read-only-value">{{ employee().city || '-' }}</p>
                   }

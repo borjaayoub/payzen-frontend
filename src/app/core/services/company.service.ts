@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, of } from 'rxjs';
+import { Observable, map, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company, TaxRegime } from '../models/company.model';
 import { AuthService } from './auth.service';
@@ -49,21 +49,28 @@ export class CompanyService {
   }
 
   updateCompany(company: Partial<Company>): Observable<Company> {
-    const companyId = this.authService.currentUser()?.companyId;
+    // Use ID from the company object if available, otherwise fallback to auth service
+    const companyId = company.id || this.authService.currentUser()?.companyId;
     
+    if (!companyId) {
+      console.error('UpdateCompany: No company ID found');
+      return throwError(() => new Error('Company ID is required for update'));
+    }
+
     // Map frontend model to backend DTO
     const updateDto: any = {};
     if (company.legalName) updateDto.CompanyName = company.legalName;
     if (company.email) updateDto.Email = company.email;
     if (company.phone) updateDto.PhoneNumber = company.phone;
     if (company.address) updateDto.CompanyAddress = company.address;
-    if (company.city) updateDto.CityName = company.city; // Note: Backend might expect CityId, but DTO shows CityName in read. Check if update supports name or needs ID.
-    // If backend requires CityId, we might need to look it up or send it if we have it.
-    // For now, assuming the update DTO might accept what we send or we need to be careful.
-    // The backend documentation example for PUT shows: CompanyName, Email, PhoneNumber.
-    // It doesn't explicitly show City/Address in the example, but they are likely supported.
+    // Note: Backend might expect CityId/CountryId instead of names for update.
+    // Keeping existing mapping for now but this might need adjustment if 400 occurs.
+    if (company.city) updateDto.CityName = company.city; 
     
-    return this.http.put<CompanyDto>(`${this.apiUrl}/companies/${companyId}`, updateDto).pipe(
+    const url = `${this.apiUrl}/companies/${companyId}`;
+    console.log('Updating company at URL:', url, 'Method: PATCH', 'Payload:', updateDto);
+
+    return this.http.patch<CompanyDto>(url, updateDto).pipe(
       map(dto => this.mapDtoToCompany(dto))
     );
   }

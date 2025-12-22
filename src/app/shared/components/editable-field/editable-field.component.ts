@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal, effect } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,68 +18,77 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
     AutoCompleteModule
   ],
   template: `
-    <div class="editable-field-container group relative flex items-center gap-2 min-h-[40px]">
-      <!-- View Mode -->
-      <div *ngIf="!isEditing()" 
-           (click)="startEditing()"
-           class="flex-1 py-2 px-3 rounded cursor-pointer hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors flex items-center justify-between">
-        <span [class.text-gray-400]="!value" class="text-gray-900">
-          {{ value || emptyPlaceholder }}
-        </span>
-        <i class="pi pi-pencil text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-      </div>
+    <div class="editable-field-wrapper">
+      <!-- Label -->
+      <label *ngIf="label" class="block mb-2 text-sm font-medium text-gray-700">
+        {{ label }}
+      </label>
 
-      <!-- Edit Mode -->
-      <div *ngIf="isEditing()" class="flex-1 flex items-center gap-2 animate-fade-in">
-        <ng-container [ngSwitch]="type">
-          <!-- Autocomplete Input -->
-          <p-autoComplete *ngSwitchCase="'autocomplete'"
-            [(ngModel)]="tempValue"
-            [suggestions]="suggestions"
-            (completeMethod)="onSearch($event)"
-            (keydown.enter)="onSave()"
-            (keydown.escape)="onCancel()"
-            [placeholder]="label"
-            [forceSelection]="false"
-            [dropdown]="false"
-            [showEmptyMessage]="false"
-            styleClass="w-full"
-            inputStyleClass="w-full p-inputtext-sm"
-            appendTo="body"
-            autocomplete="off"
-            autoFocus>
-          </p-autoComplete>
+      <div class="editable-field-container group relative flex items-center gap-2 min-h-[40px]">
+        <!-- View Mode -->
+        <div *ngIf="!isEditing()" 
+             (click)="startEditing()"
+             class="flex-1 py-2 px-3 rounded cursor-pointer hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors flex items-center justify-between bg-white"
+             [class.text-gray-400]="!value">
+          <span class="truncate">
+            {{ value || emptyPlaceholder }}
+          </span>
+          <i class="pi pi-pencil text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+        </div>
 
-          <!-- Standard Input -->
-          <input *ngSwitchDefault
-            pInputText 
-            [type]="type" 
-            [(ngModel)]="tempValue" 
-            (keydown.enter)="onSave()"
-            (keydown.escape)="onCancel()"
-            class="w-full p-inputtext-sm"
-            [placeholder]="label"
-            autoFocus
-          />
-        </ng-container>
+        <!-- Edit Mode -->
+        <div *ngIf="isEditing()" class="flex-1 flex items-center gap-2 animate-fade-in w-full">
+          <div class="flex-1 min-w-0">
+            <ng-container [ngSwitch]="type">
+              <!-- Autocomplete Input -->
+              <p-autoComplete *ngSwitchCase="'autocomplete'"
+                [(ngModel)]="tempValue"
+                [suggestions]="suggestions"
+                (completeMethod)="onSearch($event)"
+                (keydown.enter)="onSave()"
+                (keydown.escape)="onCancel()"
+                [placeholder]="label"
+                [forceSelection]="false"
+                [dropdown]="false"
+                [showEmptyMessage]="false"
+                styleClass="w-full"
+                inputStyleClass="w-full p-inputtext-sm"
+                appendTo="body"
+                [autofocus]="true">
+              </p-autoComplete>
 
-        <div class="flex items-center gap-1">
-          <button 
-            pButton 
-            icon="pi pi-check" 
-            class="p-button-rounded p-button-text p-button-success p-button-sm w-8 h-8"
-            (click)="onSave()"
-            pTooltip="Save"
-            tooltipPosition="top">
-          </button>
-          <button 
-            pButton 
-            icon="pi pi-times" 
-            class="p-button-rounded p-button-text p-button-secondary p-button-sm w-8 h-8"
-            (click)="onCancel()"
-            pTooltip="Cancel"
-            tooltipPosition="top">
-          </button>
+              <!-- Standard Input -->
+              <input *ngSwitchDefault
+                pInputText 
+                [type]="type" 
+                [(ngModel)]="tempValue" 
+                (keydown.enter)="onSave()"
+                (keydown.escape)="onCancel()"
+                class="w-full p-inputtext-sm"
+                [placeholder]="label"
+                autofocus
+              />
+            </ng-container>
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0">
+            <button 
+              pButton 
+              icon="pi pi-check" 
+              class="p-button-rounded p-button-text p-button-success p-button-sm w-8 h-8"
+              (click)="onSave()"
+              pTooltip="Save"
+              tooltipPosition="top">
+            </button>
+            <button 
+              pButton 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-text p-button-secondary p-button-sm w-8 h-8"
+              (click)="onCancel()"
+              pTooltip="Cancel"
+              tooltipPosition="top">
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -101,7 +110,7 @@ export class EditableFieldComponent {
   @Input() value: string | number | null | undefined = '';
   @Input() label: string = '';
   @Input() type: string = 'text';
-  @Input() emptyPlaceholder: string = 'Click to edit';
+  @Input() emptyPlaceholder: string = '—';
   @Input() suggestions: any[] = [];
   
   @Output() save = new EventEmitter<string | number>();
@@ -122,7 +131,7 @@ export class EditableFieldComponent {
 
   onSave() {
     if (this.tempValue !== this.value) {
-      this.save.emit(this.tempValue!);
+      this.save.emit(this.tempValue ?? '');
     } else {
       this.cancel.emit();
     }

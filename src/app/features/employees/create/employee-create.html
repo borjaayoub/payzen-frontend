@@ -142,7 +142,7 @@
                       [options]="data.countries"
                       optionLabel="phoneCode"
                       optionValue="id"
-                      [filter]="true"
+                      [filter]="false"
                       [appendTo]="'body'"
                       formControlName="phoneCountryId"
                       [ariaLabel]="'employees.create.form.phoneCountry' | translate"
@@ -173,7 +173,7 @@
                   [options]="data.genders"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="true"
+                  [filter]="false"
                   [showClear]="true"
                   formControlName="genderId"
                 ></app-select-field>
@@ -185,7 +185,7 @@
                   optionLabel="label"
                   optionValue="id"
                   [placeholder]="'employees.create.form.statusPlaceholder' | translate"
-                  [filter]="true"
+                  [filter]="false"
                   [appendTo]="'body'"
                   [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="statusId"
@@ -197,7 +197,7 @@
                   [options]="data.maritalStatuses"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="true"
+                  [filter]="false"
                   formControlName="maritalStatusId"
                 ></app-select-field>
 
@@ -328,8 +328,8 @@
                   optionLabel="label"
                   optionValue="id"
                   [filter]="true"
-                  variant="autocomplete"
                   [appendTo]="'body'"
+                  [disabled]="!selectedCountryId()"
                   formControlName="cityId"
                 ></app-select-field>
 

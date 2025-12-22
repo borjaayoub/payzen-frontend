@@ -12,6 +12,7 @@ import { MessageService } from 'primeng/api';
 import { CompanyService } from '@app/core/services/company.service';
 import { Company } from '@app/core/models/company.model';
 import { EditableFieldComponent } from '@app/shared/components/editable-field/editable-field.component';
+import { ReadonlyFieldComponent } from '@app/shared/components/readonly-field/readonly-field.component';
 
 interface FieldConfig {
   id: string;
@@ -34,7 +35,8 @@ interface FieldConfig {
     FileUploadModule,
     ToastModule,
     TooltipModule,
-    EditableFieldComponent
+    EditableFieldComponent,
+    ReadonlyFieldComponent
   ],
   providers: [MessageService],
   templateUrl: './company-info-tab.component.html'
@@ -119,7 +121,20 @@ export class CompanyInfoTabComponent implements OnInit {
   updateField(field: keyof Company, value: string) {
     this.loading.set(true);
     
-    this.companyService.updateCompany({ [field]: value }).subscribe({
+    const currentCompany = this.company();
+    if (!currentCompany) {
+      this.loading.set(false);
+      return;
+    }
+
+    // Create a partial update object but include the ID from the current company
+    // We also include the changed field
+    const updatePayload: Partial<Company> = {
+      id: currentCompany.id,
+      [field]: value
+    };
+
+    this.companyService.updateCompany(updatePayload).subscribe({
       next: (updatedCompany) => {
         this.company.set(updatedCompany);
         this.showToast('success', 'Success', 'Field updated successfully');

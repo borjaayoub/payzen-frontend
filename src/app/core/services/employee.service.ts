@@ -358,6 +358,72 @@ export class EmployeeService {
     return this.http.get<any[]>(`${this.EMPLOYEES_URL}/${employeeId}/documents`);
   }
 
+  /**
+   * Search countries
+   */
+  searchCountries(query: string): Observable<CountryLookupOption[]> {
+    const params = new HttpParams().set('search', query);
+    return this.http.get<CountryResponseItem[]>(`${environment.apiUrl}/countries`, { params })
+      .pipe(map(items => {
+        const allItems = (items || []).map(item => ({
+          id: item.id,
+          label: item.countryName,
+          phoneCode: item.countryPhoneCode
+        }));
+        
+        if (!query) return allItems;
+        
+        const lowerQuery = query.toLowerCase();
+        return allItems.filter(item => item.label.toLowerCase().includes(lowerQuery));
+      }));
+  }
+
+  /**
+   * Search cities
+   */
+  searchCities(query: string): Observable<CityLookupOption[]> {
+    const params = new HttpParams().set('search', query);
+    return this.http.get<CityResponseItem[]>(`${environment.apiUrl}/cities`, { params })
+      .pipe(map(items => {
+        const allItems = (items || []).map(item => ({
+          id: item.id,
+          label: item.cityName,
+          countryId: item.countryId,
+          countryName: item.countryName
+        }));
+        
+        if (!query) return allItems;
+        
+        const lowerQuery = query.toLowerCase();
+        return allItems.filter(item => item.label.toLowerCase().includes(lowerQuery));
+      }));
+  }
+
+  /**
+   * Create new country
+   */
+  createCountry(name: string): Observable<CountryLookupOption> {
+    return this.http.post<CountryResponseItem>(`${environment.apiUrl}/countries`, { countryName: name })
+      .pipe(map(item => ({
+        id: item.id,
+        label: item.countryName,
+        phoneCode: item.countryPhoneCode
+      })));
+  }
+
+  /**
+   * Create new city
+   */
+  createCity(name: string, countryId?: number): Observable<CityLookupOption> {
+    return this.http.post<CityResponseItem>(`${environment.apiUrl}/cities`, { cityName: name, countryId })
+      .pipe(map(item => ({
+        id: item.id,
+        label: item.cityName,
+        countryId: item.countryId,
+        countryName: item.countryName
+      })));
+  }
+
   private mapEmployeeFormDataResponse(response: EmployeeFormDataResponse = {} as EmployeeFormDataResponse): EmployeeFormData {
     const toLookupOption = (items?: LookupResponseItem[]): LookupOption[] =>
       (items ?? []).map(item => ({ id: item.id, label: item.name }));

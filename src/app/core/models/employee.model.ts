@@ -15,6 +15,7 @@ export interface Employee {
   address: string;
   countryId?: number;
   countryName?: string;
+  cityId?: number;
   city?: string;
   addressLine1?: string;
   addressLine2?: string;

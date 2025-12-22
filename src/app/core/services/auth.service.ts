@@ -341,7 +341,7 @@ export class AuthService {
 
     let user: User | null = null;
     if (backendUser) {
-      user = this.normalizeUserPayload(backendUser);
+      user = this.normalizeUserPayload(backendUser, fallbackUser);
     } else if (fallbackUser) {
       user = fallbackUser;
     }
@@ -370,19 +370,24 @@ export class AuthService {
     return refreshToken ? String(refreshToken) : null;
   }
 
-  private normalizeUserPayload(userRaw: any): User {
-    const permissions = Array.isArray(userRaw?.permissions) ? userRaw.permissions : [];
-    const rolesArray = Array.isArray(userRaw?.roles) ? userRaw.roles : [];
-    const resolvedRole = userRaw?.role ?? rolesArray[0];
+  private normalizeUserPayload(userRaw: any, fallbackUser: User | null = null): User {
+    const permissions = Array.isArray(userRaw?.permissions ?? userRaw?.Permissions) ? (userRaw?.permissions ?? userRaw?.Permissions) : [];
+    const rolesArray = Array.isArray(userRaw?.roles ?? userRaw?.Roles) ? (userRaw?.roles ?? userRaw?.Roles) : [];
+    const resolvedRole = userRaw?.role ?? userRaw?.Role ?? rolesArray[0];
+    
+    // Try to get companyId from payload, fallback to existing user if missing
+    const rawCompanyId = userRaw?.companyId ?? userRaw?.CompanyId;
+    const companyId = this.normalizeString(rawCompanyId) ?? fallbackUser?.companyId;
+
     return {
-      id: this.normalizeString(userRaw?.id) ?? '',
-      email: this.normalizeString(userRaw?.email) ?? '',
-      username: this.normalizeString(userRaw?.username) ?? '',
-      firstName: this.normalizeString(userRaw?.firstName) ?? '',
-      lastName: this.normalizeString(userRaw?.lastName) ?? '',
+      id: this.normalizeString(userRaw?.id ?? userRaw?.Id) ?? '',
+      email: this.normalizeString(userRaw?.email ?? userRaw?.Email) ?? '',
+      username: this.normalizeString(userRaw?.username ?? userRaw?.Username) ?? '',
+      firstName: this.normalizeString(userRaw?.firstName ?? userRaw?.FirstName) ?? '',
+      lastName: this.normalizeString(userRaw?.lastName ?? userRaw?.LastName) ?? '',
       role: this.mapBackendRole(resolvedRole),
-      employee_id: this.normalizeString(userRaw?.employeeId),
-      companyId: this.normalizeString(userRaw?.companyId),
+      employee_id: this.normalizeString(userRaw?.employeeId ?? userRaw?.EmployeeId),
+      companyId,
       permissions
     };
   }

@@ -7,6 +7,7 @@ import { TabsModule } from 'primeng/tabs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { TagModule } from 'primeng/tag';
@@ -25,7 +26,7 @@ import { ChangeConfirmationDialog } from '@app/shared/components/change-confirma
 import { UnsavedChangesDialog } from '@app/shared/components/unsaved-changes-dialog/unsaved-changes-dialog';
 import { CanComponentDeactivate } from '@app/core/guards/unsaved-changes.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, of } from 'rxjs';
+import { Observable, of, firstValueFrom } from 'rxjs';
 
 import { TagComponent } from '../../../shared/components/tag/tag.component';
 import { TagVariant } from '../../../shared/components/tag/tag.types';
@@ -50,6 +51,7 @@ interface Document {
     ButtonModule,
     InputTextModule,
     SelectModule,
+    AutoCompleteModule,
     InputNumberModule,
     TextareaModule,
     TagComponent,
@@ -489,6 +491,63 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     this.lastAutoSave.set(null);
   }
 
+  readonly filteredCountries = signal<any[]>([]);
+  readonly filteredCities = signal<any[]>([]);
+
+  searchCountry(event: any) {
+    this.employeeService.searchCountries(event.query).subscribe(data => {
+      this.filteredCountries.set(data);
+    });
+  }
+
+  searchCity(event: any) {
+    this.employeeService.searchCities(event.query).subscribe(data => {
+      this.filteredCities.set(data);
+    });
+  }
+
+  selectedCountry = computed(() => {
+    const emp = this.employee();
+    if (emp.countryId && emp.countryName) {
+      return { id: emp.countryId, label: emp.countryName };
+    }
+    return emp.countryName || '';
+  });
+
+  selectedCity = computed(() => {
+    const emp = this.employee();
+    if (emp.cityId && emp.city) {
+      return { id: emp.cityId, label: emp.city };
+    }
+    return emp.city || '';
+  });
+
+  onCountryChange(value: any) {
+    if (typeof value === 'string') {
+      this.updateField('countryName', value);
+      this.updateField('countryId', undefined);
+    } else if (value && typeof value === 'object') {
+      this.updateField('countryName', value.label);
+      this.updateField('countryId', value.id);
+    } else {
+      this.updateField('countryName', undefined);
+      this.updateField('countryId', undefined);
+    }
+  }
+
+  onCityChange(value: any) {
+    if (typeof value === 'string') {
+      this.updateField('city', value);
+      this.updateField('cityId', undefined);
+    } else if (value && typeof value === 'object') {
+      this.updateField('city', value.label);
+      this.updateField('cityId', value.id);
+    } else {
+      this.updateField('city', undefined);
+      this.updateField('cityId', undefined);
+    }
+  }
+
   // Save workflow with confirmation
   saveWithConfirmation(): void {
     if (!this.changeSet().hasChanges) {
@@ -505,44 +564,82 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     this.performSave();
   }
 
-  private performSave(): void {
+  private async performSave(): Promise<void> {
     if (!this.originalEmployee || !this.employeeId()) {
-      return;
-    }
-
-    const patch = ChangeTracker.generatePatch(
-      this.originalEmployee,
-      this.employee(),
-      ['id', 'photo', 'missingDocuments']
-    );
-
-    if (Object.keys(patch).length === 0) {
-      this.saveSuccess.set(this.translate.instant('employees.profile.noChanges'));
-      setTimeout(() => this.saveSuccess.set(null), 2000);
-      this.resolveAfterSave(true);
       return;
     }
 
     this.isSaving.set(true);
     this.saveError.set(null);
 
-    this.employeeService.patchEmployeeProfile(this.employeeId()!, patch).subscribe({
-      next: (response: EmployeeProfileModel) => {
-        // Reload the full employee profile to ensure we have the latest data, including history events
-        this.loadEmployeeDetails(this.employeeId()!);
-        
-        // We still update the local state optimistically/partially to show success immediately
-        const merged = { ...this.originalEmployee!, ...patch, ...(response ?? {}) } as EmployeeProfileModel;
-        this.handleSaveSuccess(merged);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to save employee', err);
-        this.saveError.set(this.translate.instant('employees.profile.saveError') || 'Unable to save changes.');
-        this.isSaving.set(false);
-        this.announce('Save failed, draft preserved. You can retry.');
-        this.resolveAfterSave(false);
+    try {
+      // Handle new Country creation
+      let currentCountryId = this.employee().countryId;
+      const currentCountryName = this.employee().countryName;
+      
+      if (!currentCountryId && currentCountryName) {
+        try {
+           const newCountry = await firstValueFrom(this.employeeService.createCountry(currentCountryName));
+           if (newCountry) {
+             this.updateField('countryId', newCountry.id);
+             currentCountryId = newCountry.id;
+           }
+        } catch (e) {
+           console.error('Failed to create country', e);
+        }
       }
-    });
+
+      // Handle new City creation
+      let currentCityId = this.employee().cityId;
+      const currentCityName = this.employee().city;
+
+      if (!currentCityId && currentCityName) {
+        try {
+           const newCity = await firstValueFrom(this.employeeService.createCity(currentCityName, currentCountryId));
+           if (newCity) {
+             this.updateField('cityId', newCity.id);
+             currentCityId = newCity.id;
+           }
+        } catch (e) {
+           console.error('Failed to create city', e);
+        }
+      }
+
+      const patch = ChangeTracker.generatePatch(
+        this.originalEmployee,
+        this.employee(),
+        ['id', 'photo', 'missingDocuments']
+      );
+
+      if (Object.keys(patch).length === 0) {
+        this.saveSuccess.set(this.translate.instant('employees.profile.noChanges'));
+        setTimeout(() => this.saveSuccess.set(null), 2000);
+        this.resolveAfterSave(true);
+        this.isSaving.set(false);
+        return;
+      }
+
+      this.employeeService.patchEmployeeProfile(this.employeeId()!, patch).subscribe({
+        next: (response: EmployeeProfileModel) => {
+          // Reload the full employee profile to ensure we have the latest data, including history events
+          this.loadEmployeeDetails(this.employeeId()!);
+          
+          // We still update the local state optimistically/partially to show success immediately
+          const merged = { ...this.originalEmployee!, ...patch, ...(response ?? {}) } as EmployeeProfileModel;
+          this.handleSaveSuccess(merged);
+        },
+        error: (err: unknown) => {
+          console.error('Failed to save employee', err);
+          this.saveError.set(this.translate.instant('employees.profile.saveError') || 'Unable to save changes.');
+          this.isSaving.set(false);
+          this.announce('Save failed, draft preserved. You can retry.');
+          this.resolveAfterSave(false);
+        }
+      });
+    } catch (err) {
+       console.error('Error in save process', err);
+       this.isSaving.set(false);
+    }
   }
 
   // Navigation guard implementation

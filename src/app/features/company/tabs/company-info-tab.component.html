@@ -111,26 +111,12 @@
             
             <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
               @for (field of legalFields; track field.id) {
-                <div>
-                  <label [for]="field.id" class="block mb-2 text-sm font-medium text-gray-700">
-                    {{ field.label | translate }}
-                  </label>
-                  <p-inputGroup>
-                    <input 
-                      pInputText 
-                      [id]="field.id" 
-                      [value]="getFieldValue(field.key)" 
-                      [readonly]="true" 
-                      class="w-full bg-gray-50 text-gray-600" />
-                    <p-inputGroupAddon class="bg-gray-50 border-l-0">
-                      <i 
-                        class="pi pi-lock text-gray-400 cursor-help" 
-                        [pTooltip]="'company.info.managedByBackoffice' | translate"
-                        tooltipPosition="top">
-                      </i>
-                    </p-inputGroupAddon>
-                  </p-inputGroup>
-                </div>
+                <app-readonly-field
+                  [fieldId]="field.id"
+                  [label]="field.label | translate"
+                  [value]="getFieldValue(field.key)"
+                  [tooltipText]="'company.info.managedByBackoffice' | translate">
+                </app-readonly-field>
               }
             </div>
           </section>
@@ -150,9 +136,6 @@
             <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
               @for (field of editableFields; track field.key) {
                 <div [class.sm:col-span-2]="field.fullWidth">
-                  <label class="block mb-2 text-sm font-medium text-gray-700">
-                    {{ field.label | translate }}
-                  </label>
                   <app-editable-field 
                     [value]="getFieldValue(field.key)" 
                     [label]="field.label | translate"
