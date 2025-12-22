@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-(--bg-page)">
   <div
     aria-live="polite"
     style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"
@@ -534,8 +534,8 @@
               <div class="flex items-center justify-between">
                 <h3 class="section-title">{{ 'employees.profile.sections.salary' | translate }}</h3>
                 <div class="text-right">
-                  <p class="text-sm text-gray-500">{{ 'employees.profile.ui.totalSalary' | translate }}</p>
-                  <p class="text-2xl font-bold text-primary">{{ totalSalary() }} MAD</p>
+                  <p class="text-sm text-(--text-muted)">{{ 'employees.profile.ui.totalSalary' | translate }}</p>
+                  <p class="text-2xl font-bold text-(--primary)">{{ totalSalary() | number:'1.2-2' }} MAD</p>
                 </div>
               </div>
 
@@ -545,43 +545,7 @@
                   @if (isEditMode()) {
                     <p-inputnumber [ngModel]="employee().baseSalary" (ngModelChange)="updateField('baseSalary', $event ?? 0)" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full input" title="{{ 'employees.profile.salary.baseSalary' | translate }}"></p-inputnumber>
                   } @else {
-                    <p class="read-only-value">{{ employee().baseSalary }} MAD</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="form-label">{{ 'employees.profile.salary.transportAllowance' | translate }}</label>
-                  @if (isEditMode()) {
-                    <p-inputnumber [ngModel]="employee().transportAllowance" (ngModelChange)="updateField('transportAllowance', $event ?? 0)" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full input" title="{{ 'employees.profile.salary.transportAllowance' | translate }}"></p-inputnumber>
-                  } @else {
-                    <p class="read-only-value">{{ employee().transportAllowance }} MAD</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="form-label">{{ 'employees.profile.salary.mealAllowance' | translate }}</label>
-                  @if (isEditMode()) {
-                    <p-inputnumber [ngModel]="employee().mealAllowance" (ngModelChange)="updateField('mealAllowance', $event ?? 0)" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full input" title="{{ 'employees.profile.salary.mealAllowance' | translate }}"></p-inputnumber>
-                  } @else {
-                    <p class="read-only-value">{{ employee().mealAllowance }} MAD</p>
-                  }
-                </div>
-
-                <div class="form-field">
-                  <label class="form-label">{{ 'employees.profile.salary.seniorityBonus' | translate }}</label>
-                  @if (isEditMode()) {
-                    <p-inputnumber [ngModel]="employee().seniorityBonus" (ngModelChange)="updateField('seniorityBonus', $event ?? 0)" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full input" title="{{ 'employees.profile.salary.seniorityBonus' | translate }}"></p-inputnumber>
-                  } @else {
-                    <p class="read-only-value">{{ employee().seniorityBonus }} MAD</p>
-                  }
-                </div>
-
-                <div class="form-field md:col-span-2">
-                  <label class="form-label">{{ 'employees.profile.salary.benefitsInKind' | translate }}</label>
-                  @if (isEditMode()) {
-                    <textarea pTextarea [ngModel]="employee().benefitsInKind" (ngModelChange)="updateField('benefitsInKind', $event)" rows="2" class="w-full input" title="{{ 'employees.profile.salary.benefitsInKind' | translate }}"></textarea>
-                  } @else {
-                    <p class="read-only-value">{{ employee().benefitsInKind || '-' }}</p>
+                    <p class="read-only-value">{{ employee().baseSalary | number:'1.2-2' }} MAD</p>
                   }
                 </div>
 
@@ -595,17 +559,95 @@
                       optionLabel="label"
                       optionValue="value"
                       title="{{ 'employees.profile.salary.paymentMethod' | translate }}"
-                      styleClass="w-full input"
+                      class="w-full input"
                     ></p-select>
                   } @else {
                     <p class="read-only-value">{{ getPaymentMethodLabel() }}</p>
                   }
                 </div>
+
+                <!-- Salary Components Section -->
+                <div class="form-field md:col-span-2">
+                  <div class="flex items-center justify-between mb-3">
+                    <label class="form-label">{{ 'employees.profile.salary.components' | translate }}</label>
+                    @if (isEditMode()) {
+                      <button 
+                        pButton 
+                        type="button" 
+                        icon="pi pi-plus" 
+                        label="Add" 
+                        class="p-button-text p-button-sm" 
+                        (click)="addSalaryComponent()">
+                      </button>
+                    }
+                  </div>
+
+                  <div class="space-y-3">
+                    @for (comp of employee().salaryComponents; track $index) {
+                      @if (isEditMode()) {
+                        <div class="flex items-start gap-3 group">
+                          <div class="flex-1">
+                            <input 
+                              pInputText 
+                              [ngModel]="comp.type" 
+                              (ngModelChange)="updateSalaryComponent($index, 'type', $event)" 
+                              class="w-full input" 
+                              placeholder="Component Name"
+                              aria-label="Component Name"
+                            />
+                          </div>
+                          <div class="w-40">
+                            <p-inputnumber 
+                              [ngModel]="comp.amount" 
+                              (ngModelChange)="updateSalaryComponent($index, 'amount', $event)" 
+                              mode="currency" 
+                              currency="MAD" 
+                              locale="fr-MA" 
+                              styleClass="w-full"
+                              inputStyleClass="w-full input"
+                              placeholder="0.00"
+                              title="Amount"
+                            ></p-inputnumber>
+                          </div>
+                          <button 
+                            pButton 
+                            type="button" 
+                            icon="pi pi-trash" 
+                            class="p-button-text p-button-danger p-button-rounded" 
+                            (click)="removeSalaryComponent($index)"
+                            title="Remove"
+                            aria-label="Remove salary component"
+                          ></button>
+                        </div>
+                      } @else {
+                        <div class="flex items-center justify-between p-3 bg-(--bg-page) rounded-md border border-(--border-color-subtle)">
+                          <span class="text-(--text-secondary) font-medium">{{ comp.type }}</span>
+                          <span class="text-(--text-primary) font-semibold">{{ comp.amount | number:'1.2-2' }} MAD</span>
+                        </div>
+                      }
+                    }
+
+                    @if (!employee().salaryComponents.length) {
+                      <div class="text-center py-6 bg-(--bg-page) rounded-lg border border-dashed border-(--border-color-subtle)">
+                        <p class="text-sm text-(--text-muted)">No salary components added</p>
+                        @if (isEditMode()) {
+                          <button 
+                            pButton 
+                            type="button" 
+                            label="Add component" 
+                            class="p-button-link p-button-sm mt-1" 
+                            (click)="addSalaryComponent()">
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
               </div>
             </div>
           </p-tabpanel>
 
-          <!-- Tab 5: Infos L�gales -->
+          <!-- Tab 5: Infos Legales -->
           <p-tabpanel value="4">
             <div class="p-6 space-y-6">
               <h3 class="section-title">{{ 'employees.profile.sections.legal' | translate }}</h3>
@@ -716,18 +758,18 @@
 
               <p-timeline [value]="history()" align="left">
                 <ng-template pTemplate="marker" let-event>
-                  <div [class]="'w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center ' + getEventColor(event.type)">
+                  <div [class]="'w-10 h-10 bg-(--bg-active) rounded-full flex items-center justify-center ' + getEventColor(event.type)">
                     <i [class]="getEventIcon(event.type)"></i>
                   </div>
                 </ng-template>
                 <ng-template pTemplate="content" let-event>
                   <div class="pb-6">
                     <div class="flex items-start justify-between mb-2">
-                      <h4 class="font-semibold text-gray-900">{{ event.title }}</h4>
-                      <span class="text-xs text-gray-500">{{ event.date }}</span>
+                      <h4 class="font-semibold text-(--text-primary)">{{ event.title }}</h4>
+                      <span class="text-xs text-(--text-muted)">{{ event.date }}</span>
                     </div>
-                    <p class="text-sm text-gray-500 mb-1">{{ event.description }}</p>
-                    <p class="text-xs text-gray-500 italic">Par: {{ event.modifiedBy?.name }}</p>
+                    <p class="text-sm text-(--text-secondary) mb-1">{{ event.description }}</p>
+                    <p class="text-xs text-(--text-muted) italic">Par: {{ event.modifiedBy?.name }}</p>
                   </div>
                 </ng-template>
               </p-timeline>

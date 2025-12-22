@@ -140,7 +140,8 @@
       "info": "Identité & Légal",
       "hrSettings": "Paramètres de Paie",
       "documents": "Signataires & Documents",
-      "users": "Gestionnaires & Accès"
+      "users": "Gestionnaires & Accès",
+      "history": "Historique"
     },
     "info": {
       "title": "Informations de la Société",
@@ -263,6 +264,13 @@
       "uploadHint": "Taille max: 5 Mo. Format supporté: PDF.",
       "uploadImageHint": "PNG ou JPG, max 2 Mo",
       "saveSignatory": "Enregistrer les modifications"
+    },
+    "history": {
+      "title": "Historique de la Société",
+      "modifiedBy": "Par",
+      "noHistory": "Aucun historique",
+      "noHistoryDescription": "Les modifications apportées à vos paramètres d'entreprise apparaîtront ici.",
+      "loadError": "Échec du chargement de l'historique"
     }
   },
   "employees": {
@@ -333,7 +341,8 @@
         "mealAllowance": "Prime Panier",
         "seniorityBonus": "Prime Ancienneté",
         "benefitsInKind": "Avantages en Nature",
-        "paymentMethod": "Mode de Paiement"
+        "paymentMethod": "Mode de Paiement",
+        "components": "Éléments de Salaire"
       },
       "legal": {
         "cnss": "CNSS",

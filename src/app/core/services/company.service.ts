@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Company, TaxRegime } from '../models/company.model';
+import { Company, CompanyEvent, TaxRegime } from '../models/company.model';
 import { AuthService } from './auth.service';
 
 interface CityDto {
@@ -28,6 +28,23 @@ interface CompanyDto {
   // Add other fields as needed based on backend response
 }
 
+interface CompanyUpdateDto {
+  CompanyName?: string;
+  Email?: string;
+  PhoneNumber?: string;
+  CompanyAddress?: string;
+  CityName?: string;
+}
+
+// Mapping configuration from frontend model to backend DTO
+const COMPANY_FIELD_MAP: Partial<Record<keyof Company, keyof CompanyUpdateDto>> = {
+  legalName: 'CompanyName',
+  email: 'Email',
+  phone: 'PhoneNumber',
+  address: 'CompanyAddress',
+  city: 'CityName'
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,7 +66,6 @@ export class CompanyService {
   }
 
   updateCompany(company: Partial<Company>): Observable<Company> {
-    // Use ID from the company object if available, otherwise fallback to auth service
     const companyId = company.id || this.authService.currentUser()?.companyId;
     
     if (!companyId) {
@@ -57,22 +73,32 @@ export class CompanyService {
       return throwError(() => new Error('Company ID is required for update'));
     }
 
-    // Map frontend model to backend DTO
-    const updateDto: any = {};
-    if (company.legalName) updateDto.CompanyName = company.legalName;
-    if (company.email) updateDto.Email = company.email;
-    if (company.phone) updateDto.PhoneNumber = company.phone;
-    if (company.address) updateDto.CompanyAddress = company.address;
-    // Note: Backend might expect CityId/CountryId instead of names for update.
-    // Keeping existing mapping for now but this might need adjustment if 400 occurs.
-    if (company.city) updateDto.CityName = company.city; 
-    
+    const updateDto = this.mapCompanyToUpdateDto(company);
     const url = `${this.apiUrl}/companies/${companyId}`;
-    console.log('Updating company at URL:', url, 'Method: PATCH', 'Payload:', updateDto);
 
     return this.http.patch<CompanyDto>(url, updateDto).pipe(
       map(dto => this.mapDtoToCompany(dto))
     );
+  }
+
+  /**
+   * Maps frontend Company model to backend CompanyUpdateDto
+   * Only includes fields that are present in the partial Company object
+   */
+  private mapCompanyToUpdateDto(company: Partial<Company>): CompanyUpdateDto {
+    const updateDto: CompanyUpdateDto = {};
+
+    // Iterate over the field mapping and include only fields present in the input
+    (Object.keys(COMPANY_FIELD_MAP) as Array<keyof typeof COMPANY_FIELD_MAP>).forEach(frontendKey => {
+      if (frontendKey in company) {
+        const backendKey = COMPANY_FIELD_MAP[frontendKey];
+        if (backendKey) {
+          updateDto[backendKey] = company[frontendKey] as string;
+        }
+      }
+    });
+
+    return updateDto;
   }
 
   searchCities(query: string): Observable<string[]> {
@@ -93,6 +119,32 @@ export class CompanyService {
     formData.append('file', file);
     // Endpoint to be confirmed, keeping as is for now
     return this.http.post(`${this.apiUrl}/company/logo`, formData);
+  }
+
+  getCompanyHistory(): Observable<CompanyEvent[]> {
+    const companyId = this.authService.currentUser()?.companyId;
+    if (!companyId) {
+      return of([]);
+    }
+
+    return this.http.get<any[]>(`${this.apiUrl}/companies/${companyId}/history`).pipe(
+      map(events => events.map(event => this.mapEventDto(event)))
+    );
+  }
+
+  private mapEventDto(dto: any): CompanyEvent {
+    return {
+      type: dto.type || dto.eventType || 'general_update',
+      title: dto.title || dto.eventTitle || '',
+      date: dto.date || dto.eventDate || '',
+      description: dto.description || dto.eventDescription || '',
+      details: dto.details || {},
+      modifiedBy: dto.modifiedBy ? {
+        name: dto.modifiedBy.name || dto.modifiedBy.userName || '',
+        role: dto.modifiedBy.role || dto.modifiedBy.userRole || ''
+      } : undefined,
+      timestamp: dto.timestamp || dto.createdAt || new Date().toISOString()
+    };
   }
 
   private mapDtoToCompany(dto: CompanyDto): Company {

@@ -153,7 +153,8 @@
       "info": "Identity & Legal",
       "hrSettings": "Payroll Parameters",
       "documents": "Signatories & Documents",
-      "users": "Managers & Access"
+      "users": "Managers & Access",
+      "history": "History"
     },
     "info": {
       "title": "Company Information",
@@ -276,6 +277,13 @@
       "uploadHint": "Max file size: 5MB. Supported formats: PDF.",
       "uploadImageHint": "PNG or JPG, max 2MB",
       "saveSignatory": "Save Changes"
+    },
+    "history": {
+      "title": "Company History",
+      "modifiedBy": "By",
+      "noHistory": "No history yet",
+      "noHistoryDescription": "Changes to your company settings will appear here.",
+      "loadError": "Failed to load history"
     }
   },
   "employees": {
@@ -346,7 +354,8 @@
         "mealAllowance": "Meal Allowance",
         "seniorityBonus": "Seniority Bonus",
         "benefitsInKind": "Benefits in Kind",
-        "paymentMethod": "Payment Method"
+        "paymentMethod": "Payment Method",
+        "components": "Salary Components"
       },
       "legal": {
         "cnss": "CNSS",

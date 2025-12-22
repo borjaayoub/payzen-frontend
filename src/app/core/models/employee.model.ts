@@ -1,5 +1,12 @@
 // Employee model for PayZen SaaS
 
+export interface SalaryComponent {
+  id?: number;
+  employeeSalaryId?: number;
+  type: string;
+  amount: number;
+}
+
 export interface Employee {
   id: string;
   firstName: string;
@@ -29,10 +36,8 @@ export interface Employee {
   probationPeriod: string;
   exitReason?: string;
   baseSalary: number;
-  transportAllowance: number;
-  mealAllowance: number;
-  seniorityBonus: number;
-  benefitsInKind?: string;
+  salaryComponents: SalaryComponent[];
+  activeSalaryId?: number;
   paymentMethod: 'bank_transfer' | 'check' | 'cash';
   cnss: string;
   amo: string;

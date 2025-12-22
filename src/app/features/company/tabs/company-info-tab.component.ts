@@ -127,8 +127,6 @@ export class CompanyInfoTabComponent implements OnInit {
       return;
     }
 
-    // Create a partial update object but include the ID from the current company
-    // We also include the changed field
     const updatePayload: Partial<Company> = {
       id: currentCompany.id,
       [field]: value
@@ -140,7 +138,8 @@ export class CompanyInfoTabComponent implements OnInit {
         this.showToast('success', 'Success', 'Field updated successfully');
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Update failed:', err);
         this.showToast('error', 'Error', 'Failed to update field');
         this.loading.set(false);
       }

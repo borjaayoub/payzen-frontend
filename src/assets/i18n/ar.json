@@ -50,7 +50,8 @@
       "info": "الهوية والقانونية",
       "hrSettings": "إعدادات الرواتب",
       "documents": "الموقعون والوثائق",
-      "users": "المديرون والوصول"
+      "users": "المديرون والوصول",
+      "history": "السجل"
     },
     "info": {
       "title": "معلومات الشركة",
@@ -173,6 +174,13 @@
       "uploadHint": "الحجم الأقصى: 5 ميغابايت. التنسيق المدعوم: PDF.",
       "uploadImageHint": "PNG أو JPG، الحد الأقصى 2 ميغابايت",
       "saveSignatory": "حفظ التغييرات"
+    },
+    "history": {
+      "title": "سجل الشركة",
+      "modifiedBy": "بواسطة",
+      "noHistory": "لا يوجد سجل بعد",
+      "noHistoryDescription": "ستظهر التغييرات على إعدادات شركتك هنا.",
+      "loadError": "فشل تحميل السجل"
     }
   },
   "employees": {
@@ -230,7 +238,8 @@
         "mealAllowance": "منحة الطعام",
         "seniorityBonus": "منحة الأقدمية",
         "benefitsInKind": "مزايا عينية",
-        "paymentMethod": "طريقة الدفع"
+        "paymentMethod": "طريقة الدفع",
+        "components": "مكونات الراتب"
       },
       "legal": {
         "cnss": "CNSS",

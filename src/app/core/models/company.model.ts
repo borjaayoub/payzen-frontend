@@ -80,3 +80,17 @@ export interface CompanyDocument {
 }
 
 export type DocumentType = 'cnss_attestation' | 'amo' | 'logo' | 'rib' | 'other';
+
+// Company event for history tracking
+export interface CompanyEvent {
+  type: string;
+  title: string;
+  date: string;
+  description: string;
+  details?: Record<string, unknown>;
+  modifiedBy?: {
+    name: string;
+    role: string;
+  };
+  timestamp: string;
+}

@@ -26,7 +26,7 @@ import { ChangeConfirmationDialog } from '@app/shared/components/change-confirma
 import { UnsavedChangesDialog } from '@app/shared/components/unsaved-changes-dialog/unsaved-changes-dialog';
 import { CanComponentDeactivate } from '@app/core/guards/unsaved-changes.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, of, firstValueFrom } from 'rxjs';
+import { Observable, of, firstValueFrom, forkJoin } from 'rxjs';
 
 import { TagComponent } from '../../../shared/components/tag/tag.component';
 import { TagVariant } from '../../../shared/components/tag/tag.types';
@@ -91,7 +91,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     '0': ['firstName', 'lastName', 'cin', 'maritalStatus', 'dateOfBirth', 'birthPlace'],
     '1': ['personalEmail', 'phone', 'address', 'countryId', 'countryName', 'city', 'addressLine1', 'addressLine2', 'zipCode'],
     '2': ['position', 'department', 'manager', 'contractType', 'status', 'startDate', 'endDate', 'probationPeriod'],
-    '3': ['baseSalary', 'transportAllowance', 'mealAllowance', 'seniorityBonus', 'benefitsInKind', 'paymentMethod'],
+    '3': ['baseSalary', 'salaryComponents', 'paymentMethod'],
     '4': ['cnss', 'amo', 'cimr', 'annualLeave']
   };
 
@@ -159,10 +159,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     endDate: 'End Date',
     probationPeriod: 'Probation Period',
     baseSalary: 'Base Salary',
-    transportAllowance: 'Transport Allowance',
-    mealAllowance: 'Meal Allowance',
-    seniorityBonus: 'Seniority Bonus',
-    benefitsInKind: 'Benefits in Kind',
+    salaryComponents: 'Salary Components',
     paymentMethod: 'Payment Method',
     cnss: 'CNSS',
     amo: 'AMO',
@@ -255,7 +252,8 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
   readonly totalSalary = computed(() => {
     const emp = this.employee();
-    return (emp.baseSalary || 0) + (emp.transportAllowance || 0) + (emp.mealAllowance || 0) + (emp.seniorityBonus || 0);
+    const componentsTotal = (emp.salaryComponents || []).reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+    return (emp.baseSalary || 0) + componentsTotal;
   });
 
   constructor() {
@@ -276,7 +274,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
           this.originalEmployee,
           currentEmployee,
           this.FIELD_LABELS,
-          ['id', 'photo', 'missingDocuments']
+          ['id', 'photo', 'missingDocuments', 'activeSalaryId']
         );
         this.changeSet.set(changes);
         this.updateTabChangeSets(changes);
@@ -343,12 +341,24 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private loadEmployeeDetails(id: string): void {
     this.isLoadingProfile.set(true);
     this.loadError.set(null);
-    this.employeeService.getEmployeeDetails(id).subscribe({
-      next: (employee) => {
+    
+    forkJoin({
+      details: this.employeeService.getEmployeeDetails(id),
+      salary: this.employeeService.getEmployeeSalaryDetails(id)
+    }).subscribe({
+      next: ({ details, salary }) => {
         this.isRestoringDraft = true;
-        this.employee.set(employee);
-        this.originalEmployee = { ...employee };
-        this.lastSerializedEmployee = JSON.stringify(employee);
+        
+        // Merge salary components with IDs
+        const mergedEmployee = {
+          ...details,
+          activeSalaryId: salary.id,
+          salaryComponents: salary.components.length > 0 ? salary.components : details.salaryComponents
+        };
+
+        this.employee.set(mergedEmployee);
+        this.originalEmployee = { ...mergedEmployee };
+        this.lastSerializedEmployee = JSON.stringify(mergedEmployee);
         this.resetChangeTracking();
         
         // Check for existing draft
@@ -548,6 +558,25 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     }
   }
 
+  addSalaryComponent() {
+    const current = this.employee().salaryComponents || [];
+    this.updateField('salaryComponents', [...current, { type: '', amount: 0 }]);
+  }
+
+  removeSalaryComponent(index: number) {
+    const current = this.employee().salaryComponents || [];
+    const updated = [...current];
+    updated.splice(index, 1);
+    this.updateField('salaryComponents', updated);
+  }
+
+  updateSalaryComponent(index: number, field: 'type' | 'amount', value: any) {
+    const current = this.employee().salaryComponents || [];
+    const updated = [...current];
+    updated[index] = { ...updated[index], [field]: value };
+    this.updateField('salaryComponents', updated);
+  }
+
   // Save workflow with confirmation
   saveWithConfirmation(): void {
     if (!this.changeSet().hasChanges) {
@@ -608,37 +637,94 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       const patch = ChangeTracker.generatePatch(
         this.originalEmployee,
         this.employee(),
-        ['id', 'photo', 'missingDocuments']
+        ['id', 'photo', 'missingDocuments', 'salaryComponents', 'activeSalaryId']
       );
 
-      if (Object.keys(patch).length === 0) {
-        this.saveSuccess.set(this.translate.instant('employees.profile.noChanges'));
-        setTimeout(() => this.saveSuccess.set(null), 2000);
-        this.resolveAfterSave(true);
-        this.isSaving.set(false);
-        return;
+      if (Object.keys(patch).length > 0) {
+        await firstValueFrom(
+          this.employeeService.patchEmployeeProfile(this.employeeId()!, patch)
+        );
       }
 
-      this.employeeService.patchEmployeeProfile(this.employeeId()!, patch).subscribe({
-        next: (response: EmployeeProfileModel) => {
-          // Reload the full employee profile to ensure we have the latest data, including history events
-          this.loadEmployeeDetails(this.employeeId()!);
+      // Handle Salary Components
+      const salaryDetails = await firstValueFrom(this.employeeService.getEmployeeSalaryDetails(this.employeeId()!));
+      const newActiveSalaryId = salaryDetails.id;
+      const oldActiveSalaryId = this.employee().activeSalaryId;
+
+      if (newActiveSalaryId) {
+        const currentComponents = this.employee().salaryComponents || [];
+        const componentPromises = [];
+
+        if (newActiveSalaryId !== oldActiveSalaryId) {
+           // New salary created. Add all components to it.
+           for (const c of currentComponents) {
+             componentPromises.push(firstValueFrom(this.employeeService.addSalaryComponent({
+               employeeSalaryId: newActiveSalaryId,
+               componentType: c.type,
+               amount: c.amount,
+               effectiveDate: new Date().toISOString()
+             })));
+           }
+        } else {
+          // Same salary. Diff changes.
+          const originalComponents = this.originalEmployee?.salaryComponents || [];
           
-          // We still update the local state optimistically/partially to show success immediately
-          const merged = { ...this.originalEmployee!, ...patch, ...(response ?? {}) } as EmployeeProfileModel;
-          this.handleSaveSuccess(merged);
-        },
-        error: (err: unknown) => {
-          console.error('Failed to save employee', err);
-          this.saveError.set(this.translate.instant('employees.profile.saveError') || 'Unable to save changes.');
-          this.isSaving.set(false);
-          this.announce('Save failed, draft preserved. You can retry.');
-          this.resolveAfterSave(false);
+          const newComponents = currentComponents.filter(c => !c.id);
+          
+          const modifiedComponents = currentComponents.filter(c => {
+            if (!c.id) return false;
+            const original = originalComponents.find(o => o.id === c.id);
+            return original && (original.type !== c.type || original.amount !== c.amount);
+          });
+
+          const deletedComponents = originalComponents.filter(o => 
+            o.id && !currentComponents.find(c => c.id === o.id)
+          );
+
+          for (const c of newComponents) {
+            componentPromises.push(firstValueFrom(this.employeeService.addSalaryComponent({
+              employeeSalaryId: newActiveSalaryId,
+              componentType: c.type,
+              amount: c.amount,
+              effectiveDate: new Date().toISOString()
+            })));
+          }
+
+          for (const c of modifiedComponents) {
+            componentPromises.push(firstValueFrom(this.employeeService.updateSalaryComponent(c.id!, {
+              id: c.id,
+              employeeSalaryId: newActiveSalaryId,
+              componentType: c.type,
+              amount: c.amount,
+              effectiveDate: new Date().toISOString()
+            })));
+          }
+
+          for (const c of deletedComponents) {
+            componentPromises.push(firstValueFrom(this.employeeService.deleteSalaryComponent(c.id!)));
+          }
         }
-      });
+
+        if (componentPromises.length > 0) {
+          await Promise.all(componentPromises);
+        }
+      }
+
+      this.saveSuccess.set(this.translate.instant('employees.profile.saveSuccess'));
+      this.clearDraftsForAllTabs();
+      this.isEditMode.set(false);
+      
+      // Reload to refresh state
+      this.loadEmployeeDetails(this.employeeId()!);
+      
+      this.resolveAfterSave(true);
+      
     } catch (err) {
-       console.error('Error in save process', err);
-       this.isSaving.set(false);
+      console.error('Save failed', err);
+      this.saveError.set(this.translate.instant('employees.profile.saveError'));
+      this.resolveAfterSave(false);
+    } finally {
+      this.isSaving.set(false);
     }
   }
 
@@ -941,10 +1027,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       probationPeriod: '',
       exitReason: undefined,
       baseSalary: 0,
-      transportAllowance: 0,
-      mealAllowance: 0,
-      seniorityBonus: 0,
-      benefitsInKind: undefined,
+      salaryComponents: [],
       paymentMethod: 'bank_transfer',
       cnss: '',
       amo: '',

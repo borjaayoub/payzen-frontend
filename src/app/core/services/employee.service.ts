@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
 
@@ -359,6 +359,45 @@ export class EmployeeService {
   }
 
   /**
+   * Get employee salary details including components with IDs
+   */
+  getEmployeeSalaryDetails(employeeId: string): Observable<{ id: number, components: any[] }> {
+    return this.http.get<any[]>(`${environment.apiUrl}/employee-salaries/employee/${employeeId}`).pipe(
+      map(salaries => {
+        // Find active salary (no end date)
+        return salaries.find(s => !s.endDate);
+      }),
+      switchMap(activeSalary => {
+        if (!activeSalary) return of({ id: 0, components: [] });
+        return this.http.get<any[]>(`${environment.apiUrl}/employee-salary-components/salary/${activeSalary.id}`).pipe(
+          map(components => ({
+            id: activeSalary.id,
+            components: components.map(c => ({
+              id: c.id,
+              employeeSalaryId: c.employeeSalaryId,
+              type: c.componentType,
+              amount: c.amount
+            }))
+          }))
+        );
+      })
+    );
+  }
+
+  addSalaryComponent(component: any): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/employee-salary-components`, component);
+  }
+
+  updateSalaryComponent(id: number, component: any): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/employee-salary-components/${id}`, component);
+  }
+
+  deleteSalaryComponent(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/employee-salary-components/${id}`);
+  }
+
+
+  /**
    * Search countries
    */
   searchCountries(query: string): Observable<CountryLookupOption[]> {
@@ -504,11 +543,10 @@ export class EmployeeService {
   }
 
   private mapEmployeeDetailsResponse(payload: EmployeeDetailsResponse): EmployeeProfileModel {
-    const salaryComponents = payload.salaryComponents ?? [];
-    const transportAllowance = this.findSalaryComponentAmount(salaryComponents, ['transport']);
-    const mealAllowance = this.findSalaryComponentAmount(salaryComponents, ['meal', 'restauration']);
-    const seniorityBonus = this.findSalaryComponentAmount(salaryComponents, ['ancien', 'seniority']);
-    const otherBenefits = this.collectOtherBenefits(salaryComponents, ['transport', 'meal', 'restauration', 'ancien', 'seniority']);
+    const salaryComponents = (payload.salaryComponents ?? []).map(c => ({
+      type: c.componentName,
+      amount: c.amount
+    }));
     
     // Handle potential PascalCase from backend for Address object
     const addressPayload = payload.address || (payload as any).Address;
@@ -547,10 +585,8 @@ export class EmployeeService {
       probationPeriod: payload.probationPeriod ?? '',
       exitReason: undefined,
       baseSalary: payload.baseSalary ?? 0,
-      transportAllowance,
-      mealAllowance,
-      seniorityBonus,
-      benefitsInKind: otherBenefits,
+      salaryComponents,
+      activeSalaryId: undefined, // Will be populated separately
       paymentMethod: this.mapPaymentMethod(payload.salaryPaymentMethod),
       cnss: this.toStringValue(payload.cnss),
       amo: this.toStringValue(payload.amo),
@@ -629,25 +665,6 @@ export class EmployeeService {
       .filter(part => !!part)
       .map(part => part?.trim());
     return parts.join(', ');
-  }
-
-  private findSalaryComponentAmount(components: SalaryComponentResponse[], keywords: string[]): number {
-    const match = components.find(component =>
-      keywords.some(keyword => component.componentName?.toLowerCase().includes(keyword))
-    );
-    return match ? Number(match.amount) || 0 : 0;
-  }
-
-  private collectOtherBenefits(
-    components: SalaryComponentResponse[],
-    excludedKeywords: string[]
-  ): string | undefined {
-    const others = components
-      .filter(component =>
-          !excludedKeywords.some(keyword => component.componentName?.toLowerCase().includes(keyword))
-      )
-        .map(component => `${component.componentName}: ${component.amount} MAD`);
-    return others.length ? others.join(' | ') : undefined;
   }
 
   private toStringValue(value: string | number | undefined | null): string {

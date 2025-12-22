@@ -51,6 +51,12 @@
             <span>{{ 'company.tabs.users' | translate }}</span>
           </div>
         </p-tab>
+        <p-tab value="history" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-history"></i>
+            <span>{{ 'company.tabs.history' | translate }}</span>
+          </div>
+        </p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="info">
@@ -64,6 +70,9 @@
         </p-tabpanel>
         <p-tabpanel value="users">
           <app-users-tab></app-users-tab>
+        </p-tabpanel>
+        <p-tabpanel value="history">
+          <app-history-tab></app-history-tab>
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
