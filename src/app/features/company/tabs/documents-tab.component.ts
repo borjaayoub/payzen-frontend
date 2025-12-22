@@ -12,7 +12,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { CompanyService } from '@app/core/services/company.service';
-import { Company, CompanyDocuments } from '@app/core/models/company.model';
+import { CompanyDocuments } from '@app/core/models/company.model';
 
 interface DocumentRow {
   name: string;
@@ -20,6 +20,11 @@ interface DocumentRow {
   url: string | null;
   status: 'uploaded' | 'missing';
   date?: Date;
+}
+
+interface ExpectedDocument {
+  key: string;
+  label: string;
 }
 
 @Component({
@@ -42,26 +47,52 @@ interface DocumentRow {
   templateUrl: './documents-tab.component.html'
 })
 export class DocumentsTabComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private companyService = inject(CompanyService);
-  private messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
+  private readonly companyService = inject(CompanyService);
+  private readonly messageService = inject(MessageService);
 
+  // Forms
   signatoryForm!: FormGroup;
+  formSubmitted = false;
+
+  // State
   documents = signal<DocumentRow[]>([]);
-  loading = signal<boolean>(false);
+  loading = signal(false);
   signatureUrl = signal<string | null>(null);
   stampUrl = signal<string | null>(null);
   selectedDocType = signal<string | null>(null);
+
+  // Document configuration
+  private readonly expectedDocs: ExpectedDocument[] = [
+    { key: 'cnss_attestation', label: 'Attestation CNSS' },
+    { key: 'amo', label: 'Attestation AMO' },
+    { key: 'rib', label: 'RIB Bancaire' },
+    { key: 'rc', label: 'Registre de Commerce' },
+    { key: 'patente', label: 'Patente' }
+  ];
 
   ngOnInit() {
     this.initForm();
     this.loadData();
   }
 
+  /** Check if a form field is invalid and should show error */
+  isFieldInvalid(fieldName: string): boolean {
+    const control = this.signatoryForm.get(fieldName);
+    return !!(control?.invalid && (control.touched || this.formSubmitted));
+  }
+
+  /** Get status badge classes based on document status */
+  getStatusClasses(status: 'uploaded' | 'missing'): string {
+    return status === 'uploaded'
+      ? 'bg-green-100 text-green-700'
+      : 'bg-amber-100 text-amber-700';
+  }
+
   private initForm() {
     this.signatoryForm = this.fb.group({
-      signatoryName: ['', Validators.required],
-      signatoryTitle: ['', Validators.required]
+      signatoryName: ['', [Validators.required, Validators.minLength(2)]],
+      signatoryTitle: ['', [Validators.required, Validators.minLength(2)]]
     });
   }
 
@@ -70,92 +101,109 @@ export class DocumentsTabComponent implements OnInit {
     this.companyService.getCompany().subscribe({
       next: (company) => {
         this.documents.set(this.mapDocuments(company.documents));
-        
-        // Mock signatory data loading (assuming it exists in company model or extended)
-        if ((company as any).signatory) {
-            this.signatoryForm.patchValue({
-                signatoryName: (company as any).signatory.name,
-                signatoryTitle: (company as any).signatory.title
-            });
-            this.signatureUrl.set((company as any).signatory.signatureUrl);
-            this.stampUrl.set((company as any).signatory.stampUrl);
-        }
-
+        this.loadSignatoryData(company);
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error loading company data:', err);
+        this.showToast('error', 'Error', 'Failed to load documents');
         this.loading.set(false);
       }
     });
   }
 
-  private mapDocuments(docs: CompanyDocuments): DocumentRow[] {
-    // Define expected documents
-    const expectedDocs = [
-      { key: 'cnss_attestation', label: 'Attestation CNSS' },
-      { key: 'amo', label: 'Attestation AMO' },
-      { key: 'rib', label: 'RIB Bancaire' },
-      { key: 'rc', label: 'Registre de Commerce' }, // Assuming these might exist in 'other' or extended model
-      { key: 'patente', label: 'Patente' }
-    ];
+  private loadSignatoryData(company: any) {
+    if (company.signatory) {
+      this.signatoryForm.patchValue({
+        signatoryName: company.signatory.name,
+        signatoryTitle: company.signatory.title
+      });
+      this.signatureUrl.set(company.signatory.signatureUrl);
+      this.stampUrl.set(company.signatory.stampUrl);
+    }
+  }
 
-    return expectedDocs.map(doc => {
-      // Check if document exists in the typed object or in 'other' (simplified logic)
-      // In a real app, we'd have a more robust mapping or list from backend
-      const url = (docs as any)[doc.key]; 
+  private mapDocuments(docs: CompanyDocuments): DocumentRow[] {
+    return this.expectedDocs.map(doc => {
+      const url = (docs as unknown as Record<string, string | undefined>)[doc.key];
       return {
         name: doc.label,
         type: doc.key,
         url: url || null,
         status: url ? 'uploaded' : 'missing',
-        date: url ? new Date() : undefined // Mock date
+        date: url ? new Date() : undefined
       };
     });
   }
 
-  onUploadSignature(event: any) {
+  onUploadSignature(event: { files: File[] }) {
     const file = event.files[0];
-    // Mock upload
+    if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = (e: any) => this.signatureUrl.set(e.target.result);
+    reader.onload = (e) => this.signatureUrl.set(e.target?.result as string);
     reader.readAsDataURL(file);
-    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Signature uploaded' });
+    this.showToast('success', 'Success', 'Signature uploaded');
   }
 
-  onUploadStamp(event: any) {
+  onUploadStamp(event: { files: File[] }) {
     const file = event.files[0];
-    // Mock upload
+    if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = (e: any) => this.stampUrl.set(e.target.result);
+    reader.onload = (e) => this.stampUrl.set(e.target?.result as string);
     reader.readAsDataURL(file);
-    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Stamp uploaded' });
+    this.showToast('success', 'Success', 'Stamp uploaded');
   }
 
   onSubmit() {
-    if (this.signatoryForm.invalid) return;
+    this.formSubmitted = true;
+    if (this.signatoryForm.invalid) {
+      this.signatoryForm.markAllAsTouched();
+      return;
+    }
+
     this.loading.set(true);
-    // Mock save
+    // Mock save - replace with actual API call
     setTimeout(() => {
-        this.loading.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Signatory info saved' });
+      this.loading.set(false);
+      this.formSubmitted = false;
+      this.showToast('success', 'Success', 'Signatory info saved');
     }, 1000);
   }
 
-  onDocumentUpload(event: any) {
-    this.documents.update(docs => {
-      return docs.map(d => {
-        if (d.type === this.selectedDocType()) {
-          return { ...d, status: 'uploaded', url: 'mock-url.pdf', date: new Date() };
-        }
-        return d;
-      });
-    });
+  onDocumentUpload(event: { files: File[] }) {
+    const docType = this.selectedDocType();
+    if (!docType) return;
+
+    this.documents.update(docs =>
+      docs.map(d =>
+        d.type === docType
+          ? { ...d, status: 'uploaded' as const, url: 'mock-url.pdf', date: new Date() }
+          : d
+      )
+    );
+    this.showToast('success', 'Success', 'Document uploaded');
   }
 
   download(doc: DocumentRow) {
     if (doc.url) {
-      window.open(doc.url, '_blank');
+      window.open(doc.url, '_blank', 'noopener,noreferrer');
     }
+  }
+
+  removeSignature() {
+    this.signatureUrl.set(null);
+    this.showToast('info', 'Removed', 'Signature removed');
+  }
+
+  removeStamp() {
+    this.stampUrl.set(null);
+    this.showToast('info', 'Removed', 'Stamp removed');
+  }
+
+  private showToast(severity: 'success' | 'error' | 'info', summary: string, detail: string) {
+    this.messageService.add({ severity, summary, detail, life: 4000 });
   }
 }
 

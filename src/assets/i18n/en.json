@@ -113,6 +113,7 @@
     "close": "Close",
     "yes": "Yes",
     "no": "No",
+    "optional": "Optional",
     "actions": "Actions",
     "view": "View",
     "viewAll": "View All",
@@ -126,6 +127,7 @@
     "retry": "Retry",
     "apply": "Apply",
     "ok": "OK",
+    "remove": "Remove",
     "unsavedChanges": {
       "title": "Unsaved Changes",
       "message": "You have unsaved changes. Are you sure you want to leave?",
@@ -134,6 +136,13 @@
       "discard": "Discard Changes",
       "save": "Save Changes"
     }
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "minLength": "Minimum {{min}} characters required",
+    "maxLength": "Maximum {{max}} characters allowed",
+    "pattern": "Invalid format"
   },
   "company": {
     "title": "Company Management",
@@ -178,25 +187,39 @@
     "hrSettings": {
       "title": "HR Settings",
       "workingSchedule": "Working Schedule",
+      "workingScheduleDesc": "Define your company's standard working week and daily hours.",
       "workingDays": "Working Days",
       "workingDaysHint": "Select the standard working days for your company.",
       "standardHoursPerDay": "Standard Hours per Day",
-      "standardHoursHint": "Used to calculate daily rates (e.g., 8h/day).",
+      "standardHoursHint": "Used to calculate daily rates and overtime (e.g., 8 hours/day).",
       "leaveRules": "Leave Rules",
+      "leaveRulesDesc": "Configure how annual leave is accrued and calculated.",
       "leaveRate": "Leave Accrual Rate",
+      "leaveRateHint": "Determines how many days employees earn per month (Moroccan law: 1.5 days/month).",
       "includeSaturdays": "Include Saturdays in Leave Count?",
+      "saturdaysHint": "When calculating leave duration, should Saturdays be counted as working days?",
       "salaryPayment": "Salary & Payment",
+      "salaryPaymentDesc": "Set default payment preferences for payroll processing.",
       "paymentMode": "Default Payment Mode",
       "rib": "Primary Bank Account (RIB)",
+      "ribPlaceholder": "Enter 24-digit RIB number",
+      "ribHint": "Company's primary bank account for salary transfers (24 digits).",
       "workingHours": "Working Hours",
       "hoursPerWeek": "hours/week",
-      "helpTitle": "HR Configuration",
-      "helpDescription": "These settings directly impact payroll calculations.",
-      "helpPoint1": "Working days define the standard schedule.",
-      "helpPoint2": "Leave rate determines monthly accrual.",
-      "helpPoint3": "Payment mode sets the default for new employees.",
+      "helpTitle": "HR Configuration Guide",
+      "helpDescription": "Configure core HR parameters that affect payroll calculations, leave management, and compliance.",
+      "helpPoint1": "Working days and hours determine overtime calculations and daily rates.",
+      "helpPoint2": "Leave accrual rate affects how vacation days are earned (1.5 days/month is standard in Morocco).",
+      "helpPoint3": "Payment settings establish defaults for new employees and payroll processing.",
       "leaveCalculation": "Leave Calculation Mode",
-      "absenceCalculation": "Absence Calculation Mode"
+      "absenceCalculation": "Absence Calculation Mode",
+      "formErrors": "Please correct the following errors:",
+      "saveNote": "Changes will apply to future payroll calculations only.",
+      "errors": {
+        "workingDaysRequired": "Please select at least one working day.",
+        "hoursInvalid": "Hours per day must be between 0 and 24.",
+        "ribInvalid": "RIB must be exactly 24 digits."
+      }
     },
     "users": {
       "title": "User Management",
@@ -212,6 +235,12 @@
         "status": "Status",
         "actions": "Actions"
       },
+      "actions": {
+        "edit": "Edit User",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "remove": "Remove User"
+      },
       "inviteDialog": {
         "title": "Invite New User",
         "email": "Email Address",
@@ -220,10 +249,16 @@
         "hint": "An invitation email will be sent to the user with login instructions."
       }
     },
+    "status": {
+      "active": "Active",
+      "pending": "Pending",
+      "inactive": "Inactive"
+    },
     "documents": {
       "title": "Company Documents",
       "subtitle": "Manage your company's official documents",
       "signatoryTitle": "Signatory Information",
+      "signatorySubtitle": "Person authorized to sign official company documents",
       "signatoryName": "Signatory Name",
       "signatoryRole": "Signatory Title",
       "officialImages": "Official Images",
@@ -238,7 +273,9 @@
       "date": "Date",
       "uploadTitle": "Upload Document",
       "selectPdf": "Select PDF",
-      "uploadHint": "Max file size: 5MB. Supported formats: PDF."
+      "uploadHint": "Max file size: 5MB. Supported formats: PDF.",
+      "uploadImageHint": "PNG or JPG, max 2MB",
+      "saveSignatory": "Save Changes"
     }
   },
   "employees": {

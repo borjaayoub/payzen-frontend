@@ -100,6 +100,7 @@
     "close": "Fermer",
     "yes": "Oui",
     "no": "Non",
+    "optional": "Optionnel",
     "actions": "Actions",
     "view": "Voir",
     "viewAll": "Voir Tous",
@@ -113,6 +114,7 @@
     "retry": "Réessayer",
     "apply": "Appliquer",
     "ok": "OK",
+    "remove": "Supprimer",
     "unsavedChanges": {
       "title": "Modifications non enregistrées",
       "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
@@ -121,6 +123,13 @@
       "discard": "Ignorer les modifications",
       "save": "Enregistrer"
     }
+  },
+  "errors": {
+    "required": "Ce champ est requis",
+    "invalidEmail": "Veuillez saisir une adresse e-mail valide",
+    "minLength": "Minimum {{min}} caractères requis",
+    "maxLength": "Maximum {{max}} caractères autorisés",
+    "pattern": "Format invalide"
   },
   "company": {
     "title": "Gestion de l'Entreprise",
@@ -165,25 +174,39 @@
     "hrSettings": {
       "title": "Paramètres RH",
       "workingSchedule": "Calendrier de Travail",
+      "workingScheduleDesc": "Définissez la semaine de travail standard et les heures quotidiennes de votre entreprise.",
       "workingDays": "Jours Ouvrables",
-      "workingDaysHint": "Sélectionnez les jours de travail standard.",
+      "workingDaysHint": "Sélectionnez les jours de travail standard de votre entreprise.",
       "standardHoursPerDay": "Heures Standard par Jour",
-      "standardHoursHint": "Utilisé pour calculer les taux journaliers (ex: 8h/jour).",
+      "standardHoursHint": "Utilisé pour calculer les taux journaliers et les heures supplémentaires (ex: 8 heures/jour).",
       "leaveRules": "Règles de Congés",
-      "leaveRate": "Taux d'Acquisition",
-      "includeSaturdays": "Inclure les Samedis dans le décompte ?",
+      "leaveRulesDesc": "Configurez comment les congés annuels sont accumulés et calculés.",
+      "leaveRate": "Taux d'Acquisition des Congés",
+      "leaveRateHint": "Détermine combien de jours les employés gagnent par mois (loi marocaine: 1,5 jours/mois).",
+      "includeSaturdays": "Inclure les Samedis dans le Décompte ?",
+      "saturdaysHint": "Lors du calcul de la durée des congés, les samedis doivent-ils être comptés comme jours ouvrables ?",
       "salaryPayment": "Salaire & Paiement",
+      "salaryPaymentDesc": "Définissez les préférences de paiement par défaut pour le traitement de la paie.",
       "paymentMode": "Mode de Paiement par Défaut",
       "rib": "Compte Bancaire Principal (RIB)",
+      "ribPlaceholder": "Entrez le numéro RIB à 24 chiffres",
+      "ribHint": "Compte bancaire principal de l'entreprise pour les virements de salaire (24 chiffres).",
       "workingHours": "Heures de Travail",
       "hoursPerWeek": "heures/semaine",
-      "helpTitle": "Configuration RH",
-      "helpDescription": "Ces paramètres impactent directement le calcul de la paie.",
-      "helpPoint1": "Les jours ouvrables définissent l'horaire standard.",
-      "helpPoint2": "Le taux de congés détermine l'acquisition mensuelle.",
-      "helpPoint3": "Le mode de paiement définit la valeur par défaut.",
+      "helpTitle": "Guide de Configuration RH",
+      "helpDescription": "Configurez les paramètres RH essentiels qui affectent les calculs de paie, la gestion des congés et la conformité.",
+      "helpPoint1": "Les jours et heures de travail déterminent les calculs d'heures supplémentaires et les taux journaliers.",
+      "helpPoint2": "Le taux d'acquisition des congés affecte la manière dont les jours de vacances sont gagnés (1,5 jours/mois est standard au Maroc).",
+      "helpPoint3": "Les paramètres de paiement établissent les valeurs par défaut pour les nouveaux employés et le traitement de la paie.",
       "leaveCalculation": "Mode de Calcul des Congés",
-      "absenceCalculation": "Mode de Calcul des Absences"
+      "absenceCalculation": "Mode de Calcul des Absences",
+      "formErrors": "Veuillez corriger les erreurs suivantes :",
+      "saveNote": "Les modifications s'appliqueront uniquement aux futurs calculs de paie.",
+      "errors": {
+        "workingDaysRequired": "Veuillez sélectionner au moins un jour ouvrable.",
+        "hoursInvalid": "Les heures par jour doivent être entre 0 et 24.",
+        "ribInvalid": "Le RIB doit contenir exactement 24 chiffres."
+      }
     },
     "users": {
       "title": "Gestion des Utilisateurs",
@@ -199,6 +222,12 @@
         "status": "Statut",
         "actions": "Actions"
       },
+      "actions": {
+        "edit": "Modifier l'utilisateur",
+        "activate": "Activer",
+        "deactivate": "Désactiver",
+        "remove": "Supprimer l'utilisateur"
+      },
       "inviteDialog": {
         "title": "Inviter un Nouvel Utilisateur",
         "email": "Adresse Email",
@@ -207,10 +236,16 @@
         "hint": "Un email d'invitation sera envoyé à l'utilisateur avec les instructions de connexion."
       }
     },
+    "status": {
+      "active": "Actif",
+      "pending": "En attente",
+      "inactive": "Inactif"
+    },
     "documents": {
       "title": "Documents de l'Entreprise",
       "subtitle": "Gérez les documents officiels de votre société",
       "signatoryTitle": "Informations du Signataire",
+      "signatorySubtitle": "Personne autorisée à signer les documents officiels de l'entreprise",
       "signatoryName": "Nom du Signataire",
       "signatoryRole": "Titre du Signataire",
       "officialImages": "Images Officielles",
@@ -225,7 +260,9 @@
       "date": "Date",
       "uploadTitle": "Télécharger un Document",
       "selectPdf": "Sélectionner un PDF",
-      "uploadHint": "Taille max: 5 Mo. Format supporté: PDF."
+      "uploadHint": "Taille max: 5 Mo. Format supporté: PDF.",
+      "uploadImageHint": "PNG ou JPG, max 2 Mo",
+      "saveSignatory": "Enregistrer les modifications"
     }
   },
   "employees": {

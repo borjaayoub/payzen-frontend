@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 @Component({
   selector: 'app-editable-field',
@@ -13,7 +14,8 @@ import { TooltipModule } from 'primeng/tooltip';
     FormsModule,
     InputTextModule,
     ButtonModule,
-    TooltipModule
+    TooltipModule,
+    AutoCompleteModule
   ],
   template: `
     <div class="editable-field-container group relative flex items-center gap-2 min-h-[40px]">
@@ -29,16 +31,38 @@ import { TooltipModule } from 'primeng/tooltip';
 
       <!-- Edit Mode -->
       <div *ngIf="isEditing()" class="flex-1 flex items-center gap-2 animate-fade-in">
-        <input 
-          pInputText 
-          [type]="type" 
-          [(ngModel)]="tempValue" 
-          (keydown.enter)="onSave()"
-          (keydown.escape)="onCancel()"
-          class="w-full p-inputtext-sm"
-          [placeholder]="label"
-          autoFocus
-        />
+        <ng-container [ngSwitch]="type">
+          <!-- Autocomplete Input -->
+          <p-autoComplete *ngSwitchCase="'autocomplete'"
+            [(ngModel)]="tempValue"
+            [suggestions]="suggestions"
+            (completeMethod)="onSearch($event)"
+            (keydown.enter)="onSave()"
+            (keydown.escape)="onCancel()"
+            [placeholder]="label"
+            [forceSelection]="false"
+            [dropdown]="false"
+            [showEmptyMessage]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full p-inputtext-sm"
+            appendTo="body"
+            autocomplete="off"
+            autoFocus>
+          </p-autoComplete>
+
+          <!-- Standard Input -->
+          <input *ngSwitchDefault
+            pInputText 
+            [type]="type" 
+            [(ngModel)]="tempValue" 
+            (keydown.enter)="onSave()"
+            (keydown.escape)="onCancel()"
+            class="w-full p-inputtext-sm"
+            [placeholder]="label"
+            autoFocus
+          />
+        </ng-container>
+
         <div class="flex items-center gap-1">
           <button 
             pButton 
@@ -78,9 +102,11 @@ export class EditableFieldComponent {
   @Input() label: string = '';
   @Input() type: string = 'text';
   @Input() emptyPlaceholder: string = 'Click to edit';
+  @Input() suggestions: any[] = [];
   
   @Output() save = new EventEmitter<string | number>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() search = new EventEmitter<any>();
 
   isEditing = signal(false);
   tempValue: string | number | null | undefined = '';
@@ -88,6 +114,10 @@ export class EditableFieldComponent {
   startEditing() {
     this.tempValue = this.value;
     this.isEditing.set(true);
+  }
+
+  onSearch(event: any) {
+    this.search.emit(event);
   }
 
   onSave() {

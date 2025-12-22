@@ -1,147 +1,327 @@
-<div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <!-- Left Column: Info/Help -->
-  <div class="lg:col-span-1">
-    <div class="p-6 bg-(--info-light) rounded-lg border border-(--info-light)">
-      <h3 class="text-lg font-semibold text-(--info-dark) mb-2">
-        <i class="pi pi-info-circle mr-2"></i>
-        {{ 'company.hrSettings.helpTitle' | translate }}
-      </h3>
-      <p class="text-sm text-(--info-dark) mb-4">
-        {{ 'company.hrSettings.helpDescription' | translate }}
-      </p>
-      <ul class="list-disc list-inside text-sm text-(--info-dark) space-y-2">
-        <li>{{ 'company.hrSettings.helpPoint1' | translate }}</li>
-        <li>{{ 'company.hrSettings.helpPoint2' | translate }}</li>
-        <li>{{ 'company.hrSettings.helpPoint3' | translate }}</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Right Column: Form -->
-  <div class="lg:col-span-2">
-    <form [formGroup]="hrForm" (ngSubmit)="onSubmit()">
-      
-      <!-- Working Schedule -->
-      <div class="mb-8">
-        <h3 class="section-title flex items-center gap-2 mb-4">
-          <i class="pi pi-calendar text-(--primary)"></i>
-          {{ 'company.hrSettings.workingSchedule' | translate }}
-        </h3>
-        
-        <div class="grid grid-cols-1 gap-6">
-          <div class="form-field">
-            <label class="form-label mb-2 block">{{ 'company.hrSettings.workingDays' | translate }}</label>
-            <p-selectButton 
-              [options]="workingDaysOptions" 
-              formControlName="workingDays" 
-              [multiple]="true" 
-              optionLabel="label" 
-              optionValue="value"
-              styleClass="w-full">
-            </p-selectButton>
-          </div>
-
-          <div class="form-field">
-            <label for="standardHoursPerDay" class="form-label">
-              {{ 'company.hrSettings.standardHoursPerDay' | translate }}
-            </label>
-            <p-inputNumber 
-              id="standardHoursPerDay"
-              formControlName="standardHoursPerDay" 
-              [min]="0"
-              [max]="24"
-              [minFractionDigits]="1"
-              suffix=" hours"
-              styleClass="w-full input">
-            </p-inputNumber>
-            <small class="text-gray-500">{{ 'company.hrSettings.standardHoursHint' | translate }}</small>
-          </div>
+<!-- Help Popover -->
+<p-popover #helpPopover>
+  <ng-template pTemplate="content">
+    <div class="w-80 p-1">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="shrink-0 size-9 bg-blue-100 rounded-lg flex items-center justify-center">
+          <i class="pi pi-info-circle text-blue-600 text-lg"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900 mb-1">
+            {{ 'company.hrSettings.helpTitle' | translate }}
+          </h3>
+          <p class="text-xs text-gray-600 leading-relaxed">
+            {{ 'company.hrSettings.helpDescription' | translate }}
+          </p>
         </div>
       </div>
+      
+      <ul class="space-y-2.5 pt-3 border-t border-gray-100">
+        @for (point of helpPoints; track point) {
+          <li class="flex items-start gap-2">
+            <i class="pi pi-check-circle text-blue-600 text-xs mt-0.5 shrink-0"></i>
+            <span class="text-xs text-gray-700">{{ point | translate }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </ng-template>
+</p-popover>
 
-      <hr class="my-6 border-(--border-color-subtle)">
+<!-- Loading Skeleton -->
+@if (loading() && !company()) {
+  <div class="animate-pulse p-6">
+    <div class="space-y-6 max-w-4xl mx-auto">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="bg-gray-200 rounded-xl h-48"></div>
+      }
+    </div>
+  </div>
+}
 
-      <!-- Leave Rules -->
-      <div class="mb-8">
-        <h3 class="section-title flex items-center gap-2 mb-4">
-          <i class="pi pi-sun text-(--primary)"></i>
-          {{ 'company.hrSettings.leaveRules' | translate }}
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="form-field">
-            <label for="leaveRate" class="form-label">
-              {{ 'company.hrSettings.leaveRate' | translate }}
-            </label>
-            <p-select 
-              id="leaveRate"
-              [options]="leaveRateOptions" 
-              formControlName="leaveAccrualRate" 
-              optionLabel="label" 
-              optionValue="value"
-              styleClass="w-full input">
-            </p-select>
-          </div>
+<!-- Main Content -->
+@if (!loading() || company()) {
+  <div class="p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Page Header -->
+      <header class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">
+            {{ 'company.hrSettings.title' | translate }}
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            {{ 'company.hrSettings.helpDescription' | translate }}
+          </p>
+        </div>
+        <button 
+          type="button"
+          (click)="helpPopover.toggle($event)"
+          class="shrink-0 size-10 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 grid place-items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          [attr.aria-label]="'company.hrSettings.helpTitle' | translate"
+          aria-haspopup="dialog">
+          <i class="pi pi-question-circle text-blue-600 text-lg"></i>
+        </button>
+      </header>
 
-          <div class="form-field flex flex-col">
-            <label class="form-label mb-2">{{ 'company.hrSettings.includeSaturdays' | translate }}</label>
-            <div class="flex items-center gap-4 mt-2">
-              <div class="flex items-center gap-2">
-                <p-radioButton name="includeSaturdays" [value]="true" formControlName="includeSaturdays" inputId="satYes"></p-radioButton>
-                <label for="satYes" class="cursor-pointer">{{ 'common.yes' | translate }}</label>
-              </div>
-              <div class="flex items-center gap-2">
-                <p-radioButton name="includeSaturdays" [value]="false" formControlName="includeSaturdays" inputId="satNo"></p-radioButton>
-                <label for="satNo" class="cursor-pointer">{{ 'common.no' | translate }}</label>
-              </div>
+      <!-- Form Error Summary -->
+      @if (formSubmitted && hrForm.invalid) {
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert" aria-live="polite">
+          <div class="flex items-start gap-3">
+            <i class="pi pi-exclamation-triangle text-red-600 mt-0.5"></i>
+            <div>
+              <h2 class="text-sm font-semibold text-red-900 mb-1">
+                {{ 'company.hrSettings.formErrors' | translate }}
+              </h2>
+              <ul class="text-sm text-red-800 space-y-1 list-disc list-inside">
+                @if (hrForm.get('workingDays')?.invalid) {
+                  <li>{{ 'company.hrSettings.errors.workingDaysRequired' | translate }}</li>
+                }
+                @if (hrForm.get('standardHoursPerDay')?.invalid) {
+                  <li>{{ 'company.hrSettings.errors.hoursInvalid' | translate }}</li>
+                }
+                @if (hrForm.get('rib')?.invalid) {
+                  <li>{{ 'company.hrSettings.errors.ribInvalid' | translate }}</li>
+                }
+              </ul>
             </div>
           </div>
         </div>
-      </div>
+      }
 
-      <hr class="my-6 border-(--border-color-subtle)">
-
-      <!-- Salary & Payment -->
-      <div class="mb-6">
-        <h3 class="section-title flex items-center gap-2 mb-4">
-          <i class="pi pi-wallet text-(--primary)"></i>
-          {{ 'company.hrSettings.salaryPayment' | translate }}
-        </h3>
+      <!-- Form -->
+      <form [formGroup]="hrForm" (ngSubmit)="onSubmit()" class="space-y-6">
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="form-field md:col-span-2">
-            <label for="rib" class="form-label">
-              {{ 'company.hrSettings.rib' | translate }}
-            </label>
-            <input pInputText id="rib" formControlName="rib" class="w-full input" placeholder="24 digits" />
+        <!-- Working Schedule Section -->
+        <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="schedule-heading">
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 id="schedule-heading" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <i class="pi pi-calendar text-blue-600"></i>
+              {{ 'company.hrSettings.workingSchedule' | translate }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ 'company.hrSettings.workingScheduleDesc' | translate }}
+            </p>
           </div>
           
-          <div class="form-field">
-            <label for="paymentMode" class="form-label">
-              {{ 'company.hrSettings.paymentMode' | translate }}
-            </label>
-            <p-select 
-              id="paymentMode"
-              [options]="paymentModeOptions" 
-              formControlName="defaultPaymentMode" 
-              optionLabel="label" 
-              optionValue="value"
-              styleClass="w-full input">
-            </p-select>
-          </div>
-        </div>
-      </div>
+          <div class="p-6 space-y-6">
+            <!-- Working Days -->
+            <div>
+              <label for="workingDays" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.workingDays' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-selectButton 
+                id="workingDays"
+                [options]="workingDaysOptions" 
+                formControlName="workingDays" 
+                [multiple]="true" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="w-full"
+                [attr.aria-required]="true"
+                [attr.aria-invalid]="isFieldInvalid('workingDays')"
+                aria-describedby="workingDays-help">
+              </p-selectButton>
+              <small id="workingDays-help" class="block mt-2 text-xs text-gray-500">
+                {{ 'company.hrSettings.workingDaysHint' | translate }}
+              </small>
+              @if (isFieldInvalid('workingDays')) {
+                <small class="block mt-1.5 text-sm text-red-600" role="alert">
+                  <i class="pi pi-exclamation-circle mr-1"></i>
+                  {{ 'company.hrSettings.errors.workingDaysRequired' | translate }}
+                </small>
+              }
+            </div>
 
-      <div class="flex justify-end">
-        <p-button 
-          type="submit" 
-          [label]="'common.save' | translate" 
-          [loading]="loading()" 
-          icon="pi pi-check"
-          styleClass="btn btn-primary">
-        </p-button>
-      </div>
-    </form>
+            <!-- Standard Hours -->
+            <div>
+              <label for="standardHoursPerDay" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.standardHoursPerDay' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-inputNumber 
+                id="standardHoursPerDay"
+                formControlName="standardHoursPerDay" 
+                [min]="0"
+                [max]="24"
+                [minFractionDigits]="1"
+                [maxFractionDigits]="1"
+                suffix=" hrs"
+                styleClass="w-full"
+                [attr.aria-required]="true"
+                [attr.aria-invalid]="isFieldInvalid('standardHoursPerDay')"
+                aria-describedby="hours-help">
+              </p-inputNumber>
+              <small id="hours-help" class="block mt-2 text-xs text-gray-500">
+                {{ 'company.hrSettings.standardHoursHint' | translate }}
+              </small>
+              @if (isFieldInvalid('standardHoursPerDay')) {
+                <small class="block mt-1.5 text-sm text-red-600" role="alert">
+                  <i class="pi pi-exclamation-circle mr-1"></i>
+                  {{ 'company.hrSettings.errors.hoursInvalid' | translate }}
+                </small>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Leave Rules Section -->
+        <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="leave-heading">
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 id="leave-heading" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <i class="pi pi-sun text-amber-600"></i>
+              {{ 'company.hrSettings.leaveRules' | translate }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ 'company.hrSettings.leaveRulesDesc' | translate }}
+            </p>
+          </div>
+          
+          <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Leave Rate -->
+            <div>
+              <label for="leaveRate" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.leaveRate' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-select 
+                id="leaveRate"
+                [options]="leaveRateOptions" 
+                formControlName="leaveAccrualRate" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="w-full"
+                [attr.aria-required]="true"
+                aria-describedby="leaveRate-help">
+              </p-select>
+              <small id="leaveRate-help" class="block mt-2 text-xs text-gray-500">
+                {{ 'company.hrSettings.leaveRateHint' | translate }}
+              </small>
+            </div>
+
+            <!-- Include Saturdays -->
+            <div>
+              <span class="block mb-3 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.includeSaturdays' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </span>
+              <div class="flex items-center gap-6" role="radiogroup">
+                <div class="flex items-center gap-2">
+                  <p-radioButton 
+                    name="includeSaturdays" 
+                    [value]="true" 
+                    formControlName="includeSaturdays" 
+                    inputId="satYes">
+                  </p-radioButton>
+                  <label for="satYes" class="text-sm text-gray-700 cursor-pointer">
+                    {{ 'common.yes' | translate }}
+                  </label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-radioButton 
+                    name="includeSaturdays" 
+                    [value]="false" 
+                    formControlName="includeSaturdays" 
+                    inputId="satNo">
+                  </p-radioButton>
+                  <label for="satNo" class="text-sm text-gray-700 cursor-pointer">
+                    {{ 'common.no' | translate }}
+                  </label>
+                </div>
+              </div>
+              <small class="block mt-2 text-xs text-gray-500">
+                {{ 'company.hrSettings.saturdaysHint' | translate }}
+              </small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payment Section -->
+        <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="payment-heading">
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 id="payment-heading" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <i class="pi pi-wallet text-green-600"></i>
+              {{ 'company.hrSettings.salaryPayment' | translate }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ 'company.hrSettings.salaryPaymentDesc' | translate }}
+            </p>
+          </div>
+          
+          <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Payment Mode -->
+            <div>
+              <label for="paymentMode" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.paymentMode' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-select 
+                id="paymentMode"
+                [options]="paymentModeOptions" 
+                formControlName="defaultPaymentMode" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="w-full"
+                [attr.aria-required]="true">
+              </p-select>
+            </div>
+
+            <!-- RIB -->
+            <div>
+              <label for="rib" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.rib' | translate }}
+                <span class="text-gray-400 text-xs font-normal ml-1">({{ 'common.optional' | translate }})</span>
+              </label>
+              <input 
+                pInputText 
+                id="rib" 
+                formControlName="rib" 
+                class="w-full"
+                [placeholder]="'company.hrSettings.ribPlaceholder' | translate"
+                maxlength="24"
+                [attr.aria-invalid]="isFieldInvalid('rib')"
+                aria-describedby="rib-help" />
+              <small id="rib-help" class="block mt-2 text-xs text-gray-500">
+                {{ 'company.hrSettings.ribHint' | translate }}
+              </small>
+              @if (isFieldInvalid('rib')) {
+                <small class="block mt-1.5 text-sm text-red-600" role="alert">
+                  <i class="pi pi-exclamation-circle mr-1"></i>
+                  {{ 'company.hrSettings.errors.ribInvalid' | translate }}
+                </small>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Form Actions -->
+        <footer class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+          <p class="text-sm text-gray-500 flex items-center gap-1">
+            <i class="pi pi-info-circle"></i>
+            {{ 'company.hrSettings.saveNote' | translate }}
+          </p>
+          <div class="flex gap-3">
+            <p-button 
+              type="button"
+              severity="secondary"
+              [label]="'common.cancel' | translate" 
+              icon="pi pi-times"
+              [disabled]="loading()"
+              (onClick)="onCancel()">
+            </p-button>
+            <p-button 
+              type="submit" 
+              [label]="'common.save' | translate" 
+              [loading]="loading()" 
+              [disabled]="loading()"
+              icon="pi pi-check">
+            </p-button>
+          </div>
+        </footer>
+      </form>
+    </div>
   </div>
-</div>
-<p-toast></p-toast>
+}
+
+<p-toast />
