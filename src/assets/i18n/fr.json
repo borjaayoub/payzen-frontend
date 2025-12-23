@@ -203,10 +203,74 @@
       "absenceCalculation": "Mode de Calcul des Absences",
       "formErrors": "Veuillez corriger les erreurs suivantes :",
       "saveNote": "Les modifications s'appliqueront uniquement aux futurs calculs de paie.",
+      "payrollSetup": "Paramétrage Paie",
+      "currency": "Devise",
+      "paymentFrequency": "Périodicité de paie",
+      "fiscalYearStartMonth": "Exercice fiscal (mois de début)",
+      "paymentModeEmployees": "Mode de paiement des salaires",
+      "advancedSettings": "Paramètres avancés",
+      "sector": "Secteur / Activité",
+      "collectiveAgreement": "Convention collective",
+      "collectiveAgreementHint": "si applicable",
+      "collectiveAgreementPlaceholder": "Ex: Convention collective nationale du commerce",
+      "cnssSpecificParams": "Paramètres CNSS spécifiques",
+      "cnssSpecificParamsHint": "si applicable",
+      "cnssSpecificParamsPlaceholder": "Paramètres CNSS particuliers pour cette entreprise",
+      "irSpecificParams": "Paramètres IR spécifiques",
+      "irSpecificParamsHint": "si applicable",
+      "irSpecificParamsPlaceholder": "Paramètres IR particuliers pour cette entreprise",
+      "selectPaymentMode": "Sélectionnez un mode de paiement",
+      "selectSector": "Sélectionnez un secteur",
+      "currencies": {
+        "mad": "MAD - Dirham marocain",
+        "eur": "EUR - Euro",
+        "usd": "USD - Dollar américain"
+      },
+      "frequencies": {
+        "monthly": "Mensuelle",
+        "bimonthly": "Bimensuelle",
+        "weekly": "Hebdomadaire"
+      },
+      "months": {
+        "january": "Janvier",
+        "february": "Février",
+        "march": "Mars",
+        "april": "Avril",
+        "may": "Mai",
+        "june": "Juin",
+        "july": "Juillet",
+        "august": "Août",
+        "september": "Septembre",
+        "october": "Octobre",
+        "november": "Novembre",
+        "december": "Décembre"
+      },
+      "paymentModes": {
+        "bankTransfer": "Virement bancaire",
+        "check": "Chèque",
+        "cash": "Espèces"
+      },
+      "sectors": {
+        "agriculture": "Agriculture",
+        "industry": "Industrie",
+        "commerce": "Commerce",
+        "services": "Services",
+        "tech": "Technologies",
+        "construction": "Construction",
+        "transport": "Transport",
+        "tourism": "Tourisme",
+        "health": "Santé",
+        "education": "Éducation",
+        "finance": "Finance",
+        "other": "Autre"
+      },
       "errors": {
         "workingDaysRequired": "Veuillez sélectionner au moins un jour ouvrable.",
         "hoursInvalid": "Les heures par jour doivent être entre 0 et 24.",
-        "ribInvalid": "Le RIB doit contenir exactement 24 chiffres."
+        "ribInvalid": "Le RIB doit contenir exactement 24 chiffres.",
+        "currencyRequired": "La devise est obligatoire",
+        "paymentFrequencyRequired": "La périodicité de paie est obligatoire",
+        "fiscalYearRequired": "Le mois de début d'exercice fiscal est obligatoire"
       }
     },
     "users": {

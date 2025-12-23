@@ -1,10 +1,11 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TimelineModule } from 'primeng/timeline';
 import { ButtonModule } from 'primeng/button';
 import { CompanyService } from '@app/core/services/company.service';
 import { CompanyEvent } from '@app/core/models/company.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-history-tab',
@@ -17,8 +18,9 @@ import { CompanyEvent } from '@app/core/models/company.model';
   ],
   templateUrl: './history-tab.component.html'
 })
-export class HistoryTabComponent implements OnInit {
+export class HistoryTabComponent implements OnInit, OnDestroy {
   private readonly companyService = inject(CompanyService);
+  private updateSubscription?: Subscription;
 
   // State
   readonly loading = signal(false);
@@ -30,6 +32,15 @@ export class HistoryTabComponent implements OnInit {
 
   ngOnInit() {
     this.loadHistory();
+    // Subscribe to company updates to auto-refresh history
+    this.updateSubscription = this.companyService.onCompanyUpdate$.subscribe(() => {
+      this.loadHistory();
+    });
+  }
+
+  ngOnDestroy() {
+    // Clean up subscription to prevent memory leaks
+    this.updateSubscription?.unsubscribe();
   }
 
   loadHistory(): void {

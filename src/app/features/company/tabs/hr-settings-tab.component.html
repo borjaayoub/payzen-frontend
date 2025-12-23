@@ -80,8 +80,14 @@
                 @if (hrForm.get('standardHoursPerDay')?.invalid) {
                   <li>{{ 'company.hrSettings.errors.hoursInvalid' | translate }}</li>
                 }
-                @if (hrForm.get('rib')?.invalid) {
-                  <li>{{ 'company.hrSettings.errors.ribInvalid' | translate }}</li>
+                @if (hrForm.get('currency')?.invalid) {
+                  <li>{{ 'company.hrSettings.errors.currencyRequired' | translate }}</li>
+                }
+                @if (hrForm.get('paymentFrequency')?.invalid) {
+                  <li>{{ 'company.hrSettings.errors.paymentFrequencyRequired' | translate }}</li>
+                }
+                @if (hrForm.get('fiscalYearStartMonth')?.invalid) {
+                  <li>{{ 'company.hrSettings.errors.fiscalYearRequired' | translate }}</li>
                 }
               </ul>
             </div>
@@ -237,24 +243,90 @@
           </div>
         </section>
 
-        <!-- Payment Section -->
-        <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="payment-heading">
+        <!-- Paramétrage Paie Section -->
+        <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="payroll-heading">
           <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <h2 id="payment-heading" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <i class="pi pi-wallet text-green-600"></i>
-              {{ 'company.hrSettings.salaryPayment' | translate }}
+            <h2 id="payroll-heading" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <i class="pi pi-wallet text-amber-600"></i>
+              {{ 'company.hrSettings.payrollSetup' | translate }}
             </h2>
-            <p class="text-sm text-gray-600 mt-1">
-              {{ 'company.hrSettings.salaryPaymentDesc' | translate }}
-            </p>
           </div>
           
           <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Currency -->
+            <div>
+              <label for="currency" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.currency' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-select 
+                id="currency"
+                [options]="currencyOptions" 
+                formControlName="currency" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="w-full"
+                [attr.aria-required]="true">
+                <ng-template let-option pTemplate="item">
+                  {{ option.label | translate }}
+                </ng-template>
+                <ng-template let-option pTemplate="selectedItem">
+                  {{ option.label | translate }}
+                </ng-template>
+              </p-select>
+            </div>
+
+            <!-- Payment Frequency -->
+            <div>
+              <label for="paymentFrequency" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.paymentFrequency' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-select 
+                id="paymentFrequency"
+                [options]="paymentFrequencyOptions" 
+                formControlName="paymentFrequency" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="w-full"
+                [attr.aria-required]="true">
+                <ng-template let-option pTemplate="item">
+                  {{ option.label | translate }}
+                </ng-template>
+                <ng-template let-option pTemplate="selectedItem">
+                  {{ option.label | translate }}
+                </ng-template>
+              </p-select>
+            </div>
+
+            <!-- Fiscal Year Start Month -->
+            <div>
+              <label for="fiscalMonth" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.fiscalYearStartMonth' | translate }}
+                <span class="text-red-500 ml-0.5">*</span>
+              </label>
+              <p-select 
+                id="fiscalMonth"
+                [options]="fiscalMonthOptions" 
+                formControlName="fiscalYearStartMonth" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="w-full"
+                [attr.aria-required]="true">
+                <ng-template let-option pTemplate="item">
+                  {{ option.label | translate }}
+                </ng-template>
+                <ng-template let-option pTemplate="selectedItem">
+                  {{ option.label | translate }}
+                </ng-template>
+              </p-select>
+            </div>
+
             <!-- Payment Mode -->
             <div>
               <label for="paymentMode" class="block mb-2 text-sm font-medium text-gray-900">
-                {{ 'company.hrSettings.paymentMode' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
+                {{ 'company.hrSettings.paymentModeEmployees' | translate }}
+                <span class="text-gray-400 text-xs font-normal ml-1">({{ 'common.optional' | translate }})</span>
               </label>
               <p-select 
                 id="paymentMode"
@@ -262,35 +334,98 @@
                 formControlName="defaultPaymentMode" 
                 optionLabel="label" 
                 optionValue="value"
-                styleClass="w-full"
-                [attr.aria-required]="true">
+                [placeholder]="'company.hrSettings.selectPaymentMode' | translate"
+                styleClass="w-full">
+                <ng-template let-option pTemplate="item">
+                  {{ option.label | translate }}
+                </ng-template>
+                <ng-template let-option pTemplate="selectedItem">
+                  {{ option.label | translate }}
+                </ng-template>
+              </p-select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Paramètres Avancés Section -->
+        <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="advanced-heading">
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 id="advanced-heading" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <i class="pi pi-cog text-gray-600"></i>
+              {{ 'company.hrSettings.advancedSettings' | translate }}
+            </h2>
+          </div>
+          
+          <div class="p-6 space-y-6">
+            <!-- Sector / Activity -->
+            <div>
+              <label for="sector" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.sector' | translate }}
+              </label>
+              <p-select 
+                id="sector"
+                [options]="sectorOptions" 
+                formControlName="sector" 
+                optionLabel="label" 
+                optionValue="value"
+                [placeholder]="'company.hrSettings.selectSector' | translate"
+                styleClass="w-full">
+                <ng-template let-option pTemplate="item">
+                  {{ option.label | translate }}
+                </ng-template>
+                <ng-template let-option pTemplate="selectedItem">
+                  {{ option.label | translate }}
+                </ng-template>
               </p-select>
             </div>
 
-            <!-- RIB -->
+            <!-- Collective Agreement -->
             <div>
-              <label for="rib" class="block mb-2 text-sm font-medium text-gray-900">
-                {{ 'company.hrSettings.rib' | translate }}
-                <span class="text-gray-400 text-xs font-normal ml-1">({{ 'common.optional' | translate }})</span>
+              <label for="collectiveAgreement" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.collectiveAgreement' | translate }}
+                <span class="text-gray-400 text-xs font-normal ml-1">({{ 'company.hrSettings.collectiveAgreementHint' | translate }})</span>
               </label>
               <input 
                 pInputText 
-                id="rib" 
-                formControlName="rib" 
+                id="collectiveAgreement" 
+                formControlName="collectiveAgreement" 
                 class="w-full"
-                [placeholder]="'company.hrSettings.ribPlaceholder' | translate"
-                maxlength="24"
-                [attr.aria-invalid]="isFieldInvalid('rib')"
-                aria-describedby="rib-help" />
-              <small id="rib-help" class="block mt-2 text-xs text-gray-500">
-                {{ 'company.hrSettings.ribHint' | translate }}
-              </small>
-              @if (isFieldInvalid('rib')) {
-                <small class="block mt-1.5 text-sm text-red-600" role="alert">
-                  <i class="pi pi-exclamation-circle mr-1"></i>
-                  {{ 'company.hrSettings.errors.ribInvalid' | translate }}
-                </small>
-              }
+                [placeholder]="'company.hrSettings.collectiveAgreementPlaceholder' | translate"
+                maxlength="200" />
+            </div>
+
+            <!-- CNSS Specific Parameters -->
+            <div>
+              <label for="cnssParams" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.cnssSpecificParams' | translate }}
+                <span class="text-gray-400 text-xs font-normal ml-1">({{ 'company.hrSettings.cnssSpecificParamsHint' | translate }})</span>
+              </label>
+              <textarea 
+                pTextarea 
+                id="cnssParams" 
+                formControlName="cnssSpecificParameters" 
+                class="w-full"
+                [placeholder]="'company.hrSettings.cnssSpecificParamsPlaceholder' | translate"
+                rows="3"
+                maxlength="500">
+              </textarea>
+            </div>
+
+            <!-- IR Specific Parameters -->
+            <div>
+              <label for="irParams" class="block mb-2 text-sm font-medium text-gray-900">
+                {{ 'company.hrSettings.irSpecificParams' | translate }}
+                <span class="text-gray-400 text-xs font-normal ml-1">({{ 'company.hrSettings.irSpecificParamsHint' | translate }})</span>
+              </label>
+              <textarea 
+                pTextarea 
+                id="irParams" 
+                formControlName="irSpecificParameters" 
+                class="w-full"
+                [placeholder]="'company.hrSettings.irSpecificParamsPlaceholder' | translate"
+                rows="3"
+                maxlength="500">
+              </textarea>
             </div>
           </div>
         </section>

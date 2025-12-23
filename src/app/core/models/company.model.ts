@@ -44,10 +44,19 @@ export interface HRParameters {
   publicHolidays: string[];
   probationPeriodDays: number;
   noticePeriodDays: number;
-  defaultPaymentMode?: 'virement' | 'cheque' | 'especes';
+  defaultPaymentMode?: 'virement' | 'cheque' | 'especes' | null;
   leaveAccrualRate?: 1.5 | 2.0;
   includeSaturdays?: boolean;
   rib?: string;
+  // New fields for Paramétrage Paie
+  currency?: string;
+  paymentFrequency?: 'monthly' | 'bimonthly' | 'weekly';
+  fiscalYearStartMonth?: number;
+  // New fields for Paramètres avancés
+  sector?: string | null;
+  collectiveAgreement?: string;
+  cnssSpecificParameters?: string;
+  irSpecificParameters?: string;
 }
 
 // Working day type

@@ -113,10 +113,74 @@
       "absenceCalculation": "طريقة حساب الغياب",
       "formErrors": "يرجى تصحيح الأخطاء التالية:",
       "saveNote": "ستنطبق التغييرات على حسابات الرواتب المستقبلية فقط.",
+      "payrollSetup": "إعداد الرواتب",
+      "currency": "العملة",
+      "paymentFrequency": "دورية الدفع",
+      "fiscalYearStartMonth": "السنة المالية (شهر البداية)",
+      "paymentModeEmployees": "طريقة دفع الرواتب",
+      "advancedSettings": "الإعدادات المتقدمة",
+      "sector": "القطاع / النشاط",
+      "collectiveAgreement": "الاتفاقية الجماعية",
+      "collectiveAgreementHint": "إن وجدت",
+      "collectiveAgreementPlaceholder": "مثال: الاتفاقية الجماعية الوطنية للتجارة",
+      "cnssSpecificParams": "معاملات CNSS الخاصة",
+      "cnssSpecificParamsHint": "إن وجدت",
+      "cnssSpecificParamsPlaceholder": "معاملات CNSS خاصة لهذه الشركة",
+      "irSpecificParams": "معاملات IR الخاصة",
+      "irSpecificParamsHint": "إن وجدت",
+      "irSpecificParamsPlaceholder": "معاملات IR خاصة لهذه الشركة",
+      "selectPaymentMode": "اختر طريقة الدفع",
+      "selectSector": "اختر القطاع",
+      "currencies": {
+        "mad": "MAD - الدرهم المغربي",
+        "eur": "EUR - اليورو",
+        "usd": "USD - الدولار الأمريكي"
+      },
+      "frequencies": {
+        "monthly": "شهرية",
+        "bimonthly": "نصف شهرية",
+        "weekly": "أسبوعية"
+      },
+      "months": {
+        "january": "يناير",
+        "february": "فبراير",
+        "march": "مارس",
+        "april": "أبريل",
+        "may": "مايو",
+        "june": "يونيو",
+        "july": "يوليو",
+        "august": "أغسطس",
+        "september": "سبتمبر",
+        "october": "أكتوبر",
+        "november": "نوفمبر",
+        "december": "ديسمبر"
+      },
+      "paymentModes": {
+        "bankTransfer": "تحويل بنكي",
+        "check": "شيك",
+        "cash": "نقدًا"
+      },
+      "sectors": {
+        "agriculture": "الزراعة",
+        "industry": "الصناعة",
+        "commerce": "التجارة",
+        "services": "الخدمات",
+        "tech": "التكنولوجيا",
+        "construction": "البناء",
+        "transport": "النقل",
+        "tourism": "السياحة",
+        "health": "الصحة",
+        "education": "التعليم",
+        "finance": "المالية",
+        "other": "أخرى"
+      },
       "errors": {
         "workingDaysRequired": "يرجى تحديد يوم عمل واحد على الأقل.",
         "hoursInvalid": "يجب أن تكون ساعات اليوم بين 0 و 24.",
-        "ribInvalid": "يجب أن يكون RIB بالضبط 24 رقمًا."
+        "ribInvalid": "يجب أن يكون RIB بالضبط 24 رقمًا.",
+        "currencyRequired": "العملة مطلوبة",
+        "paymentFrequencyRequired": "دورية الدفع مطلوبة",
+        "fiscalYearRequired": "شهر بداية السنة المالية مطلوب"
       }
     },
     "users": {

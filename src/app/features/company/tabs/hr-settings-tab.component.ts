@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { PopoverModule } from 'primeng/popover';
 import { MessageService } from 'primeng/api';
@@ -27,6 +28,7 @@ import { Company, HRParameters } from '@app/core/models/company.model';
     InputNumberModule,
     RadioButtonModule,
     InputTextModule,
+    TextareaModule,
     ToastModule,
     PopoverModule
   ],
@@ -67,10 +69,54 @@ export class HrSettingsTabComponent implements OnInit {
     { label: '2.0 days/month', value: 2.0 }
   ];
 
+  readonly currencyOptions = [
+    { label: 'company.hrSettings.currencies.mad', value: 'MAD' },
+    { label: 'company.hrSettings.currencies.eur', value: 'EUR' },
+    { label: 'company.hrSettings.currencies.usd', value: 'USD' }
+  ];
+
+  readonly paymentFrequencyOptions = [
+    { label: 'company.hrSettings.frequencies.monthly', value: 'monthly' },
+    { label: 'company.hrSettings.frequencies.bimonthly', value: 'bimonthly' },
+    { label: 'company.hrSettings.frequencies.weekly', value: 'weekly' }
+  ];
+
+  readonly fiscalMonthOptions = [
+    { label: 'company.hrSettings.months.january', value: 1 },
+    { label: 'company.hrSettings.months.february', value: 2 },
+    { label: 'company.hrSettings.months.march', value: 3 },
+    { label: 'company.hrSettings.months.april', value: 4 },
+    { label: 'company.hrSettings.months.may', value: 5 },
+    { label: 'company.hrSettings.months.june', value: 6 },
+    { label: 'company.hrSettings.months.july', value: 7 },
+    { label: 'company.hrSettings.months.august', value: 8 },
+    { label: 'company.hrSettings.months.september', value: 9 },
+    { label: 'company.hrSettings.months.october', value: 10 },
+    { label: 'company.hrSettings.months.november', value: 11 },
+    { label: 'company.hrSettings.months.december', value: 12 }
+  ];
+
   readonly paymentModeOptions = [
-    { label: 'Virement', value: 'virement' },
-    { label: 'Chèque', value: 'cheque' },
-    { label: 'Espèces', value: 'especes' }
+    { label: 'company.hrSettings.selectPaymentMode', value: null },
+    { label: 'company.hrSettings.paymentModes.bankTransfer', value: 'virement' },
+    { label: 'company.hrSettings.paymentModes.check', value: 'cheque' },
+    { label: 'company.hrSettings.paymentModes.cash', value: 'especes' }
+  ];
+
+  readonly sectorOptions = [
+    { label: 'company.hrSettings.selectSector', value: null },
+    { label: 'company.hrSettings.sectors.agriculture', value: 'agriculture' },
+    { label: 'company.hrSettings.sectors.industry', value: 'industry' },
+    { label: 'company.hrSettings.sectors.commerce', value: 'commerce' },
+    { label: 'company.hrSettings.sectors.services', value: 'services' },
+    { label: 'company.hrSettings.sectors.tech', value: 'tech' },
+    { label: 'company.hrSettings.sectors.construction', value: 'construction' },
+    { label: 'company.hrSettings.sectors.transport', value: 'transport' },
+    { label: 'company.hrSettings.sectors.tourism', value: 'tourism' },
+    { label: 'company.hrSettings.sectors.health', value: 'health' },
+    { label: 'company.hrSettings.sectors.education', value: 'education' },
+    { label: 'company.hrSettings.sectors.finance', value: 'finance' },
+    { label: 'company.hrSettings.sectors.other', value: 'other' }
   ];
 
   // Default form values
@@ -79,8 +125,14 @@ export class HrSettingsTabComponent implements OnInit {
     standardHoursPerDay: 8,
     leaveAccrualRate: 1.5,
     includeSaturdays: false,
-    defaultPaymentMode: 'virement',
-    rib: ''
+    currency: 'MAD',
+    paymentFrequency: 'monthly',
+    fiscalYearStartMonth: 1,
+    defaultPaymentMode: null,
+    sector: null,
+    collectiveAgreement: '',
+    cnssSpecificParameters: '',
+    irSpecificParameters: ''
   };
 
   ngOnInit() {
@@ -100,8 +152,14 @@ export class HrSettingsTabComponent implements OnInit {
       standardHoursPerDay: [this.defaultValues.standardHoursPerDay, [Validators.required, Validators.min(0), Validators.max(24)]],
       leaveAccrualRate: [this.defaultValues.leaveAccrualRate, Validators.required],
       includeSaturdays: [this.defaultValues.includeSaturdays, Validators.required],
-      defaultPaymentMode: [this.defaultValues.defaultPaymentMode, Validators.required],
-      rib: [this.defaultValues.rib, Validators.pattern(/^\d{24}$/)]
+      currency: [this.defaultValues.currency, Validators.required],
+      paymentFrequency: [this.defaultValues.paymentFrequency, Validators.required],
+      fiscalYearStartMonth: [this.defaultValues.fiscalYearStartMonth, Validators.required],
+      defaultPaymentMode: [this.defaultValues.defaultPaymentMode],
+      sector: [this.defaultValues.sector],
+      collectiveAgreement: [this.defaultValues.collectiveAgreement, Validators.maxLength(200)],
+      cnssSpecificParameters: [this.defaultValues.cnssSpecificParameters, Validators.maxLength(500)],
+      irSpecificParameters: [this.defaultValues.irSpecificParameters, Validators.maxLength(500)]
     });
   }
 
@@ -123,14 +181,20 @@ export class HrSettingsTabComponent implements OnInit {
   private patchFormWithCompanyData(data: Company) {
     if (!data.hrParameters) return;
     
-    const hr = data.hrParameters;
+    const hr = data.hrParameters as any;
     this.hrForm.patchValue({
       workingDays: hr.workingDays ?? this.defaultValues.workingDays,
       standardHoursPerDay: hr.standardHoursPerDay ?? this.defaultValues.standardHoursPerDay,
       leaveAccrualRate: hr.leaveAccrualRate ?? this.defaultValues.leaveAccrualRate,
       includeSaturdays: hr.includeSaturdays ?? this.defaultValues.includeSaturdays,
+      currency: hr.currency ?? this.defaultValues.currency,
+      paymentFrequency: hr.paymentFrequency ?? this.defaultValues.paymentFrequency,
+      fiscalYearStartMonth: hr.fiscalYearStartMonth ?? this.defaultValues.fiscalYearStartMonth,
       defaultPaymentMode: hr.defaultPaymentMode ?? this.defaultValues.defaultPaymentMode,
-      rib: hr.rib ?? this.defaultValues.rib
+      sector: hr.sector ?? this.defaultValues.sector,
+      collectiveAgreement: hr.collectiveAgreement ?? this.defaultValues.collectiveAgreement,
+      cnssSpecificParameters: hr.cnssSpecificParameters ?? this.defaultValues.cnssSpecificParameters,
+      irSpecificParameters: hr.irSpecificParameters ?? this.defaultValues.irSpecificParameters
     });
   }
 

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, of, throwError } from 'rxjs';
+import { Observable, Subject, map, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company, CompanyEvent, TaxRegime } from '../models/company.model';
 import { AuthService } from './auth.service';
@@ -53,6 +53,11 @@ export class CompanyService {
   private authService = inject(AuthService);
   private apiUrl = `${environment.apiUrl}`;
 
+  // Subject to notify when company data is updated
+  private companyUpdated$ = new Subject<void>();
+  // Public observable for components to subscribe to
+  readonly onCompanyUpdate$ = this.companyUpdated$.asObservable();
+
   getCompany(): Observable<Company> {
     const companyId = this.authService.currentUser()?.companyId;
     if (!companyId) {
@@ -77,7 +82,12 @@ export class CompanyService {
     const url = `${this.apiUrl}/companies/${companyId}`;
 
     return this.http.patch<CompanyDto>(url, updateDto).pipe(
-      map(dto => this.mapDtoToCompany(dto))
+      map(dto => {
+        const mappedCompany = this.mapDtoToCompany(dto);
+        // Notify subscribers that company data has been updated
+        this.companyUpdated$.next();
+        return mappedCompany;
+      })
     );
   }
 

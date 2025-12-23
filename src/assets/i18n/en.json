@@ -216,10 +216,74 @@
       "absenceCalculation": "Absence Calculation Mode",
       "formErrors": "Please correct the following errors:",
       "saveNote": "Changes will apply to future payroll calculations only.",
+      "payrollSetup": "Payroll Setup",
+      "currency": "Currency",
+      "paymentFrequency": "Payment Frequency",
+      "fiscalYearStartMonth": "Fiscal Year (start month)",
+      "paymentModeEmployees": "Employee Payment Method",
+      "advancedSettings": "Advanced Settings",
+      "sector": "Sector / Activity",
+      "collectiveAgreement": "Collective Agreement",
+      "collectiveAgreementHint": "if applicable",
+      "collectiveAgreementPlaceholder": "E.g.: National Collective Agreement for Commerce",
+      "cnssSpecificParams": "CNSS Specific Parameters",
+      "cnssSpecificParamsHint": "if applicable",
+      "cnssSpecificParamsPlaceholder": "Specific CNSS parameters for this company",
+      "irSpecificParams": "IR Specific Parameters",
+      "irSpecificParamsHint": "if applicable",
+      "irSpecificParamsPlaceholder": "Specific IR parameters for this company",
+      "selectPaymentMode": "Select a payment method",
+      "selectSector": "Select a sector",
+      "currencies": {
+        "mad": "MAD - Moroccan Dirham",
+        "eur": "EUR - Euro",
+        "usd": "USD - US Dollar"
+      },
+      "frequencies": {
+        "monthly": "Monthly",
+        "bimonthly": "Bi-monthly",
+        "weekly": "Weekly"
+      },
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "paymentModes": {
+        "bankTransfer": "Bank Transfer",
+        "check": "Check",
+        "cash": "Cash"
+      },
+      "sectors": {
+        "agriculture": "Agriculture",
+        "industry": "Industry",
+        "commerce": "Commerce",
+        "services": "Services",
+        "tech": "Technology",
+        "construction": "Construction",
+        "transport": "Transport",
+        "tourism": "Tourism",
+        "health": "Health",
+        "education": "Education",
+        "finance": "Finance",
+        "other": "Other"
+      },
       "errors": {
         "workingDaysRequired": "Please select at least one working day.",
         "hoursInvalid": "Hours per day must be between 0 and 24.",
-        "ribInvalid": "RIB must be exactly 24 digits."
+        "ribInvalid": "RIB must be exactly 24 digits.",
+        "currencyRequired": "Currency is required",
+        "paymentFrequencyRequired": "Payment frequency is required",
+        "fiscalYearRequired": "Fiscal year start month is required"
       }
     },
     "users": {
