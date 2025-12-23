@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesResponse } from '@app/core/services/employee.service';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 
 @Component({
   selector: 'app-employees',
@@ -127,6 +128,10 @@ export class EmployeesPage implements OnInit {
     return result;
   });
 
+  // Route prefix based on current context mode
+  private readonly contextService = inject(CompanyContextService);
+  readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
+
   constructor(
     private router: Router,
     private employeeService: EmployeeService
@@ -214,11 +219,11 @@ export class EmployeesPage implements OnInit {
   }
 
   viewEmployee(employee: Employee) {
-    this.router.navigate(['/employees', employee.id]);
+    this.router.navigate([`${this.routePrefix()}/employees`, employee.id]);
   }
 
   addEmployee() {
-    this.router.navigate(['/employees', 'create']);
+    this.router.navigate([`${this.routePrefix()}/employees`, 'create']);
   }
 
   clearFilters() {

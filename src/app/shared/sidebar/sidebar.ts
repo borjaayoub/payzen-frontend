@@ -1,6 +1,6 @@
 import { Component, signal, input, computed, output, effect, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -10,6 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SidebarGroupComponent } from './sidebar-group/sidebar-group.component';
 import { SidebarGroupLabelComponent } from './sidebar-group/sidebar-group-label.component';
 import { AuthService } from '@app/core/services/auth.service';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { UserRole } from '@app/core/models/user.model';
 
 interface MenuItemConfig extends MenuItem {
@@ -49,6 +50,8 @@ export class Sidebar {
   private readonly isCollapsedSignal = signal(this.Collapsed());
   private readonly isContentCollapsedSignal = signal(this.Collapsed());
   private readonly authService = inject(AuthService);
+  private readonly contextService = inject(CompanyContextService);
+  private readonly router = inject(Router);
   private toggleTimeout: any;
 
   constructor() {
@@ -85,6 +88,14 @@ export class Sidebar {
     return role ? roleLabels[role] || role : '';
   });
 
+  // === Company Context Info ===
+  readonly currentCompanyName = this.contextService.companyName;
+  readonly isExpertMode = this.contextService.isExpertMode;
+  readonly hasMultipleMemberships = computed(() => this.contextService.memberships().length > 1);
+
+  // === Computed Route Prefix based on mode ===
+  readonly routePrefix = computed(() => this.isExpertMode() ? '/expert' : '/app');
+
   // === Computed width ===
   readonly currentWidth = computed(() =>
     this.isCollapsedSignal() ? this.CollapsedWidth() : this.Width()
@@ -116,8 +127,8 @@ export class Sidebar {
     }
   }
 
-  // === All Navigation Items with Permission Config ===
-  private readonly allMenuItems: MenuItemConfig[] = [
+  // === Menu Items Template (routes will be prefixed dynamically) ===
+  private readonly menuItemsTemplate: MenuItemConfig[] = [
     { 
       label: 'nav.dashboard', 
       icon: 'pi pi-home', 
@@ -144,24 +155,31 @@ export class Sidebar {
     }
   ];
 
-  // === Filtered menu items based on user role ===
+  // === Filtered menu items based on user role with dynamic route prefix ===
   readonly menuItems = computed(() => {
     const user = this.currentUser();
+    const prefix = this.routePrefix();
     if (!user) return [];
 
-    return this.allMenuItems.filter(item => {
-      // If no role restrictions, show to everyone
-      if (!item.requiredRoles || item.requiredRoles.length === 0) {
-        return true;
-      }
-      // Check if user's role is in the required roles
-      return item.requiredRoles.includes(user.role as UserRole);
-    });
+    return this.menuItemsTemplate
+      .filter(item => {
+        // If no role restrictions, show to everyone
+        if (!item.requiredRoles || item.requiredRoles.length === 0) {
+          return true;
+        }
+        // Check if user's role is in the required roles
+        return item.requiredRoles.includes(user.role as UserRole);
+      })
+      .map(item => ({
+        ...item,
+        routerLink: `${prefix}${item.routerLink}`
+      }));
   });
 
   // === Profile Menu Items ===
   readonly profileMenuItems = computed<MenuItem[]>(() => {
     const user = this.currentUser();
+    const prefix = this.routePrefix();
     const items: MenuItem[] = [];
 
     // 1. User Info Header
@@ -179,7 +197,7 @@ export class Sidebar {
     items.push({
       label: 'nav.myProfile',
       icon: 'pi pi-user',
-      routerLink: '/profile'
+      routerLink: `${prefix}/profile`
     });
     items.push({
       label: 'nav.security',
@@ -205,11 +223,12 @@ export class Sidebar {
     if (user && [UserRole.CABINET, UserRole.ADMIN, UserRole.RH].includes(user.role as UserRole)) {
       items.push({ separator: true });
 
-      if (user.role === UserRole.CABINET || user.role === UserRole.ADMIN) {
+      // Show Switch Workspace only if user has multiple memberships
+      if (this.hasMultipleMemberships()) {
         items.push({
-          label: 'nav.switchCompany',
-          icon: 'pi pi-building',
-          command: () => { /* TODO: Switch company logic */ }
+          label: 'contextSelection.switchWorkspace',
+          icon: 'pi pi-sync',
+          command: () => this.switchWorkspace()
         });
       }
 
@@ -217,7 +236,7 @@ export class Sidebar {
         items.push({
           label: 'nav.companySettings',
           icon: 'pi pi-cog',
-          routerLink: '/company'
+          routerLink: `${this.routePrefix()}/company`
         });
       }
     }
@@ -247,6 +266,13 @@ export class Sidebar {
   // === Methods ===
   logout(): void {
     this.authService.logout();
+  }
+
+  switchWorkspace(): void {
+    // Clear current context but keep memberships
+    this.contextService.clearContext();
+    // Navigate to context selection
+    this.router.navigate(['/select-context']);
   }
 
   closeSidebar(): void {

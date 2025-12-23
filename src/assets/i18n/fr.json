@@ -69,6 +69,21 @@
     },
     "logout": "Déconnexion"
   },
+  "contextSelection": {
+    "title": "Sélectionnez Votre Espace",
+    "welcomeBack": "Bon retour",
+    "subtitle": "Choisissez une entreprise et un rôle pour accéder à votre tableau de bord",
+    "loading": "Chargement de vos espaces...",
+    "selectWorkspace": "Sélectionnez un espace",
+    "expertMode": "Mode Expert",
+    "standardMode": "Standard",
+    "clickToAccess": "Cliquez pour accéder",
+    "noMemberships": "Aucun Espace Disponible",
+    "noMembershipsDesc": "Vous n'avez accès à aucun espace entreprise. Veuillez contacter votre administrateur pour obtenir l'accès.",
+    "contactSupport": "Contacter le Support",
+    "needHelp": "Besoin d'aide ?",
+    "switchWorkspace": "Changer d'espace"
+  },
   "user": {
     "profile": "Profil",
     "settings": "Paramètres",

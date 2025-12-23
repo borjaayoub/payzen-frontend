@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { CompanyContextService } from '../services/companyContext.service';
 
 /**
  * Auth Guard - Protects routes requiring authentication
@@ -21,21 +22,144 @@ export const authGuard: CanActivateFn = (route, state) => {
 };
 
 /**
+ * Context Guard - Ensures user has selected a company context
+ * Should be used AFTER authGuard in route configuration
+ */
+export const contextGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const contextService = inject(CompanyContextService);
+  const router = inject(Router);
+
+  // First check authentication
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
+    return false;
+  }
+
+  // Check if user has selected a context
+  if (!contextService.hasContext()) {
+    // Check if there are memberships to choose from
+    const memberships = contextService.memberships();
+    
+    if (memberships.length === 0) {
+      // No memberships yet - might be right after login, allow routing
+      // The login flow will handle setting memberships
+      return true;
+    }
+    
+    if (memberships.length === 1) {
+      // Auto-select single membership
+      contextService.autoSelectIfSingle();
+      return true;
+    }
+    
+    // Multiple memberships - redirect to selection
+    router.navigate(['/select-context']);
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Context Selection Guard - Prevents access to context selection if already selected
+ * or if user has only one membership
+ */
+export const contextSelectionGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const contextService = inject(CompanyContextService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/login']);
+    return false;
+  }
+
+  // If context is already selected, redirect to appropriate dashboard
+  if (contextService.hasContext()) {
+    const route = contextService.getDefaultRoute();
+    router.navigate([route]);
+    return false;
+  }
+
+  // If only one membership, auto-select and redirect
+  if (contextService.autoSelectIfSingle()) {
+    const route = contextService.getDefaultRoute();
+    router.navigate([route]);
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Expert Mode Guard - Only allows access in expert mode
+ */
+export const expertModeGuard: CanActivateFn = (route, state) => {
+  const contextService = inject(CompanyContextService);
+  const router = inject(Router);
+
+  if (!contextService.hasContext()) {
+    router.navigate(['/select-context']);
+    return false;
+  }
+
+  if (!contextService.isExpertMode()) {
+    // Not in expert mode, redirect to standard dashboard
+    router.navigate(['/app/dashboard']);
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Standard Mode Guard - Only allows access in standard mode
+ */
+export const standardModeGuard: CanActivateFn = (route, state) => {
+  const contextService = inject(CompanyContextService);
+  const router = inject(Router);
+
+  if (!contextService.hasContext()) {
+    router.navigate(['/select-context']);
+    return false;
+  }
+
+  if (contextService.isExpertMode()) {
+    // In expert mode, redirect to expert dashboard
+    router.navigate(['/expert/dashboard']);
+    return false;
+  }
+
+  return true;
+};
+
+/**
  * Guest Guard - Redirects authenticated users away from auth pages
  */
 export const guestGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
+  const contextService = inject(CompanyContextService);
   const router = inject(Router);
 
   if (!authService.isAuthenticated()) {
     return true;
   }
 
-  // Redirect to appropriate dashboard based on role
-  const user = authService.getCurrentUser();
-  if (user) {
-    router.navigate([authService.getRoleDefaultRoute(user.role)]);
+  // Check if context is selected
+  if (!contextService.hasContext()) {
+    const memberships = contextService.memberships();
+    if (memberships.length > 1) {
+      router.navigate(['/select-context']);
+      return false;
+    }
   }
+
+  // Redirect to appropriate dashboard based on context
+  const defaultRoute = contextService.getDefaultRoute();
+  router.navigate([defaultRoute]);
   return false;
 };
 

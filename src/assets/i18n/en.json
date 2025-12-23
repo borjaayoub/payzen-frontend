@@ -82,6 +82,21 @@
     },
     "logout": "Logout"
   },
+  "contextSelection": {
+    "title": "Select Your Workspace",
+    "welcomeBack": "Welcome back",
+    "subtitle": "Choose a company and role to continue to your dashboard",
+    "loading": "Loading your workspaces...",
+    "selectWorkspace": "Select a workspace",
+    "expertMode": "Expert Mode",
+    "standardMode": "Standard",
+    "clickToAccess": "Click to access",
+    "noMemberships": "No Workspaces Available",
+    "noMembershipsDesc": "You don't have access to any company workspaces. Please contact your administrator for access.",
+    "contactSupport": "Contact Support",
+    "needHelp": "Need help?",
+    "switchWorkspace": "Switch Workspace"
+  },
   "user": {
     "profile": "Profile",
     "settings": "Settings",

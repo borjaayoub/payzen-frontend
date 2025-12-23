@@ -442,6 +442,21 @@
     },
     "logout": "تسجيل الخروج"
   },
+  "contextSelection": {
+    "title": "اختر مساحة العمل الخاصة بك",
+    "welcomeBack": "مرحباً بعودتك",
+    "subtitle": "اختر شركة ودوراً للمتابعة إلى لوحة التحكم",
+    "loading": "جاري تحميل مساحات العمل...",
+    "selectWorkspace": "اختر مساحة عمل",
+    "expertMode": "وضع الخبير",
+    "standardMode": "قياسي",
+    "clickToAccess": "انقر للوصول",
+    "noMemberships": "لا توجد مساحات عمل متاحة",
+    "noMembershipsDesc": "ليس لديك حق الوصول إلى أي مساحات عمل للشركة. يرجى الاتصال بالمسؤول للحصول على حق الوصول.",
+    "contactSupport": "اتصل بالدعم",
+    "needHelp": "هل تحتاج مساعدة؟",
+    "switchWorkspace": "تغيير مساحة العمل"
+  },
   "user": {
     "profile": "الملف الشخصي",
     "settings": "الإعدادات",

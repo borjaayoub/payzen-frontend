@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
@@ -13,6 +13,8 @@ import {
   AuthState,
   ROLE_PERMISSIONS 
 } from '@app/core/models/user.model';
+import { CompanyMembership } from '@app/core/models/membership.model';
+import { CompanyContextService } from './companyContext.service';
 
 @Injectable({
   providedIn: 'root'
@@ -54,7 +56,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private contextService: CompanyContextService
   ) {
     // Initialize auth state from storage
     this.initializeAuth();
@@ -167,9 +170,85 @@ export class AuthService {
       error: null
     });
 
-    // Navigate to role-specific route
-    const defaultRoute = this.getRoleDefaultRoute(response.user.role);
-    this.router.navigate([defaultRoute]);
+    // Build memberships from login response
+    const memberships = this.buildMembershipsFromUser(response.user);
+    
+    // Set memberships in context service
+    this.contextService.setMemberships(memberships);
+    
+    // Navigate based on number of memberships
+    if (memberships.length > 1) {
+      // Multiple memberships - go to selection page
+      this.router.navigate(['/select-context']);
+    } else if (memberships.length === 1) {
+      // Single membership - auto-select and navigate
+      this.contextService.selectContext(memberships[0], true);
+    } else {
+      // No memberships - go to default dashboard
+      const defaultRoute = this.getRoleDefaultRoute(response.user.role);
+      this.router.navigate([defaultRoute]);
+    }
+  }
+
+  /**
+   * Build memberships array from user data
+   * In the future, this should come from the backend API
+   */
+  private buildMembershipsFromUser(user: User): CompanyMembership[] {
+    const memberships: CompanyMembership[] = [];
+
+    // If user has a companyId, create a membership
+    if (user.companyId) {
+      // Determine if expert mode based on role (cabinet roles are expert mode)
+      const isExpertMode = user.role === UserRole.CABINET || user.role === UserRole.ADMIN_PAYZEN;
+      
+      memberships.push({
+        companyId: user.companyId,
+        companyName: this.getCompanyNameFromUser(user),
+        role: user.role,
+        roleLabel: this.getRoleLabel(user.role),
+        isExpertMode,
+        permissions: user.permissions
+      });
+    }
+
+    // TODO: In the future, if backend supports multiple memberships,
+    // parse them from a memberships array in the response
+    // Example:
+    // if (response.memberships?.length) {
+    //   return response.memberships.map(m => ({
+    //     companyId: m.companyId,
+    //     companyName: m.companyName,
+    //     role: m.role,
+    //     isExpertMode: m.isCabinetExpert,
+    //     permissions: m.permissions
+    //   }));
+    // }
+
+    return memberships;
+  }
+
+  /**
+   * Get company name from user (placeholder - should come from backend)
+   */
+  private getCompanyNameFromUser(user: User): string {
+    // For now, return a placeholder. In production, this should come from the backend.
+    return `Company #${user.companyId}`;
+  }
+
+  /**
+   * Get human-readable role label
+   */
+  private getRoleLabel(role: UserRole | string): string {
+    const labels: Record<string, string> = {
+      [UserRole.ADMIN]: 'Administrator',
+      [UserRole.RH]: 'HR Manager',
+      [UserRole.MANAGER]: 'Manager',
+      [UserRole.EMPLOYEE]: 'Employee',
+      [UserRole.CABINET]: 'Cabinet Expert',
+      [UserRole.ADMIN_PAYZEN]: 'PayZen Admin'
+    };
+    return labels[role] || role;
   }
 
   /**
@@ -196,6 +275,9 @@ export class AuthService {
   logout(): void {
     // Clear storage
     this.clearStorage();
+    
+    // Clear company context
+    this.contextService.clearAll();
     
     // Reset state
     this.currentUser.set(null);
