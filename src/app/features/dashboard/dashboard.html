@@ -128,9 +128,9 @@
           </div>
         </ng-template>
         <div class="flex flex-col gap-2">
-            @for (action of quickActions; track action.title) {
+            @for (action of quickActions(); track action.title) {
             <a
-              [href]="action.route"
+              [routerLink]="action.route"
               class="flex items-center gap-3 p-3 rounded-lg border border-(--border-color-subtle) hover:bg-(--bg-hover) transition-colors group"
             >
               <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-(--primary-light) group-hover:bg-(--primary-light)/80 transition-colors">

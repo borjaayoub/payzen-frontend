@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, Subject, map, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Company, CompanyEvent, TaxRegime } from '../models/company.model';
+import { Company, CompanyEvent, TaxRegime, CompanyCreateByExpertDto } from '../models/company.model';
 import { AuthService } from './auth.service';
 
 interface CityDto {
@@ -34,6 +34,12 @@ interface CompanyUpdateDto {
   PhoneNumber?: string;
   CompanyAddress?: string;
   CityName?: string;
+  // Legal entity fields (admin-only)
+  IceNumber?: string;
+  RcNumber?: string;
+  Patente?: string;
+  CnssNumber?: string;
+  TaxRegime?: string;
 }
 
 // Mapping configuration from frontend model to backend DTO
@@ -42,7 +48,13 @@ const COMPANY_FIELD_MAP: Partial<Record<keyof Company, keyof CompanyUpdateDto>> 
   email: 'Email',
   phone: 'PhoneNumber',
   address: 'CompanyAddress',
-  city: 'CityName'
+  city: 'CityName',
+  // Legal entity fields (admin-only)
+  ice: 'IceNumber',
+  rc: 'RcNumber',
+  patente: 'Patente',
+  cnss: 'CnssNumber',
+  taxRegime: 'TaxRegime'
 };
 
 @Injectable({
@@ -109,6 +121,10 @@ export class CompanyService {
     });
 
     return updateDto;
+  }
+
+  createCompanyByExpert(companyData: CompanyCreateByExpertDto): Observable<any> {
+    return this.http.post(`${this.apiUrl}/companies/create-by-expert`, companyData);
   }
 
   searchCities(query: string): Observable<string[]> {

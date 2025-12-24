@@ -8,6 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
+import { Header } from '@app/shared/components/header/header';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { CompanyMembership } from '@app/core/models/membership.model';
@@ -23,7 +24,8 @@ import { CompanyMembership } from '@app/core/models/membership.model';
     TagModule,
     ProgressSpinnerModule,
     SkeletonModule,
-    TooltipModule
+    TooltipModule,
+    Header
   ],
   templateUrl: './context-selection.html',
   styleUrl: './context-selection.css'
@@ -70,7 +72,7 @@ export class ContextSelectionPage implements OnInit {
    * Handle membership card selection
    */
   selectMembership(membership: CompanyMembership): void {
-    this.selectedCard.set(membership.companyId);
+    this.selectedCard.set(this.getMembershipId(membership));
     this.isNavigating.set(true);
 
     // Small delay for visual feedback
@@ -120,7 +122,14 @@ export class ContextSelectionPage implements OnInit {
   /**
    * Track by function for memberships list
    */
-  trackByCompanyId(index: number, membership: CompanyMembership): string {
-    return membership.companyId;
+  trackByMembershipId(index: number, membership: CompanyMembership): string {
+    return this.getMembershipId(membership);
+  }
+
+  /**
+   * Generate unique ID for membership card
+   */
+  getMembershipId(membership: CompanyMembership): string {
+    return `${membership.companyId}_${membership.isExpertMode}`;
   }
 }

@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { InputFieldComponent } from '@app/shared/components/form-controls/input-field';
 import { SelectFieldComponent } from '@app/shared/components/form-controls/select-field';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 import {
   CityLookupOption,
   CreateEmployeeRequest,
@@ -61,6 +62,10 @@ export class EmployeeCreatePage implements OnInit {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private readonly messageService = inject(MessageService);
+  private readonly contextService = inject(CompanyContextService);
+
+  // Route prefix based on current context mode
+  readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
 
   readonly employeeForm = this.fb.group({
     firstName: ['', Validators.required],
@@ -197,7 +202,7 @@ export class EmployeeCreatePage implements OnInit {
         if (defaultCountry) {
           this.employeeForm.controls.phoneCountryId.setValue(defaultCountry.id);
         }
-        setTimeout(() => this.router.navigate(['/employees']), 800);
+        setTimeout(() => this.router.navigate([`${this.routePrefix()}/employees`]), 800);
       },
       error: (err) => {
         console.error('Error creating employee', err);
@@ -214,7 +219,7 @@ export class EmployeeCreatePage implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/employees']);
+    this.router.navigate([`${this.routePrefix()}/employees`]);
   }
 
   retryLoad(): void {

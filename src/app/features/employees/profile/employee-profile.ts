@@ -25,6 +25,7 @@ import { ChangeTracker, ChangeSet } from '@app/core/utils/change-tracker.util';
 import { ChangeConfirmationDialog } from '@app/shared/components/change-confirmation-dialog/change-confirmation-dialog';
 import { UnsavedChangesDialog } from '@app/shared/components/unsaved-changes-dialog/unsaved-changes-dialog';
 import { CanComponentDeactivate } from '@app/core/guards/unsaved-changes.guard';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of, firstValueFrom, forkJoin } from 'rxjs';
 
@@ -71,6 +72,10 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private draftService = inject(DraftService);
   private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
+  private contextService = inject(CompanyContextService);
+
+  // Route prefix based on current context mode
+  readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
 
   private readonly AUTO_SAVE_DEBOUNCE = 800; // 800ms debounce for better UX
   private readonly ENTITY_TYPE = 'employee_profile';
@@ -785,7 +790,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   }
 
   goBack(): void {
-    this.router.navigate(['/employees']);
+    this.router.navigate([`${this.routePrefix()}/employees`]);
   }
 
   uploadDocument(event: any, documentType: string): void {

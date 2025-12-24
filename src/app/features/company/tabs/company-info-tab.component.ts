@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { CompanyService } from '@app/core/services/company.service';
+import { AuthService } from '@app/core/services/auth.service';
 import { Company } from '@app/core/models/company.model';
 import { EditableFieldComponent } from '@app/shared/components/editable-field/editable-field.component';
 import { ReadonlyFieldComponent } from '@app/shared/components/readonly-field/readonly-field.component';
@@ -44,6 +45,10 @@ interface FieldConfig {
 export class CompanyInfoTabComponent implements OnInit {
   private readonly companyService = inject(CompanyService);
   private readonly messageService = inject(MessageService);
+  private readonly authService = inject(AuthService);
+
+  // Computed signals
+  isAdmin = computed(() => this.authService.isAdmin());
 
   // State
   loading = signal(false);

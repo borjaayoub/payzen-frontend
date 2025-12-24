@@ -245,9 +245,9 @@ interface EmployeeDetailsResponse {
   providedIn: 'root'
 })
 export class EmployeeService {
-  private readonly EMPLOYEES_URL = `${environment.apiUrl}/employees`;
-  private readonly DASHBOARD_EMPLOYEES_URL = `${environment.apiUrl}/dashboard/employees`;
-  private readonly EMPLOYEE_DETAILS_URL = `${environment.apiUrl}/employee`;
+  // Backend uses /api/employee (singular) for all employee operations
+  private readonly EMPLOYEE_URL = `${environment.apiUrl}/employee`;
+  private readonly EMPLOYEE_SUMMARY_URL = `${environment.apiUrl}/employee/summary`;
 
   constructor(private http: HttpClient) {}
 
@@ -270,74 +270,83 @@ export class EmployeeService {
 
   /**
    * Get all employees with optional filters
+   * Backend endpoint: GET /api/employee/summary
    */
   getEmployees(filters?: EmployeeFilters): Observable<EmployeesResponse> {
     const params = this.buildFilterParams(filters);
     return this.http
-      .get<DashboardEmployeesResponse>(this.DASHBOARD_EMPLOYEES_URL, { params })
+      .get<DashboardEmployeesResponse>(this.EMPLOYEE_SUMMARY_URL, { params })
       .pipe(map(response => this.mapDashboardEmployeesResponse(response)));
   }
 
   /**
    * Get employee by ID
+   * Backend endpoint: GET /api/employee/{id}
    */
   getEmployeeById(id: string): Observable<Employee> {
-    return this.http.get<Employee>(`${this.EMPLOYEES_URL}/${id}`);
+    return this.http.get<Employee>(`${this.EMPLOYEE_URL}/${id}`);
   }
 
   /**
    * Get detailed employee profile
+   * Backend endpoint: GET /api/employee/{id}/details
    */
   getEmployeeDetails(id: string): Observable<EmployeeProfileModel> {
     return this.http
-      .get<EmployeeDetailsResponse>(`${this.EMPLOYEE_DETAILS_URL}/${id}/details`)
+      .get<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}/details`)
       .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
   }
 
   /**
    * Get lookup values to build the employee creation form
+   * Backend endpoint: GET /api/employee/form-data
    */
   getEmployeeFormData(): Observable<EmployeeFormData> {
     return this.http
-      .get<EmployeeFormDataResponse>(`${this.EMPLOYEE_DETAILS_URL}/form-data`)
+      .get<EmployeeFormDataResponse>(`${this.EMPLOYEE_URL}/form-data`)
       .pipe(map(response => this.mapEmployeeFormDataResponse(response)));
   }
 
   /**
    * Create new employee
+   * Backend endpoint: POST /api/employee
    */
   createEmployee(employee: Partial<Employee>): Observable<Employee> {
-    return this.http.post<Employee>(this.EMPLOYEES_URL, employee);
+    return this.http.post<Employee>(this.EMPLOYEE_URL, employee);
   }
 
   /**
    * Create employee record through HR endpoint
+   * Backend endpoint: POST /api/employee
    */
   createEmployeeRecord(payload: CreateEmployeeRequest): Observable<any> {
-    return this.http.post<any>(this.EMPLOYEE_DETAILS_URL, payload);
+    return this.http.post<any>(this.EMPLOYEE_URL, payload);
   }
 
   /**
    * Update employee
+   * Backend endpoint: PUT /api/employee/{id}
    */
   updateEmployee(id: string, employee: Partial<Employee>): Observable<Employee> {
-    return this.http.put<Employee>(`${this.EMPLOYEES_URL}/${id}`, employee);
+    return this.http.put<Employee>(`${this.EMPLOYEE_URL}/${id}`, employee);
   }
 
   /**
    * Patch employee profile details (field-level updates)
+   * Backend endpoint: PATCH /api/employee/{id}
    */
   patchEmployeeProfile(id: string, payload: Partial<EmployeeProfileModel>): Observable<EmployeeProfileModel> {
     return this.http
-      .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_DETAILS_URL}/${id}`, payload)
+      .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}`, payload)
       .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
   }
 
   /**
    * Delete employee
+   * Backend endpoint: DELETE /api/employee/{id}
    */
   deleteEmployee(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.EMPLOYEES_URL}/${id}`);
+    return this.http.delete<void>(`${this.EMPLOYEE_URL}/${id}`);
   }
 
   /**
@@ -348,14 +357,15 @@ export class EmployeeService {
     formData.append('file', file);
     formData.append('type', documentType);
 
-    return this.http.post(`${this.EMPLOYEES_URL}/${employeeId}/documents`, formData);
+    return this.http.post(`${this.EMPLOYEE_URL}/${employeeId}/documents`, formData);
   }
 
   /**
    * Get employee documents
+   * Backend endpoint: GET /api/employee/{id}/documents
    */
   getDocuments(employeeId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.EMPLOYEES_URL}/${employeeId}/documents`);
+    return this.http.get<any[]>(`${this.EMPLOYEE_URL}/${employeeId}/documents`);
   }
 
   /**

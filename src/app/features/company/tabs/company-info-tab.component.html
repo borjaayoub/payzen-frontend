@@ -94,7 +94,7 @@
         <!-- Right Column: Company Details -->
         <main class="lg:col-span-2 space-y-6">
           
-          <!-- Legal Entity Section (Read-Only) -->
+          <!-- Legal Entity Section -->
           <section class="bg-white rounded-xl border border-gray-200 shadow-sm" aria-labelledby="legal-heading">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
               <div>
@@ -103,20 +103,31 @@
                   {{ 'company.info.legalEntity' | translate }}
                 </h2>
               </div>
-              <span class="text-xs text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200 flex items-center gap-1.5">
-                <i class="pi pi-lock text-xs"></i>
-                {{ 'company.info.managedByBackoffice' | translate }}
-              </span>
+              @if (!isAdmin()) {
+                <span class="text-xs text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200 flex items-center gap-1.5">
+                  <i class="pi pi-lock text-xs"></i>
+                  {{ 'company.info.managedByBackoffice' | translate }}
+                </span>
+              }
             </div>
             
             <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
               @for (field of legalFields; track field.id) {
-                <app-readonly-field
-                  [fieldId]="field.id"
-                  [label]="field.label | translate"
-                  [value]="getFieldValue(field.key)"
-                  [tooltipText]="'company.info.managedByBackoffice' | translate">
-                </app-readonly-field>
+                @if (isAdmin()) {
+                  <app-editable-field 
+                    [value]="getFieldValue(field.key)" 
+                    [label]="field.label | translate"
+                    [type]="'text'"
+                    (save)="updateField(field.key, $any($event))">
+                  </app-editable-field>
+                } @else {
+                  <app-readonly-field
+                    [fieldId]="field.id"
+                    [label]="field.label | translate"
+                    [value]="getFieldValue(field.key)"
+                    [tooltipText]="'company.info.managedByBackoffice' | translate">
+                  </app-readonly-field>
+                }
               }
             </div>
           </section>

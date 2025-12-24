@@ -1,11 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { TranslateModule } from '@ngx-translate/core';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 
 interface MetricCard {
   title: string;
@@ -36,6 +38,7 @@ interface QuickAction {
   selector: 'app-dashboard',
   imports: [
     CommonModule,
+    RouterModule,
     CardModule,
     ButtonModule,
     ChartModule,
@@ -47,6 +50,40 @@ interface QuickAction {
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
+  private readonly contextService = inject(CompanyContextService);
+  private readonly router = inject(Router);
+
+  // Route prefix based on current context mode
+  readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
+
+  // Quick actions with dynamic routes
+  readonly quickActions = computed<QuickAction[]>(() => [
+    {
+      title: 'Générer les Paies',
+      icon: 'pi-calculator',
+      route: `${this.routePrefix()}/payroll/generate`,
+      iconColor: 'text-blue-600',
+    },
+    {
+      title: 'Ajouter un Employé',
+      icon: 'pi-user-plus',
+      route: `${this.routePrefix()}/employees/create`,
+      iconColor: 'text-green-600',
+    },
+    {
+      title: 'Voir les Rapports',
+      icon: 'pi-chart-bar',
+      route: `${this.routePrefix()}/reports`,
+      iconColor: 'text-purple-600',
+    },
+    {
+      title: 'Paramètres Société',
+      icon: 'pi-cog',
+      route: `${this.routePrefix()}/company`,
+      iconColor: 'text-gray-600',
+    },
+  ]);
+
   // Metrics data
   metrics: MetricCard[] = [
     {
@@ -107,34 +144,6 @@ export class Dashboard {
       amount: '14,200 MAD',
       status: 'pending',
       date: '2024-12-01',
-    },
-  ];
-
-  // Quick actions
-  quickActions: QuickAction[] = [
-    {
-      title: 'Générer les Paies',
-      icon: 'pi-calculator',
-      route: '/payroll/generate',
-      iconColor: 'text-blue-600',
-    },
-    {
-      title: 'Ajouter un Employé',
-      icon: 'pi-user-plus',
-      route: '/employees/add',
-      iconColor: 'text-green-600',
-    },
-    {
-      title: 'Voir les Rapports',
-      icon: 'pi-chart-bar',
-      route: '/reports',
-      iconColor: 'text-purple-600',
-    },
-    {
-      title: 'Paramètres Société',
-      icon: 'pi-cog',
-      route: '/company/settings',
-      iconColor: 'text-gray-600',
     },
   ];
 

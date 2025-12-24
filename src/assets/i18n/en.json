@@ -169,6 +169,8 @@
       "hrSettings": "Payroll Parameters",
       "documents": "Signatories & Documents",
       "users": "Managers & Access",
+      "departments": "Departments",
+      "jobPositions": "Job Positions",
       "history": "History"
     },
     "info": {

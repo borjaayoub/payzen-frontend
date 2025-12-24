@@ -192,22 +192,36 @@ export class AuthService {
 
   /**
    * Build memberships array from user data
-   * In the future, this should come from the backend API
+   * Uses isCabinetExpert flag from backend to determine expert mode
    */
   private buildMembershipsFromUser(user: User): CompanyMembership[] {
     const memberships: CompanyMembership[] = [];
 
     // If user has a companyId, create a membership
     if (user.companyId) {
-      // Determine if expert mode based on role (cabinet roles are expert mode)
-      const isExpertMode = user.role === UserRole.CABINET || user.role === UserRole.ADMIN_PAYZEN;
+      // Use isCabinetExpert from backend, fallback to role-based detection
+      const isExpertCapable = user.isCabinetExpert ?? 
+        (user.role === UserRole.CABINET || user.role === UserRole.ADMIN_PAYZEN);
       
+      // If expert capable, add expert membership
+      if (isExpertCapable) {
+        memberships.push({
+          companyId: user.companyId,
+          companyName: user.companyName || this.getCompanyNameFromUser(user),
+          role: user.role,
+          roleLabel: this.getRoleLabel(user.role),
+          isExpertMode: true,
+          permissions: user.permissions
+        });
+      }
+
+      // Always add standard membership (employee view)
       memberships.push({
         companyId: user.companyId,
-        companyName: this.getCompanyNameFromUser(user),
+        companyName: user.companyName || this.getCompanyNameFromUser(user),
         role: user.role,
         roleLabel: this.getRoleLabel(user.role),
-        isExpertMode,
+        isExpertMode: false,
         permissions: user.permissions
       });
     }
@@ -461,6 +475,9 @@ export class AuthService {
     const rawCompanyId = userRaw?.companyId ?? userRaw?.CompanyId;
     const companyId = this.normalizeString(rawCompanyId) ?? fallbackUser?.companyId;
 
+    // Get isCabinetExpert flag from backend response
+    const isCabinetExpert = userRaw?.isCabinetExpert ?? userRaw?.IsCabinetExpert ?? false;
+
     return {
       id: this.normalizeString(userRaw?.id ?? userRaw?.Id) ?? '',
       email: this.normalizeString(userRaw?.email ?? userRaw?.Email) ?? '',
@@ -470,6 +487,7 @@ export class AuthService {
       role: this.mapBackendRole(resolvedRole),
       employee_id: this.normalizeString(userRaw?.employeeId ?? userRaw?.EmployeeId),
       companyId,
+      isCabinetExpert,
       permissions
     };
   }

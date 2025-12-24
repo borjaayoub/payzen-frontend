@@ -1,24 +1,16 @@
-<div class="context-selection-page min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-50 to-blue-50/30 p-4 sm:p-6 md:p-8">
-  
-  <!-- Background Decoration -->
-  <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-100/40 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-100/40 rounded-full blur-3xl"></div>
-  </div>
+<div class="flex h-screen bg-(--color-bg) font-family-sans">
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Header -->
+    <app-header></app-header>
 
-  <!-- Main Content Container -->
-  <div class="relative z-10 w-full max-w-4xl mx-auto">
-    
-    <!-- Header Section -->
-    <header class="text-center mb-8 sm:mb-12">
-      <!-- Logo -->
-      <div class="flex items-center justify-center mb-6">
-        <div class="bg-(--primary) text-white rounded-xl text-2xl sm:text-3xl font-bold px-5 py-3 shadow-lg shadow-blue-500/20">
-          PayZen
-        </div>
-      </div>
-      
-      <!-- Welcome Message -->
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto px-3 bg-(--bg-page) flex items-center justify-center">
+      <div class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-8 sm:mb-12">
+          <!-- Welcome Message -->
       <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
         {{ 'contextSelection.title' | translate }}
       </h1>
@@ -57,20 +49,15 @@
         role="radiogroup"
         [attr.aria-label]="'contextSelection.selectWorkspace' | translate">
         
-        @for (membership of memberships(); track trackByCompanyId($index, membership)) {
+        @for (membership of memberships(); track trackByMembershipId($index, membership)) {
           <button
             type="button"
-            class="membership-card group relative p-6 bg-white rounded-2xl border-2 transition-all duration-300 text-left cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30"
-            [class.border-gray-200]="selectedCard() !== membership.companyId"
-            [class.hover:border-blue-300]="selectedCard() !== membership.companyId"
-            [class.hover:shadow-lg]="selectedCard() !== membership.companyId"
-            [class.hover:shadow-blue-100]="selectedCard() !== membership.companyId"
-            [class.border-blue-500]="selectedCard() === membership.companyId"
-            [class.shadow-xl]="selectedCard() === membership.companyId"
-            [class.shadow-blue-200]="selectedCard() === membership.companyId"
-            [class.scale-[1.02]]="selectedCard() === membership.companyId"
+            class="card group relative w-full text-left cursor-pointer transition-all duration-200 hover:shadow-md hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            [class.border-blue-500]="selectedCard() === getMembershipId(membership)"
+            [class.ring-1]="selectedCard() === getMembershipId(membership)"
+            [class.ring-blue-500]="selectedCard() === getMembershipId(membership)"
             [disabled]="isNavigating()"
-            [attr.aria-pressed]="selectedCard() === membership.companyId"
+            [attr.aria-pressed]="selectedCard() === getMembershipId(membership)"
             [attr.aria-label]="membership.companyName + ' - ' + getRoleLabel(membership.role)"
             (click)="selectMembership(membership)">
             
@@ -105,9 +92,9 @@
                 [class.to-indigo-600]="!membership.isExpertMode"
                 [class.from-amber-500]="membership.isExpertMode"
                 [class.to-orange-600]="membership.isExpertMode"
-                [class.shadow-lg]="selectedCard() === membership.companyId"
-                [class.shadow-blue-300]="selectedCard() === membership.companyId && !membership.isExpertMode"
-                [class.shadow-amber-300]="selectedCard() === membership.companyId && membership.isExpertMode">
+                [class.shadow-lg]="selectedCard() === getMembershipId(membership)"
+                [class.shadow-blue-300]="selectedCard() === getMembershipId(membership) && !membership.isExpertMode"
+                [class.shadow-amber-300]="selectedCard() === getMembershipId(membership) && membership.isExpertMode">
                 <i 
                   class="pi text-2xl text-white"
                   [class]="membership.isExpertMode ? 'pi-building-columns' : 'pi-building'"
@@ -139,7 +126,7 @@
                   {{ 'contextSelection.clickToAccess' | translate }}
                 </span>
                 
-                @if (isNavigating() && selectedCard() === membership.companyId) {
+                @if (isNavigating() && selectedCard() === getMembershipId(membership)) {
                   <p-progressSpinner 
                     styleClass="w-5 h-5" 
                     strokeWidth="6"
@@ -207,5 +194,7 @@
         </a>
       </div>
     </footer>
+      </div>
+    </main>
   </div>
 </div>

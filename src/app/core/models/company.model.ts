@@ -103,3 +103,31 @@ export interface CompanyEvent {
   };
   timestamp: string;
 }
+
+export interface CompanyCreateByExpertDto {
+  CompanyName: string;
+  CompanyEmail: string;
+  CompanyPhoneNumber: string;
+  CompanyAddress: string;
+  CountryId: number;
+  CityId?: number;
+  CityName?: string;
+  CnssNumber: string;
+  ManagedByCompanyId: number;
+  AdminFirstName: string;
+  AdminLastName: string;
+  AdminEmail: string;
+  AdminPhone: string;
+  GeneratePassword?: boolean;
+  AdminPassword?: string;
+  CountryPhoneCode?: string;
+  IsCabinetExpert?: boolean;
+  IceNumber?: string;
+  IfNumber?: string;
+  RcNumber?: string;
+  RibNumber?: string;
+  LegalForm?: string;
+  FoundingDate?: string;
+  BusinessSector?: string;
+  PaymentMethod?: string;
+}

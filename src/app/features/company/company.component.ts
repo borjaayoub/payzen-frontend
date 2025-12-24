@@ -7,6 +7,8 @@ import { HrSettingsTabComponent } from './tabs/hr-settings-tab.component';
 import { DocumentsTabComponent } from './tabs/documents-tab.component';
 import { UsersTabComponent } from './tabs/users-tab.component';
 import { HistoryTabComponent } from './tabs/history-tab.component';
+import { DepartmentTabComponent } from './tabs/department-tab.component';
+import { JobPositionTabComponent } from './tabs/job-position-tab.component';
 
 @Component({
   selector: 'app-company',
@@ -19,7 +21,9 @@ import { HistoryTabComponent } from './tabs/history-tab.component';
     HrSettingsTabComponent,
     DocumentsTabComponent,
     UsersTabComponent,
-    HistoryTabComponent
+    HistoryTabComponent,
+    DepartmentTabComponent,
+    JobPositionTabComponent
   ],
   templateUrl: './company.html',
 })

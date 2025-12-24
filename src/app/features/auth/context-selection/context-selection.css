@@ -3,27 +3,8 @@
  * Responsive design for company/role selection interface
  */
 
-/* Card hover and selection animations */
-.membership-card {
-  transform-origin: center;
-  will-change: transform, box-shadow;
-}
-
-.membership-card:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.membership-card:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.membership-card:disabled {
-  opacity: 0.9;
-  cursor: not-allowed;
-}
-
 /* Badge pulse animation for Expert mode */
-.membership-card .bg-gradient-to-r.from-amber-500 {
+.card .bg-gradient-to-r.from-amber-500 {
   animation: subtle-pulse 3s ease-in-out infinite;
 }
 
@@ -39,28 +20,6 @@
 /* Smooth grid layout transitions */
 .grid {
   transition: all 0.3s ease;
-}
-
-/* Ensure proper card sizing on different screens */
-@media (max-width: 640px) {
-  .membership-card {
-    min-height: 200px;
-  }
-}
-
-@media (min-width: 641px) {
-  .membership-card {
-    min-height: 240px;
-  }
-}
-
-/* Focus visible styles for accessibility */
-.membership-card:focus-visible {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 
-    0 0 0 4px rgba(26, 115, 232, 0.15),
-    0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 /* Line clamp utility */
