@@ -90,6 +90,10 @@
             ],
             "styles": [
               "src/styles.css"
+            ],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
             ]
           }
         }

@@ -485,6 +485,7 @@ export class AuthService {
       firstName: this.normalizeString(userRaw?.firstName ?? userRaw?.FirstName) ?? '',
       lastName: this.normalizeString(userRaw?.lastName ?? userRaw?.LastName) ?? '',
       role: this.mapBackendRole(resolvedRole),
+      roles: rolesArray,
       employee_id: this.normalizeString(userRaw?.employeeId ?? userRaw?.EmployeeId),
       companyId,
       isCabinetExpert,

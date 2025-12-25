@@ -21,6 +21,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: UserRole;
+  roles?: string[];               // Backend returns multiple roles
   companyId?: string;
   companyName?: string;           // Company name from backend
   isCabinetExpert?: boolean;      // Expert mode flag from backend
