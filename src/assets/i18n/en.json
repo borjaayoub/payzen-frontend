@@ -34,9 +34,25 @@
     "activeClient": "Active Client",
     "switchClient": "Switch Client",
     "selectClient": "Select Company",
-    "portfolioView": "All Clients Overview",
+    "portfolioView": "My Cabinet & Portfolio",
+    "myCabinet": "My Cabinet",
+    "clientManagement": "Client Management",
+    "viewingClient": "Viewing Client",
+    "viewingCabinet": "Viewing Cabinet",
+    "noClientSelected": "My Cabinet",
+    "selectCompanyFirst": "Please select a company first",
+    "selectCompanyRequired": "Company Selection Required",
+    "selectCompanyMessage": "You need to select a company to access this section.",
+    "useHeaderDropdown": "Use the company dropdown in the header to select a client.",
     "dashboard": {
-      "title": "Expert Dashboard"
+      "title": "Expert Dashboard",
+      "subtitle": "Overview of your cabinet and clients",
+      "newClient": "New Client",
+      "totalClients": "Total Clients",
+      "totalEmployees": "Total Employees",
+      "pendingLeaves": "Pending Leave Requests",
+      "recentActivity": "Recent Activity",
+      "viewAll": "View All"
     }
   },
   "profile": {
@@ -567,14 +583,7 @@
     "ar": "Arabic",
     "fr": "French"
   },
-  "expert": {
-    "dashboard": {
-      "title": "Expert Dashboard",
-      "subtitle": "Manage your client portfolio",
-      "recentActivity": "Recent Activity",
-      "viewAll": "View All"
-    }
-  },
+
   "audit": {
     "title": "Audit Log",
     "search": "Search events...",

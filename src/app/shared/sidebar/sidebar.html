@@ -48,24 +48,42 @@
   >
     <app-sidebar-group>
       @if (!isSidebarCollapsed()) {
-        <app-sidebar-group-label class="px-3 mb-2 mt-2 whitespace-nowrap">{{ 'nav.mainMenu' | translate }}</app-sidebar-group-label>
+        <app-sidebar-group-label class="px-3 mb-2 mt-2 whitespace-nowrap flex items-center justify-between">
+          <span>{{ menuGroupLabel() | translate }}</span>
+          @if (isExpertMode()) {
+            <span class="text-[10px] px-1.5 py-0.5 rounded border" 
+                  [class.bg-amber-50]="isClientView()" 
+                  [class.text-amber-700]="isClientView()"
+                  [class.border-amber-200]="isClientView()"
+                  [class.bg-blue-50]="!isClientView()" 
+                  [class.text-blue-700]="!isClientView()"
+                  [class.border-blue-200]="!isClientView()">
+              {{ (isClientView() ? 'expert.viewingClient' : 'expert.viewingCabinet') | translate }}
+            </span>
+          }
+        </app-sidebar-group-label>
       }
 
       @for (item of menuItems(); track item.label) {
         <a
-          [routerLink]="item.routerLink"
+          [routerLink]="item.requiresCompanyContext && isExpertMode() && !isClientView() ? null : item.routerLink"
+          (click)="handleNavigation(item, $event)"
           routerLinkActive="active"
           class="sidebar-item group"
           [class.justify-center]="isSidebarCollapsed()"
           [class.justify-start]="!isSidebarCollapsed()"
+          [class.opacity-60]="item.requiresCompanyContext && isExpertMode() && !isClientView()"
           [attr.aria-label]="item.label | translate"
-          [pTooltip]="isSidebarCollapsed() ? (item.label | translate) : ''"
+          [pTooltip]="isSidebarCollapsed() ? (item.label | translate) : (item.requiresCompanyContext && isExpertMode() && !isClientView() ? ('expert.selectCompanyFirst' | translate) : '')"
           tooltipPosition="right"
         >
           <i [class]="item.icon + (isSidebarCollapsed() ? '' : ' me-3')" class="text-lg transition-colors group-hover:text-(--primary)" aria-hidden="true"></i>
 
           @if (!isSidebarCollapsed()) {
             <span class="font-medium text-sm whitespace-nowrap">{{ item.label | translate }}</span>
+            @if (item.requiresCompanyContext && isExpertMode() && !isClientView()) {
+              <i class="pi pi-lock text-xs text-gray-400 ms-auto" aria-hidden="true"></i>
+            }
           }
         </a>
       }
@@ -137,3 +155,35 @@
     </div>
   </div>
 </aside>
+
+<!-- Company Selection Required Dialog -->
+<p-dialog 
+  [(visible)]="showCompanyRequiredDialog" 
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{width: '400px'}"
+  [header]="'expert.selectCompanyRequired' | translate">
+  <div class="flex flex-col items-center gap-4 py-4">
+    <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+      <i class="pi pi-building text-3xl text-amber-600"></i>
+    </div>
+    <div class="text-center">
+      <p class="text-gray-700 mb-2">{{ 'expert.selectCompanyMessage' | translate }}</p>
+      <p class="text-sm text-gray-500">{{ 'expert.useHeaderDropdown' | translate }}</p>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <button 
+        pButton 
+        type="button" 
+        [label]="'common.ok' | translate" 
+        icon="pi pi-check"
+        (click)="closeCompanyRequiredDialog()"
+        class="p-button-primary">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

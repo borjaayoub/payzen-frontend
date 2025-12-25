@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
 import { 
   CompanyMembership, 
   AppContext, 
@@ -25,6 +26,16 @@ export class CompanyContextService {
   
   /** Loading state for context operations */
   private readonly _isLoading = signal<boolean>(false);
+
+  // ============================================
+  // CONTEXT CHANGE NOTIFICATION
+  // ============================================
+  
+  /** Subject to emit when context changes - components can subscribe to refresh their data */
+  private readonly _contextChanged$ = new Subject<{ companyId: string | null; isExpertMode: boolean }>();
+  
+  /** Public observable for components to subscribe to context changes */
+  readonly contextChanged$ = this._contextChanged$.asObservable();
 
   // ============================================
   // PUBLIC COMPUTED SIGNALS
@@ -126,6 +137,12 @@ export class CompanyContextService {
     this._currentContext.set(context);
     this._isLoading.set(false);
 
+    // Notify subscribers about context change
+    this._contextChanged$.next({
+      companyId: context.companyId,
+      isExpertMode: context.isExpertMode
+    });
+
     if (navigate) {
       this.navigateToDashboard(membership.isExpertMode);
     }
@@ -135,8 +152,9 @@ export class CompanyContextService {
    * Switch context to a specific client company (for Expert mode)
    * Keeps the expert role but changes the active company
    * @param company - The client company to switch to
+   * @param navigate - Whether to navigate after switching (default: false)
    */
-  switchToClientContext(company: { id: string, legalName: string }): void {
+  switchToClientContext(company: { id: string, legalName: string }, navigate: boolean = false): void {
     const current = this._currentContext();
     if (!current || !current.isExpertMode) {
       console.warn('Cannot switch to client context: Not in expert mode');
@@ -155,8 +173,16 @@ export class CompanyContextService {
 
     this._currentContext.set(newContext);
     
-    // Navigate to the standard dashboard to view client data
-    this.router.navigate(['/expert/client-view']);
+    // Notify subscribers about context change - this will trigger data refresh
+    this._contextChanged$.next({
+      companyId: newContext.companyId,
+      isExpertMode: newContext.isExpertMode
+    });
+    
+    // Optionally navigate to client view
+    if (navigate) {
+      this.router.navigate(['/expert/client-view']);
+    }
   }
 
   /**
@@ -187,6 +213,12 @@ export class CompanyContextService {
     }
 
     this._currentContext.set(newContext);
+    
+    // Notify subscribers about context change
+    this._contextChanged$.next({
+      companyId: newContext.companyId,
+      isExpertMode: newContext.isExpertMode
+    });
   }
 
   /**

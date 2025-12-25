@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,10 +11,11 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { CompanyService } from '@app/core/services/company.service';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
-import { DashboardService } from '@app/core/services/dashboard.service';
+import { DashboardService, EmployeeSummaryResponse } from '@app/core/services/dashboard.service';
 import { Company } from '@app/core/models/company.model';
 import { CompanyMembership } from '@app/core/models/membership.model';
 import { AuditLogComponent } from '../../../shared/components/audit-log/audit-log.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-expert-dashboard',
@@ -35,10 +36,11 @@ import { AuditLogComponent } from '../../../shared/components/audit-log/audit-lo
   templateUrl: './expert-dashboard.html',
   styleUrl: './expert-dashboard.css'
 })
-export class ExpertDashboard implements OnInit {
+export class ExpertDashboard implements OnInit, OnDestroy {
   private companyService = inject(CompanyService);
   private contextService = inject(CompanyContextService);
   private dashboardService = inject(DashboardService);
+  private destroy$ = new Subject<void>();
 
   // Signals
   readonly companies = signal<Company[]>([]);
@@ -47,6 +49,13 @@ export class ExpertDashboard implements OnInit {
   readonly pendingLeaves = signal<number>(0);
   readonly totalClients = signal<number>(0);
   readonly globalEmployeeCount = signal<number>(0);
+  
+  // Client View Signals
+  readonly clientEmployeeSummary = signal<EmployeeSummaryResponse | null>(null);
+
+  // Context Signals
+  readonly isClientView = this.contextService.isClientView;
+  readonly currentCompanyName = this.contextService.companyName;
 
   // Computed
   readonly totalEmployees = computed(() => 
@@ -54,13 +63,47 @@ export class ExpertDashboard implements OnInit {
   );
 
   ngOnInit(): void {
-    // If we are in client view, we need to reset to portfolio context
-    if (this.contextService.isClientView()) {
-       this.contextService.resetToPortfolioContext();
-    }
+    // Initial load
+    this.loadDataBasedOnContext();
 
+    // Subscribe to context changes
+    this.contextService.contextChanged$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadDataBasedOnContext();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadDataBasedOnContext(): void {
+    if (this.isClientView()) {
+      this.loadClientDashboard();
+    } else {
+      this.loadPortfolioDashboard();
+    }
+  }
+
+  loadPortfolioDashboard(): void {
     this.loadClientCompanies();
     this.loadDashboardSummary();
+  }
+
+  loadClientDashboard(): void {
+    this.isLoading.set(true);
+    this.dashboardService.getEmployeeSummary().subscribe({
+      next: (data) => {
+        this.clientEmployeeSummary.set(data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load client dashboard', err);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   loadClientCompanies(): void {

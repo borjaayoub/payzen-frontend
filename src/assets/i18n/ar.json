@@ -35,8 +35,24 @@
     "switchClient": "تغيير العميل",
     "selectClient": "اختر شركة",
     "portfolioView": "نظرة عامة على جميع العملاء",
+    "myCabinet": "مكتبي",
+    "clientManagement": "إدارة العملاء",
+    "viewingClient": "عرض العميل",
+    "viewingCabinet": "عرض المكتب",
+    "noClientSelected": "مكتبي",
+    "selectCompanyFirst": "يرجى اختيار شركة أولاً",
+    "selectCompanyRequired": "مطلوب اختيار شركة",
+    "selectCompanyMessage": "تحتاج إلى اختيار شركة للوصول إلى هذا القسم.",
+    "useHeaderDropdown": "استخدم القائمة المنسدلة للشركة في الرأس لاختيار عميل.",
     "dashboard": {
-      "title": "لوحة تحكم الخبير"
+      "title": "لوحة تحكم الخبير",
+      "subtitle": "نظرة عامة على مكتبك وعملائك",
+      "newClient": "عميل جديد",
+      "totalClients": "إجمالي العملاء",
+      "totalEmployees": "إجمالي الموظفين",
+      "pendingLeaves": "طلبات الإجازة المعلقة",
+      "recentActivity": "النشاط الأخير",
+      "viewAll": "عرض الكل"
     }
   },
   "dashboard": {
@@ -539,14 +555,7 @@
     "ar": "العربية",
     "fr": "الفرنسية"
   },
-  "expert": {
-    "dashboard": {
-      "title": "لوحة الخبير",
-      "subtitle": "إدارة محفظة عملائك",
-      "recentActivity": "النشاط الأخير",
-      "viewAll": "عرض الكل"
-    }
-  },
+
   "audit": {
     "title": "سجل التدقيق",
     "search": "البحث عن الأحداث...",

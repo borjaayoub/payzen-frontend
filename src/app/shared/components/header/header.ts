@@ -1,15 +1,17 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
+import { BadgeModule } from 'primeng/badge';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { CompanyService } from '@app/core/services/company.service';
 import { Company } from '@app/core/models/company.model';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -20,6 +22,7 @@ import { Company } from '@app/core/models/company.model';
     ButtonModule, 
     TooltipModule, 
     Select,
+    BadgeModule,
     LanguageSwitcher
   ],
   templateUrl: './header.html',
@@ -39,6 +42,25 @@ export class Header implements OnInit {
   // === Companies for dropdown ===
   readonly clientCompanies = signal<Company[]>([]);
   readonly isLoadingCompanies = signal<boolean>(false);
+  
+  // === Track current route for context ===
+  readonly currentRoute = signal<string>('');
+
+  constructor() {
+    // Effect to load companies whenever expert mode changes
+    effect(() => {
+      if (this.isExpertMode()) {
+        this.loadCompanies();
+      }
+    });
+    
+    // Track navigation to maintain context
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentRoute.set(event.urlAfterRedirects);
+    });
+  }
   
   // Computed: All selectable options (Portfolio + Client Companies)
   readonly companyOptions = computed(() => {
@@ -145,13 +167,19 @@ export class Header implements OnInit {
     if (company.id === cabinetId) {
       // Switch back to portfolio view
       this.contextService.resetToPortfolioContext();
-      this.router.navigate(['/expert/dashboard']);
+      // Only navigate to dashboard if currently on a company-specific page
+      const currentUrl = this.router.url;
+      if (currentUrl.includes('/employees') || currentUrl.includes('/company') || currentUrl.includes('/leave')) {
+        this.router.navigate(['/expert/dashboard']);
+      }
+      // Otherwise stay on current page - dashboard will auto-refresh via context change
     } else {
-      // Switch to client view
+      // Switch to client view - don't navigate, stay on current page
+      // Components will auto-refresh via contextChanged$ subscription
       this.contextService.switchToClientContext({
         id: company.id,
         legalName: company.legalName
-      });
+      }, false); // Don't navigate
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,9 +11,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { CompanyService } from '@app/core/services/company.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { Company } from '@app/core/models/company.model';
 import { EditableFieldComponent } from '@app/shared/components/editable-field/editable-field.component';
 import { ReadonlyFieldComponent } from '@app/shared/components/readonly-field/readonly-field.component';
+import { Subscription } from 'rxjs';
 
 interface FieldConfig {
   id: string;
@@ -42,10 +44,12 @@ interface FieldConfig {
   providers: [MessageService],
   templateUrl: './company-info-tab.component.html'
 })
-export class CompanyInfoTabComponent implements OnInit {
+export class CompanyInfoTabComponent implements OnInit, OnDestroy {
   private readonly companyService = inject(CompanyService);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
+  private readonly contextService = inject(CompanyContextService);
+  private contextSub?: Subscription;
 
   // Computed signals
   isAdmin = computed(() => this.authService.isAdmin());
@@ -76,6 +80,17 @@ export class CompanyInfoTabComponent implements OnInit {
 
   ngOnInit() {
     this.loadCompanyData();
+    
+    // Subscribe to context changes to reload data
+    this.contextSub = this.contextService.contextChanged$.subscribe(() => {
+      this.loadCompanyData();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.contextSub) {
+      this.contextSub.unsubscribe();
+    }
   }
 
   toggleInfoBanner() {

@@ -5,6 +5,7 @@ import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
+import { DialogModule } from 'primeng/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { SidebarGroupComponent } from './sidebar-group/sidebar-group.component';
@@ -16,7 +17,8 @@ import { UserRole } from '@app/core/models/user.model';
 interface MenuItemConfig extends MenuItem {
   requiredRoles?: UserRole[];
   requiredPermissions?: string[];
-  modes?: ('expert' | 'standard' | 'expert-client')[];
+  modes?: ('expert' | 'standard' | 'expert-client' | 'expert-all')[];
+  requiresCompanyContext?: boolean; // New flag to indicate if company selection is needed
 }
 
 @Component({
@@ -28,6 +30,7 @@ interface MenuItemConfig extends MenuItem {
     AvatarModule,
     ButtonModule,
     MenuModule,
+    DialogModule,
     TranslateModule,
     TooltipModule,
     SidebarGroupComponent,
@@ -54,6 +57,10 @@ export class Sidebar {
   private readonly contextService = inject(CompanyContextService);
   private readonly router = inject(Router);
   private toggleTimeout: any;
+
+  // === Company Selection Dialog State ===
+  readonly showCompanyRequiredDialog = signal(false);
+  readonly pendingNavigationRoute = signal<string | null>(null);
 
   constructor() {
     // Sync internal state when input changes externally
@@ -103,6 +110,14 @@ export class Sidebar {
     this.isCollapsedSignal() ? this.CollapsedWidth() : this.Width()
   );
 
+  // === Dynamic Menu Label ===
+  readonly menuGroupLabel = computed(() => {
+    if (this.isExpertMode()) {
+      return this.isClientView() ? 'expert.clientManagement' : 'expert.myCabinet';
+    }
+    return 'nav.mainMenu';
+  });
+
   // === Behavior ===
   toggle() {
     if (!this.Collapsible()) return;
@@ -132,48 +147,40 @@ export class Sidebar {
   // === Menu Items Template (routes will be prefixed dynamically) ===
   private readonly menuItemsTemplate: MenuItemConfig[] = [
     // ─────────────────────────────────────────────────────────────
-    // EXPERT PORTFOLIO VIEW (isExpertMode=true, isClientView=false)
-    // Shows: Portfolio Dashboard only
+    // EXPERT MODE - PERSISTENT MENU ITEMS (Always visible for CABINET)
+    // Dashboard, Société, Salariés, Congés always visible
     // ─────────────────────────────────────────────────────────────
     { 
-      label: 'nav.portfolio', 
-      icon: 'pi pi-briefcase', 
+      label: 'nav.dashboard', 
+      icon: 'pi pi-home', 
       routerLink: '/dashboard',
       requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
-      modes: ['expert']
+      modes: ['expert-all'], // Show in both expert views (portfolio and client)
+      requiresCompanyContext: false // Dashboard doesn't require company selection
     },
-
-    // ─────────────────────────────────────────────────────────────
-    // EXPERT CLIENT VIEW (isExpertMode=true, isClientView=true)
-    // Shows: Back to Portfolio, then RH Core items (Société, Salariés, Congés)
-    // ─────────────────────────────────────────────────────────────
-    {
-      label: 'nav.backToPortfolio',
-      icon: 'pi pi-arrow-left',
-      routerLink: '/dashboard', // Returns to Portfolio Dashboard
+    { 
+      label: 'nav.company', 
+      icon: 'pi pi-building', 
+      routerLink: '/company',
       requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
-      modes: ['expert-client']
+      modes: ['expert-all'],
+      requiresCompanyContext: false // Allow access to manage Cabinet or Client
     },
     { 
       label: 'nav.employees', 
       icon: 'pi pi-users', 
       routerLink: '/employees',
       requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
-      modes: ['expert-client']
+      modes: ['expert-all'],
+      requiresCompanyContext: false // Allow access to manage Cabinet or Client
     },
     { 
       label: 'nav.leave', 
       icon: 'pi pi-calendar', 
       routerLink: '/leave',
       requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
-      modes: ['expert-client']
-    },
-    { 
-      label: 'nav.payroll', 
-      icon: 'pi pi-wallet', 
-      routerLink: '/payroll',
-      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
-      modes: ['expert-client']
+      modes: ['expert-all'],
+      requiresCompanyContext: false // Allow access to manage Cabinet or Client
     },
     
     // ─────────────────────────────────────────────────────────────
@@ -237,7 +244,7 @@ export class Sidebar {
     const effectiveRole = contextRole ?? user?.role;
     
     // Determine current mode
-    let currentMode: 'expert' | 'standard' | 'expert-client' = 'standard';
+    let currentMode: 'expert' | 'standard' | 'expert-client' | 'expert-all' = 'standard';
     if (isExpert) {
       currentMode = isClientView ? 'expert-client' : 'expert';
     }
@@ -247,8 +254,13 @@ export class Sidebar {
     return this.menuItemsTemplate
       .filter(item => {
         // 1. Check Mode
-        if (item.modes && !item.modes.includes(currentMode)) {
-          return false;
+        if (item.modes) {
+          // For expert-all, show if in any expert mode
+          if (item.modes.includes('expert-all') && isExpert) {
+            // Continue to role check
+          } else if (!item.modes.includes(currentMode) && !item.modes.includes('expert-all')) {
+            return false;
+          }
         }
 
         // 2. Check Role
@@ -261,9 +273,50 @@ export class Sidebar {
       })
       .map(item => ({
         ...item,
-        routerLink: `${prefix}${item.routerLink}`
+        routerLink: `${prefix}${item.routerLink}`,
+        // Keep track if this item requires company context
+        requiresCompanyContext: item.requiresCompanyContext ?? false
       }));
   });
+
+  // === Check if navigation requires company selection ===
+  readonly hasSelectedClient = computed(() => this.isClientView());
+
+  // === Navigation Handler for items requiring company context ===
+  handleNavigation(item: MenuItemConfig, event: Event): boolean {
+    const isExpert = this.isExpertMode();
+    const hasClient = this.isClientView();
+    
+    // If in expert mode and item requires company context but no client is selected
+    if (isExpert && item.requiresCompanyContext && !hasClient) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      // Store the intended route
+      this.pendingNavigationRoute.set(item.routerLink || null);
+      
+      // Show the company selection dialog
+      this.showCompanyRequiredDialog.set(true);
+      
+      return false;
+    }
+    
+    return true;
+  }
+
+  // === Close company required dialog ===
+  closeCompanyRequiredDialog(): void {
+    this.showCompanyRequiredDialog.set(false);
+    this.pendingNavigationRoute.set(null);
+  }
+
+  // === Navigate to select a company (via header dropdown) ===
+  goToSelectCompany(): void {
+    this.showCompanyRequiredDialog.set(false);
+    // The user should use the header company dropdown to select a company
+    // We can emit an event or just close the dialog
+    // Optionally scroll to top to make the header visible
+  }
 
   // === Profile Menu Items ===
   readonly profileMenuItems = computed<MenuItem[]>(() => {
@@ -312,8 +365,8 @@ export class Sidebar {
     if (user && [UserRole.CABINET, UserRole.ADMIN, UserRole.RH].includes(user.role as UserRole)) {
       items.push({ separator: true });
 
-      // Show Switch Workspace only if user has multiple memberships
-      if (this.hasMultipleMemberships()) {
+      // Show Switch Workspace if user has multiple memberships OR is a CABINET (Expert Comptable)
+      if (this.hasMultipleMemberships() || user.role === UserRole.CABINET) {
         items.push({
           label: 'contextSelection.switchWorkspace',
           icon: 'pi pi-sync',

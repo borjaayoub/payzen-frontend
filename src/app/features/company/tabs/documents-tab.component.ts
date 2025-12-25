@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,7 +12,9 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { CompanyService } from '@app/core/services/company.service';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { CompanyDocuments } from '@app/core/models/company.model';
+import { Subscription } from 'rxjs';
 
 interface DocumentRow {
   name: string;
@@ -46,10 +48,12 @@ interface ExpectedDocument {
   providers: [MessageService],
   templateUrl: './documents-tab.component.html'
 })
-export class DocumentsTabComponent implements OnInit {
+export class DocumentsTabComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly companyService = inject(CompanyService);
   private readonly messageService = inject(MessageService);
+  private readonly contextService = inject(CompanyContextService);
+  private contextSub?: Subscription;
 
   // Forms
   signatoryForm!: FormGroup;
@@ -74,6 +78,17 @@ export class DocumentsTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadData();
+    
+    // Subscribe to context changes
+    this.contextSub = this.contextService.contextChanged$.subscribe(() => {
+      this.loadData();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.contextSub) {
+      this.contextSub.unsubscribe();
+    }
   }
 
   /** Check if a form field is invalid and should show error */

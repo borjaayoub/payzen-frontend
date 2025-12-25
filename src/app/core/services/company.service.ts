@@ -4,6 +4,7 @@ import { Observable, Subject, map, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company, CompanyEvent, TaxRegime, CompanyCreateByExpertDto } from '../models/company.model';
 import { AuthService } from './auth.service';
+import { CompanyContextService } from './companyContext.service';
 
 interface CityDto {
   id: number;
@@ -63,6 +64,7 @@ const COMPANY_FIELD_MAP: Partial<Record<keyof Company, keyof CompanyUpdateDto>> 
 export class CompanyService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private contextService = inject(CompanyContextService);
   private apiUrl = `${environment.apiUrl}`;
 
   // Subject to notify when company data is updated
@@ -79,7 +81,10 @@ export class CompanyService {
   }
 
   getCompany(): Observable<Company> {
-    const companyId = this.authService.currentUser()?.companyId;
+    // Prioritize context company ID (for Expert Client View or Standard Context)
+    // Fallback to Auth User's company ID (Legacy/Direct access)
+    const companyId = this.contextService.companyId() || this.authService.currentUser()?.companyId;
+    
     if (!companyId) {
       // Fallback or error if no company ID is available
       return of({} as Company); 
@@ -91,7 +96,7 @@ export class CompanyService {
   }
 
   updateCompany(company: Partial<Company>): Observable<Company> {
-    const companyId = company.id || this.authService.currentUser()?.companyId;
+    const companyId = company.id || this.contextService.companyId() || this.authService.currentUser()?.companyId;
     
     if (!companyId) {
       console.error('UpdateCompany: No company ID found');

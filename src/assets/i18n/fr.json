@@ -34,9 +34,25 @@
     "activeClient": "Client Actif",
     "switchClient": "Changer de Client",
     "selectClient": "Sélectionner une Entreprise",
-    "portfolioView": "Vue d'ensemble des clients",
+    "portfolioView": "Mon Cabinet & Portefeuille",
+    "myCabinet": "Mon Cabinet",
+    "clientManagement": "Gestion Client",
+    "viewingClient": "Vue Client",
+    "viewingCabinet": "Vue Cabinet",
+    "noClientSelected": "Mon Cabinet",
+    "selectCompanyFirst": "Veuillez d'abord sélectionner une entreprise",
+    "selectCompanyRequired": "Sélection d'entreprise requise",
+    "selectCompanyMessage": "Vous devez sélectionner une entreprise pour accéder à cette section.",
+    "useHeaderDropdown": "Utilisez le menu déroulant dans l'en-tête pour sélectionner un client.",
     "dashboard": {
-      "title": "Tableau de Bord Expert"
+      "title": "Tableau de Bord Expert",
+      "subtitle": "Vue d'ensemble de votre cabinet et de vos clients",
+      "newClient": "Nouveau Client",
+      "totalClients": "Total Clients",
+      "totalEmployees": "Total Employés",
+      "pendingLeaves": "Demandes de Congés en Attente",
+      "recentActivity": "Activité Récente",
+      "viewAll": "Voir Tout"
     }
   },
   "dashboard": {
@@ -552,14 +568,7 @@
     "ar": "Arabe",
     "fr": "Français"
   },
-  "expert": {
-    "dashboard": {
-      "title": "Tableau de Bord Expert",
-      "subtitle": "Gérez votre portefeuille clients",
-      "recentActivity": "Activité Récente",
-      "viewAll": "Voir Tout"
-    }
-  },
+
   "audit": {
     "title": "Journal d'Audit",
     "search": "Rechercher des événements...",

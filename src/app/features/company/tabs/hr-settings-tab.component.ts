@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,7 +13,9 @@ import { ToastModule } from 'primeng/toast';
 import { PopoverModule } from 'primeng/popover';
 import { MessageService } from 'primeng/api';
 import { CompanyService } from '@app/core/services/company.service';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { Company, HRParameters } from '@app/core/models/company.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-hr-settings-tab',
@@ -35,10 +37,12 @@ import { Company, HRParameters } from '@app/core/models/company.model';
   providers: [MessageService],
   templateUrl: './hr-settings-tab.component.html'
 })
-export class HrSettingsTabComponent implements OnInit {
+export class HrSettingsTabComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly companyService = inject(CompanyService);
   private readonly messageService = inject(MessageService);
+  private readonly contextService = inject(CompanyContextService);
+  private contextSub?: Subscription;
 
   // Form state
   hrForm!: FormGroup;
@@ -138,6 +142,17 @@ export class HrSettingsTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadCompanyData();
+    
+    // Subscribe to context changes
+    this.contextSub = this.contextService.contextChanged$.subscribe(() => {
+      this.loadCompanyData();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.contextSub) {
+      this.contextSub.unsubscribe();
+    }
   }
 
   /** Check if a form field is invalid and should show error */
