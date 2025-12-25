@@ -23,7 +23,21 @@
     "signedInAs": "تم تسجيل الدخول باسم",
     "employees": "الموظفون",
     "payroll": "الرواتب",
-    "reports": "التقارير"
+    "reports": "التقارير",
+    "permissions": "الصلاحيات",
+    "userManagement": "إدارة المستخدمين",
+    "backToPortfolio": "العودة إلى المحفظة",
+    "portfolio": "المحفظة",
+    "leave": "الإجازات"
+  },
+  "expert": {
+    "activeClient": "العميل الحالي",
+    "switchClient": "تغيير العميل",
+    "selectClient": "اختر شركة",
+    "portfolioView": "نظرة عامة على جميع العملاء",
+    "dashboard": {
+      "title": "لوحة تحكم الخبير"
+    }
   },
   "dashboard": {
     "title": "لوحة القيادة",
@@ -524,6 +538,143 @@
     "en": "الإنجليزية",
     "ar": "العربية",
     "fr": "الفرنسية"
+  },
+  "expert": {
+    "dashboard": {
+      "title": "لوحة الخبير",
+      "subtitle": "إدارة محفظة عملائك",
+      "recentActivity": "النشاط الأخير",
+      "viewAll": "عرض الكل"
+    }
+  },
+  "audit": {
+    "title": "سجل التدقيق",
+    "search": "البحث عن الأحداث...",
+    "eventType": "نوع الحدث",
+    "dateRange": "نطاق التاريخ",
+    "allEvents": "جميع الأحداث",
+    "clearFilters": "مسح الفلاتر",
+    "selectDateRange": "اختر نطاق التاريخ",
+    "selectEventTypes": "اختر أنواع الأحداث",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "noLogs": "لم يتم العثور على سجلات تدقيق",
+    "noLogsDescription": "لم يتم تسجيل أي أحداث تدقيق بعد.",
+    "loading": "تحميل سجلات التدقيق...",
+    "error": "فشل تحميل سجلات التدقيق",
+    "companyEvents": "أحداث الشركة",
+    "employeeEvents": "أحداث الموظفين",
+    "cabinetEvents": "أحداث المكتب",
+    "eventTypes": {
+      "COMPANY_CREATED": "تم إنشاء الشركة",
+      "COMPANY_UPDATED": "تم تحديث الشركة",
+      "COMPANY_DELETED": "تم حذف الشركة",
+      "COMPANY_ACTIVATED": "تم تفعيل الشركة",
+      "COMPANY_DEACTIVATED": "تم تعطيل الشركة",
+      "EMPLOYEE_CREATED": "تم إنشاء الموظف",
+      "EMPLOYEE_UPDATED": "تم تحديث الموظف",
+      "EMPLOYEE_DELETED": "تم حذف الموظف",
+      "EMPLOYEE_ACTIVATED": "تم تفعيل الموظف",
+      "EMPLOYEE_DEACTIVATED": "تم تعطيل الموظف",
+      "USER_LOGIN": "تسجيل دخول المستخدم",
+      "USER_LOGOUT": "تسجيل خروج المستخدم",
+      "PERMISSION_GRANTED": "تم منح الإذن",
+      "PERMISSION_REVOKED": "تم إلغاء الإذن",
+      "ROLE_ASSIGNED": "تم تعيين الدور",
+      "ROLE_REMOVED": "تم إزالة الدور",
+      "SETTINGS_CHANGED": "تم تغيير الإعدادات",
+      "PASSWORD_CHANGED": "تم تغيير كلمة المرور",
+      "PASSWORD_RESET": "إعادة تعيين كلمة المرور"
+    }
+  },
+  "permissions": {
+    "title": "إدارة الصلاحيات",
+    "subtitle": "إدارة الصلاحيات والأدوار وتعيينات المستخدمين",
+    "userManagement": {
+      "title": "إدارة المستخدمين",
+      "subtitle": "تعيين الأدوار للمستخدمين في شركتك"
+    },
+    "tabs": {
+      "permissions": "الصلاحيات",
+      "roles": "الأدوار",
+      "userRoles": "أدوار المستخدمين"
+    },
+    "permissions": {
+      "title": "الصلاحيات",
+      "subtitle": "تحديد صلاحيات النظام",
+      "create": "إنشاء صلاحية",
+      "edit": "تعديل الصلاحية",
+      "delete": "حذف الصلاحية",
+      "deleteConfirm": "هل أنت متأكد من أنك تريد حذف هذه الصلاحية؟",
+      "deleteSuccess": "تم حذف الصلاحية بنجاح",
+      "deleteError": "فشل حذف الصلاحية",
+      "saveSuccess": "تم حفظ الصلاحية بنجاح",
+      "saveError": "فشل حفظ الصلاحية",
+      "name": "اسم الصلاحية",
+      "namePlaceholder": "مثال: READ_USERS",
+      "nameHint": "استخدم تنسيق UPPERCASE_SNAKE_CASE",
+      "description": "الوصف",
+      "descriptionPlaceholder": "صف ما تسمح به هذه الصلاحية",
+      "actions": "الإجراءات",
+      "noPermissions": "لم يتم العثور على صلاحيات",
+      "loading": "تحميل الصلاحيات..."
+    },
+    "roles": {
+      "title": "الأدوار",
+      "subtitle": "إدارة الأدوار وصلاحياتها",
+      "create": "إنشاء دور",
+      "edit": "تعديل الدور",
+      "delete": "حذف الدور",
+      "deleteConfirm": "هل أنت متأكد من أنك تريد حذف هذا الدور؟",
+      "deleteSuccess": "تم حذف الدور بنجاح",
+      "deleteError": "فشل حذف الدور",
+      "saveSuccess": "تم حفظ الدور بنجاح",
+      "saveError": "فشل حفظ الدور",
+      "name": "اسم الدور",
+      "namePlaceholder": "مثال: مدير الموارد البشرية",
+      "description": "الوصف",
+      "descriptionPlaceholder": "صف مسؤوليات هذا الدور",
+      "permissions": "الصلاحيات",
+      "permissionsCount": "{{count}} صلاحية",
+      "managePermissions": "إدارة الصلاحيات",
+      "assignPermissions": "تعيين الصلاحيات لـ {{roleName}}",
+      "selectPermissions": "اختر الصلاحيات",
+      "permissionsSaveSuccess": "تم تحديث صلاحيات الدور بنجاح",
+      "permissionsSaveError": "فشل تحديث صلاحيات الدور",
+      "actions": "الإجراءات",
+      "noRoles": "لم يتم العثور على أدوار",
+      "loading": "تحميل الأدوار..."
+    },
+    "userRoles": {
+      "title": "أدوار المستخدمين",
+      "subtitle": "تعيين الأدوار للمستخدمين",
+      "user": "المستخدم",
+      "email": "البريد الإلكتروني",
+      "roles": "الأدوار",
+      "rolesCount": "{{count}} دور",
+      "assignRoles": "تعيين الأدوار",
+      "manageRoles": "إدارة الأدوار لـ {{userName}}",
+      "selectRoles": "اختر الأدوار",
+      "noRoles": "لم يتم تعيين أدوار",
+      "saveSuccess": "تم تحديث أدوار المستخدم بنجاح",
+      "saveError": "فشل تحديث أدوار المستخدم",
+      "actions": "الإجراءات",
+      "noUsers": "لم يتم العثور على مستخدمين",
+      "loading": "تحميل المستخدمين..."
+    },
+    "common": {
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "delete": "حذف",
+      "edit": "تعديل",
+      "close": "إغلاق",
+      "confirm": "تأكيد",
+      "search": "بحث...",
+      "filter": "تصفية",
+      "reset": "إعادة تعيين",
+      "apply": "تطبيق"
+    }
   }
 }
+
 

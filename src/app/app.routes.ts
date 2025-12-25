@@ -86,6 +86,14 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'permissions',
+        loadComponent: () => 
+          import('./features/permissions/permission-management.component')
+            .then(m => m.PermissionManagementComponent),
+        canActivate: [rhGuard],
+        title: 'Permission Management - PayZen'
       }
     ]
   },
@@ -105,11 +113,18 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: Dashboard, // Can be replaced with ExpertDashboard later
+        loadComponent: () => 
+          import('./features/expert/dashboard/expert-dashboard')
+            .then(m => m.ExpertDashboard),
+        title: 'Expert Dashboard - PayZen'
+      },
+      {
+        path: 'client-view',
+        component: Dashboard,
         data: { expertMode: true }
       },
       {
-        path: 'companies',
+        path: 'company',
         loadComponent: () => import('./features/company/company.component').then(m => m.CompanyComponent),
         data: { expertMode: true }
       },
@@ -119,9 +134,24 @@ export const routes: Routes = [
         data: { expertMode: true }
       },
       {
+        path: 'employees/create',
+        component: EmployeeCreatePage,
+        data: { expertMode: true }
+      },
+      {
         path: 'employees/:id',
         component: EmployeeProfile,
         canDeactivate: [unsavedChangesGuard],
+        data: { expertMode: true }
+      },
+      {
+        path: 'payroll/generate',
+        component: Dashboard, // Placeholder
+        data: { expertMode: true }
+      },
+      {
+        path: 'reports',
+        component: Dashboard, // Placeholder
         data: { expertMode: true }
       },
       {
@@ -155,6 +185,8 @@ export const routes: Routes = [
     redirectTo: '/app/profile',
     pathMatch: 'full'
   },
+
+
 
   // ============================================
   // FALLBACK

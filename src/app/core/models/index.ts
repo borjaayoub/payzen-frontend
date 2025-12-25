@@ -3,3 +3,6 @@ export * from './company.model';
 export * from './role.model';
 export * from './permission.model';
 export * from './employee.model';
+export * from './membership.model';
+export * from './audit-log.model';
+export * from './permission-management.model';

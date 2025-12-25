@@ -53,6 +53,9 @@ export class CompanyContextService {
   
   /** Check if current context is in Expert Mode */
   readonly isExpertMode = computed(() => this._currentContext()?.isExpertMode ?? false);
+
+  /** Check if expert is viewing a client company */
+  readonly isClientView = computed(() => this._currentContext()?.isClientView ?? false);
   
   /** Current company name */
   readonly companyName = computed(() => this._currentContext()?.companyName ?? null);
@@ -114,6 +117,8 @@ export class CompanyContextService {
       companyName: membership.companyName,
       role: membership.role,
       isExpertMode: membership.isExpertMode,
+      isClientView: false,
+      cabinetId: membership.isExpertMode ? membership.companyId : undefined,
       permissions: membership.permissions ?? [],
       selectedAt: new Date()
     };
@@ -124,6 +129,64 @@ export class CompanyContextService {
     if (navigate) {
       this.navigateToDashboard(membership.isExpertMode);
     }
+  }
+
+  /**
+   * Switch context to a specific client company (for Expert mode)
+   * Keeps the expert role but changes the active company
+   * @param company - The client company to switch to
+   */
+  switchToClientContext(company: { id: string, legalName: string }): void {
+    const current = this._currentContext();
+    if (!current || !current.isExpertMode) {
+      console.warn('Cannot switch to client context: Not in expert mode');
+      return;
+    }
+
+    const newContext: AppContext = {
+      ...current,
+      companyId: company.id,
+      companyName: company.legalName,
+      isClientView: true,
+      cabinetId: current.cabinetId || current.companyId, // Ensure cabinetId is preserved or set
+      // Keep existing role and permissions
+      selectedAt: new Date()
+    };
+
+    this._currentContext.set(newContext);
+    
+    // Navigate to the standard dashboard to view client data
+    this.router.navigate(['/expert/client-view']);
+  }
+
+  /**
+   * Reset context to the portfolio view (Cabinet context)
+   */
+  resetToPortfolioContext(): void {
+    const current = this._currentContext();
+    if (!current || !current.isExpertMode || !current.cabinetId) {
+      return;
+    }
+
+    // Find the original membership to restore correct name and details if needed
+    // For now, just resetting ID and flags is enough
+    const newContext: AppContext = {
+      ...current,
+      companyId: current.cabinetId,
+      // We might need to fetch the cabinet name if we don't have it stored separately
+      // But usually we can just keep the current name or look it up
+      // Let's try to find the membership
+      isClientView: false,
+      selectedAt: new Date()
+    };
+
+    // Try to restore company name from memberships
+    const membership = this._memberships().find(m => m.companyId === current.cabinetId);
+    if (membership) {
+      newContext.companyName = membership.companyName;
+    }
+
+    this._currentContext.set(newContext);
   }
 
   /**

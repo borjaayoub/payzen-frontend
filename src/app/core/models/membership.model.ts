@@ -23,6 +23,8 @@ export interface AppContext {
   companyName: string;
   role: string;
   isExpertMode: boolean;
+  isClientView?: boolean; // True if expert is viewing a client company
+  cabinetId?: string; // ID of the cabinet (if in expert mode)
   permissions: string[];
   selectedAt: Date;
 }

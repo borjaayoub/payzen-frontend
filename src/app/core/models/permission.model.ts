@@ -1,4 +1,5 @@
 // Permission types based on backend RBAC
+// Synced with backend /api/permissions
 export type Permission =
   // User permissions
   | 'READ_USERS'
@@ -8,17 +9,39 @@ export type Permission =
   | 'DELETE_USERS'
   // Role permissions
   | 'READ_ROLES'
-  | 'VIEW_ROLES'
-  | 'CREATE_ROLES'
-  | 'EDIT_ROLES'
-  | 'DELETE_ROLES'
-  // Add more permissions as needed
+  | 'VIEW_ROLE'
+  | 'CREATE_ROLE'
+  | 'EDIT_ROLE'
+  | 'DELETE_ROLE'
+  | 'ASSIGN_ROLES'
+  | 'REVOKE_ROLES'
+  // Permission permissions
+  | 'READ_PERMISSIONS'
+  | 'MANAGE_PERMISSIONS'
+  // Company permissions
   | 'READ_COMPANIES'
-  | 'EDIT_COMPANIES'
+  | 'VIEW_COMPANY'
+  | 'CREATE_COMPANY'
+  | 'EDIT_COMPANY'
+  | 'DELETE_COMPANY'
+  | 'VIEW_MANAGED_COMPANIES'
+  | 'VIEW_CABINET_EXPERTS'
+  | 'MANAGE_COMPANY_HIERARCHY'
+  // Employee permissions
   | 'READ_EMPLOYEES'
-  | 'EDIT_EMPLOYEES'
+  | 'VIEW_EMPLOYEE'
+  | 'CREATE_EMPLOYEE'
+  | 'EDIT_EMPLOYEE'
+  | 'DELETE_EMPLOYEE'
+  | 'VIEW_COMPANY_EMPLOYEES'
+  | 'VIEW_SUBORDINATES'
+  | 'MANAGE_EMPLOYEE_MANAGER'
+  // Payroll permissions (future)
   | 'READ_PAYROLL'
-  | 'EDIT_PAYROLL';
+  | 'CREATE_PAYROLL'
+  | 'EDIT_PAYROLL'
+  | 'VALIDATE_PAYROLL'
+  | 'DELETE_PAYROLL';
 
 // Permission check helper type
 export interface PermissionCheck {

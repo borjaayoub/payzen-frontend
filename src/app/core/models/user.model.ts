@@ -21,8 +21,9 @@ export interface User {
   firstName: string;
   lastName: string;
   role: UserRole;
+  roles?: string[];
   companyId?: string;
-  companyName?: string;           // Company name from backend
+  companyName?: string;           // Company name from backend (raison sociale)
   isCabinetExpert?: boolean;      // Expert mode flag from backend
   permissions?: string[];
 }

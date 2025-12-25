@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -8,6 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { TranslateModule } from '@ngx-translate/core';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
+import { DashboardService, EmployeeDashboardItem } from '@app/core/services/dashboard.service';
 
 interface MetricCard {
   title: string;
@@ -49,12 +50,19 @@ interface QuickAction {
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
   private readonly contextService = inject(CompanyContextService);
   private readonly router = inject(Router);
+  private readonly dashboardService = inject(DashboardService);
 
   // Route prefix based on current context mode
   readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
+
+  // Data signals
+  readonly totalEmployees = signal<number>(0);
+  readonly activeEmployees = signal<number>(0);
+  readonly employees = signal<EmployeeDashboardItem[]>([]);
+  readonly isLoading = signal<boolean>(true);
 
   // Quick actions with dynamic routes
   readonly quickActions = computed<QuickAction[]>(() => [
@@ -84,12 +92,12 @@ export class Dashboard {
     },
   ]);
 
-  // Metrics data
-  metrics: MetricCard[] = [
+  // Computed metrics based on real API data
+  readonly metrics = computed<MetricCard[]>(() => [
     {
       title: 'Total Employés',
-      value: '248',
-      change: '+12%',
+      value: this.totalEmployees().toString(),
+      change: '+12%', // TODO: Calculate from historical data when available
       changeType: 'increase',
       icon: 'pi-users',
       iconColor: 'text-blue-600',
@@ -97,7 +105,7 @@ export class Dashboard {
     },
     {
       title: 'Masse Salariale',
-      value: '1.2M MAD',
+      value: '1.2M MAD', // TODO: Get from payroll API when available
       change: '+8%',
       changeType: 'increase',
       icon: 'pi-wallet',
@@ -106,16 +114,63 @@ export class Dashboard {
     },
     {
       title: 'Paies en Attente',
-      value: '12',
+      value: '12', // TODO: Get from payroll API when available
       change: '-3%',
       changeType: 'decrease',
       icon: 'pi-clock',
       iconColor: 'text-orange-600',
       bgColor: 'bg-orange-100',
     },
-  ];
+  ]);
 
-  // Recent payslips
+  ngOnInit(): void {
+    this.loadEmployeeSummary();
+  }
+
+  loadEmployeeSummary(): void {
+    this.isLoading.set(true);
+    
+    this.dashboardService.getEmployeeSummary().subscribe({
+      next: (summary) => {
+        this.totalEmployees.set(summary.totalEmployees);
+        this.activeEmployees.set(summary.activeEmployees);
+        this.employees.set(summary.employees);
+        this.isLoading.set(false);
+        
+        // Update chart data based on real employee data
+        this.updateEmployeeDistribution(summary.employees);
+      },
+      error: (err) => {
+        console.error('Failed to load employee summary', err);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  updateEmployeeDistribution(employees: EmployeeDashboardItem[]): void {
+    // Count employees by contract type
+    const distribution: Record<string, number> = {};
+    
+    employees.forEach(emp => {
+      const type = emp.contractType || 'Unknown';
+      distribution[type] = (distribution[type] || 0) + 1;
+    });
+
+    // Update the chart
+    const labels = Object.keys(distribution);
+    const data = Object.values(distribution);
+    
+    this.employeeChartData.set({
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: ['#1A73E8', '#10B981', '#F59E0B', '#EF4444'],
+        hoverBackgroundColor: ['#1557B0', '#059669', '#D97706', '#B91C1C'],
+      }],
+    });
+  }
+
+  // Recent payslips - TODO: Get from payroll API when available
   recentPayslips: Payslip[] = [
     {
       id: '1',

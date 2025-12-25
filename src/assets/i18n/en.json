@@ -23,7 +23,21 @@
     "signedInAs": "Signed in as",
     "employees": "Employees",
     "payroll": "Payroll",
-    "reports": "Reports"
+    "reports": "Reports",
+    "permissions": "Permissions",
+    "userManagement": "User Management",
+    "backToPortfolio": "Back to Portfolio",
+    "portfolio": "Portfolio",
+    "leave": "Leave"
+  },
+  "expert": {
+    "activeClient": "Active Client",
+    "switchClient": "Switch Client",
+    "selectClient": "Select Company",
+    "portfolioView": "All Clients Overview",
+    "dashboard": {
+      "title": "Expert Dashboard"
+    }
   },
   "profile": {
     "title": "Profile",
@@ -552,7 +566,143 @@
     "en": "English",
     "ar": "Arabic",
     "fr": "French"
+  },
+  "expert": {
+    "dashboard": {
+      "title": "Expert Dashboard",
+      "subtitle": "Manage your client portfolio",
+      "recentActivity": "Recent Activity",
+      "viewAll": "View All"
+    }
+  },
+  "audit": {
+    "title": "Audit Log",
+    "search": "Search events...",
+    "eventType": "Event Type",
+    "dateRange": "Date Range",
+    "allEvents": "All Events",
+    "clearFilters": "Clear Filters",
+    "selectDateRange": "Select date range",
+    "selectEventTypes": "Select event types",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "noLogs": "No audit logs found",
+    "noLogsDescription": "There are no audit events recorded yet.",
+    "loading": "Loading audit logs...",
+    "error": "Failed to load audit logs",
+    "companyEvents": "Company Events",
+    "employeeEvents": "Employee Events",
+    "cabinetEvents": "Cabinet Events",
+    "eventTypes": {
+      "COMPANY_CREATED": "Company Created",
+      "COMPANY_UPDATED": "Company Updated",
+      "COMPANY_DELETED": "Company Deleted",
+      "COMPANY_ACTIVATED": "Company Activated",
+      "COMPANY_DEACTIVATED": "Company Deactivated",
+      "EMPLOYEE_CREATED": "Employee Created",
+      "EMPLOYEE_UPDATED": "Employee Updated",
+      "EMPLOYEE_DELETED": "Employee Deleted",
+      "EMPLOYEE_ACTIVATED": "Employee Activated",
+      "EMPLOYEE_DEACTIVATED": "Employee Deactivated",
+      "USER_LOGIN": "User Login",
+      "USER_LOGOUT": "User Logout",
+      "PERMISSION_GRANTED": "Permission Granted",
+      "PERMISSION_REVOKED": "Permission Revoked",
+      "ROLE_ASSIGNED": "Role Assigned",
+      "ROLE_REMOVED": "Role Removed",
+      "SETTINGS_CHANGED": "Settings Changed",
+      "PASSWORD_CHANGED": "Password Changed",
+      "PASSWORD_RESET": "Password Reset"
+    }
+  },
+  "permissions": {
+    "title": "Permission Management",
+    "subtitle": "Manage permissions, roles, and user assignments",
+    "userManagement": {
+      "title": "User Management",
+      "subtitle": "Assign roles to users in your company"
+    },
+    "tabs": {
+      "permissions": "Permissions",
+      "roles": "Roles",
+      "userRoles": "User Roles"
+    },
+    "permissions": {
+      "title": "Permissions",
+      "subtitle": "Define system permissions",
+      "create": "Create Permission",
+      "edit": "Edit Permission",
+      "delete": "Delete Permission",
+      "deleteConfirm": "Are you sure you want to delete this permission?",
+      "deleteSuccess": "Permission deleted successfully",
+      "deleteError": "Failed to delete permission",
+      "saveSuccess": "Permission saved successfully",
+      "saveError": "Failed to save permission",
+      "name": "Permission Name",
+      "namePlaceholder": "e.g., READ_USERS",
+      "nameHint": "Use UPPERCASE_SNAKE_CASE format",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe what this permission allows",
+      "actions": "Actions",
+      "noPermissions": "No permissions found",
+      "loading": "Loading permissions..."
+    },
+    "roles": {
+      "title": "Roles",
+      "subtitle": "Manage roles and their permissions",
+      "create": "Create Role",
+      "edit": "Edit Role",
+      "delete": "Delete Role",
+      "deleteConfirm": "Are you sure you want to delete this role?",
+      "deleteSuccess": "Role deleted successfully",
+      "deleteError": "Failed to delete role",
+      "saveSuccess": "Role saved successfully",
+      "saveError": "Failed to save role",
+      "name": "Role Name",
+      "namePlaceholder": "e.g., HR Manager",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe this role's responsibilities",
+      "permissions": "Permissions",
+      "permissionsCount": "{{count}} permission(s)",
+      "managePermissions": "Manage Permissions",
+      "assignPermissions": "Assign Permissions to {{roleName}}",
+      "selectPermissions": "Select permissions",
+      "permissionsSaveSuccess": "Role permissions updated successfully",
+      "permissionsSaveError": "Failed to update role permissions",
+      "actions": "Actions",
+      "noRoles": "No roles found",
+      "loading": "Loading roles..."
+    },
+    "userRoles": {
+      "title": "User Roles",
+      "subtitle": "Assign roles to users",
+      "user": "User",
+      "email": "Email",
+      "roles": "Roles",
+      "rolesCount": "{{count}} role(s)",
+      "assignRoles": "Assign Roles",
+      "manageRoles": "Manage Roles for {{userName}}",
+      "selectRoles": "Select roles",
+      "noRoles": "No roles assigned",
+      "saveSuccess": "User roles updated successfully",
+      "saveError": "Failed to update user roles",
+      "actions": "Actions",
+      "noUsers": "No users found",
+      "loading": "Loading users..."
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close",
+      "confirm": "Confirm",
+      "search": "Search...",
+      "filter": "Filter",
+      "reset": "Reset",
+      "apply": "Apply"
+    }
   }
-
 }
+
 

@@ -1,6 +1,57 @@
 <header class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
   <div class="flex items-center gap-4">
     <h1 class="text-xl font-semibold text-gray-800">{{ 'app.name' | translate }}</h1>
+
+    <!-- Company Selector (Expert Mode) -->
+    @if (showCompanySelector()) {
+      <div class="flex items-center gap-3 ml-4 pl-4 border-l border-gray-300">
+        <i class="pi pi-building text-sm text-(--primary)"></i>
+        <p-select
+          [options]="companyOptions()"
+          [ngModel]="selectedCompany()"
+          (onChange)="onCompanyChange($event.value)"
+          optionLabel="legalName"
+          dataKey="id"
+          [filter]="true"
+          filterBy="legalName,ice"
+          [placeholder]="'expert.selectClient' | translate"
+          [loading]="isLoadingCompanies()"
+          [style]="{'min-width': '280px'}">
+          <ng-template pTemplate="value" let-company>
+            @if (company) {
+              <div class="flex items-center gap-2">
+                @if (company.ice === 'PORTFOLIO') {
+                  <i class="pi pi-briefcase text-xs text-(--primary)"></i>
+                  <span class="font-semibold text-(--primary)">{{ company.legalName }}</span>
+                } @else {
+                  <i class="pi pi-building text-xs"></i>
+                  <span class="font-medium">{{ company.legalName }}</span>
+                }
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-company>
+            @if (company.ice === 'PORTFOLIO') {
+              <div class="flex items-center gap-2 py-2 px-1 border-b border-gray-200">
+                <i class="pi pi-briefcase text-sm text-(--primary)"></i>
+                <div>
+                  <div class="font-semibold text-(--primary)">{{ company.legalName }}</div>
+                  <div class="text-xs text-gray-500">{{ 'expert.portfolioView' | translate }}</div>
+                </div>
+              </div>
+            } @else {
+              <div class="flex items-center gap-2 py-1">
+                <i class="pi pi-building text-xs" [class.text-(--primary)]="company.id === companyId()"></i>
+                <div>
+                  <div class="font-medium" [class.text-(--primary)]="company.id === companyId()">{{ company.legalName }}</div>
+                  <div class="text-xs text-gray-500">{{ company.ice }}</div>
+                </div>
+              </div>
+            }
+          </ng-template>
+        </p-select>
+      </div>
+    }
   </div>
 
   <div class="flex items-center gap-4">

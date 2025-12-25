@@ -16,6 +16,7 @@ import { UserRole } from '@app/core/models/user.model';
 interface MenuItemConfig extends MenuItem {
   requiredRoles?: UserRole[];
   requiredPermissions?: string[];
+  modes?: ('expert' | 'standard' | 'expert-client')[];
 }
 
 @Component({
@@ -91,6 +92,7 @@ export class Sidebar {
   // === Company Context Info ===
   readonly currentCompanyName = this.contextService.companyName;
   readonly isExpertMode = this.contextService.isExpertMode;
+  readonly isClientView = this.contextService.isClientView;
   readonly hasMultipleMemberships = computed(() => this.contextService.memberships().length > 1);
 
   // === Computed Route Prefix based on mode ===
@@ -129,29 +131,96 @@ export class Sidebar {
 
   // === Menu Items Template (routes will be prefixed dynamically) ===
   private readonly menuItemsTemplate: MenuItemConfig[] = [
+    // ─────────────────────────────────────────────────────────────
+    // EXPERT PORTFOLIO VIEW (isExpertMode=true, isClientView=false)
+    // Shows: Portfolio Dashboard only
+    // ─────────────────────────────────────────────────────────────
     { 
-      label: 'nav.dashboard', 
-      icon: 'pi pi-home', 
+      label: 'nav.portfolio', 
+      icon: 'pi pi-briefcase', 
       routerLink: '/dashboard',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.ADMIN_PAYZEN]
+      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
+      modes: ['expert']
+    },
+
+    // ─────────────────────────────────────────────────────────────
+    // EXPERT CLIENT VIEW (isExpertMode=true, isClientView=true)
+    // Shows: Back to Portfolio, then RH Core items (Société, Salariés, Congés)
+    // ─────────────────────────────────────────────────────────────
+    {
+      label: 'nav.backToPortfolio',
+      icon: 'pi pi-arrow-left',
+      routerLink: '/dashboard', // Returns to Portfolio Dashboard
+      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
+      modes: ['expert-client']
     },
     { 
       label: 'nav.employees', 
       icon: 'pi pi-users', 
       routerLink: '/employees',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.CABINET, UserRole.ADMIN_PAYZEN]
+      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
+      modes: ['expert-client']
+    },
+    { 
+      label: 'nav.leave', 
+      icon: 'pi pi-calendar', 
+      routerLink: '/leave',
+      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
+      modes: ['expert-client']
     },
     { 
       label: 'nav.payroll', 
       icon: 'pi pi-wallet', 
       routerLink: '/payroll',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.CABINET, UserRole.ADMIN_PAYZEN]
+      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
+      modes: ['expert-client']
+    },
+    
+    // ─────────────────────────────────────────────────────────────
+    // STANDARD MODE (Regular company users)
+    // Shows: Dashboard, RH Core items, Reports, Permissions
+    // ─────────────────────────────────────────────────────────────
+    { 
+      label: 'nav.dashboard', 
+      icon: 'pi pi-home', 
+      routerLink: '/dashboard',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER, UserRole.EMPLOYEE],
+      modes: ['standard']
+    },
+    { 
+      label: 'nav.employees', 
+      icon: 'pi pi-users', 
+      routerLink: '/employees',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER],
+      modes: ['standard']
+    },
+    { 
+      label: 'nav.leave', 
+      icon: 'pi pi-calendar', 
+      routerLink: '/leave',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER, UserRole.EMPLOYEE],
+      modes: ['standard']
+    },
+    { 
+      label: 'nav.payroll', 
+      icon: 'pi pi-wallet', 
+      routerLink: '/payroll',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH],
+      modes: ['standard']
     },
     { 
       label: 'nav.reports', 
       icon: 'pi pi-chart-bar', 
       routerLink: '/reports',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.CABINET, UserRole.ADMIN_PAYZEN]
+      requiredRoles: [UserRole.ADMIN, UserRole.RH],
+      modes: ['standard']
+    },
+    { 
+      label: 'nav.userManagement', 
+      icon: 'pi pi-users', 
+      routerLink: '/permissions',
+      requiredRoles: [UserRole.ADMIN],
+      modes: ['standard']
     }
   ];
 
@@ -159,16 +228,36 @@ export class Sidebar {
   readonly menuItems = computed(() => {
     const user = this.currentUser();
     const prefix = this.routePrefix();
-    if (!user) return [];
+    const isExpert = this.isExpertMode();
+    const isClientView = this.isClientView();
+    
+    // Use context role if available, fallback to user role
+    // This ensures the role matches the selected membership context
+    const contextRole = this.contextService.role();
+    const effectiveRole = contextRole ?? user?.role;
+    
+    // Determine current mode
+    let currentMode: 'expert' | 'standard' | 'expert-client' = 'standard';
+    if (isExpert) {
+      currentMode = isClientView ? 'expert-client' : 'expert';
+    }
+
+    if (!user || !effectiveRole) return [];
 
     return this.menuItemsTemplate
       .filter(item => {
+        // 1. Check Mode
+        if (item.modes && !item.modes.includes(currentMode)) {
+          return false;
+        }
+
+        // 2. Check Role
         // If no role restrictions, show to everyone
         if (!item.requiredRoles || item.requiredRoles.length === 0) {
           return true;
         }
-        // Check if user's role is in the required roles
-        return item.requiredRoles.includes(user.role as UserRole);
+        // Check if effective role is in the required roles
+        return item.requiredRoles.includes(effectiveRole as UserRole);
       })
       .map(item => ({
         ...item,

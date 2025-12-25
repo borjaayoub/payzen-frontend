@@ -1,0 +1,19 @@
+::ng-deep .custom-timeline {
+  .p-timeline-event-opposite {
+    display: none;
+  }
+
+  .p-timeline-event-content {
+    width: 100%;
+  }
+
+  .p-timeline-event-separator {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .p-timeline-event-connector {
+    background-color: #e5e7eb;
+    width: 2px;
+  }
+}

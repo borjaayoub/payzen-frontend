@@ -208,8 +208,8 @@ export class AuthService {
         memberships.push({
           companyId: user.companyId,
           companyName: user.companyName || this.getCompanyNameFromUser(user),
-          role: user.role,
-          roleLabel: this.getRoleLabel(user.role),
+          role: UserRole.CABINET, // Use 'cabinet' role for expert mode context
+          roleLabel: this.getRoleLabel(UserRole.CABINET),
           isExpertMode: true,
           permissions: user.permissions
         });
@@ -243,11 +243,14 @@ export class AuthService {
   }
 
   /**
-   * Get company name from user (placeholder - should come from backend)
+   * Get company name from user or fallback to companyId
    */
   private getCompanyNameFromUser(user: User): string {
-    // For now, return a placeholder. In production, this should come from the backend.
-    return `Company #${user.companyId}`;
+    // Prefer companyName from backend, fallback to Company #ID if not available
+    if (user.companyName) {
+      return user.companyName;
+    }
+    return user.companyId ? `Company #${user.companyId}` : 'Unknown Company';
   }
 
   /**
@@ -475,6 +478,9 @@ export class AuthService {
     const rawCompanyId = userRaw?.companyId ?? userRaw?.CompanyId;
     const companyId = this.normalizeString(rawCompanyId) ?? fallbackUser?.companyId;
 
+    // Get companyName from backend response
+    const companyName = this.normalizeString(userRaw?.companyName ?? userRaw?.CompanyName) ?? fallbackUser?.companyName;
+
     // Get isCabinetExpert flag from backend response
     const isCabinetExpert = userRaw?.isCabinetExpert ?? userRaw?.IsCabinetExpert ?? false;
 
@@ -485,8 +491,10 @@ export class AuthService {
       firstName: this.normalizeString(userRaw?.firstName ?? userRaw?.FirstName) ?? '',
       lastName: this.normalizeString(userRaw?.lastName ?? userRaw?.LastName) ?? '',
       role: this.mapBackendRole(resolvedRole),
+      roles: rolesArray,
       employee_id: this.normalizeString(userRaw?.employeeId ?? userRaw?.EmployeeId),
       companyId,
+      companyName,
       isCabinetExpert,
       permissions
     };

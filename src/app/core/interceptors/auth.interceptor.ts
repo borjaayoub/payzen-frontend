@@ -12,6 +12,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   
   const token = authService.getToken();
   const companyId = contextService.companyId();
+  const isExpertMode = contextService.isExpertMode();
 
   // Skip adding headers for auth endpoints
   if (req.url.includes('/auth/login') || req.url.includes('/auth/register')) {
@@ -29,6 +30,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Add X-Company-Id header if context is selected
   if (companyId) {
     headers['X-Company-Id'] = companyId;
+  }
+
+  // Add X-Role-Context header
+  if (isExpertMode) {
+    headers['X-Role-Context'] = 'expert';
+  } else if (companyId) {
+    headers['X-Role-Context'] = 'standard';
   }
 
   // Clone request with new headers if we have any

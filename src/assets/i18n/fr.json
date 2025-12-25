@@ -23,7 +23,21 @@
     "signedInAs": "Connecté en tant que",
     "employees": "Employés",
     "payroll": "Paie",
-    "reports": "Rapports"
+    "reports": "Rapports",
+    "permissions": "Permissions",
+    "userManagement": "Gestion des Utilisateurs",
+    "backToPortfolio": "Retour au Portefeuille",
+    "portfolio": "Portefeuille",
+    "leave": "Congés"
+  },
+  "expert": {
+    "activeClient": "Client Actif",
+    "switchClient": "Changer de Client",
+    "selectClient": "Sélectionner une Entreprise",
+    "portfolioView": "Vue d'ensemble des clients",
+    "dashboard": {
+      "title": "Tableau de Bord Expert"
+    }
   },
   "dashboard": {
     "title": "Tableau de Bord",
@@ -537,6 +551,143 @@
     "en": "Anglais",
     "ar": "Arabe",
     "fr": "Français"
+  },
+  "expert": {
+    "dashboard": {
+      "title": "Tableau de Bord Expert",
+      "subtitle": "Gérez votre portefeuille clients",
+      "recentActivity": "Activité Récente",
+      "viewAll": "Voir Tout"
+    }
+  },
+  "audit": {
+    "title": "Journal d'Audit",
+    "search": "Rechercher des événements...",
+    "eventType": "Type d'événement",
+    "dateRange": "Plage de Dates",
+    "allEvents": "Tous les événements",
+    "clearFilters": "Effacer les Filtres",
+    "selectDateRange": "Sélectionner la plage de dates",
+    "selectEventTypes": "Sélectionner les types d'événements",
+    "startDate": "Date de Début",
+    "endDate": "Date de Fin",
+    "noLogs": "Aucun journal d'audit trouvé",
+    "noLogsDescription": "Aucun événement d'audit n'a encore été enregistré.",
+    "loading": "Chargement des journaux d'audit...",
+    "error": "Échec du chargement des journaux d'audit",
+    "companyEvents": "Événements de l'Entreprise",
+    "employeeEvents": "Événements des Employés",
+    "cabinetEvents": "Événements du Cabinet",
+    "eventTypes": {
+      "COMPANY_CREATED": "Entreprise Créée",
+      "COMPANY_UPDATED": "Entreprise Mise à Jour",
+      "COMPANY_DELETED": "Entreprise Supprimée",
+      "COMPANY_ACTIVATED": "Entreprise Activée",
+      "COMPANY_DEACTIVATED": "Entreprise Désactivée",
+      "EMPLOYEE_CREATED": "Employé Créé",
+      "EMPLOYEE_UPDATED": "Employé Mis à Jour",
+      "EMPLOYEE_DELETED": "Employé Supprimé",
+      "EMPLOYEE_ACTIVATED": "Employé Activé",
+      "EMPLOYEE_DEACTIVATED": "Employé Désactivé",
+      "USER_LOGIN": "Connexion Utilisateur",
+      "USER_LOGOUT": "Déconnexion Utilisateur",
+      "PERMISSION_GRANTED": "Permission Accordée",
+      "PERMISSION_REVOKED": "Permission Révoquée",
+      "ROLE_ASSIGNED": "Rôle Attribué",
+      "ROLE_REMOVED": "Rôle Retiré",
+      "SETTINGS_CHANGED": "Paramètres Modifiés",
+      "PASSWORD_CHANGED": "Mot de Passe Modifié",
+      "PASSWORD_RESET": "Réinitialisation du Mot de Passe"
+    }
+  },
+  "permissions": {
+    "title": "Gestion des Permissions",
+    "subtitle": "Gérer les permissions, rôles et affectations utilisateurs",
+    "userManagement": {
+      "title": "Gestion des Utilisateurs",
+      "subtitle": "Attribuer des rôles aux utilisateurs de votre entreprise"
+    },
+    "tabs": {
+      "permissions": "Permissions",
+      "roles": "Rôles",
+      "userRoles": "Rôles Utilisateurs"
+    },
+    "permissions": {
+      "title": "Permissions",
+      "subtitle": "Définir les permissions système",
+      "create": "Créer une Permission",
+      "edit": "Modifier la Permission",
+      "delete": "Supprimer la Permission",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette permission ?",
+      "deleteSuccess": "Permission supprimée avec succès",
+      "deleteError": "Échec de la suppression de la permission",
+      "saveSuccess": "Permission enregistrée avec succès",
+      "saveError": "Échec de l'enregistrement de la permission",
+      "name": "Nom de la Permission",
+      "namePlaceholder": "ex: READ_USERS",
+      "nameHint": "Utiliser le format UPPERCASE_SNAKE_CASE",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez ce que cette permission permet",
+      "actions": "Actions",
+      "noPermissions": "Aucune permission trouvée",
+      "loading": "Chargement des permissions..."
+    },
+    "roles": {
+      "title": "Rôles",
+      "subtitle": "Gérer les rôles et leurs permissions",
+      "create": "Créer un Rôle",
+      "edit": "Modifier le Rôle",
+      "delete": "Supprimer le Rôle",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce rôle ?",
+      "deleteSuccess": "Rôle supprimé avec succès",
+      "deleteError": "Échec de la suppression du rôle",
+      "saveSuccess": "Rôle enregistré avec succès",
+      "saveError": "Échec de l'enregistrement du rôle",
+      "name": "Nom du Rôle",
+      "namePlaceholder": "ex: Gestionnaire RH",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez les responsabilités de ce rôle",
+      "permissions": "Permissions",
+      "permissionsCount": "{{count}} permission(s)",
+      "managePermissions": "Gérer les Permissions",
+      "assignPermissions": "Attribuer des Permissions à {{roleName}}",
+      "selectPermissions": "Sélectionner des permissions",
+      "permissionsSaveSuccess": "Permissions du rôle mises à jour avec succès",
+      "permissionsSaveError": "Échec de la mise à jour des permissions du rôle",
+      "actions": "Actions",
+      "noRoles": "Aucun rôle trouvé",
+      "loading": "Chargement des rôles..."
+    },
+    "userRoles": {
+      "title": "Rôles Utilisateurs",
+      "subtitle": "Attribuer des rôles aux utilisateurs",
+      "user": "Utilisateur",
+      "email": "Email",
+      "roles": "Rôles",
+      "rolesCount": "{{count}} rôle(s)",
+      "assignRoles": "Attribuer des Rôles",
+      "manageRoles": "Gérer les Rôles pour {{userName}}",
+      "selectRoles": "Sélectionner des rôles",
+      "noRoles": "Aucun rôle attribué",
+      "saveSuccess": "Rôles utilisateur mis à jour avec succès",
+      "saveError": "Échec de la mise à jour des rôles utilisateur",
+      "actions": "Actions",
+      "noUsers": "Aucun utilisateur trouvé",
+      "loading": "Chargement des utilisateurs..."
+    },
+    "common": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "close": "Fermer",
+      "confirm": "Confirmer",
+      "search": "Rechercher...",
+      "filter": "Filtrer",
+      "reset": "Réinitialiser",
+      "apply": "Appliquer"
+    }
   }
 }
+
 

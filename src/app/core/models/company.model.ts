@@ -21,6 +21,10 @@ export interface Company {
   isActive: boolean;
   logoUrl?: string;
   rib?: string;                    // Bank account number
+  // Cabinet/Multi-company management fields
+  managedByCompanyId?: number;     // Cabinet comptable managing this company
+  managedByCompanyName?: string;   // Name of managing cabinet (enriched)
+  isCabinetExpert?: boolean;       // True if this company is a cabinet
   createdAt: Date;
   updatedAt: Date;
 }
