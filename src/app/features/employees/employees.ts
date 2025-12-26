@@ -152,11 +152,14 @@ export class EmployeesPage implements OnInit {
       searchQuery: this.searchQuery() || undefined,
       department: this.selectedDepartment() || undefined,
       status: this.selectedStatus() || undefined
+      ,companyId: this.contextService.companyId() ?? undefined
     };
 
     this.employeeService.getEmployees(filters).subscribe({
       next: (response: EmployeesResponse) => {
+        console.log('[EmployeesPage] API response:', response);
         this.employees.set(response.employees);
+        console.log('[EmployeesPage] mapped employees:', this.employees());
         this.stats.set({ total: response.total, active: response.active });
         this.departments.set([
           { label: 'Tous les départements', value: null },
