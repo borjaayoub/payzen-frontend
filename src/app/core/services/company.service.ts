@@ -73,9 +73,13 @@ export class CompanyService {
   readonly onCompanyUpdate$ = this.companyUpdated$.asObservable();
 
   getManagedCompanies(): Observable<Company[]> {
-    // The interceptor will inject X-Role-Context: expert
-    // The backend should return the list of companies managed by the expert
-    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies`).pipe(
+    // Use the expert's cabinet/company id to request only companies managed by that expert
+    const expertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
+    if (!expertId) {
+      return of([]);
+    }
+
+    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
       map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
   }
