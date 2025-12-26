@@ -52,7 +52,8 @@
       "totalEmployees": "إجمالي الموظفين",
       "pendingLeaves": "طلبات الإجازة المعلقة",
       "recentActivity": "النشاط الأخير",
-      "viewAll": "عرض الكل"
+      "viewAll": "عرض الكل",
+      "backToPortfolio": "العودة إلى المحفظة"
     }
   },
   "dashboard": {
@@ -275,6 +276,38 @@
       "noHistory": "لا يوجد سجل بعد",
       "noHistoryDescription": "ستظهر التغييرات على إعدادات شركتك هنا.",
       "loadError": "فشل تحميل السجل"
+    },
+    "departments": {
+      "title": "الأقسام",
+      "subtitle": "إدارة أقسام الشركة",
+      "add": "إضافة قسم",
+      "edit": "تعديل القسم",
+      "create": "إنشاء قسم",
+      "table": {
+        "name": "اسم القسم"
+      },
+      "fields": {
+        "name": "اسم القسم"
+      },
+      "placeholders": {
+        "name": "مثال: الموارد البشرية"
+      }
+    },
+    "jobPositions": {
+      "title": "المناصب الوظيفية",
+      "subtitle": "إدارة المناصب الوظيفية للشركة",
+      "add": "إضافة منصب",
+      "edit": "تعديل المنصب",
+      "create": "إنشاء منصب",
+      "table": {
+        "name": "اسم المنصب"
+      },
+      "fields": {
+        "name": "اسم المنصب"
+      },
+      "placeholders": {
+        "name": "مثال: مهندس برمجيات"
+      }
     }
   },
   "employees": {

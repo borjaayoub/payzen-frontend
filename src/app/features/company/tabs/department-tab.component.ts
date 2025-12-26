@@ -1,11 +1,177 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DepartmentService } from '../../../core/services/department.service';
+import { CompanyContextService } from '../../../core/services/companyContext.service';
+import { Department } from '../../../core/models/department.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-department-tab',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    ButtonModule,
+    TableModule,
+    DialogModule,
+    InputTextModule,
+    ToastModule,
+    ConfirmDialogModule
+  ],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './department-tab.component.html',
 })
-export class DepartmentTabComponent {}
+export class DepartmentTabComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private departmentService = inject(DepartmentService);
+  private contextService = inject(CompanyContextService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+  private translate = inject(TranslateService);
+
+  // Signals
+  departments = signal<Department[]>([]);
+  loading = signal(false);
+  dialogVisible = signal(false);
+  submitLoading = signal(false);
+  
+  // Form
+  departmentForm!: FormGroup;
+  isEditMode = false;
+  currentDepartmentId: number | null = null;
+
+  ngOnInit() {
+    this.initForm();
+    this.loadDepartments();
+  }
+
+  private initForm() {
+    this.departmentForm = this.fb.group({
+      departementName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(500)]]
+    });
+  }
+
+  loadDepartments() {
+    const companyId = this.contextService.companyId();
+    if (!companyId) return;
+
+    this.loading.set(true);
+    this.departmentService.getByCompany(Number(companyId)).subscribe({
+      next: (data) => {
+        this.departments.set(data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading departments', err);
+        this.loading.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load departments' });
+      }
+    });
+  }
+
+  openCreateDialog() {
+    this.isEditMode = false;
+    this.currentDepartmentId = null;
+    this.departmentForm.reset();
+    this.dialogVisible.set(true);
+  }
+
+  openEditDialog(department: Department) {
+    this.isEditMode = true;
+    this.currentDepartmentId = department.id;
+    this.departmentForm.patchValue({
+      departementName: department.departementName
+    });
+    this.dialogVisible.set(true);
+  }
+
+  saveDepartment() {
+    if (this.departmentForm.invalid) {
+      this.departmentForm.markAllAsTouched();
+      return;
+    }
+
+    const companyId = this.contextService.companyId();
+    if (!companyId) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Company ID not found' });
+      return;
+    }
+
+    this.submitLoading.set(true);
+    const payload = {
+      DepartementName: this.departmentForm.value.departementName,
+      CompanyId: this.isEditMode ? undefined : Number(companyId) // Only required for create
+    };
+
+    const request = this.isEditMode && this.currentDepartmentId
+      ? this.departmentService.update(this.currentDepartmentId, payload)
+      : this.departmentService.create({ ...payload, CompanyId: Number(companyId) });
+
+    request.subscribe({
+      next: (res) => {
+        this.submitLoading.set(false);
+        this.dialogVisible.set(false);
+        this.loadDepartments();
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: this.isEditMode ? 'Department updated' : 'Department created' 
+        });
+      },
+      error: (err: HttpErrorResponse) => {
+        this.submitLoading.set(false);
+        this.handleError(err);
+      }
+    });
+  }
+
+  confirmDelete(department: Department) {
+    this.confirmationService.confirm({
+      message: this.translate.instant('Are you sure you want to delete this department?'),
+      header: this.translate.instant('Confirmation'),
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.deleteDepartment(department.id);
+      }
+    });
+  }
+
+  private deleteDepartment(id: number) {
+    this.departmentService.delete(id).subscribe({
+      next: () => {
+        this.loadDepartments();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Department deleted' });
+      },
+      error: (err: HttpErrorResponse) => {
+        this.handleError(err);
+      }
+    });
+  }
+
+  private handleError(err: HttpErrorResponse) {
+    let detail = 'An error occurred';
+    
+    if (err.status === 409) {
+      detail = 'Department name already exists in this company';
+    } else if (err.status === 400) {
+      // Often used for validation or "cannot delete because used"
+      detail = err.error?.title || err.error?.message || 'Invalid request or resource in use';
+    } else if (err.status === 403) {
+      detail = 'Access denied';
+    } else if (err.status === 404) {
+      detail = 'Resource not found';
+    }
+
+    this.messageService.add({ severity: 'error', summary: 'Error', detail });
+  }
+}

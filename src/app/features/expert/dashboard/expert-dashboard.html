@@ -1,63 +1,4 @@
 <div class="p-6">
-  @if (isClientView()) {
-    <!-- Client Dashboard -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ currentCompanyName() }}</h1>
-        <p class="text-gray-500 mt-1">{{ 'dashboard.subtitle' | translate }}</p>
-      </div>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="card flex items-center p-4 shadow-sm border border-gray-200 rounded-lg bg-white">
-        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mr-4">
-          <i class="pi pi-users text-xl"></i>
-        </div>
-        <div>
-          <span class="block text-gray-500 text-sm font-medium">{{ 'expert.dashboard.totalEmployees' | translate }}</span>
-          <span class="block text-2xl font-bold text-gray-900">{{ clientEmployeeSummary()?.totalEmployees || 0 }}</span>
-        </div>
-      </div>
-      
-      <div class="card flex items-center p-4 shadow-sm border border-gray-200 rounded-lg bg-white">
-        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 mr-4">
-          <i class="pi pi-check-circle text-xl"></i>
-        </div>
-        <div>
-          <span class="block text-gray-500 text-sm font-medium">Active Employees</span>
-          <span class="block text-2xl font-bold text-gray-900">{{ clientEmployeeSummary()?.activeEmployees || 0 }}</span>
-        </div>
-      </div>
-
-      <div class="card flex items-center p-4 shadow-sm border border-gray-200 rounded-lg bg-white">
-        <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
-          <i class="pi pi-calendar text-xl"></i>
-        </div>
-        <div>
-          <span class="block text-gray-500 text-sm font-medium">{{ 'expert.dashboard.pendingLeaves' | translate }}</span>
-          <span class="block text-2xl font-bold text-gray-900">0</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Audit Log -->
-    <div class="card bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">
-          {{ 'expert.dashboard.recentActivity' | translate }}
-        </h2>
-        <button 
-          pButton
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          (click)="loadClientDashboard()">
-        </button>
-      </div>
-      <app-audit-log></app-audit-log>
-    </div>
-
-  } @else {
   <!-- Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
@@ -118,7 +59,7 @@
           pButton
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
-          (click)="loadClientCompanies()">
+          (click)="loadPortfolioDashboard()">
         </button>
       </div>
       <!-- Cabinet-wide audit log with 5 most recent items -->
@@ -231,5 +172,4 @@
       </ng-template>
     </p-table>
   </div>
-  }
 </div>
