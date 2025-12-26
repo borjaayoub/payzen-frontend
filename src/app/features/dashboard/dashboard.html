@@ -1,4 +1,18 @@
 <div class="flex flex-col gap-6 p-6">
+  <!-- Expert Navigation -->
+  @if (isExpertMode() && isClientView()) {
+    <div class="mb-2">
+      <button
+        pButton
+        type="button"
+        [label]="'expert.dashboard.backToPortfolio' | translate"
+        icon="pi pi-arrow-left"
+        class="p-button-text p-button-sm"
+        (click)="backToPortfolio()"
+      ></button>
+    </div>
+  }
+
   <!-- Header Section -->
   <div class="flex items-center justify-between">
     <div>

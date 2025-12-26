@@ -52,7 +52,8 @@
       "totalEmployees": "Total Employees",
       "pendingLeaves": "Pending Leave Requests",
       "recentActivity": "Recent Activity",
-      "viewAll": "View All"
+      "viewAll": "View All",
+      "backToPortfolio": "Back to Portfolio"
     }
   },
   "profile": {
@@ -395,6 +396,38 @@
       "noHistory": "No history yet",
       "noHistoryDescription": "Changes to your company settings will appear here.",
       "loadError": "Failed to load history"
+    },
+    "departments": {
+      "title": "Departments",
+      "subtitle": "Manage company departments",
+      "add": "Add Department",
+      "edit": "Edit Department",
+      "create": "Create Department",
+      "table": {
+        "name": "Department Name"
+      },
+      "fields": {
+        "name": "Department Name"
+      },
+      "placeholders": {
+        "name": "e.g. Human Resources"
+      }
+    },
+    "jobPositions": {
+      "title": "Job Positions",
+      "subtitle": "Manage company job positions",
+      "add": "Add Position",
+      "edit": "Edit Position",
+      "create": "Create Position",
+      "table": {
+        "name": "Position Name"
+      },
+      "fields": {
+        "name": "Position Name"
+      },
+      "placeholders": {
+        "name": "e.g. Software Engineer"
+      }
     }
   },
   "employees": {

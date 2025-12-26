@@ -52,7 +52,8 @@
       "totalEmployees": "Total Employés",
       "pendingLeaves": "Demandes de Congés en Attente",
       "recentActivity": "Activité Récente",
-      "viewAll": "Voir Tout"
+      "viewAll": "Voir Tout",
+      "backToPortfolio": "Retour au Portefeuille"
     }
   },
   "dashboard": {
@@ -380,6 +381,38 @@
       "noHistory": "Aucun historique",
       "noHistoryDescription": "Les modifications apportées à vos paramètres d'entreprise apparaîtront ici.",
       "loadError": "Échec du chargement de l'historique"
+    },
+    "departments": {
+      "title": "Départements",
+      "subtitle": "Gérez les départements de l'entreprise",
+      "add": "Ajouter un département",
+      "edit": "Modifier le département",
+      "create": "Créer un département",
+      "table": {
+        "name": "Nom du département"
+      },
+      "fields": {
+        "name": "Nom du département"
+      },
+      "placeholders": {
+        "name": "ex : Ressources Humaines"
+      }
+    },
+    "jobPositions": {
+      "title": "Postes",
+      "subtitle": "Gérez les postes de l'entreprise",
+      "add": "Ajouter un poste",
+      "edit": "Modifier le poste",
+      "create": "Créer un poste",
+      "table": {
+        "name": "Intitulé du poste"
+      },
+      "fields": {
+        "name": "Intitulé du poste"
+      },
+      "placeholders": {
+        "name": "ex : Développeur .NET"
+      }
     }
   },
   "employees": {

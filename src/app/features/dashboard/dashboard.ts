@@ -37,6 +37,7 @@ interface QuickAction {
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
     CommonModule,
     RouterModule,
@@ -55,8 +56,12 @@ export class Dashboard implements OnInit {
   private readonly router = inject(Router);
   private readonly dashboardService = inject(DashboardService);
 
+  // Context signals
+  readonly isExpertMode = this.contextService.isExpertMode;
+  readonly isClientView = this.contextService.isClientView;
+
   // Route prefix based on current context mode
-  readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
+  readonly routePrefix = computed(() => this.isExpertMode() ? '/expert' : '/app');
 
   // Data signals
   readonly totalEmployees = signal<number>(0);
@@ -282,5 +287,10 @@ export class Dashboard implements OnInit {
 
   getStatusLabel(status: string): string {
     return status === 'paid' ? 'Payé' : 'En attente';
+  }
+
+  backToPortfolio(): void {
+    this.contextService.resetToPortfolioContext();
+    this.router.navigate(['/expert/dashboard']);
   }
 }
