@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesResponse } from '@app/core/services/employee.service';
+import { Subscription } from 'rxjs';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 
 @Component({
@@ -38,7 +39,7 @@ import { CompanyContextService } from '@app/core/services/companyContext.service
   templateUrl: './employees.html',
   styleUrl: './employees.css'
 })
-export class EmployeesPage implements OnInit {
+export class EmployeesPage implements OnInit, OnDestroy {
   readonly searchQuery = signal('');
   readonly selectedDepartment = signal<string | null>(null);
   readonly selectedStatus = signal<string | null>(null);
@@ -130,6 +131,7 @@ export class EmployeesPage implements OnInit {
 
   // Route prefix based on current context mode
   private readonly contextService = inject(CompanyContextService);
+  private contextChangedSub?: Subscription;
   readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
 
   constructor(
@@ -138,7 +140,18 @@ export class EmployeesPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to company/context changes so employees reload when switching company in expert mode
+    this.contextChangedSub = this.contextService.contextChanged$.subscribe(({ companyId, isExpertMode }) => {
+      if (isExpertMode) {
+        this.loadEmployees();
+      }
+    });
+
     this.loadEmployees();
+  }
+
+  ngOnDestroy(): void {
+    this.contextChangedSub?.unsubscribe();
   }
 
   /**
@@ -151,12 +164,15 @@ export class EmployeesPage implements OnInit {
     const filters: EmployeeFilters = {
       searchQuery: this.searchQuery() || undefined,
       department: this.selectedDepartment() || undefined,
-      status: this.selectedStatus() || undefined
+      status: this.selectedStatus() || undefined,
+      companyId: this.contextService.companyId() ?? undefined
     };
 
     this.employeeService.getEmployees(filters).subscribe({
       next: (response: EmployeesResponse) => {
+        console.log('[EmployeesPage] API response:', response);
         this.employees.set(response.employees);
+        console.log('[EmployeesPage] mapped employees:', this.employees());
         this.stats.set({ total: response.total, active: response.active });
         this.departments.set([
           { label: 'Tous les départements', value: null },
