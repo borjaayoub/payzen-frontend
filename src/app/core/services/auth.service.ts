@@ -170,23 +170,39 @@ export class AuthService {
       error: null
     });
 
-    // Build memberships from login response
-    const memberships = this.buildMembershipsFromUser(response.user);
-    
-    // Set memberships in context service
-    this.contextService.setMemberships(memberships);
-    
-    // Navigate based on number of memberships
-    if (memberships.length > 1) {
-      // Multiple memberships - go to selection page
-      this.router.navigate(['/select-context']);
-    } else if (memberships.length === 1) {
-      // Single membership - auto-select and navigate
-      this.contextService.selectContext(memberships[0], true);
+    // Helper to set memberships and navigate
+    const proceedWithMemberships = (userWithName: User) => {
+      const memberships = this.buildMembershipsFromUser(userWithName as User);
+      this.contextService.setMemberships(memberships);
+
+      if (memberships.length > 1) {
+        this.router.navigate(['/select-context']);
+      } else if (memberships.length === 1) {
+        this.contextService.selectContext(memberships[0], true);
+      } else {
+        const defaultRoute = this.getRoleDefaultRoute(userWithName.role);
+        this.router.navigate([defaultRoute]);
+      }
+    };
+
+    // If backend did not provide companyName, try to fetch company details
+    if (!response.user.companyName && response.user.companyId) {
+      this.http.get<any>(`${environment.apiUrl}/companies/${response.user.companyId}`).subscribe({
+        next: (companyDto) => {
+          const name = companyDto?.companyName || companyDto?.legalName || companyDto?.name || `Company #${response.user.companyId}`;
+          response.user.companyName = name;
+          console.log('Fetched company name for user:', name);
+          this.storeUser(response.user);
+          this.currentUser.set(response.user);
+          proceedWithMemberships(response.user as User);
+        },
+        error: () => {
+          // Fallback if company fetch fails
+          proceedWithMemberships(response.user as User);
+        }
+      });
     } else {
-      // No memberships - go to default dashboard
-      const defaultRoute = this.getRoleDefaultRoute(response.user.role);
-      this.router.navigate([defaultRoute]);
+      proceedWithMemberships(response.user as User);
     }
   }
 
