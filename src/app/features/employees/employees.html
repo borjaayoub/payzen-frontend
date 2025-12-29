@@ -254,7 +254,7 @@
             <!-- Status -->
             <td class="px-6 py-4">
               <app-tag
-                [label]="getStatusLabel(employee.status)"
+                [label]="employee.statusName || employee.status"
                 [variant]="getStatusSeverity(employee.status)"
                 size="sm"
               ></app-tag>
