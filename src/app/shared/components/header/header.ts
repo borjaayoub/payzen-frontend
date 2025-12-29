@@ -146,6 +146,7 @@ export class Header implements OnInit {
     this.isLoadingCompanies.set(true);
     this.companyService.getManagedCompanies().subscribe({
       next: (companies) => {
+        console.log('[Header] loaded managed companies:', companies);
         this.clientCompanies.set(companies);
         this.isLoadingCompanies.set(false);
       },

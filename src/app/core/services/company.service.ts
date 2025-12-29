@@ -84,9 +84,8 @@ export class CompanyService {
     if (!expertId) {
       return of([]);
     }
-    // Based on available endpoints, we use /api/companies which should return 
-    // companies accessible to the current user (the expert)
-    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies`).pipe(
+
+    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
       map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
   }
@@ -110,7 +109,7 @@ export class CompanyService {
     const companyId = company.id || this.contextService.companyId() || this.authService.currentUser()?.companyId;
     
     if (!companyId) {
-      console.error('UpdateCompany: No company ID found');
+      console.log('UpdateCompany: No company ID found');
       return throwError(() => new Error('Company ID is required for update'));
     }
 
@@ -200,7 +199,7 @@ export class CompanyService {
   private mapDtoToCompany(dto: CompanyDto): Company {
     return {
       id: dto.id.toString(),
-      legalName: dto.companyName,
+      legalName: (dto as any).companyName || (dto as any).legalName || (dto as any).name || String(dto.id),
       ice: dto.iceNumber,
       rc: dto.rcNumber,
       cnss: dto.cnssNumber,
