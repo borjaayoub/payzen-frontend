@@ -15,6 +15,7 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [
     CommonModule, 
     FormsModule, 

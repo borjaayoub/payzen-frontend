@@ -16,6 +16,9 @@ import { Company } from '@app/core/models/company.model';
 import { AuditLogComponent } from '../../../shared/components/audit-log/audit-log.component';
 import { Subject, takeUntil } from 'rxjs';
 
+import { DialogModule } from 'primeng/dialog';
+import { ClientFormComponent } from '../components/client-form/client-form.component';
+
 @Component({
   selector: 'app-expert-dashboard',
   standalone: true,
@@ -30,7 +33,9 @@ import { Subject, takeUntil } from 'rxjs';
     IconFieldModule,
     InputIconModule,
     TooltipModule,
-    AuditLogComponent
+    AuditLogComponent,
+    DialogModule,
+    ClientFormComponent
   ],
   templateUrl: './expert-dashboard.html',
   styleUrl: './expert-dashboard.css'
@@ -49,6 +54,11 @@ export class ExpertDashboard implements OnInit, OnDestroy {
   readonly totalClients = signal<number>(0);
   readonly globalEmployeeCount = signal<number>(0);
   
+  // Dialog state
+  readonly isClientFormVisible = signal<boolean>(false);
+  readonly clientFormMode = signal<'create' | 'edit'>('create');
+  readonly selectedCompanyForEdit = signal<Company | undefined>(undefined);
+
   // Computed
   readonly totalEmployees = computed(() => 
     this.companies().reduce((acc, curr) => acc + (curr.employeeCount || 0), 0)
@@ -72,7 +82,8 @@ export class ExpertDashboard implements OnInit, OnDestroy {
 
   loadPortfolioDashboard(): void {
     this.loadClientCompanies();
-    this.loadDashboardSummary();
+    // Dashboard summary endpoint is currently not available in the backend
+    // this.loadDashboardSummary();
   }
 
   loadClientCompanies(): void {
@@ -125,5 +136,22 @@ export class ExpertDashboard implements OnInit, OnDestroy {
   onSearch(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchQuery.set(target.value);
+  }
+
+  openCreateClient(): void {
+    this.clientFormMode.set('create');
+    this.selectedCompanyForEdit.set(undefined);
+    this.isClientFormVisible.set(true);
+  }
+
+  openEditClient(company: Company): void {
+    this.clientFormMode.set('edit');
+    this.selectedCompanyForEdit.set(company);
+    this.isClientFormVisible.set(true);
+  }
+
+  onClientSaved(): void {
+    this.isClientFormVisible.set(false);
+    this.loadClientCompanies(); // Refresh list
   }
 }

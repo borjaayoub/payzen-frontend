@@ -64,9 +64,11 @@ export class CompanyInfoTabComponent implements OnInit, OnDestroy {
   readonly legalFields: FieldConfig[] = [
     { id: 'legalName', key: 'legalName', label: 'company.info.raisonSociale' },
     { id: 'ice', key: 'ice', label: 'company.info.ice' },
+    { id: 'if', key: 'if', label: 'company.info.identifiantFiscal' },
     { id: 'rc', key: 'rc', label: 'company.info.rc' },
     { id: 'patente', key: 'patente', label: 'company.info.patente' },
     { id: 'cnss', key: 'cnss', label: 'company.info.cnss' },
+    { id: 'rib', key: 'rib', label: 'company.info.rib' },
     { id: 'taxRegime', key: 'taxRegime', label: 'company.info.regimeFiscal' }
   ];
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,13 +10,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SkeletonModule } from 'primeng/skeleton';
+import { TooltipModule } from 'primeng/tooltip';
+import { ChipModule } from 'primeng/chip';
 import { AuditLogService } from '@app/core/services/audit-log.service';
 import { 
   AuditLogDisplayItem, 
   AuditLogFilter, 
-  AuditEventType,
-  CompanyAuditLog,
-  EmployeeAuditLog
+  AuditEventType
 } from '@app/core/models/audit-log.model';
 
 @Component({
@@ -33,12 +34,15 @@ import {
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    MultiSelectModule
+    MultiSelectModule,
+    SkeletonModule,
+    TooltipModule,
+    ChipModule
   ],
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.css'
 })
-export class AuditLogComponent implements OnInit {
+export class AuditLogComponent implements OnInit, OnChanges {
   private auditLogService = inject(AuditLogService);
 
   // Inputs
@@ -49,10 +53,13 @@ export class AuditLogComponent implements OnInit {
   // Signals
   readonly auditLogs = signal<AuditLogDisplayItem[]>([]);
   readonly isLoading = signal(false);
+  readonly hasError = signal(false);
+  readonly errorMessage = signal<string | null>(null);
   readonly searchQuery = signal('');
   readonly selectedEventTypes = signal<AuditEventType[]>([]);
   readonly startDate = signal<string | null>(null);
   readonly endDate = signal<string | null>(null);
+  readonly filtersExpanded = signal(false);
 
   // Computed
   readonly filteredLogs = computed(() => {
@@ -102,6 +109,16 @@ export class AuditLogComponent implements OnInit {
     return logs;
   });
 
+  readonly hasActiveFilters = computed(() => {
+    return this.searchQuery().length > 0 || 
+           this.selectedEventTypes().length > 0 || 
+           this.startDate() !== null || 
+           this.endDate() !== null;
+  });
+
+  readonly resultCount = computed(() => this.filteredLogs().length);
+  readonly totalCount = computed(() => this.auditLogs().length);
+
   // Event type options for filter dropdown
   readonly eventTypeOptions = [
     { label: 'Created', value: AuditEventType.COMPANY_CREATED },
@@ -113,12 +130,25 @@ export class AuditLogComponent implements OnInit {
     { label: 'User Role Revoked', value: AuditEventType.USER_ROLE_REVOKED }
   ];
 
+  getEventTypeLabel(type: AuditEventType): string {
+    return this.eventTypeOptions.find(opt => opt.value === type)?.label || type;
+  }
+
   ngOnInit(): void {
     this.loadAuditLogs();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes['companyId'] && !changes['companyId'].isFirstChange()) || 
+        (changes['employeeId'] && !changes['employeeId'].isFirstChange())) {
+      this.loadAuditLogs();
+    }
+  }
+
   loadAuditLogs(): void {
     this.isLoading.set(true);
+    this.hasError.set(false);
+    this.errorMessage.set(null);
 
     const filter: AuditLogFilter = {
       searchQuery: this.searchQuery() || undefined,
@@ -126,33 +156,38 @@ export class AuditLogComponent implements OnInit {
     };
 
     if (this.companyId) {
-      // Load company audit logs
+      // Load company history/audit logs
       this.auditLogService.getCompanyAuditLogs(this.companyId, filter).subscribe({
-        next: (logs: CompanyAuditLog[]) => {
-          const displayItems = logs.map(log => 
-            this.auditLogService.convertToDisplayItem(log, 'company', log.companyName || 'Unknown')
-          );
-          this.auditLogs.set(displayItems);
+        next: (logs: AuditLogDisplayItem[]) => {
+          this.auditLogs.set(logs);
           this.isLoading.set(false);
+          this.hasError.set(false);
         },
         error: (err) => {
           console.error('Failed to load company audit logs', err);
+          this.auditLogs.set([]);
           this.isLoading.set(false);
+          this.hasError.set(true);
+          this.errorMessage.set(err.message || 'Failed to load audit logs');
         }
       });
     } else if (this.employeeId) {
       // Load employee audit logs
       this.auditLogService.getEmployeeAuditLogs(this.employeeId, filter).subscribe({
-        next: (logs: EmployeeAuditLog[]) => {
-          const displayItems = logs.map(log => 
+        next: (logs) => {
+          const displayItems = logs.map((log, index) => 
             this.auditLogService.convertToDisplayItem(log, 'employee', log.employeeName || 'Unknown')
           );
           this.auditLogs.set(displayItems);
           this.isLoading.set(false);
+          this.hasError.set(false);
         },
         error: (err) => {
           console.error('Failed to load employee audit logs', err);
+          this.auditLogs.set([]);
           this.isLoading.set(false);
+          this.hasError.set(true);
+          this.errorMessage.set(err.message || 'Failed to load audit logs');
         }
       });
     } else {
@@ -161,10 +196,14 @@ export class AuditLogComponent implements OnInit {
         next: (logs) => {
           this.auditLogs.set(logs);
           this.isLoading.set(false);
+          this.hasError.set(false);
         },
         error: (err) => {
           console.error('Failed to load cabinet audit logs', err);
+          this.auditLogs.set([]);
           this.isLoading.set(false);
+          this.hasError.set(true);
+          this.errorMessage.set(err.message || 'Failed to load audit logs');
         }
       });
     }
@@ -206,6 +245,44 @@ export class AuditLogComponent implements OnInit {
       dateStyle: 'medium',
       timeStyle: 'short'
     }).format(new Date(date));
+  }
+
+  formatRelativeTime(date: Date): string {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'À l\'instant';
+    if (diffMins < 60) return `Il y a ${diffMins} min`;
+    if (diffHours < 24) return `Il y a ${diffHours}h`;
+    if (diffDays < 7) return `Il y a ${diffDays}j`;
+    
+    return this.formatDate(date);
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded.update(v => !v);
+  }
+
+  removeFilter(type: 'search' | 'eventType' | 'startDate' | 'endDate', value?: any): void {
+    switch (type) {
+      case 'search':
+        this.searchQuery.set('');
+        break;
+      case 'eventType':
+        this.selectedEventTypes.set([]);
+        break;
+      case 'startDate':
+        this.startDate.set(null);
+        this.loadAuditLogs();
+        break;
+      case 'endDate':
+        this.endDate.set(null);
+        this.loadAuditLogs();
+        break;
+    }
   }
 
   getSeverityClass(severity: string): string {

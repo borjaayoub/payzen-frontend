@@ -23,6 +23,8 @@ interface CompanyDto {
   iceNumber: string;
   rcNumber?: string;
   ifNumber?: string;
+  ribNumber?: string;
+  patente?: string;
   phoneNumber: string;
   email: string;
   createdAt: string;
@@ -40,6 +42,8 @@ interface CompanyUpdateDto {
   RcNumber?: string;
   Patente?: string;
   CnssNumber?: string;
+  IfNumber?: string;
+  RibNumber?: string;
   TaxRegime?: string;
 }
 
@@ -55,6 +59,8 @@ const COMPANY_FIELD_MAP: Partial<Record<keyof Company, keyof CompanyUpdateDto>> 
   rc: 'RcNumber',
   patente: 'Patente',
   cnss: 'CnssNumber',
+  if: 'IfNumber',
+  rib: 'RibNumber',
   taxRegime: 'TaxRegime'
 };
 
@@ -73,8 +79,13 @@ export class CompanyService {
   readonly onCompanyUpdate$ = this.companyUpdated$.asObservable();
 
   getManagedCompanies(): Observable<Company[]> {
-    // The interceptor will inject X-Role-Context: expert
-    // The backend should return the list of companies managed by the expert
+    // Use the expert's cabinet/company id to request only companies managed by that expert
+    const expertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
+    if (!expertId) {
+      return of([]);
+    }
+    // Based on available endpoints, we use /api/companies which should return 
+    // companies accessible to the current user (the expert)
     return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies`).pipe(
       map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
@@ -193,6 +204,9 @@ export class CompanyService {
       ice: dto.iceNumber,
       rc: dto.rcNumber,
       cnss: dto.cnssNumber,
+      if: dto.ifNumber,
+      rib: dto.ribNumber,
+      patente: dto.patente,
       address: dto.companyAddress,
       city: dto.cityName,
       country: dto.countryName || 'Maroc', // Default if missing

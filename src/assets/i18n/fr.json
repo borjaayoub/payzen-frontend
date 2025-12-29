@@ -44,6 +44,8 @@
     "selectCompanyRequired": "Sélection d'entreprise requise",
     "selectCompanyMessage": "Vous devez sélectionner une entreprise pour accéder à cette section.",
     "useHeaderDropdown": "Utilisez le menu déroulant dans l'en-tête pour sélectionner un client.",
+    "modeLabel": "Expert Cabinet",
+    "modeDescription": "Vous êtes actuellement en mode Expert",
     "dashboard": {
       "title": "Tableau de Bord Expert",
       "subtitle": "Vue d'ensemble de votre cabinet et de vos clients",
@@ -55,6 +57,19 @@
       "viewAll": "Voir Tout",
       "backToPortfolio": "Retour au Portefeuille"
     }
+  },
+  "profile": {
+    "title": "Profil",
+    "personalSettings": "Paramètres Personnels",
+    "appSettings": "Paramètres de l'Application",
+    "personalInfo": "Informations Personnelles",
+    "personalInfoDesc": "Gérez vos informations personnelles, mot de passe et coordonnées ici.",
+    "appPreferences": "Préférences de l'Application",
+    "appPreferencesDesc": "Personnalisez votre expérience d'application, les notifications et les paramètres d'affichage.",
+    "fullName": "Nom Complet",
+    "email": "Email",
+    "theme": "Thème",
+    "comingSoon": "Bientôt disponible"
   },
   "dashboard": {
     "title": "Tableau de Bord",
@@ -70,6 +85,22 @@
     "recentPayslips": {
       "title": "Bulletins Récents",
       "subtitle": "Documents de paie récents"
+    },
+    "quickActions": {
+      "title": "Actions Rapides",
+      "generatePayroll": "Générer les Paies",
+      "addEmployee": "Ajouter un Employé",
+      "viewReports": "Voir les Rapports",
+      "companySettings": "Paramètres Société"
+    },
+    "metrics": {
+      "totalEmployees": "Total Employés",
+      "payrollMass": "Masse Salariale",
+      "pendingPayrolls": "Paies en Attente"
+    },
+    "status": {
+      "paid": "Payé",
+      "pending": "En attente"
     }
   },
   "auth": {
@@ -168,6 +199,12 @@
       "continueEditing": "Continuer la saisie",
       "discard": "Ignorer les modifications",
       "save": "Enregistrer"
+    },
+    "time": {
+      "justNow": "À l'instant",
+      "minutesAgo": "Il y a {{count}} min",
+      "hoursAgo": "Il y a {{count}}h",
+      "daysAgo": "Il y a {{count}}j"
     }
   },
   "errors": {
@@ -603,23 +640,48 @@
   },
 
   "audit": {
-    "title": "Journal d'Audit",
-    "search": "Rechercher des événements...",
+    "title": "Historique",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher par description, champ ou utilisateur...",
     "eventType": "Type d'événement",
-    "dateRange": "Plage de Dates",
+    "dateRange": "Plage de dates",
     "allEvents": "Tous les événements",
-    "clearFilters": "Effacer les Filtres",
+    "clearFilters": "Effacer les filtres",
+    "clearAll": "Tout effacer",
+    "clearAllFilters": "Effacer tous les filtres actifs",
+    "activeFilters": "Filtres actifs",
     "selectDateRange": "Sélectionner la plage de dates",
     "selectEventTypes": "Sélectionner les types d'événements",
-    "startDate": "Date de Début",
-    "endDate": "Date de Fin",
-    "noLogs": "Aucun journal d'audit trouvé",
-    "noLogsDescription": "Aucun événement d'audit n'a encore été enregistré.",
-    "loading": "Chargement des journaux d'audit...",
-    "error": "Échec du chargement des journaux d'audit",
-    "companyEvents": "Événements de l'Entreprise",
-    "employeeEvents": "Événements des Employés",
-    "cabinetEvents": "Événements du Cabinet",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "from": "Du",
+    "to": "Au",
+    "noLogs": "Aucun historique trouvé",
+    "noLogsDescription": "Aucun événement n'a encore été enregistré.",
+    "noFilteredLogs": "Aucun événement correspondant",
+    "noFilteredLogsDescription": "Essayez d'ajuster vos filtres ou de les effacer.",
+    "loading": "Chargement de l'historique...",
+    "error": "Échec du chargement de l'historique",
+    "errorTitle": "Erreur de chargement",
+    "errorMessage": "Une erreur s'est produite lors du chargement de l'historique. Veuillez réessayer.",
+    "retry": "Réessayer",
+    "refresh": "Actualiser",
+    "refreshTooltip": "Actualiser la liste de l'historique",
+    "showFilters": "Filtres",
+    "hideFilters": "Masquer",
+    "showFiltersTooltip": "Afficher les options de filtre",
+    "hideFiltersTooltip": "Masquer les options de filtre",
+    "of": "sur",
+    "events": "événements",
+    "totalEvents": "événements au total",
+    "companyEvents": "Événements de l'entreprise",
+    "employeeEvents": "Événements des employés",
+    "cabinetEvents": "Événements du cabinet",
+    "oldValue": "Ancienne valeur",
+    "newValue": "Nouvelle valeur",
+    "noOldValue": "Pas de valeur précédente",
+    "noNewValue": "Pas de nouvelle valeur",
+    "empty": "vide",
     "eventTypes": {
       "COMPANY_CREATED": "Entreprise Créée",
       "COMPANY_UPDATED": "Entreprise Mise à Jour",

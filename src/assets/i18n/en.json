@@ -44,6 +44,8 @@
     "selectCompanyRequired": "Company Selection Required",
     "selectCompanyMessage": "You need to select a company to access this section.",
     "useHeaderDropdown": "Use the company dropdown in the header to select a client.",
+    "modeLabel": "Cabinet Expert",
+    "modeDescription": "You are currently in Expert Mode",
     "dashboard": {
       "title": "Expert Dashboard",
       "subtitle": "Overview of your cabinet and clients",
@@ -83,6 +85,22 @@
     "recentPayslips": {
       "title": "Recent Payslips",
       "subtitle": "Recent payroll documents"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "generatePayroll": "Generate Payroll",
+      "addEmployee": "Add Employee",
+      "viewReports": "View Reports",
+      "companySettings": "Company Settings"
+    },
+    "metrics": {
+      "totalEmployees": "Total Employees",
+      "payrollMass": "Payroll Mass",
+      "pendingPayrolls": "Pending Payrolls"
+    },
+    "status": {
+      "paid": "Paid",
+      "pending": "Pending"
     }
   },
   "auth": {
@@ -181,6 +199,12 @@
       "continueEditing": "Continue Editing",
       "discard": "Discard Changes",
       "save": "Save Changes"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} min ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
     }
   },
   "errors": {
@@ -619,22 +643,49 @@
 
   "audit": {
     "title": "Audit Log",
-    "search": "Search events...",
+    "search": "Search",
+    "searchPlaceholder": "Search by description, field, or user...",
     "eventType": "Event Type",
     "dateRange": "Date Range",
     "allEvents": "All Events",
     "clearFilters": "Clear Filters",
+    "clearAll": "Clear All",
+    "clearAllFilters": "Clear all active filters",
+    "activeFilters": "Active filters",
     "selectDateRange": "Select date range",
     "selectEventTypes": "Select event types",
     "startDate": "Start Date",
     "endDate": "End Date",
-    "noLogs": "No audit logs found",
-    "noLogsDescription": "There are no audit events recorded yet.",
-    "loading": "Loading audit logs...",
-    "error": "Failed to load audit logs",
+    "from": "From",
+    "to": "To",
+    "noLogs": "No history found",
+    "noLogsDescription": "There are no events recorded yet.",
+    "noFilteredLogs": "No matching events found",
+    "noFilteredLogsDescription": "Try adjusting your filters or clearing them.",
+    "noResults": "No results found",
+    "noResultsDescription": "Try adjusting your filters to see more results.",
+    "loading": "Loading history...",
+    "error": "Failed to load history",
+    "errorTitle": "Error Loading History",
+    "errorMessage": "An error occurred while loading the history. Please try again.",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "refreshTooltip": "Refresh the history list",
+    "showFilters": "Filters",
+    "hideFilters": "Hide",
+    "showFiltersTooltip": "Show filter options",
+    "hideFiltersTooltip": "Hide filter options",
+    "of": "of",
+    "events": "events",
+    "totalEvents": "total events",
     "companyEvents": "Company Events",
     "employeeEvents": "Employee Events",
     "cabinetEvents": "Cabinet Events",
+    "oldValue": "Old value",
+    "newValue": "New value",
+    "noOldValue": "No previous value",
+    "noNewValue": "No new value",
+    "empty": "empty",
     "eventTypes": {
       "COMPANY_CREATED": "Company Created",
       "COMPANY_UPDATED": "Company Updated",

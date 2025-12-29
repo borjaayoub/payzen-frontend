@@ -7,6 +7,7 @@ import {
   EmployeeAuditLog,
   CompanyAuditLogDto,
   EmployeeAuditLogDto,
+  CompanyHistoryDto,
   AuditLogFilter,
   AuditEventType,
   AuditLogDisplayItem
@@ -20,32 +21,71 @@ export class AuditLogService {
   private readonly apiUrl = `${environment.apiUrl}`;
 
   /**
-   * Fetch company audit logs
-   * Backend endpoint: GET /api/companies/{companyId}/audit-logs
-   * Note: Check backend for actual endpoint structure
+   * Fetch company history/audit logs
+   * Backend endpoint: GET /api/companies/{companyId}/history
    */
   getCompanyAuditLogs(
     companyId: number,
     filter?: AuditLogFilter
-  ): Observable<CompanyAuditLog[]> {
-    let params = new HttpParams();
-    
-    if (filter?.startDate) {
-      params = params.set('startDate', filter.startDate.toISOString());
-    }
-    if (filter?.endDate) {
-      params = params.set('endDate', filter.endDate.toISOString());
-    }
-    if (filter?.eventTypes?.length) {
-      params = params.set('eventTypes', filter.eventTypes.join(','));
-    }
-    if (filter?.createdBy) {
-      params = params.set('createdBy', filter.createdBy.toString());
-    }
-
+  ): Observable<AuditLogDisplayItem[]> {
     return this.http
-      .get<CompanyAuditLogDto[]>(`${this.apiUrl}/companies/${companyId}/audit-logs`, { params })
-      .pipe(map(dtos => dtos.map(dto => this.mapCompanyAuditLogDtoToModel(dto))));
+      .get<CompanyHistoryDto[]>(`${this.apiUrl}/companies/${companyId}/history`)
+      .pipe(map(dtos => dtos.map((dto, index) => this.mapHistoryDtoToDisplayItem(dto, companyId, index))));
+  }
+
+  /**
+   * Map backend history DTO to display item
+   * Note: Properties are camelCase due to camelCaseInterceptor
+   */
+  private mapHistoryDtoToDisplayItem(dto: CompanyHistoryDto, companyId: number, index: number): AuditLogDisplayItem {
+    const eventType = this.parseEventTypeFromTitle(dto.title);
+    const { icon, severity } = this.getEventMetadata(eventType);
+
+    // Format the field name for display (e.g., "Email_Changed" -> "Email")
+    const fieldName = dto.title?.replace('_Changed', '').replace('Changed', '').replace(/_/g, ' ') || '';
+
+    return {
+      id: index, // Use index as ID since backend doesn't provide one
+      type: dto.type === 'employee' ? 'employee' : 'company',
+      entityId: companyId,
+      entityName: fieldName, // The field that was changed
+      eventType,
+      description: dto.description || dto.title || 'Unknown event',
+      details: {
+        fieldName,
+        oldValue: dto.details?.oldValue ?? undefined,
+        newValue: dto.details?.newValue ?? undefined
+      },
+      timestamp: new Date(dto.timestamp),
+      actor: {
+        id: 0, // Backend doesn't provide user ID
+        name: dto.modifiedBy?.name || 'Unknown',
+        role: dto.modifiedBy?.role
+      },
+      icon: 'pi ' + icon, // Add 'pi ' prefix for PrimeNG icons
+      severity
+    };
+  }
+
+  /**
+   * Parse event type from backend title (e.g., "Email_Changed" -> COMPANY_UPDATED)
+   */
+  private parseEventTypeFromTitle(title: string): AuditEventType {
+    if (!title) return AuditEventType.OTHER;
+    
+    const lowerTitle = title.toLowerCase();
+    
+    if (lowerTitle.includes('created')) {
+      return AuditEventType.COMPANY_CREATED;
+    }
+    if (lowerTitle.includes('deleted')) {
+      return AuditEventType.COMPANY_DELETED;
+    }
+    if (lowerTitle.includes('changed') || lowerTitle.includes('updated')) {
+      return AuditEventType.COMPANY_UPDATED;
+    }
+    
+    return AuditEventType.OTHER;
   }
 
   /**

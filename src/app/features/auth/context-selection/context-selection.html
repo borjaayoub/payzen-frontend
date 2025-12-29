@@ -65,15 +65,15 @@
             <div class="absolute top-4 right-4">
               @if (membership.isExpertMode) {
                 <span 
-                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-100"
                   pTooltip="Access to expert features and multi-company management"
                   tooltipPosition="top">
-                  <i class="pi pi-star-fill text-[10px]" aria-hidden="true"></i>
+                  <i class="pi pi-briefcase text-[10px]" aria-hidden="true"></i>
                   {{ 'contextSelection.expertMode' | translate }}
                 </span>
               } @else {
                 <span 
-                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-medium bg-gray-50 text-gray-600 border border-gray-100"
                   pTooltip="Standard company access"
                   tooltipPosition="top">
                   <i class="pi pi-building text-[10px]" aria-hidden="true"></i>
@@ -86,18 +86,18 @@
             <div class="pt-8 sm:pt-6">
               <!-- Company Icon -->
               <div 
-                class="w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-300"
-                [class.bg-gradient-to-br]="true"
-                [class.from-blue-500]="!membership.isExpertMode"
-                [class.to-indigo-600]="!membership.isExpertMode"
-                [class.from-amber-500]="membership.isExpertMode"
-                [class.to-orange-600]="membership.isExpertMode"
-                [class.shadow-lg]="selectedCard() === getMembershipId(membership)"
-                [class.shadow-blue-300]="selectedCard() === getMembershipId(membership) && !membership.isExpertMode"
-                [class.shadow-amber-300]="selectedCard() === getMembershipId(membership) && membership.isExpertMode">
+                class="w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-all duration-300"
+                [class.bg-blue-50]="!membership.isExpertMode"
+                [class.text-blue-600]="!membership.isExpertMode"
+                [class.bg-purple-50]="membership.isExpertMode"
+                [class.text-purple-600]="membership.isExpertMode"
+                [class.ring-2]="selectedCard() === getMembershipId(membership)"
+                [class.ring-offset-2]="selectedCard() === getMembershipId(membership)"
+                [class.ring-blue-100]="selectedCard() === getMembershipId(membership) && !membership.isExpertMode"
+                [class.ring-purple-100]="selectedCard() === getMembershipId(membership) && membership.isExpertMode">
                 <i 
-                  class="pi text-2xl text-white"
-                  [class]="membership.isExpertMode ? 'pi-building-columns' : 'pi-building'"
+                  class="pi text-xl"
+                  [class]="membership.isExpertMode ? 'pi-briefcase' : 'pi-building'"
                   aria-hidden="true">
                 </i>
               </div>
@@ -113,8 +113,8 @@
                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium"
                   [class.bg-blue-50]="!membership.isExpertMode"
                   [class.text-blue-700]="!membership.isExpertMode"
-                  [class.bg-amber-50]="membership.isExpertMode"
-                  [class.text-amber-700]="membership.isExpertMode">
+                  [class.bg-purple-50]="membership.isExpertMode"
+                  [class.text-purple-700]="membership.isExpertMode">
                   <i class="pi text-xs" [class]="getRoleIcon(membership.role)" aria-hidden="true"></i>
                   {{ getRoleLabel(membership.role) }}
                 </span>

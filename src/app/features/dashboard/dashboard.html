@@ -19,14 +19,6 @@
       <h1 class="heading">{{ 'dashboard.title' | translate }}</h1>
       <p class="subheading mt-1">{{ 'dashboard.subtitle' | translate }}</p>
     </div>
-    <button
-      pButton
-      type="button"
-      [label]="'dashboard.newCompany' | translate"
-      icon="pi pi-building"
-      class="btn btn-primary"
-      (click)="openCompanySettings()"
-    ></button>
   </div>
 
   <!-- Metrics Grid -->
@@ -35,7 +27,7 @@
       <p-card styleClass="card h-full">
         <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
           <div class="flex-1">
-            <p class="text-sm text-(--text-secondary) mb-1">{{ metric.title }}</p>
+            <p class="text-sm text-(--text-secondary) mb-1">{{ metric.title | translate }}</p>
             <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ metric.value }}</h3>
             <div class="flex items-center gap-1 text-sm">
               <i
@@ -126,7 +118,7 @@
                 <p class="text-xs text-(--text-secondary)">{{ payslip.amount }}</p>
                 </div>
               <p-tag
-                [value]="getStatusLabel(payslip.status)"
+                [value]="getStatusLabel(payslip.status) | translate"
                 [severity]="getStatusSeverity(payslip.status)"
               ></p-tag>
               </div>
@@ -138,7 +130,7 @@
       <p-card styleClass="card h-full">
         <ng-template pTemplate="header">
           <div class="p-4 pb-0">
-            <h3 class="card-title text-base">Actions Rapides</h3>
+            <h3 class="card-title text-base">{{ 'dashboard.quickActions.title' | translate }}</h3>
           </div>
         </ng-template>
         <div class="flex flex-col gap-2">
@@ -150,7 +142,7 @@
               <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-(--primary-light) group-hover:bg-(--primary-light)/80 transition-colors">
                 <i [class]="'pi ' + action.icon + ' ' + action.iconColor"></i>
                 </div>
-              <span class="flex-1 text-sm font-medium text-(--text-primary)">{{ action.title }}</span>
+              <span class="flex-1 text-sm font-medium text-(--text-primary)">{{ action.title | translate }}</span>
               <i class="pi pi-chevron-right text-(--text-muted) text-xs"></i>
               </a>
             }

@@ -14,6 +14,12 @@ import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TimelineModule } from 'primeng/timeline';
+import { SkeletonModule } from 'primeng/skeleton';
+import { TooltipModule } from 'primeng/tooltip';
+import { ChipModule } from 'primeng/chip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { MultiSelectModule } from 'primeng/multiselect';
 import {
   EmployeeService,
   EmployeeFormData,
@@ -59,6 +65,12 @@ interface Document {
     AvatarModule,
     FileUploadModule,
     TimelineModule,
+    SkeletonModule,
+    TooltipModule,
+    ChipModule,
+    IconFieldModule,
+    InputIconModule,
+    MultiSelectModule,
     ChangeConfirmationDialog,
     UnsavedChangesDialog
   ],
@@ -218,6 +230,49 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   ]);
 
   readonly history = computed(() => this.employee().events || []);
+
+  // History tab state
+  readonly historySearchQuery = signal('');
+  readonly historyFiltersExpanded = signal(false);
+  readonly selectedHistoryTypes = signal<string[]>([]);
+  
+  // Computed filtered history
+  readonly filteredHistory = computed(() => {
+    let events = this.history();
+    const query = this.historySearchQuery().toLowerCase();
+    const types = this.selectedHistoryTypes();
+
+    // Text search
+    if (query) {
+      events = events.filter(event =>
+        event.title?.toLowerCase().includes(query) ||
+        event.description?.toLowerCase().includes(query) ||
+        event.modifiedBy?.name?.toLowerCase().includes(query)
+      );
+    }
+
+    // Type filter
+    if (types.length > 0) {
+      events = events.filter(event => types.includes(event.type));
+    }
+
+    return events;
+  });
+
+  readonly historyTotalCount = computed(() => this.history().length);
+  readonly historyResultCount = computed(() => this.filteredHistory().length);
+  readonly hasActiveHistoryFilters = computed(() =>
+    this.historySearchQuery() !== '' || this.selectedHistoryTypes().length > 0
+  );
+
+  readonly historyTypeOptions = [
+    { label: 'Salary Change', value: 'salary_change' },
+    { label: 'Salary Increase', value: 'salary_increase' },
+    { label: 'Position Change', value: 'position_change' },
+    { label: 'Address Updated', value: 'address_updated' },
+    { label: 'General Update', value: 'general_update' },
+    { label: 'Note', value: 'note' }
+  ];
 
   readonly maritalStatusOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['maritalStatus'] }> = [
     { id: 1, label: 'Single', value: 'single' },
@@ -830,6 +885,72 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       note: 'text-gray-600'
     };
     return colorMap[type] || 'text-gray-600';
+  }
+
+  // Enhanced history tab methods
+  getEventSeverityClass(type: string): string {
+    const classes: Record<string, string> = {
+      salary_increase: 'text-green-600 bg-green-50 border-green-200',
+      salary_change: 'text-green-600 bg-green-50 border-green-200',
+      position_change: 'text-blue-600 bg-blue-50 border-blue-200',
+      address_updated: 'text-amber-600 bg-amber-50 border-amber-200',
+      general_update: 'text-purple-600 bg-purple-50 border-purple-200',
+      note: 'text-gray-600 bg-gray-50 border-gray-200'
+    };
+    return classes[type] || 'text-gray-600 bg-gray-50 border-gray-200';
+  }
+
+  formatRelativeTime(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.round((now.getTime() - date.getTime()) / 1000);
+    const minutes = Math.round(seconds / 60);
+    const hours = Math.round(minutes / 60);
+    const days = Math.round(hours / 24);
+
+    if (seconds < 60) return this.translate.instant('common.time.justNow');
+    if (minutes < 60) return this.translate.instant('common.time.minutesAgo', { count: minutes });
+    if (hours < 24) return this.translate.instant('common.time.hoursAgo', { count: hours });
+    if (days < 7) return this.translate.instant('common.time.daysAgo', { count: days });
+    return this.formatHistoryDate(dateStr);
+  }
+
+  formatHistoryDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat('fr-FR', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(date);
+  }
+
+  getHistoryTooltipText(dateStr: string): string {
+    return this.formatHistoryDate(dateStr);
+  }
+
+  onHistorySearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.historySearchQuery.set(target.value);
+  }
+
+  onHistoryTypeChange(types: string[]): void {
+    this.selectedHistoryTypes.set(types);
+  }
+
+  clearHistoryFilters(): void {
+    this.historySearchQuery.set('');
+    this.selectedHistoryTypes.set([]);
+  }
+
+  removeHistoryFilter(filterType: 'searchQuery' | 'eventType'): void {
+    if (filterType === 'searchQuery') {
+      this.historySearchQuery.set('');
+    } else if (filterType === 'eventType') {
+      this.selectedHistoryTypes.set([]);
+    }
+  }
+
+  toggleHistoryFilters(): void {
+    this.historyFiltersExpanded.update(val => !val);
   }
 
   hasFormChanges(): boolean {

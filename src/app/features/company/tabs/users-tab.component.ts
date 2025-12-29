@@ -12,8 +12,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MenuModule } from 'primeng/menu';
 import { MessageService, MenuItem } from 'primeng/api';
+import { UserService } from '../../../core/services/user.service';
+import { User } from '../../../core/models/user.model';
+import { CompanyContextService } from '../../../core/services/companyContext.service';
 
-interface User {
+interface UserDisplay {
   id: string;
   name: string;
   email: string;
@@ -52,9 +55,11 @@ export class UsersTabComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
+  private readonly userService = inject(UserService);
+  private readonly contextService = inject(CompanyContextService);
 
   // State
-  users = signal<User[]>([]);
+  users = signal<UserDisplay[]>([]);
   loading = signal(false);
   inviteDialogVisible = signal(false);
   inviteLoading = signal(false);
@@ -65,7 +70,7 @@ export class UsersTabComponent implements OnInit {
 
   // Role options for select
   readonly roleOptions: RoleOption[] = [
-    { label: 'HR Manager', value: 'hr' },
+    { label: 'HR Manager', value: 'rh' },
     { label: 'Manager', value: 'manager' },
     { label: 'Viewer', value: 'viewer' }
   ];
@@ -92,20 +97,20 @@ export class UsersTabComponent implements OnInit {
   }
 
   /** Get avatar background color based on user name hash */
-  getAvatarBgColor(user: User): string {
+  getAvatarBgColor(user: UserDisplay): string {
     const index = this.getColorIndex(user.name);
     return this.avatarColors[index].bg;
   }
 
   /** Get avatar text color based on user name hash */
-  getAvatarTextColor(user: User): string {
+  getAvatarTextColor(user: UserDisplay): string {
     const index = this.getColorIndex(user.name);
     return this.avatarColors[index].text;
   }
 
   /** Get status badge classes */
-  getStatusClasses(status: User['status']): string {
-    const statusMap: Record<User['status'], string> = {
+  getStatusClasses(status: UserDisplay['status']): string {
+    const statusMap: Record<UserDisplay['status'], string> = {
       active: 'bg-green-100 text-green-700',
       pending: 'bg-amber-100 text-amber-700',
       inactive: 'bg-gray-100 text-gray-600'
@@ -114,8 +119,8 @@ export class UsersTabComponent implements OnInit {
   }
 
   /** Get status dot color class */
-  getStatusDotClass(status: User['status']): string {
-    const dotMap: Record<User['status'], string> = {
+  getStatusDotClass(status: UserDisplay['status']): string {
+    const dotMap: Record<UserDisplay['status'], string> = {
       active: 'bg-green-500',
       pending: 'bg-amber-500',
       inactive: 'bg-gray-400'
@@ -134,7 +139,7 @@ export class UsersTabComponent implements OnInit {
   }
 
   /** Get menu items for a specific user */
-  getUserMenuItems(user: User): MenuItem[] {
+  getUserMenuItems(user: UserDisplay): MenuItem[] {
     return [
       {
         label: this.translate.instant('company.users.actions.edit'),
@@ -177,24 +182,22 @@ export class UsersTabComponent implements OnInit {
 
     this.inviteLoading.set(true);
     const { email, role } = this.inviteForm.value;
+    const companyIdStr = this.contextService.companyId();
+    const companyId = companyIdStr ? Number(companyIdStr) : 0;
 
-    // Mock API call - replace with actual service
-    setTimeout(() => {
-      const newUser: User = {
-        id: crypto.randomUUID(),
-        name: email.split('@')[0],
-        email,
-        role: `user.role.${role}`,
-        status: 'pending',
-        initials: this.getInitials(email.split('@')[0]),
-        avatarColor: 'blue'
-      };
-
-      this.users.update(users => [...users, newUser]);
-      this.inviteLoading.set(false);
-      this.inviteDialogVisible.set(false);
-      this.showToast('success', 'Invitation Sent', `Invite sent to ${email}`);
-    }, 1000);
+    this.userService.inviteUser(email, role, companyId).subscribe({
+      next: () => {
+        this.inviteLoading.set(false);
+        this.inviteDialogVisible.set(false);
+        this.showToast('success', 'Invitation Sent', `Invite sent to ${email}`);
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error('Error sending invite:', err);
+        this.inviteLoading.set(false);
+        this.showToast('error', 'Error', 'Failed to send invitation');
+      }
+    });
   }
 
   private initForm() {
@@ -206,39 +209,27 @@ export class UsersTabComponent implements OnInit {
 
   private loadUsers() {
     this.loading.set(true);
-    // Mock data - replace with actual service call
-    setTimeout(() => {
-      this.users.set([
-        {
-          id: '1',
-          name: 'Fatima Benali',
-          email: 'fatima.rh@company.com',
-          role: 'user.role.hr',
-          status: 'active',
-          initials: 'FB',
-          avatarColor: 'blue'
-        },
-        {
-          id: '2',
-          name: 'Ahmed Alami',
-          email: 'ahmed.manager@company.com',
-          role: 'user.role.manager',
-          status: 'active',
-          initials: 'AA',
-          avatarColor: 'green'
-        },
-        {
-          id: '3',
-          name: 'Karim Tazi',
-          email: 'karim.tazi@company.com',
-          role: 'user.role.manager',
-          status: 'pending',
-          initials: 'KT',
-          avatarColor: 'orange'
-        }
-      ]);
-      this.loading.set(false);
-    }, 500);
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        const displayUsers: UserDisplay[] = users.map(u => ({
+          id: u.id,
+          name: `${u.firstName} ${u.lastName}`.trim() || u.username,
+          email: u.email,
+          role: `user.role.${u.role}`,
+          status: 'active', // Assuming active for now, backend might provide status
+          initials: this.getInitials(u.firstName ? `${u.firstName} ${u.lastName}` : u.username),
+          avatarColor: 'blue' // Default, will be overridden by getAvatarBgColor
+        }));
+        this.users.set(displayUsers);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading users:', err);
+        this.loading.set(false);
+        // Fallback to empty state or show error
+        this.showToast('error', 'Error', 'Failed to load users');
+      }
+    });
   }
 
   private getColorIndex(name: string): number {
@@ -255,25 +246,27 @@ export class UsersTabComponent implements OnInit {
       .slice(0, 2);
   }
 
-  private editUser(user: User) {
+  private editUser(user: UserDisplay) {
     // TODO: Implement edit functionality
     console.log('Edit user:', user);
   }
 
-  private toggleUserStatus(user: User) {
-    this.users.update(users =>
-      users.map(u =>
-        u.id === user.id
-          ? { ...u, status: u.status === 'active' ? 'inactive' as const : 'active' as const }
-          : u
-      )
-    );
-    this.showToast('success', 'Status Updated', `User status changed`);
+  private toggleUserStatus(user: UserDisplay) {
+    // TODO: Implement real API call
+    this.showToast('info', 'Not Implemented', 'This feature is not yet available on the backend');
   }
 
-  private removeUser(user: User) {
-    this.users.update(users => users.filter(u => u.id !== user.id));
-    this.showToast('info', 'User Removed', `${user.name} has been removed`);
+  private removeUser(user: UserDisplay) {
+    this.userService.deleteUser(user.id).subscribe({
+      next: () => {
+        this.users.update(users => users.filter(u => u.id !== user.id));
+        this.showToast('info', 'User Removed', `${user.name} has been removed`);
+      },
+      error: (err) => {
+        console.error('Error removing user:', err);
+        this.showToast('error', 'Error', 'Failed to remove user');
+      }
+    });
   }
 
   private showToast(severity: 'success' | 'error' | 'info', summary: string, detail: string) {

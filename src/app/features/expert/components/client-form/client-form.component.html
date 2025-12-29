@@ -1,0 +1,181 @@
+<div class="flex flex-col gap-6 p-4">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
+    
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-sm flex items-center gap-2">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Company Details Section -->
+    <div class="flex flex-col gap-6">
+      <div class="border-b border-gray-200 pb-2">
+        <h3 class="text-xl font-semibold text-gray-900">
+          {{ 'company.info.title' | translate }}
+        </h3>
+        <p class="text-sm text-gray-500 mt-1">Please provide the legal information for the company.</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+        <!-- Company Name -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.raisonSociale' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="companyName" class="w-full p-inputtext-sm" [class.ng-invalid]="form.get('companyName')?.invalid && form.get('companyName')?.touched"/>
+          @if (form.get('companyName')?.invalid && form.get('companyName')?.touched) {
+            <small class="text-red-500 text-xs">This field is required</small>
+          }
+        </div>
+
+        <!-- ICE -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.ice' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="ice" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- Email -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.email' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="email" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- Phone -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.phone' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="phone" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- CNSS -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.cnss' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="cnss" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- Address -->
+        <div class="flex flex-col gap-2 md:col-span-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.address' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="address" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- City -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.city' | translate }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input pInputText formControlName="city" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- RC -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            {{ 'company.info.rc' | translate }}
+          </label>
+          <input pInputText formControlName="rc" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- IF -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">IF</label>
+          <input pInputText formControlName="if" class="w-full p-inputtext-sm" />
+        </div>
+
+        <!-- RIB -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">RIB</label>
+          <input pInputText formControlName="rib" class="w-full p-inputtext-sm" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin User Section (Create Only) -->
+    @if (mode === 'create') {
+      <div class="flex flex-col gap-6 pt-4 border-t border-gray-100">
+        <div class="border-b border-gray-200 pb-2">
+          <h3 class="text-xl font-semibold text-gray-800">Admin User</h3>
+          <p class="text-sm text-gray-500 mt-1">Create an administrator account for this company.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+          <!-- First Name -->
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-gray-700">First Name <span class="text-red-500">*</span></label>
+            <input pInputText formControlName="adminFirstName" class="w-full p-inputtext-sm" />
+          </div>
+
+          <!-- Last Name -->
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-gray-700">Last Name <span class="text-red-500">*</span></label>
+            <input pInputText formControlName="adminLastName" class="w-full p-inputtext-sm" />
+          </div>
+
+          <!-- Admin Email -->
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-gray-700">Admin Email <span class="text-red-500">*</span></label>
+            <input pInputText formControlName="adminEmail" class="w-full p-inputtext-sm" />
+          </div>
+
+          <!-- Admin Phone -->
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-gray-700">Admin Phone <span class="text-red-500">*</span></label>
+            <input pInputText formControlName="adminPhone" class="w-full p-inputtext-sm" />
+          </div>
+
+          <!-- Password Generation -->
+          <div class="flex flex-col gap-3 md:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
+            <div class="flex items-center gap-2">
+              <p-checkbox formControlName="generatePassword" [binary]="true" inputId="genPass"></p-checkbox>
+              <label for="genPass" class="text-sm font-medium text-gray-700 cursor-pointer select-none">Auto-generate secure password</label>
+            </div>
+            
+            <!-- Manual Password (if not generated) -->
+            @if (!form.get('generatePassword')?.value) {
+              <div class="flex flex-col gap-2 mt-2 pl-7 animate-fade-in">
+                <label class="text-sm font-medium text-gray-700">Password</label>
+                <input pInputText type="password" formControlName="adminPassword" class="w-full p-inputtext-sm" placeholder="Enter password" />
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-200">
+      <button 
+        pButton 
+        type="button" 
+        label="Cancel" 
+        class="p-button-outlined p-button-secondary" 
+        (click)="onCancel()"
+        [disabled]="isLoading()">
+      </button>
+      <button 
+        pButton 
+        type="submit" 
+        [label]="mode === 'create' ? 'Create Client' : 'Save Changes'" 
+        class="p-button-primary"
+        [loading]="isLoading()">
+      </button>
+    </div>
+  </form>
+</div>

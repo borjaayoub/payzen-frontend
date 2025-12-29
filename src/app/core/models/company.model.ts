@@ -3,6 +3,7 @@ export interface Company {
   id: string;
   legalName: string;              // Raison sociale
   ice: string;                     // ICE number
+  if?: string;                     // Identifiant Fiscal
   rc?: string;                     // Registre de Commerce
   patente?: string;                // Patente
   cnss: string;                    // CNSS number

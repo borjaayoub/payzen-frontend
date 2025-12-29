@@ -751,28 +751,240 @@
             </div>
           </p-tabpanel>
 
-          <!-- Tab 7: Historique -->
+          <!-- Tab 7: Historique (Enhanced) -->
           <p-tabpanel value="6">
-            <div class="p-6">
-              <h3 class="section-title mb-6">{{ 'employees.profile.sections.history' | translate }}</h3>
+            <div class="p-6 history-container" role="region" aria-label="Employee history">
+              <!-- Header Section -->
+              <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                  <h3 class="section-title mb-1">{{ 'employees.profile.sections.history' | translate }}</h3>
+                  @if (!isLoadingProfile()) {
+                    <p class="text-sm text-(--text-secondary)">
+                      @if (hasActiveHistoryFilters()) {
+                        {{ historyResultCount() }} {{ 'audit.of' | translate }} {{ historyTotalCount() }} {{ 'audit.events' | translate }}
+                      } @else {
+                        {{ historyTotalCount() }} {{ 'audit.totalEvents' | translate }}
+                      }
+                    </p>
+                  }
+                </div>
+                <div class="flex items-center gap-2">
+                  <button 
+                    pButton 
+                    type="button" 
+                    [icon]="historyFiltersExpanded() ? 'pi pi-filter-slash' : 'pi pi-filter'" 
+                    [label]="historyFiltersExpanded() ? ('audit.hideFilters' | translate) : ('audit.showFilters' | translate)"
+                    class="p-button-outlined p-button-sm"
+                    (click)="toggleHistoryFilters()"
+                    [attr.aria-controls]="'history-filters-panel'"
+                    [attr.aria-expanded]="historyFiltersExpanded()"
+                    [title]="historyFiltersExpanded() ? ('audit.hideFiltersTooltip' | translate) : ('audit.showFiltersTooltip' | translate)"
+                    pTooltip="{{ historyFiltersExpanded() ? ('audit.hideFiltersTooltip' | translate) : ('audit.showFiltersTooltip' | translate) }}"
+                    tooltipPosition="top">
+                  </button>
+                </div>
+              </header>
 
-              <p-timeline [value]="history()" align="left">
-                <ng-template pTemplate="marker" let-event>
-                  <div [class]="'w-10 h-10 bg-(--bg-active) rounded-full flex items-center justify-center ' + getEventColor(event.type)">
-                    <i [class]="getEventIcon(event.type)"></i>
-                  </div>
-                </ng-template>
-                <ng-template pTemplate="content" let-event>
-                  <div class="pb-6">
-                    <div class="flex items-start justify-between mb-2">
-                      <h4 class="font-semibold text-(--text-primary)">{{ event.title }}</h4>
-                      <span class="text-xs text-(--text-muted)">{{ event.date }}</span>
+              <!-- Active Filters Display -->
+              @if (hasActiveHistoryFilters()) {
+                <div class="flex flex-wrap gap-2 mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200 animate-fade-in" role="status" aria-live="polite">
+                  <span class="font-medium text-blue-800 text-sm">{{ 'audit.activeFilters' | translate }}:</span>
+                  @if (historySearchQuery()) {
+                    <p-chip 
+                      [label]="('audit.search' | translate) + ': ' + historySearchQuery()"
+                      [removable]="true"
+                      (onRemove)="removeHistoryFilter('searchQuery')"
+                      styleClass="text-sm">
+                    </p-chip>
+                  }
+                  @if (selectedHistoryTypes().length > 0) {
+                    <p-chip 
+                      [label]="('audit.eventType' | translate) + ': ' + selectedHistoryTypes().join(', ')"
+                      [removable]="true"
+                      (onRemove)="removeHistoryFilter('eventType')"
+                      styleClass="text-sm">
+                    </p-chip>
+                  }
+                  <button 
+                    pButton 
+                    type="button" 
+                    [label]="'audit.clearAll' | translate"
+                    icon="pi pi-filter-slash" 
+                    class="p-button-text p-button-sm p-button-link"
+                    (click)="clearHistoryFilters()"
+                    [attr.aria-label]="'audit.clearAllFilters' | translate"
+                    [title]="'audit.clearAllFilters' | translate">
+                  </button>
+                </div>
+              }
+
+              <!-- Filters Panel -->
+              @if (historyFiltersExpanded()) {
+                <section 
+                  id="history-filters-panel"
+                  class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-slide-down"
+                  [attr.aria-expanded]="historyFiltersExpanded()">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Search Filter -->
+                    <div>
+                      <label 
+                        for="history-search-input" 
+                        class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'audit.search' | translate }}
+                      </label>
+                      <p-iconField iconPosition="left">
+                        <p-inputIcon styleClass="pi pi-search" aria-hidden="true"></p-inputIcon>
+                        <input 
+                          id="history-search-input"
+                          pInputText 
+                          type="text" 
+                          (input)="onHistorySearch($event)"
+                          [placeholder]="'audit.searchPlaceholder' | translate"
+                          [value]="historySearchQuery()"
+                          class="w-full input"
+                          aria-label="{{ 'audit.search' | translate }}" />
+                      </p-iconField>
                     </div>
-                    <p class="text-sm text-(--text-secondary) mb-1">{{ event.description }}</p>
-                    <p class="text-xs text-(--text-muted) italic">Par: {{ event.modifiedBy?.name }}</p>
+
+                    <!-- Event Type Filter -->
+                    <div>
+                      <label 
+                        for="history-type-select" 
+                        class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'audit.eventType' | translate }}
+                      </label>
+                      <p-multiSelect
+                        id="history-type-select"
+                        [options]="historyTypeOptions"
+                        [(ngModel)]="selectedHistoryTypes"
+                        (ngModelChange)="onHistoryTypeChange($event)"
+                        optionLabel="label"
+                        optionValue="value"
+                        [placeholder]="'audit.selectEventTypes' | translate"
+                        styleClass="w-full"
+                        [maxSelectedLabels]="2"
+                        aria-label="{{ 'audit.eventType' | translate }}">
+                      </p-multiSelect>
+                    </div>
                   </div>
-                </ng-template>
-              </p-timeline>
+                </section>
+              }
+
+              <!-- Loading State with Skeleton -->
+              @if (isLoadingProfile()) {
+                <div class="py-8 space-y-4" aria-live="polite" aria-atomic="true">
+                  <p-skeleton height="2rem" class="mb-4"></p-skeleton>
+                  <p-skeleton height="6rem" class="mb-4"></p-skeleton>
+                  <p-skeleton height="4rem" class="mb-4"></p-skeleton>
+                  <p-skeleton height="6rem"></p-skeleton>
+                </div>
+              }
+
+              <!-- Timeline Content -->
+              @else if (filteredHistory().length > 0) {
+                <p-timeline [value]="filteredHistory()" align="left" styleClass="custom-timeline">
+                  <ng-template pTemplate="marker" let-event>
+                    <div 
+                      [class]="'w-10 h-10 rounded-full flex items-center justify-center border-2 ' + getEventSeverityClass(event.type)"
+                      [title]="event.type">
+                      <i [class]="getEventIcon(event.type) + ' text-lg'" aria-hidden="true"></i>
+                    </div>
+                  </ng-template>
+                  
+                  <ng-template pTemplate="content" let-event>
+                    <article class="pb-6">
+                      <div class="card p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ease-in-out border border-(--border-color-subtle)">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2">
+                          <h4 class="font-semibold text-(--text-primary) text-base mb-1 sm:mb-0">{{ event.title }}</h4>
+                          <time 
+                            class="text-xs text-(--text-muted) whitespace-nowrap sm:ml-4" 
+                            [attr.datetime]="event.timestamp"
+                            pTooltip="{{ getHistoryTooltipText(event.timestamp || event.date) }}"
+                            tooltipPosition="top">
+                            {{ formatRelativeTime(event.timestamp || event.date) }}
+                          </time>
+                        </div>
+                        
+                        <p class="text-sm text-(--text-secondary) mb-2">{{ event.description }}</p>
+                        
+                        @if (event.details?.oldValue || event.details?.newValue) {
+                          <div class="mt-2 p-3 bg-(--bg-page) rounded-lg text-sm">
+                            <div class="flex items-center gap-2 flex-wrap">
+                              @if (event.details.oldValue) {
+                                <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs line-through"
+                                      [title]="'audit.oldValue' | translate">
+                                  {{ event.details.oldValue }}
+                                </span>
+                              } @else {
+                                <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs italic"
+                                      [title]="'audit.noOldValue' | translate">
+                                  ({{ 'audit.empty' | translate }})
+                                </span>
+                              }
+                              <i class="pi pi-arrow-right text-gray-400 text-xs" aria-hidden="true"></i>
+                              @if (event.details.newValue) {
+                                <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs"
+                                      [title]="'audit.newValue' | translate">
+                                  {{ event.details.newValue }}
+                                </span>
+                              } @else {
+                                <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs italic"
+                                      [title]="'audit.noNewValue' | translate">
+                                  ({{ 'audit.empty' | translate }})
+                                </span>
+                              }
+                            </div>
+                          </div>
+                        }
+                        
+                        <div class="flex items-center gap-2 mt-3 text-xs text-(--text-muted)">
+                          <i class="pi pi-user" aria-hidden="true"></i>
+                          <span class="font-medium">{{ event.modifiedBy?.name || 'Unknown' }}</span>
+                          @if (event.modifiedBy?.role) {
+                            <span class="text-gray-400">•</span>
+                            <span class="truncate max-w-xs" [title]="event.modifiedBy.role">{{ event.modifiedBy.role }}</span>
+                          }
+                        </div>
+                      </div>
+                    </article>
+                  </ng-template>
+                </p-timeline>
+              }
+
+              <!-- Empty State -->
+              @else {
+                <div class="text-center py-12 bg-(--bg-page) rounded-lg border border-dashed border-(--border-color-subtle) animate-fade-in" role="status">
+                  <div class="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="pi pi-history text-2xl text-gray-400" aria-hidden="true"></i>
+                  </div>
+                  <p class="text-sm text-(--text-secondary) font-medium mb-1">
+                    @if (hasActiveHistoryFilters()) {
+                      {{ 'audit.noFilteredLogs' | translate }}
+                    } @else {
+                      {{ 'audit.noLogs' | translate }}
+                    }
+                  </p>
+                  <p class="text-xs text-(--text-muted)">
+                    @if (hasActiveHistoryFilters()) {
+                      {{ 'audit.noFilteredLogsDescription' | translate }}
+                    } @else {
+                      {{ 'audit.noLogsDescription' | translate }}
+                    }
+                  </p>
+                  @if (hasActiveHistoryFilters()) {
+                    <button 
+                      pButton 
+                      type="button" 
+                      [label]="'audit.clearFilters' | translate"
+                      icon="pi pi-filter-slash" 
+                      class="p-button-text p-button-sm mt-4"
+                      (click)="clearHistoryFilters()"
+                      [attr.aria-label]="'audit.clearFilters' | translate"
+                      [title]="'audit.clearFilters' | translate">
+                    </button>
+                  }
+                </div>
+              }
             </div>
           </p-tabpanel>
         </p-tabpanels>

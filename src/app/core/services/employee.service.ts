@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
+import { CompanyContextService } from '@app/core/services/companyContext.service';
 
 export interface Employee {
   id: string;
@@ -23,6 +24,7 @@ export interface EmployeeFilters {
   department?: string;
   status?: string;
   contractType?: string;
+  companyId?: string | number;
   page?: number;
   limit?: number;
 }
@@ -249,6 +251,8 @@ export class EmployeeService {
   private readonly EMPLOYEE_URL = `${environment.apiUrl}/employee`;
   private readonly EMPLOYEE_SUMMARY_URL = `${environment.apiUrl}/employee/summary`;
 
+  private readonly contextService = inject(CompanyContextService);
+
   constructor(private http: HttpClient) {}
 
   private buildFilterParams(filters?: EmployeeFilters): HttpParams {
@@ -262,6 +266,12 @@ export class EmployeeService {
     if (filters.department) params = params.set('department', filters.department);
     if (filters.status) params = params.set('status', filters.status);
     if (filters.contractType) params = params.set('contractType', filters.contractType);
+    
+    // Always include companyId if provided to ensure data isolation
+    if (filters.companyId !== undefined && filters.companyId !== null) {
+      params = params.set('companyId', filters.companyId.toString());
+    }
+
     if (filters.page) params = params.set('page', filters.page.toString());
     if (filters.limit) params = params.set('limit', filters.limit.toString());
 
@@ -302,8 +312,14 @@ export class EmployeeService {
    * Backend endpoint: GET /api/employee/form-data
    */
   getEmployeeFormData(): Observable<EmployeeFormData> {
+    const companyId = this.contextService.companyId();
+    let params = new HttpParams();
+    if (companyId) {
+      params = params.set('companyId', String(companyId));
+    }
+
     return this.http
-      .get<EmployeeFormDataResponse>(`${this.EMPLOYEE_URL}/form-data`)
+      .get<EmployeeFormDataResponse>(`${this.EMPLOYEE_URL}/form-data`, { params })
       .pipe(map(response => this.mapEmployeeFormDataResponse(response)));
   }
 

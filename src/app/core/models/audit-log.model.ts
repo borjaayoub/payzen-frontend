@@ -108,6 +108,31 @@ export interface CompanyAuditLogDto {
 }
 
 /**
+ * DTO for company history response from backend
+ * GET /api/companies/{companyId}/history
+ * Note: Properties are camelCase due to camelCaseInterceptor
+ */
+export interface CompanyHistoryDto {
+  type: string;
+  title: string;
+  date: string;
+  description: string;
+  details: {
+    oldValue: string | null;
+    oldValueId: number | null;
+    newValue: string | null;
+    newValueId: number | null;
+    employeeId: number;
+    source: string;
+  };
+  modifiedBy: {
+    name: string;
+    role: string;
+  };
+  timestamp: string;
+}
+
+/**
  * DTO for fetching employee audit logs from API
  */
 export interface EmployeeAuditLogDto {

@@ -1,4 +1,5 @@
-import { Component, signal, computed, OnInit, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -130,6 +131,7 @@ export class EmployeesPage implements OnInit {
 
   // Route prefix based on current context mode
   private readonly contextService = inject(CompanyContextService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
 
   constructor(
@@ -138,7 +140,15 @@ export class EmployeesPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load data immediately
     this.loadEmployees();
+
+    // Subscribe to context changes to reload data
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadEmployees();
+      });
   }
 
   /**
@@ -151,7 +161,8 @@ export class EmployeesPage implements OnInit {
     const filters: EmployeeFilters = {
       searchQuery: this.searchQuery() || undefined,
       department: this.selectedDepartment() || undefined,
-      status: this.selectedStatus() || undefined
+      status: this.selectedStatus() || undefined,
+      companyId: this.contextService.companyId() ?? undefined
     };
 
     this.employeeService.getEmployees(filters).subscribe({

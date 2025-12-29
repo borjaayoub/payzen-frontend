@@ -1,6 +1,15 @@
-<header class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
+<header [class.expert-header]="isExpertMode()" class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
   <div class="flex items-center gap-4">
-    <h1 class="text-xl font-semibold text-gray-800">{{ 'app.name' | translate }}</h1>
+    <div class="flex items-center gap-2">
+      <h1 class="text-xl font-semibold text-gray-800">{{ 'app.name' | translate }}</h1>
+      
+      <!-- Subtle Expert Indicator -->
+      @if (isExpertMode()) {
+        <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-100 tracking-wide uppercase">
+          {{ 'expert.modeLabel' | translate }}
+        </span>
+      }
+    </div>
 
     <!-- Company Selector (Expert Mode - Always Visible) -->
     @if (showCompanySelector()) {
@@ -8,7 +17,7 @@
         <div class="flex items-center gap-2">
           <i class="pi pi-building text-sm text-(--primary)"></i>
           @if (!isClientView()) {
-            <span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+            <span class="text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
               {{ 'expert.noClientSelected' | translate }}
             </span>
           }

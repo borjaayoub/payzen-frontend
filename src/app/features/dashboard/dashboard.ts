@@ -1,4 +1,5 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -55,6 +56,7 @@ export class Dashboard implements OnInit {
   private readonly contextService = inject(CompanyContextService);
   private readonly router = inject(Router);
   private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Context signals
   readonly isExpertMode = this.contextService.isExpertMode;
@@ -72,25 +74,25 @@ export class Dashboard implements OnInit {
   // Quick actions with dynamic routes
   readonly quickActions = computed<QuickAction[]>(() => [
     {
-      title: 'Générer les Paies',
+      title: 'dashboard.quickActions.generatePayroll',
       icon: 'pi-calculator',
       route: `${this.routePrefix()}/payroll/generate`,
       iconColor: 'text-blue-600',
     },
     {
-      title: 'Ajouter un Employé',
+      title: 'dashboard.quickActions.addEmployee',
       icon: 'pi-user-plus',
       route: `${this.routePrefix()}/employees/create`,
       iconColor: 'text-green-600',
     },
     {
-      title: 'Voir les Rapports',
+      title: 'dashboard.quickActions.viewReports',
       icon: 'pi-chart-bar',
       route: `${this.routePrefix()}/reports`,
       iconColor: 'text-purple-600',
     },
     {
-      title: 'Paramètres Société',
+      title: 'dashboard.quickActions.companySettings',
       icon: 'pi-cog',
       route: `${this.routePrefix()}/company`,
       iconColor: 'text-gray-600',
@@ -100,7 +102,7 @@ export class Dashboard implements OnInit {
   // Computed metrics based on real API data
   readonly metrics = computed<MetricCard[]>(() => [
     {
-      title: 'Total Employés',
+      title: 'dashboard.metrics.totalEmployees',
       value: this.totalEmployees().toString(),
       change: '+12%', // TODO: Calculate from historical data when available
       changeType: 'increase',
@@ -109,7 +111,7 @@ export class Dashboard implements OnInit {
       bgColor: 'bg-blue-100',
     },
     {
-      title: 'Masse Salariale',
+      title: 'dashboard.metrics.payrollMass',
       value: '1.2M MAD', // TODO: Get from payroll API when available
       change: '+8%',
       changeType: 'increase',
@@ -118,7 +120,7 @@ export class Dashboard implements OnInit {
       bgColor: 'bg-green-100',
     },
     {
-      title: 'Paies en Attente',
+      title: 'dashboard.metrics.pendingPayrolls',
       value: '12', // TODO: Get from payroll API when available
       change: '-3%',
       changeType: 'decrease',
@@ -130,6 +132,13 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadEmployeeSummary();
+
+    // Subscribe to context changes to reload data
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadEmployeeSummary();
+      });
   }
 
   loadEmployeeSummary(): void {
@@ -286,7 +295,7 @@ export class Dashboard implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    return status === 'paid' ? 'Payé' : 'En attente';
+    return status === 'paid' ? 'dashboard.status.paid' : 'dashboard.status.pending';
   }
 
   backToPortfolio(): void {

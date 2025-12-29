@@ -44,6 +44,8 @@
     "selectCompanyRequired": "مطلوب اختيار شركة",
     "selectCompanyMessage": "تحتاج إلى اختيار شركة للوصول إلى هذا القسم.",
     "useHeaderDropdown": "استخدم القائمة المنسدلة للشركة في الرأس لاختيار عميل.",
+    "modeLabel": "خبير محاسب",
+    "modeDescription": "أنت حاليا في وضع الخبير",
     "dashboard": {
       "title": "لوحة تحكم الخبير",
       "subtitle": "نظرة عامة على مكتبك وعملائك",
@@ -55,6 +57,19 @@
       "viewAll": "عرض الكل",
       "backToPortfolio": "العودة إلى المحفظة"
     }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "personalSettings": "الإعدادات الشخصية",
+    "appSettings": "إعدادات التطبيق",
+    "personalInfo": "المعلومات الشخصية",
+    "personalInfoDesc": "قم بإدارة تفاصيلك الشخصية وكلمة المرور ومعلومات الاتصال هنا.",
+    "appPreferences": "تفضيلات التطبيق",
+    "appPreferencesDesc": "خصص تجربة التطبيق والإشعارات وإعدادات العرض.",
+    "fullName": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "theme": "المظهر",
+    "comingSoon": "قريباً"
   },
   "dashboard": {
     "title": "لوحة القيادة",
@@ -70,6 +85,22 @@
     "recentPayslips": {
       "title": "قسائم الراتب الأخيرة",
       "subtitle": "مستندات الرواتب الأخيرة"
+    },
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "generatePayroll": "إنشاء كشف الرواتب",
+      "addEmployee": "إضافة موظف",
+      "viewReports": "عرض التقارير",
+      "companySettings": "إعدادات الشركة"
+    },
+    "metrics": {
+      "totalEmployees": "إجمالي الموظفين",
+      "payrollMass": "كتلة الأجور",
+      "pendingPayrolls": "رواتب معلقة"
+    },
+    "status": {
+      "paid": "مدفوع",
+      "pending": "قيد الانتظار"
     }
   },
   "company": {
