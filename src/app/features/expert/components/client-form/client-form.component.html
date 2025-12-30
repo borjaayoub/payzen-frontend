@@ -1,171 +1,177 @@
-<div class="flex flex-col gap-6 p-4">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
+<div class="card">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
     
     <!-- Error Message -->
     @if (errorMessage()) {
-      <div class="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-sm flex items-center gap-2">
+      <div class="alert alert-error">
         <i class="pi pi-exclamation-circle"></i>
         <span>{{ errorMessage() }}</span>
       </div>
     }
 
     <!-- Company Details Section -->
-    <div class="flex flex-col gap-6">
-      <div class="border-b border-gray-200 pb-2">
-        <h3 class="text-xl font-semibold text-gray-900">
+    <section class="form-section">
+      <div class="form-section-header">
+        <h3 class="form-section-title">
           {{ 'company.info.title' | translate }}
         </h3>
-        <p class="text-sm text-gray-500 mt-1">Please provide the legal information for the company.</p>
+        <p class="form-section-description">Please provide the legal information for the company.</p>
       </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+      <div class="form-grid">
         <!-- Company Name -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field">
+          <label class="form-label form-label-required">
             {{ 'company.info.raisonSociale' | translate }}
-            <span class="text-red-500">*</span>
           </label>
-          <input pInputText formControlName="companyName" class="w-full p-inputtext-sm" [class.ng-invalid]="form.get('companyName')?.invalid && form.get('companyName')?.touched"/>
+          <input pInputText formControlName="companyName" class="input" [class.ng-invalid]="form.get('companyName')?.invalid && form.get('companyName')?.touched"/>
           @if (form.get('companyName')?.invalid && form.get('companyName')?.touched) {
-            <small class="text-red-500 text-xs">This field is required</small>
+            <small class="form-error">This field is required</small>
           }
         </div>
 
         <!-- ICE -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field">
+          <label class="form-label form-label-required">
             {{ 'company.info.ice' | translate }}
-            <span class="text-red-500">*</span>
           </label>
-          <input pInputText formControlName="ice" class="w-full p-inputtext-sm" />
+          <input pInputText formControlName="ice" class="input" />
         </div>
 
         <!-- Email -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field">
+          <label class="form-label form-label-required">
             {{ 'company.info.email' | translate }}
-            <span class="text-red-500">*</span>
           </label>
-          <input pInputText formControlName="email" class="w-full p-inputtext-sm" />
+          <input pInputText formControlName="email" class="input" />
         </div>
 
         <!-- Phone -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field">
+          <label class="form-label form-label-required">
             {{ 'company.info.phone' | translate }}
-            <span class="text-red-500">*</span>
           </label>
-          <input pInputText formControlName="phone" class="w-full p-inputtext-sm" />
+          <input pInputText formControlName="phone" class="input" />
         </div>
 
         <!-- CNSS -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field">
+          <label class="form-label form-label-required">
             {{ 'company.info.cnss' | translate }}
-            <span class="text-red-500">*</span>
           </label>
-          <input pInputText formControlName="cnss" class="w-full p-inputtext-sm" />
+          <input pInputText formControlName="cnss" class="input" />
         </div>
 
         <!-- Address -->
-        <div class="flex flex-col gap-2 md:col-span-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field-full">
+          <label class="form-label form-label-required">
             {{ 'company.info.address' | translate }}
-            <span class="text-red-500">*</span>
           </label>
-          <input pInputText formControlName="address" class="w-full p-inputtext-sm" />
+          <input pInputText formControlName="address" class="input" />
         </div>
 
         <!-- City -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
-            {{ 'company.info.city' | translate }}
-            <span class="text-red-500">*</span>
-          </label>
-          <input pInputText formControlName="city" class="w-full p-inputtext-sm" />
+        <div class="form-field">
+          <app-select-field
+            formControlName="city"
+            [label]="'company.info.city' | translate"
+            [requiredMark]="true"
+            [options]="cities()"
+            optionLabel="label"
+            optionValue="label"
+            variant="autocomplete"
+            [creatable]="true"
+            [createLabel]="'Create city'"
+            [placeholder]="'Type to search or create a city'"
+            [showClear]="true"
+            (searchQuery)="onCitySearch($event)"
+            (create)="onCreateCity($event)"
+          ></app-select-field>
         </div>
 
         <!-- RC -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">
+        <div class="form-field">
+          <label class="form-label">
             {{ 'company.info.rc' | translate }}
           </label>
-          <input pInputText formControlName="rc" class="w-full p-inputtext-sm" />
+          <input pInputText formControlName="rc" class="input" />
         </div>
 
         <!-- IF -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">IF</label>
-          <input pInputText formControlName="if" class="w-full p-inputtext-sm" />
+        <div class="form-field">
+          <label class="form-label">IF</label>
+          <input pInputText formControlName="if" class="input" />
         </div>
 
         <!-- RIB -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-700">RIB</label>
-          <input pInputText formControlName="rib" class="w-full p-inputtext-sm" />
+        <div class="form-field">
+          <label class="form-label">RIB</label>
+          <input pInputText formControlName="rib" class="input" />
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Admin User Section (Create Only) -->
     @if (mode === 'create') {
-      <div class="flex flex-col gap-6 pt-4 border-t border-gray-100">
-        <div class="border-b border-gray-200 pb-2">
-          <h3 class="text-xl font-semibold text-gray-800">Admin User</h3>
-          <p class="text-sm text-gray-500 mt-1">Create an administrator account for this company.</p>
+      <section class="form-section form-divider">
+        <div class="form-section-header">
+          <h3 class="form-section-title">Admin User</h3>
+          <p class="form-section-description">Create an administrator account for this company.</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+        <div class="form-grid">
           <!-- First Name -->
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-gray-700">First Name <span class="text-red-500">*</span></label>
-            <input pInputText formControlName="adminFirstName" class="w-full p-inputtext-sm" />
+          <div class="form-field">
+            <label class="form-label form-label-required">First Name</label>
+            <input pInputText formControlName="adminFirstName" class="input" />
           </div>
 
           <!-- Last Name -->
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-gray-700">Last Name <span class="text-red-500">*</span></label>
-            <input pInputText formControlName="adminLastName" class="w-full p-inputtext-sm" />
+          <div class="form-field">
+            <label class="form-label form-label-required">Last Name</label>
+            <input pInputText formControlName="adminLastName" class="input" />
           </div>
 
           <!-- Admin Email -->
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-gray-700">Admin Email <span class="text-red-500">*</span></label>
-            <input pInputText formControlName="adminEmail" class="w-full p-inputtext-sm" />
+          <div class="form-field">
+            <label class="form-label form-label-required">Admin Email</label>
+            <input pInputText formControlName="adminEmail" class="input" />
           </div>
 
           <!-- Admin Phone -->
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-gray-700">Admin Phone <span class="text-red-500">*</span></label>
-            <input pInputText formControlName="adminPhone" class="w-full p-inputtext-sm" />
+          <div class="form-field">
+            <label class="form-label form-label-required">Admin Phone</label>
+            <input pInputText formControlName="adminPhone" class="input" />
           </div>
 
           <!-- Password Generation -->
-          <div class="flex flex-col gap-3 md:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
-            <div class="flex items-center gap-2">
-              <p-checkbox formControlName="generatePassword" [binary]="true" inputId="genPass"></p-checkbox>
-              <label for="genPass" class="text-sm font-medium text-gray-700 cursor-pointer select-none">Auto-generate secure password</label>
-            </div>
-            
-            <!-- Manual Password (if not generated) -->
-            @if (!form.get('generatePassword')?.value) {
-              <div class="flex flex-col gap-2 mt-2 pl-7 animate-fade-in">
-                <label class="text-sm font-medium text-gray-700">Password</label>
-                <input pInputText type="password" formControlName="adminPassword" class="w-full p-inputtext-sm" placeholder="Enter password" />
+          <div class="form-field-full">
+            <div class="form-info-box-gray">
+              <div class="flex items-center gap-2">
+                <p-checkbox formControlName="generatePassword" [binary]="true" inputId="genPass"></p-checkbox>
+                <label for="genPass" class="form-label cursor-pointer select-none">Auto-generate secure password</label>
               </div>
-            }
+              
+              <!-- Manual Password (if not generated) -->
+              @if (!form.get('generatePassword')?.value) {
+                <div class="form-field mt-3 pl-7">
+                  <label class="form-label">Password</label>
+                  <input pInputText type="password" formControlName="adminPassword" class="input" placeholder="Enter password" />
+                </div>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     }
 
     <!-- Actions -->
-    <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-200">
+    <div class="form-actions">
       <button 
         pButton 
         type="button" 
         label="Cancel" 
-        class="p-button-outlined p-button-secondary" 
+        class="btn-secondary-outline" 
         (click)="onCancel()"
         [disabled]="isLoading()">
       </button>
@@ -173,7 +179,7 @@
         pButton 
         type="submit" 
         [label]="mode === 'create' ? 'Create Client' : 'Save Changes'" 
-        class="p-button-primary"
+        class="btn-primary"
         [loading]="isLoading()">
       </button>
     </div>

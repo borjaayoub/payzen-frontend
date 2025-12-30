@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TabsModule } from 'primeng/tabs';
-import { CompanyInfoTabComponent } from './tabs/company-info-tab.component';
-import { HrSettingsTabComponent } from './tabs/hr-settings-tab.component';
-import { DocumentsTabComponent } from './tabs/documents-tab.component';
-import { UsersTabComponent } from './tabs/users-tab.component';
-import { HistoryTabComponent } from './tabs/history-tab.component';
-import { DepartmentTabComponent } from './tabs/department-tab.component';
-import { JobPositionTabComponent } from './tabs/job-position-tab.component';
+import { CompanyInfoTabComponent } from './tabs/company-info-tab/company-info-tab.component';
+import { HrSettingsTabComponent } from './tabs/hr-settings-tab/hr-settings-tab.component';
+import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.component';
+import { UsersTabComponent } from './tabs/users-tab/users-tab.component';
+import { HistoryTabComponent } from './tabs/history-tab/history-tab.component';
+import { DepartmentTabComponent } from './tabs/department-tab/department-tab.component';
+import { JobPositionTabComponent } from './tabs/job-position-tab/job-position-tab.component';
+import { ContractTypeTabComponent } from './tabs/contract-type-tab/contract-type-tab.component';
+import { ReferenceDataTabComponent } from './tabs/reference-data-tab/reference-data-tab.component';
 
 @Component({
   selector: 'app-company',
@@ -23,7 +25,9 @@ import { JobPositionTabComponent } from './tabs/job-position-tab.component';
     UsersTabComponent,
     HistoryTabComponent,
     DepartmentTabComponent,
-    JobPositionTabComponent
+    JobPositionTabComponent,
+    ContractTypeTabComponent,
+    ReferenceDataTabComponent
   ],
   templateUrl: './company.html',
 })

@@ -89,7 +89,6 @@ export class CompanyService {
     }
 
     return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
-      tap(dtos => console.debug('[CompanyService] /companies/managedby raw DTOs:', dtos)),
       map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
   }

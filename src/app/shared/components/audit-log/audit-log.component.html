@@ -15,31 +15,17 @@
         </p>
       }
     </div>
-    <div class="flex items-center gap-2">
-      <button 
-        pButton 
-        type="button" 
-        icon="pi pi-refresh" 
-        [label]="'audit.refresh' | translate"
-        class="p-button-text p-button-sm"
-        (click)="refresh()"
-        [disabled]="isLoading()"
-        [attr.aria-label]="'audit.refresh' | translate"
-        [title]="'audit.refreshTooltip' | translate"
-        pTooltip="{{ 'audit.refreshTooltip' | translate }}">
-      </button>
-      <button 
-        pButton 
-        type="button" 
-        [icon]="filtersExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-        [label]="filtersExpanded() ? ('audit.hideFilters' | translate) : ('audit.showFilters' | translate)"
-        class="p-button-text p-button-sm"
-        (click)="toggleFilters()"
-        [attr.aria-expanded]="filtersExpanded()"
-        [attr.aria-controls]="'filters-panel'"
-        [title]="filtersExpanded() ? ('audit.hideFilters' | translate) : ('audit.showFilters' | translate)">
-      </button>
-    </div>
+    <button 
+      pButton 
+      type="button" 
+      [icon]="filtersExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+      [label]="filtersExpanded() ? ('audit.hideFilters' | translate) : ('audit.showFilters' | translate)"
+      class="p-button-text p-button-sm"
+      (click)="toggleFilters()"
+      [attr.aria-expanded]="filtersExpanded()"
+      [attr.aria-controls]="'filters-panel'"
+      [title]="filtersExpanded() ? ('audit.hideFilters' | translate) : ('audit.showFilters' | translate)">
+    </button>
   </header>
 
   <!-- Active Filter Chips -->
@@ -333,24 +319,13 @@
           {{ 'audit.noLogs' | translate }}
         }
       </h3>
-      <p class="text-sm text-gray-600 mb-3 max-w-md mx-auto">
+      <p class="text-sm text-gray-600 max-w-md mx-auto">
         @if (hasActiveFilters()) {
           {{ 'audit.noResultsDescription' | translate }}
         } @else {
           {{ 'audit.noLogsDescription' | translate }}
         }
       </p>
-      @if (hasActiveFilters()) {
-        <button 
-          pButton 
-          type="button" 
-          [label]="'audit.clearFilters' | translate"
-          icon="pi pi-filter-slash" 
-          class="p-button-outlined p-button-sm"
-          (click)="clearFilters()"
-          [attr.aria-label]="'audit.clearFilters' | translate">
-        </button>
-      }
     </div>
   }
 </div>

@@ -26,6 +26,7 @@ export interface User {
   companyName?: string;           // Company name from backend (raison sociale)
   isCabinetExpert?: boolean;      // Expert mode flag from backend
   permissions?: string[];
+  isActive?: boolean;             // Whether the user account is active
 }
 
 /**

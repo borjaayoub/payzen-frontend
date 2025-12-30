@@ -1,40 +1,53 @@
+/* Clean Minimal Select Field Design - Based on Modern Payment Form UI */
+
 .fc-field {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.5rem;
+  width: 100%;
 }
 
+/* Label Styling - Clean and Simple */
 .fc-label-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
 .fc-label {
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: #0F172A;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 .fc-required {
-  color: var(--danger);
+  color: #EF4444;
+  font-weight: 600;
 }
 
 .fc-hint {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  color: #64748B;
+  font-weight: 400;
 }
 
 .fc-description {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-top: -0.2rem;
+  font-size: 0.875rem;
+  color: #64748B;
+  line-height: 1.5;
+  margin-top: -0.125rem;
 }
 
+/* Select Container */
 .fc-control {
+  position: relative;
   display: flex;
   align-items: stretch;
 }
@@ -43,19 +56,243 @@
   width: 100%;
 }
 
+/* PrimeNG Select - Clean Minimal Style */
+.fc-select :deep(.p-select) {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.5rem;
+  background-color: #FFFFFF;
+  transition: all 0.15s ease;
+  box-shadow: none;
+}
+
+.fc-select :deep(.p-select:not(.p-disabled):hover) {
+  border-color: #CBD5E1;
+}
+
+.fc-select :deep(.p-select:not(.p-disabled).p-focus) {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
+}
+
+.fc-select :deep(.p-select .p-select-label) {
+  padding: 0 1rem;
+  font-size: 0.9375rem;
+  color: #0F172A;
+  line-height: 1.5;
+}
+
+.fc-select :deep(.p-select .p-select-label.p-placeholder) {
+  color: #94A3B8;
+}
+
+.fc-select :deep(.p-select .p-select-dropdown) {
+  width: 2.5rem;
+  color: #64748B;
+}
+
+/* Disabled State */
+.fc-select :deep(.p-select.p-disabled) {
+  background-color: #F8FAFC;
+  border-color: #E2E8F0;
+  opacity: 1;
+}
+
+.fc-select :deep(.p-select.p-disabled .p-select-label) {
+  color: #94A3B8;
+}
+
+/* AutoComplete - Clean Style */
+.fc-select :deep(.p-autocomplete) {
+  width: 100%;
+}
+
+.fc-select :deep(.p-autocomplete .p-autocomplete-input) {
+  width: 100%;
+  height: 48px;
+  padding: 0 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+  box-shadow: none;
+}
+
+.fc-select :deep(.p-autocomplete .p-autocomplete-input::placeholder) {
+  color: #94A3B8;
+}
+
+.fc-select :deep(.p-autocomplete .p-autocomplete-input:hover:not(:disabled)) {
+  border-color: #CBD5E1;
+}
+
+.fc-select :deep(.p-autocomplete .p-autocomplete-input:focus) {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
+}
+
+.fc-select :deep(.p-autocomplete .p-autocomplete-input:disabled) {
+  background-color: #F8FAFC;
+  border-color: #E2E8F0;
+  color: #94A3B8;
+}
+
+/* Error State */
+.fc-invalid .fc-select :deep(.p-select),
+.fc-select-invalid :deep(.p-select) {
+  border-color: #EF4444;
+  background-color: #FFFBFA;
+}
+
+.fc-invalid .fc-select :deep(.p-select:not(.p-disabled).p-focus),
+.fc-select-invalid :deep(.p-select:not(.p-disabled).p-focus) {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.05);
+}
+
+.fc-invalid .fc-select :deep(.p-autocomplete .p-autocomplete-input),
+.fc-select-invalid :deep(.p-autocomplete .p-autocomplete-input) {
+  border-color: #EF4444;
+  background-color: #FFFBFA;
+}
+
+.fc-invalid .fc-select :deep(.p-autocomplete .p-autocomplete-input:focus),
+.fc-select-invalid :deep(.p-autocomplete .p-autocomplete-input:focus) {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.05);
+}
+
+/* Error Messages */
 .fc-errors {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  font-size: 0.8rem;
-  color: var(--danger);
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  color: #EF4444;
+  line-height: 1.5;
+  padding-left: 0;
 }
 
-.fc-select.fc-select-invalid,
-.fc-invalid .fc-select {
-  border-color: var(--danger);
+.fc-errors span {
+  display: block;
 }
 
+/* Success State */
+.fc-success .fc-select :deep(.p-select) {
+  border-color: #10B981;
+  background-color: #FAFFFE;
+}
+
+.fc-success .fc-select :deep(.p-select:not(.p-disabled).p-focus) {
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.05);
+}
+
+/* Disabled Field */
 .fc-disabled {
-  opacity: 0.65;
+  opacity: 1;
+}
+
+.fc-disabled .fc-label {
+  color: #94A3B8;
+}
+
+/* Focus Label */
+.fc-field:focus-within .fc-label {
+  color: #3B82F6;
+}
+
+/* Dropdown Panel - Clean and Modern */
+:deep(.fc-select-panel) {
+  border: 1px solid #E2E8F0;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+              0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  margin-top: 0.25rem;
+  overflow: hidden;
+}
+
+:deep(.fc-select-panel .p-select-option) {
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  color: #0F172A;
+  transition: background-color 0.12s ease;
+}
+
+:deep(.fc-select-panel .p-select-option:hover) {
+  background-color: #F8FAFC;
+}
+
+:deep(.fc-select-panel .p-select-option.p-select-option-selected) {
+  background-color: #EFF6FF;
+  color: #3B82F6;
+  font-weight: 500;
+}
+
+:deep(.fc-select-panel .p-select-option:focus) {
+  background-color: #F8FAFC;
+  outline: none;
+}
+
+/* Filter Input */
+:deep(.fc-select-panel .p-select-filter-container) {
+  padding: 0.75rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+:deep(.fc-select-panel .p-select-filter) {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+:deep(.fc-select-panel .p-select-filter:focus) {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.05);
+}
+
+/* Create New Option Styling */
+:deep(.p-autocomplete-list .p-autocomplete-option[data-create-option]) {
+  border-top: 1px solid #F1F5F9;
+  background-color: #F8FAFC;
+  color: #3B82F6;
+  font-weight: 500;
+}
+
+:deep(.p-autocomplete-list .p-autocomplete-option[data-create-option]:hover) {
+  background-color: #EFF6FF;
+  color: #2563EB;
+}
+
+:deep(.p-autocomplete-list .p-autocomplete-option[data-create-option]::before) {
+  content: '+ ';
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .fc-select :deep(.p-select),
+  .fc-select :deep(.p-autocomplete .p-autocomplete-input) {
+    height: 52px;
+    font-size: 1rem;
+  }
+  
+  .fc-label {
+    font-size: 0.9375rem;
+  }
+  
+  :deep(.fc-select-panel .p-select-option) {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
 }

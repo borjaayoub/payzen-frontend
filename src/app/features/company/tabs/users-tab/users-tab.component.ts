@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -11,10 +11,12 @@ import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MenuModule } from 'primeng/menu';
+import { MessageModule } from 'primeng/message';
 import { MessageService, MenuItem } from 'primeng/api';
-import { UserService } from '../../../core/services/user.service';
-import { User } from '../../../core/models/user.model';
-import { CompanyContextService } from '../../../core/services/companyContext.service';
+import { UserService, AvailableEmployee } from '../../../../core/services/user.service';
+import { User } from '../../../../core/models/user.model';
+import { CompanyContextService } from '../../../../core/services/companyContext.service';
+import { Subscription } from 'rxjs';
 
 interface UserDisplay {
   id: string;
@@ -46,23 +48,27 @@ interface RoleOption {
     SelectModule,
     InputTextModule,
     ToastModule,
-    MenuModule
+    MenuModule,
+    MessageModule
   ],
   providers: [MessageService],
   templateUrl: './users-tab.component.html'
 })
-export class UsersTabComponent implements OnInit {
+export class UsersTabComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   private readonly userService = inject(UserService);
   private readonly contextService = inject(CompanyContextService);
+  private contextSub?: Subscription;
 
   // State
   users = signal<UserDisplay[]>([]);
+  availableEmployees = signal<AvailableEmployee[]>([]);
   loading = signal(false);
   inviteDialogVisible = signal(false);
   inviteLoading = signal(false);
+  loadingEmployees = signal(false);
   formSubmitted = false;
 
   // Forms
@@ -88,6 +94,17 @@ export class UsersTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadUsers();
+    
+    // Subscribe to company context changes to refresh users
+    this.contextSub = this.contextService.contextChanged$.subscribe(() => {
+      this.loadUsers();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.contextSub) {
+      this.contextSub.unsubscribe();
+    }
   }
 
   /** Check if a form field is invalid and should show error */
@@ -167,10 +184,29 @@ export class UsersTabComponent implements OnInit {
     this.inviteForm.reset();
     this.formSubmitted = false;
     this.inviteDialogVisible.set(true);
+    this.loadAvailableEmployees();
   }
 
   closeInviteDialog() {
     this.inviteDialogVisible.set(false);
+  }
+
+  /** Load employees without user accounts */
+  private loadAvailableEmployees() {
+    const companyId = this.contextService.companyId();
+    if (!companyId) return;
+
+    this.loadingEmployees.set(true);
+    this.userService.getAvailableEmployees(Number(companyId)).subscribe({
+      next: (employees) => {
+        this.availableEmployees.set(employees);
+        this.loadingEmployees.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading available employees:', err);
+        this.loadingEmployees.set(false);
+      }
+    });
   }
 
   sendInvite() {
@@ -181,15 +217,24 @@ export class UsersTabComponent implements OnInit {
     }
 
     this.inviteLoading.set(true);
-    const { email, role } = this.inviteForm.value;
+    const { employee, role } = this.inviteForm.value;
     const companyIdStr = this.contextService.companyId();
     const companyId = companyIdStr ? Number(companyIdStr) : 0;
+
+    // Use the selected employee's email
+    const email = employee?.email;
+    if (!email) {
+      this.showToast('error', 'Error', 'Please select an employee');
+      this.inviteLoading.set(false);
+      return;
+    }
 
     this.userService.inviteUser(email, role, companyId).subscribe({
       next: () => {
         this.inviteLoading.set(false);
         this.inviteDialogVisible.set(false);
-        this.showToast('success', 'Invitation Sent', `Invite sent to ${email}`);
+        this.showToast('success', this.translate.instant('company.users.inviteSuccess'), 
+          this.translate.instant('company.users.inviteSentTo', { name: employee.fullName }));
         this.loadUsers();
       },
       error: (err) => {
@@ -202,18 +247,25 @@ export class UsersTabComponent implements OnInit {
 
   private initForm() {
     this.inviteForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      employee: [null, Validators.required],
       role: ['', Validators.required]
+    });
+
+    // When employee is selected, auto-fill the email (for display purposes)
+    this.inviteForm.get('employee')?.valueChanges.subscribe(employee => {
+      // Employee object is selected directly
     });
   }
 
   private loadUsers() {
-    this.loading.set(true);
-    const companyIdStr = this.contextService.companyId();
-    const companyId = companyIdStr ? Number(companyIdStr) : undefined;
-    console.log('[UsersTab] loading users for companyId:', companyId);
+    const companyId = this.contextService.companyId();
+    if (!companyId) {
+      this.showToast('error', 'Error', 'Company not selected');
+      return;
+    }
 
-    this.userService.getUsers(companyId).subscribe({
+    this.loading.set(true);
+    this.userService.getUsers().subscribe({
       next: (users) => {
         // Backend may ignore companyId; apply client-side filter as a fallback
         const beforeCount = users?.length ?? 0;
@@ -225,7 +277,7 @@ export class UsersTabComponent implements OnInit {
           name: `${u.firstName} ${u.lastName}`.trim() || u.username,
           email: u.email,
           role: `user.role.${u.role}`,
-          status: 'active', // Assuming active for now, backend might provide status
+          status: u.isActive ? 'active' : 'inactive',
           initials: this.getInitials(u.firstName ? `${u.firstName} ${u.lastName}` : u.username),
           avatarColor: 'blue' // Default, will be overridden by getAvatarBgColor
         }));
