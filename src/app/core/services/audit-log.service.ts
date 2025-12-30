@@ -123,100 +123,47 @@ export class AuditLogService {
    * Note: This endpoint may need to be created on backend
    */
   getCabinetAuditLogs(filter?: AuditLogFilter): Observable<AuditLogDisplayItem[]> {
-    // Mock data for demonstration
-    const mockLogs: AuditLogDisplayItem[] = [
-      {
-        id: 1,
-        type: 'company',
-        entityId: 101,
-        entityName: 'TechCorp',
-        eventType: AuditEventType.COMPANY_UPDATED,
-        description: 'Company settings updated',
-        details: { fieldName: 'Tax ID', oldValue: 'OLD-123', newValue: 'NEW-456' },
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 mins ago
-        actor: { id: 1, name: 'John Doe', role: 'Admin' },
-        icon: 'pi pi-pencil',
-        severity: 'info'
-      },
-      {
-        id: 2,
-        type: 'employee',
-        entityId: 205,
-        entityName: 'Alice Smith',
-        eventType: AuditEventType.EMPLOYEE_CREATED,
-        description: 'New employee onboarded',
-        details: { fieldName: 'Status', newValue: 'Active' },
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        actor: { id: 2, name: 'Jane Manager', role: 'HR' },
-        icon: 'pi pi-plus-circle',
-        severity: 'success'
-      },
-      {
-        id: 3,
-        type: 'company',
-        entityId: 102,
-        entityName: 'BizSolutions',
-        eventType: AuditEventType.COMPANY_DELEGATION_ADDED,
-        description: 'Access delegated to external accountant',
-        details: { fieldName: 'Delegation', newValue: 'Accountant Access' },
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        actor: { id: 1, name: 'John Doe', role: 'Admin' },
-        icon: 'pi pi-check-circle',
-        severity: 'success'
-      },
-      {
-        id: 4,
-        type: 'employee',
-        entityId: 206,
-        entityName: 'Bob Jones',
-        eventType: AuditEventType.PAYROLL_GENERATED,
-        description: 'Payroll generated for March 2024',
-        details: { fieldName: 'Period', newValue: '2024-03' },
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-        actor: { id: 3, name: 'System', role: 'System' },
-        icon: 'pi pi-calculator',
-        severity: 'info'
-      },
-      {
-        id: 5,
-        type: 'company',
-        entityId: 101,
-        entityName: 'TechCorp',
-        eventType: AuditEventType.COMPANY_DELETED,
-        description: 'Old branch removed',
-        details: { fieldName: 'Branch', oldValue: 'North Branch' },
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
-        actor: { id: 1, name: 'John Doe', role: 'Admin' },
-        icon: 'pi pi-trash',
-        severity: 'danger'
-      }
-    ];
+    let params = new HttpParams();
+    
+    if (filter?.startDate) {
+      params = params.set('startDate', filter.startDate.toISOString());
+    }
+    if (filter?.endDate) {
+      params = params.set('endDate', filter.endDate.toISOString());
+    }
+    if (filter?.eventTypes?.length) {
+      params = params.set('eventTypes', filter.eventTypes.join(','));
+    }
+    if (filter?.companyId) {
+      params = params.set('companyId', filter.companyId.toString());
+    }
 
-    return new Observable(observer => {
-      // Simulate network delay
-      setTimeout(() => {
-        let filtered = mockLogs;
-        
-        if (filter?.companyId) {
-          filtered = filtered.filter(l => l.entityId === filter.companyId && l.type === 'company');
-        }
-        
-        if (filter?.eventTypes?.length) {
-          filtered = filtered.filter(l => filter.eventTypes!.includes(l.eventType));
-        }
+    return this.http.get<any[]>(`${this.apiUrl}/audit-logs/cabinet`, { params })
+      .pipe(map(items => items.map((item, index) => this.mapBackendLogToDisplayItem(item, index))));
+  }
 
-        if (filter?.startDate) {
-          filtered = filtered.filter(l => l.timestamp >= filter.startDate!);
-        }
+  private mapBackendLogToDisplayItem(dto: any, index: number): AuditLogDisplayItem {
+    const eventType = this.parseEventTypeFromTitle(dto.title || dto.eventType);
+    const { icon, severity } = this.getEventMetadata(eventType);
 
-        if (filter?.endDate) {
-          filtered = filtered.filter(l => l.timestamp <= filter.endDate!);
-        }
-
-        observer.next(filtered);
-        observer.complete();
-      }, 800);
-    });
+    return {
+      id: dto.id || index,
+      type: dto.type || 'company',
+      entityId: dto.entityId || 0,
+      entityName: dto.entityName || 'Unknown',
+      entityType: dto.entityType || 'Unknown',
+      eventType,
+      description: dto.description || dto.title || 'Unknown event',
+      details: dto.details,
+      timestamp: new Date(dto.timestamp || dto.createdAt),
+      actor: {
+        id: dto.actor?.id || dto.createdBy || 0,
+        name: dto.actor?.name || dto.createdByName || 'Unknown',
+        role: dto.actor?.role || dto.createdByRole || 'Unknown'
+      },
+      icon: 'pi ' + icon,
+      severity
+    };
   }
 
   /**
