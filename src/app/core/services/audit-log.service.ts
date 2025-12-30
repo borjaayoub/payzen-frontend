@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, forkJoin, of } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 import { environment } from '@environments/environment';
+import { CompanyService } from './company.service';
 import {
   CompanyAuditLog,
   EmployeeAuditLog,
@@ -18,6 +20,7 @@ import {
 })
 export class AuditLogService {
   private readonly http = inject(HttpClient);
+  private readonly companyService = inject(CompanyService);
   private readonly apiUrl = `${environment.apiUrl}`;
 
   /**
@@ -28,9 +31,21 @@ export class AuditLogService {
     companyId: number,
     filter?: AuditLogFilter
   ): Observable<AuditLogDisplayItem[]> {
-    return this.http
-      .get<CompanyHistoryDto[]>(`${this.apiUrl}/companies/${companyId}/history`)
-      .pipe(map(dtos => dtos.map((dto, index) => this.mapHistoryDtoToDisplayItem(dto, companyId, index))));
+    const pluralUrl = `${this.apiUrl}/companies/${companyId}/history`;
+    const singularUrl = `${this.apiUrl}/company/${companyId}/history`;
+
+    return this.http.get<CompanyHistoryDto[]>(pluralUrl).pipe(
+      catchError(err => {
+        console.debug('[AuditLogService] plural history endpoint failed, trying singular:', pluralUrl, err?.status || err);
+        return this.http.get<CompanyHistoryDto[]>(singularUrl).pipe(
+          catchError(err2 => {
+            console.error('[AuditLogService] both history endpoints failed for company', companyId, err2?.status || err2);
+            return of([] as CompanyHistoryDto[]);
+          })
+        );
+      }),
+      map(dtos => dtos.map((dto, index) => this.mapHistoryDtoToDisplayItem(dto, companyId, index)))
+    );
   }
 
   /**
@@ -138,14 +153,28 @@ export class AuditLogService {
       params = params.set('companyId', filter.companyId.toString());
     }
 
-    // For now, return empty array - backend endpoint needs to be implemented
-    // return this.http.get<any[]>(`${this.apiUrl}/audit-logs/cabinet`, { params })
-    //   .pipe(map(items => items.map(item => this.mapToDisplayItem(item))));
-    
-    return new Observable(observer => {
-      observer.next([]);
-      observer.complete();
-    });
+    // Client-side fallback: fetch managed companies then aggregate each company's history
+    // Prefer a backend endpoint like GET /companies/expert/history for efficiency.
+    return this.companyService.getManagedCompanies().pipe(
+      switchMap((companies: any[]) => {
+        console.log('[AuditLogService] getCabinetAuditLogs - managed companies:', companies?.length, companies);
+        if (!companies || companies.length === 0) return of([]);
+
+        const requests = companies.map(c =>
+          this.getCompanyAuditLogs(Number(c.id), filter).pipe(
+            map(items => items.map(it => ({ ...it, entityId: Number(c.id), entityName: c.legalName || String(c.id) })))
+          )
+        );
+
+        return forkJoin(requests).pipe(
+          map((arrays: AuditLogDisplayItem[][]) => {
+            const all = arrays.flat();
+            console.debug('[AuditLogService] getCabinetAuditLogs - aggregated items count:', all.length);
+            return all.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+          })
+        );
+      })
+    );
   }
 
   /**

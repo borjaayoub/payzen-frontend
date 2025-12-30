@@ -14,7 +14,8 @@ import { CompanyContextService } from '@app/core/services/companyContext.service
 import { DashboardService } from '@app/core/services/dashboard.service';
 import { Company } from '@app/core/models/company.model';
 import { AuditLogComponent } from '../../../shared/components/audit-log/audit-log.component';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { DialogModule } from 'primeng/dialog';
 import { ClientFormComponent } from '../components/client-form/client-form.component';
@@ -58,6 +59,11 @@ export class ExpertDashboard implements OnInit, OnDestroy {
   readonly isClientFormVisible = signal<boolean>(false);
   readonly clientFormMode = signal<'create' | 'edit'>('create');
   readonly selectedCompanyForEdit = signal<Company | undefined>(undefined);
+  readonly selectedCompany = signal<Company | null>(null);
+  readonly selectedCompanyId = computed(() => {
+    const sc = this.selectedCompany();
+    return sc ? Number(sc.id) : undefined;
+  });
 
   // Computed
   readonly totalEmployees = computed(() => 
@@ -82,8 +88,8 @@ export class ExpertDashboard implements OnInit, OnDestroy {
 
   loadPortfolioDashboard(): void {
     this.loadClientCompanies();
-    // Dashboard summary endpoint is currently not available in the backend
-    // this.loadDashboardSummary();
+    // Also load expert summary (total employees across managed clients)
+    this.loadDashboardSummary();
   }
 
   loadClientCompanies(): void {
@@ -92,6 +98,35 @@ export class ExpertDashboard implements OnInit, OnDestroy {
     this.companyService.getManagedCompanies().subscribe({
       next: (companies) => {
         this.companies.set(companies);
+        console.log('[ExpertDashboard] mapped companies:', companies);
+        console.debug('[ExpertDashboard] mapped companies:', companies);
+
+        // Try to fetch per-company employee counts if backend didn't provide them
+        const missingCounts = companies.filter(c => !c.employeeCount || c.employeeCount === 0).map(c => c.id);
+        if (missingCounts.length > 0) {
+          const requests = missingCounts.map(id =>
+            this.companyService.getCompanyEmployeeCount(id).pipe(
+              map(count => ({ id, count }))
+            )
+          );
+
+          forkJoin(requests).subscribe({
+            next: (results: Array<{ id: string; count: number }>) => {
+              const companiesArr = this.companies();
+              results.forEach((r: { id: string; count: number }) => {
+                const idx = companiesArr.findIndex(x => x.id === r.id);
+                if (idx >= 0) {
+                  companiesArr[idx].employeeCount = r.count;
+                }
+              });
+              this.companies.set(companiesArr);
+              console.debug('[ExpertDashboard] updated companies with counts:', this.companies());
+            },
+            error: (err: any) => console.warn('Failed fetching per-company counts', err)
+          });
+        }
+        // Do not auto-select a company so the cabinet-wide audit log is shown by default
+        console.debug('[ExpertDashboard] selectedCompany after load:', this.selectedCompany());
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -104,8 +139,10 @@ export class ExpertDashboard implements OnInit, OnDestroy {
   loadDashboardSummary(): void {
     this.dashboardService.getDashboardSummary().subscribe({
       next: (summary) => {
+        console.log('[ExpertDashboard] expert summary mapped:', summary);
         this.totalClients.set(summary.totalCompanies);
         this.globalEmployeeCount.set(summary.totalEmployees);
+          console.log('[ExpertDashboard] globalEmployeeCount after set:', this.globalEmployeeCount(), 'computed totalEmployees():', this.totalEmployees());
       },
       error: (err) => {
         console.error('Failed to load dashboard summary', err);
@@ -114,6 +151,8 @@ export class ExpertDashboard implements OnInit, OnDestroy {
   }
 
   onSelectCompany(company: Company): void {
+    // Set selected company for audit log view and switch context to client
+    this.selectedCompany.set(company);
     this.contextService.switchToClientContext(company, true);
   }
 

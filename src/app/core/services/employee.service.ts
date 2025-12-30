@@ -283,6 +283,16 @@ export class EmployeeService {
    * Backend endpoint: GET /api/employee/summary
    */
   getEmployees(filters?: EmployeeFilters): Observable<EmployeesResponse> {
+    // If a companyId is provided (filter or current context), use the company-specific endpoint
+    const companyId = filters?.companyId ?? this.contextService.companyId();
+    if (companyId) {
+      const url = `${this.EMPLOYEE_URL}/company/${companyId}`;
+      return this.http.get<DashboardEmployeesResponse>(url).pipe(
+        map(response => this.mapDashboardEmployeesResponse(response))
+      );
+    }
+
+    // Fallback to summary endpoint when no specific company is requested
     const params = this.buildFilterParams(filters);
     return this.http
       .get<DashboardEmployeesResponse>(this.EMPLOYEE_SUMMARY_URL, { params })

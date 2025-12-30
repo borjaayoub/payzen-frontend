@@ -34,7 +34,7 @@
       <div>
         <span class="block text-gray-500 text-sm font-medium">{{ 'expert.dashboard.totalEmployees' | translate }}</span>
         <span class="block text-2xl font-bold text-gray-900">
-          {{ totalEmployees() }}
+          {{ globalEmployeeCount() || totalEmployees() }}
         </span>
       </div>
     </div>
@@ -46,25 +46,6 @@
         <span class="block text-gray-500 text-sm font-medium">{{ 'expert.dashboard.pendingLeaves' | translate }}</span>
         <span class="block text-2xl font-bold text-gray-900">{{ pendingLeaves() }}</span>
       </div>
-    </div>
-  </div>
-
-  <!-- Recent Activity Section -->
-  <div class="mb-6">
-    <div class="card bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">
-          {{ 'expert.dashboard.recentActivity' | translate }}
-        </h2>
-        <button 
-          pButton
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          (click)="loadPortfolioDashboard()">
-        </button>
-      </div>
-      <!-- Cabinet-wide audit log with 5 most recent items -->
-      <app-audit-log [maxItems]="5"></app-audit-log>
     </div>
   </div>
 
@@ -181,6 +162,27 @@
         </tr>
       </ng-template>
     </p-table>
+  </div>
+
+  <!-- Recent Activity Section -->
+  <div class="mb-6">
+    <div class="card bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">
+          {{ 'expert.dashboard.recentActivity' | translate }}
+        </h2>
+        <button 
+          pButton
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          (click)="loadPortfolioDashboard()">
+        </button>
+      </div>
+      <!-- Audit log for the selected company (managed by this expert) -->
+      <app-audit-log *ngIf="selectedCompany()" [companyId]="selectedCompanyId()" [maxItems]="5"></app-audit-log>
+      <!-- Fallback: show cabinet-wide audit log when no company is selected -->
+      <app-audit-log *ngIf="!selectedCompany()" [maxItems]="5"></app-audit-log>
+    </div>
   </div>
 
   <!-- Client Form Dialog -->

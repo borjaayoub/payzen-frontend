@@ -209,9 +209,18 @@ export class UsersTabComponent implements OnInit {
 
   private loadUsers() {
     this.loading.set(true);
-    this.userService.getUsers().subscribe({
+    const companyIdStr = this.contextService.companyId();
+    const companyId = companyIdStr ? Number(companyIdStr) : undefined;
+    console.log('[UsersTab] loading users for companyId:', companyId);
+
+    this.userService.getUsers(companyId).subscribe({
       next: (users) => {
-        const displayUsers: UserDisplay[] = users.map(u => ({
+        // Backend may ignore companyId; apply client-side filter as a fallback
+        const beforeCount = users?.length ?? 0;
+        const filtered = companyId ? users.filter(u => String(u.companyId) === String(companyId)) : users;
+        console.debug('[UsersTab] users fetched:', beforeCount, 'after filter:', filtered.length);
+
+        const displayUsers: UserDisplay[] = filtered.map(u => ({
           id: u.id,
           name: `${u.firstName} ${u.lastName}`.trim() || u.username,
           email: u.email,

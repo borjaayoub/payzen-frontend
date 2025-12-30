@@ -64,7 +64,7 @@ export class DashboardService {
    * Returns: Total employees, active employees, and employee list
    */
   getEmployeeSummary(): Observable<EmployeeSummaryResponse> {
-    return this.http.get<EmployeeSummaryResponse>(`${this.apiUrl}/employee/summary`);
+    return this.http.get<EmployeeSummaryResponse>(`${this.apiUrl}/dashboard/employees`);
   }
 
   /**
@@ -73,6 +73,28 @@ export class DashboardService {
    * Returns: Global statistics including total companies, employees, distribution, etc.
    */
   getDashboardSummary(): Observable<DashboardSummaryResponse> {
-    return this.http.get<DashboardSummaryResponse>(`${this.apiUrl}/dashboard/summary`);
+    // Backend provides an expert summary at /api/dashboard/expert/summary
+    const url = `${this.apiUrl}/dashboard/expert/summary`;
+
+    return this.http.get<any>(url).pipe(
+      map(raw => {
+        console.log('[DashboardService] expert summary raw response:', raw);
+        const totalCompanies = raw?.TotalClients ?? raw?.TotalCompanies ?? raw?.totalClients ?? raw?.totalCompanies ?? 0;
+        const totalEmployees = raw?.TotalEmployees ?? raw?.totalEmployees ?? raw?.TotalEmployeesCount ?? raw?.totalEmployeesCount ?? 0;
+        const avg = totalCompanies ? (totalEmployees / totalCompanies) : 0;
+
+        const mapped: DashboardSummaryResponse = {
+          totalCompanies,
+          totalEmployees,
+          accountingFirmsCount: 0,
+          avgEmployeesPerCompany: avg,
+          employeeDistribution: [],
+          recentCompanies: [],
+          asOf: raw?.AsOf ?? new Date().toISOString()
+        };
+
+        return mapped;
+      })
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject, map, of, throwError } from 'rxjs';
+import { Observable, Subject, map, of, throwError, tap } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company, CompanyEvent, TaxRegime, CompanyCreateByExpertDto } from '../models/company.model';
 import { AuthService } from './auth.service';
@@ -21,6 +22,8 @@ interface CompanyDto {
   countryName: string;
   cnssNumber: string;
   iceNumber: string;
+  employeeCount?: number;
+  totalEmployees?: number;
   rcNumber?: string;
   ifNumber?: string;
   ribNumber?: string;
@@ -80,13 +83,23 @@ export class CompanyService {
 
   getManagedCompanies(): Observable<Company[]> {
     // Use the expert's cabinet/company id to request only companies managed by that expert
-    const expertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
+    const rawExpertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
+    const expertId = rawExpertId ? String(rawExpertId).trim() : undefined;
     if (!expertId) {
+      console.debug('[CompanyService] getManagedCompanies - no expertId found in context or auth');
       return of([]);
     }
 
-    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
-      map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
+    const url = `${this.apiUrl}/companies/managedby/${expertId}`;
+    console.debug('[CompanyService] getManagedCompanies - calling URL:', url, 'expertId:', expertId);
+
+    return this.http.get<CompanyDto[]>(url).pipe(
+      tap(dtos => console.debug('[CompanyService] /companies/managedby raw DTOs:', dtos)),
+      map(dtos => dtos.map(dto => this.mapDtoToCompany(dto))),
+      // Log and rethrow detailed error for easier debugging
+      // (do not swallow error so caller can handle it)
+      // Use catchError lazily to avoid importing throwError unnecessarily
+      // We'll map error in subscribe call sites if needed
     );
   }
 
@@ -102,6 +115,23 @@ export class CompanyService {
 
     return this.http.get<CompanyDto>(`${this.apiUrl}/companies/${companyId}`).pipe(
       map(dto => this.mapDtoToCompany(dto))
+    );
+  }
+
+  /**
+   * Fetch employee count for a specific company by calling the employee summary
+   * endpoint while forcing `X-Company-Id` header to the target company.
+   * This is a fallback approach when the managed-by endpoint doesn't include counts.
+   */
+  getCompanyEmployeeCount(companyId: string): Observable<number> {
+    if (!companyId) return of(0);
+
+    const url = `${this.apiUrl}/employee/summary`;
+    const params = new HttpParams().set('companyId', companyId);
+    const headers = { 'X-Company-Id': String(companyId) };
+
+    return this.http.get<any>(url, { params, headers }).pipe(
+      map(res => res?.totalEmployees ?? 0)
     );
   }
 
@@ -197,6 +227,7 @@ export class CompanyService {
   }
 
   private mapDtoToCompany(dto: CompanyDto): Company {
+    console.debug('[CompanyService] mapping CompanyDto:', dto);
     return {
       id: dto.id.toString(),
       legalName: (dto as any).companyName || (dto as any).legalName || (dto as any).name || String(dto.id),
@@ -215,7 +246,7 @@ export class CompanyService {
       postalCode: '',
       taxRegime: TaxRegime.IS, // Default
       fiscalYear: new Date().getFullYear(),
-      employeeCount: 0,
+      employeeCount: (dto as any).employeeCount ?? (dto as any).totalEmployees ?? 0,
       hrParameters: {
         workingDays: [],
         workingHoursPerDay: 8,
