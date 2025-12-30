@@ -123,28 +123,99 @@ export class AuditLogService {
    * Note: This endpoint may need to be created on backend
    */
   getCabinetAuditLogs(filter?: AuditLogFilter): Observable<AuditLogDisplayItem[]> {
-    let params = new HttpParams();
-    
-    if (filter?.startDate) {
-      params = params.set('startDate', filter.startDate.toISOString());
-    }
-    if (filter?.endDate) {
-      params = params.set('endDate', filter.endDate.toISOString());
-    }
-    if (filter?.eventTypes?.length) {
-      params = params.set('eventTypes', filter.eventTypes.join(','));
-    }
-    if (filter?.companyId) {
-      params = params.set('companyId', filter.companyId.toString());
-    }
+    // Mock data for demonstration
+    const mockLogs: AuditLogDisplayItem[] = [
+      {
+        id: 1,
+        type: 'company',
+        entityId: 101,
+        entityName: 'TechCorp',
+        eventType: AuditEventType.COMPANY_UPDATED,
+        description: 'Company settings updated',
+        details: { fieldName: 'Tax ID', oldValue: 'OLD-123', newValue: 'NEW-456' },
+        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 mins ago
+        actor: { id: 1, name: 'John Doe', role: 'Admin' },
+        icon: 'pi pi-pencil',
+        severity: 'info'
+      },
+      {
+        id: 2,
+        type: 'employee',
+        entityId: 205,
+        entityName: 'Alice Smith',
+        eventType: AuditEventType.EMPLOYEE_CREATED,
+        description: 'New employee onboarded',
+        details: { fieldName: 'Status', newValue: 'Active' },
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+        actor: { id: 2, name: 'Jane Manager', role: 'HR' },
+        icon: 'pi pi-plus-circle',
+        severity: 'success'
+      },
+      {
+        id: 3,
+        type: 'company',
+        entityId: 102,
+        entityName: 'BizSolutions',
+        eventType: AuditEventType.COMPANY_DELEGATION_ADDED,
+        description: 'Access delegated to external accountant',
+        details: { fieldName: 'Delegation', newValue: 'Accountant Access' },
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+        actor: { id: 1, name: 'John Doe', role: 'Admin' },
+        icon: 'pi pi-check-circle',
+        severity: 'success'
+      },
+      {
+        id: 4,
+        type: 'employee',
+        entityId: 206,
+        entityName: 'Bob Jones',
+        eventType: AuditEventType.PAYROLL_GENERATED,
+        description: 'Payroll generated for March 2024',
+        details: { fieldName: 'Period', newValue: '2024-03' },
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
+        actor: { id: 3, name: 'System', role: 'System' },
+        icon: 'pi pi-calculator',
+        severity: 'info'
+      },
+      {
+        id: 5,
+        type: 'company',
+        entityId: 101,
+        entityName: 'TechCorp',
+        eventType: AuditEventType.COMPANY_DELETED,
+        description: 'Old branch removed',
+        details: { fieldName: 'Branch', oldValue: 'North Branch' },
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
+        actor: { id: 1, name: 'John Doe', role: 'Admin' },
+        icon: 'pi pi-trash',
+        severity: 'danger'
+      }
+    ];
 
-    // For now, return empty array - backend endpoint needs to be implemented
-    // return this.http.get<any[]>(`${this.apiUrl}/audit-logs/cabinet`, { params })
-    //   .pipe(map(items => items.map(item => this.mapToDisplayItem(item))));
-    
     return new Observable(observer => {
-      observer.next([]);
-      observer.complete();
+      // Simulate network delay
+      setTimeout(() => {
+        let filtered = mockLogs;
+        
+        if (filter?.companyId) {
+          filtered = filtered.filter(l => l.entityId === filter.companyId && l.type === 'company');
+        }
+        
+        if (filter?.eventTypes?.length) {
+          filtered = filtered.filter(l => filter.eventTypes!.includes(l.eventType));
+        }
+
+        if (filter?.startDate) {
+          filtered = filtered.filter(l => l.timestamp >= filter.startDate!);
+        }
+
+        if (filter?.endDate) {
+          filtered = filtered.filter(l => l.timestamp <= filter.endDate!);
+        }
+
+        observer.next(filtered);
+        observer.complete();
+      }, 800);
     });
   }
 

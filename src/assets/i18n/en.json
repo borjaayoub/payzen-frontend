@@ -55,7 +55,8 @@
       "pendingLeaves": "Pending Leave Requests",
       "recentActivity": "Recent Activity",
       "viewAll": "View All",
-      "backToPortfolio": "Back to Portfolio"
+      "backToPortfolio": "Back to Portfolio",
+      "viewingAsExpert": "You are viewing this company as an Expert"
     }
   },
   "profile": {

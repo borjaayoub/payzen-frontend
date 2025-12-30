@@ -99,6 +99,43 @@ export const routes: Routes = [
   },
 
   // ============================================
+  // CABINET ROUTES (/cabinet/*)
+  // ============================================
+  {
+    path: 'cabinet',
+    component: MainLayout,
+    canActivate: [authGuard, contextGuard, expertModeGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => 
+          import('./features/cabinet/portfolio/cabinet-dashboard')
+            .then(m => m.CabinetDashboard),
+        title: 'Cabinet Dashboard - PayZen'
+      },
+      {
+        path: 'permissions',
+        loadComponent: () => 
+          import('./features/cabinet/permissions/cabinet-permissions')
+            .then(m => m.CabinetPermissionsComponent),
+        title: 'Cabinet Permissions - PayZen'
+      },
+      {
+        path: 'audit-log',
+        loadComponent: () => 
+          import('./features/cabinet/audit-log/cabinet-audit-log')
+            .then(m => m.CabinetAuditLogComponent),
+        title: 'Audit Log - PayZen'
+      }
+    ]
+  },
+
+  // ============================================
   // EXPERT MODE ROUTES (/expert/*)
   // ============================================
   {
