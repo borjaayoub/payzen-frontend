@@ -6,6 +6,7 @@ import { environment } from '@environments/environment';
 import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 
+// ... [Keep all your existing interfaces: Employee, EmployeeFilters, etc.] ...
 export interface Employee {
   id: string;
   firstName: string;
@@ -42,6 +43,8 @@ export interface EmployeeStats {
   active: number;
 }
 
+// ... [Keep other interfaces: LookupOption, EmployeeFormData, etc.] ...
+// ... [Keep interfaces: LookupResponseItem, CountryResponseItem, etc.] ...
 interface LookupResponseItem {
   id: number;
   name: string;
@@ -247,8 +250,8 @@ interface EmployeeDetailsResponse {
   providedIn: 'root'
 })
 export class EmployeeService {
-  // Backend uses /api/employee (singular) for all employee operations
   private readonly EMPLOYEE_URL = `${environment.apiUrl}/employee`;
+  // We keep this for the fallback, but we will prefer the company-specific endpoint
   private readonly EMPLOYEE_SUMMARY_URL = `${environment.apiUrl}/employee/summary`;
 
   private readonly contextService = inject(CompanyContextService);
@@ -257,21 +260,12 @@ export class EmployeeService {
 
   private buildFilterParams(filters?: EmployeeFilters): HttpParams {
     let params = new HttpParams();
-
-    if (!filters) {
-      return params;
-    }
+    if (!filters) return params;
 
     if (filters.searchQuery) params = params.set('search', filters.searchQuery);
     if (filters.department) params = params.set('department', filters.department);
     if (filters.status) params = params.set('status', filters.status);
     if (filters.contractType) params = params.set('contractType', filters.contractType);
-    
-    // Always include companyId if provided to ensure data isolation
-    if (filters.companyId !== undefined && filters.companyId !== null) {
-      params = params.set('companyId', filters.companyId.toString());
-    }
-
     if (filters.page) params = params.set('page', filters.page.toString());
     if (filters.limit) params = params.set('limit', filters.limit.toString());
 
@@ -279,41 +273,78 @@ export class EmployeeService {
   }
 
   /**
-   * Get all employees with optional filters
-   * Backend endpoint: GET /api/employee/summary
+   * Get all employees with optional filters.
+   * INTELLIGENT ROUTING FIX:
+   * 1. If a specific companyId is requested, use /api/employee/company/{id}
+   * 2. Otherwise fallback to /api/employee/summary
    */
   getEmployees(filters?: EmployeeFilters): Observable<EmployeesResponse> {
-    const params = this.buildFilterParams(filters);
+    const effectiveFilters: EmployeeFilters = {
+      ...filters,
+      companyId: filters?.companyId ?? this.contextService.companyId() ?? undefined
+    };
+
+    const params = this.buildFilterParams(effectiveFilters);
+
+    // Case 1: We have a specific company ID (Expert Mode or specific filter)
+    if (effectiveFilters.companyId) {
+      const companyUrl = `${this.EMPLOYEE_URL}/company/${effectiveFilters.companyId}`;
+      
+      // The backend endpoint for /company/{id} returns a simple Array, not the DashboardResponse object.
+      // We must map it differently.
+      return this.http.get<any[]>(companyUrl, { params }).pipe(
+        map(responseArray => {
+          // If the response is null/undefined, treat as empty array
+          const safeArray = Array.isArray(responseArray) ? responseArray : [];
+          return this.mapArrayToEmployeesResponse(safeArray);
+        })
+      );
+    }
+
+    // Case 2: No company ID (Legacy/Default behavior)
     return this.http
       .get<DashboardEmployeesResponse>(this.EMPLOYEE_SUMMARY_URL, { params })
       .pipe(map(response => this.mapDashboardEmployeesResponse(response)));
   }
 
   /**
-   * Get employee by ID
-   * Backend endpoint: GET /api/employee/{id}
+   * Helper to map the raw array from /api/employee/company/{id} to our standard response format
    */
+  private mapArrayToEmployeesResponse(list: any[]): EmployeesResponse {
+    // Map the raw items to our Employee model
+    const employees = list.map(item => this.mapDashboardEmployee(item));
+
+    // Calculate derived stats client-side since this endpoint doesn't return them
+    const total = employees.length;
+    const active = employees.filter(e => e.status === 'active').length;
+    
+    // Extract unique values for filter dropdowns
+    const departments = Array.from(new Set(employees.map(e => e.department).filter(Boolean)));
+    const statuses = Array.from(new Set(employees.map(e => e.status).filter(Boolean)));
+
+    return {
+      employees,
+      total,
+      active,
+      departments,
+      statuses
+    };
+  }
+
   getEmployeeById(id: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.EMPLOYEE_URL}/${id}`);
   }
 
-  /**
-   * Get detailed employee profile
-   * Backend endpoint: GET /api/employee/{id}/details
-   */
   getEmployeeDetails(id: string): Observable<EmployeeProfileModel> {
     return this.http
       .get<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}/details`)
       .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
   }
 
-  /**
-   * Get lookup values to build the employee creation form
-   * Backend endpoint: GET /api/employee/form-data
-   */
   getEmployeeFormData(): Observable<EmployeeFormData> {
     const companyId = this.contextService.companyId();
     let params = new HttpParams();
+    
     if (companyId) {
       params = params.set('companyId', String(companyId));
     }
@@ -323,74 +354,42 @@ export class EmployeeService {
       .pipe(map(response => this.mapEmployeeFormDataResponse(response)));
   }
 
-  /**
-   * Create new employee
-   * Backend endpoint: POST /api/employee
-   */
   createEmployee(employee: Partial<Employee>): Observable<Employee> {
     return this.http.post<Employee>(this.EMPLOYEE_URL, employee);
   }
 
-  /**
-   * Create employee record through HR endpoint
-   * Backend endpoint: POST /api/employee
-   */
   createEmployeeRecord(payload: CreateEmployeeRequest): Observable<any> {
     return this.http.post<any>(this.EMPLOYEE_URL, payload);
   }
 
-  /**
-   * Update employee
-   * Backend endpoint: PUT /api/employee/{id}
-   */
   updateEmployee(id: string, employee: Partial<Employee>): Observable<Employee> {
     return this.http.put<Employee>(`${this.EMPLOYEE_URL}/${id}`, employee);
   }
 
-  /**
-   * Patch employee profile details (field-level updates)
-   * Backend endpoint: PATCH /api/employee/{id}
-   */
   patchEmployeeProfile(id: string, payload: Partial<EmployeeProfileModel>): Observable<EmployeeProfileModel> {
     return this.http
       .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}`, payload)
       .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
   }
 
-  /**
-   * Delete employee
-   * Backend endpoint: DELETE /api/employee/{id}
-   */
   deleteEmployee(id: string): Observable<void> {
     return this.http.delete<void>(`${this.EMPLOYEE_URL}/${id}`);
   }
 
-  /**
-   * Upload employee document
-   */
   uploadDocument(employeeId: string, documentType: string, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', documentType);
-
     return this.http.post(`${this.EMPLOYEE_URL}/${employeeId}/documents`, formData);
   }
 
-  /**
-   * Get employee documents
-   * Backend endpoint: GET /api/employee/{id}/documents
-   */
   getDocuments(employeeId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.EMPLOYEE_URL}/${employeeId}/documents`);
   }
 
-  /**
-   * Get employee salary details including components with IDs
-   */
   getEmployeeSalaryDetails(employeeId: string): Observable<{ id: number, components: any[] }> {
     return this.http.get<any[]>(`${environment.apiUrl}/employee-salaries/employee/${employeeId}`).pipe(
       map(salaries => {
-        // Find active salary (no end date)
         return salaries.find(s => !s.endDate);
       }),
       switchMap(activeSalary => {
@@ -422,10 +421,6 @@ export class EmployeeService {
     return this.http.delete<void>(`${environment.apiUrl}/employee-salary-components/${id}`);
   }
 
-
-  /**
-   * Search countries
-   */
   searchCountries(query: string): Observable<CountryLookupOption[]> {
     const params = new HttpParams().set('search', query);
     return this.http.get<CountryResponseItem[]>(`${environment.apiUrl}/countries`, { params })
@@ -435,17 +430,12 @@ export class EmployeeService {
           label: item.countryName,
           phoneCode: item.countryPhoneCode
         }));
-        
         if (!query) return allItems;
-        
         const lowerQuery = query.toLowerCase();
         return allItems.filter(item => item.label.toLowerCase().includes(lowerQuery));
       }));
   }
 
-  /**
-   * Search cities
-   */
   searchCities(query: string): Observable<CityLookupOption[]> {
     const params = new HttpParams().set('search', query);
     return this.http.get<CityResponseItem[]>(`${environment.apiUrl}/cities`, { params })
@@ -456,17 +446,12 @@ export class EmployeeService {
           countryId: item.countryId,
           countryName: item.countryName
         }));
-        
         if (!query) return allItems;
-        
         const lowerQuery = query.toLowerCase();
         return allItems.filter(item => item.label.toLowerCase().includes(lowerQuery));
       }));
   }
 
-  /**
-   * Create new country
-   */
   createCountry(name: string): Observable<CountryLookupOption> {
     return this.http.post<CountryResponseItem>(`${environment.apiUrl}/countries`, { countryName: name })
       .pipe(map(item => ({
@@ -476,9 +461,6 @@ export class EmployeeService {
       })));
   }
 
-  /**
-   * Create new city
-   */
   createCity(name: string, countryId?: number): Observable<CityLookupOption> {
     return this.http.post<CityResponseItem>(`${environment.apiUrl}/cities`, { cityName: name, countryId })
       .pipe(map(item => ({
@@ -553,18 +535,20 @@ export class EmployeeService {
     return { employees, total, active, departments, statuses };
   }
 
-  private mapDashboardEmployee(employee: DashboardEmployee): Employee {
+  private mapDashboardEmployee(employee: any): Employee {
+    // We treat the input as 'any' to handle both DashboardEmployee and EmployeeReadDto shapes
+    // which might use PascalCase (Backend default) or camelCase (if auto-serialized)
     return {
-      id: this.toStringValue(employee.id),
-      firstName: employee.firstName ?? '',
-      lastName: employee.lastName ?? '',
-      position:  employee.position ?? 'Non assigné',
-      department: employee.department ?? '',
-      status: this.mapEmployeeStatus(employee.status),
-      startDate: employee.startDate ?? '',
-      missingDocuments: this.toNumberValue(employee.missingDocuments),
-      contractType: this.mapContractType(employee.contractType),
-      manager: employee.manager ?? undefined
+      id: this.toStringValue(employee.id || employee.Id),
+      firstName: employee.firstName || employee.FirstName || '',
+      lastName: employee.lastName || employee.LastName || '',
+      position:  employee.position || employee.Position || 'Non assigné',
+      department: employee.department || employee.Department || '',
+      status: this.mapEmployeeStatus(employee.status || employee.Status || ''),
+      startDate: employee.startDate || employee.StartDate || '',
+      missingDocuments: this.toNumberValue(employee.missingDocuments || employee.MissingDocuments),
+      contractType: this.mapContractType(employee.contractType || employee.ContractType),
+      manager: employee.manager || employee.Manager || undefined
     };
   }
 
@@ -574,7 +558,6 @@ export class EmployeeService {
       amount: c.amount
     }));
     
-    // Handle potential PascalCase from backend for Address object
     const addressPayload = payload.address || (payload as any).Address;
     const cityName = addressPayload?.cityName || addressPayload?.CityName || '';
     const countryName = addressPayload?.countryName || addressPayload?.CountryName || '';
@@ -590,13 +573,12 @@ export class EmployeeService {
       cin: payload.cinNumber ?? '',
       maritalStatus: this.mapMaritalStatus(payload.maritalStatusName),
       dateOfBirth: payload.dateOfBirth ?? '',
-      birthPlace: cityName, // Use extracted city name
+      birthPlace: cityName,
       professionalEmail: payload.email ?? '',
       personalEmail: payload.email ?? '',
       phone: this.composePhone(payload.countryPhoneCode, payload.phone),
       address: this.formatAddress(addressPayload),
-      // Map individual address fields from the nested address object
-      countryId: undefined, // Backend doesn't return ID, only name
+      countryId: undefined,
       countryName: countryName,
       city: cityName,
       addressLine1: addressLine1,
@@ -612,7 +594,7 @@ export class EmployeeService {
       exitReason: undefined,
       baseSalary: payload.baseSalary ?? 0,
       salaryComponents,
-      activeSalaryId: undefined, // Will be populated separately
+      activeSalaryId: undefined,
       paymentMethod: this.mapPaymentMethod(payload.salaryPaymentMethod),
       cnss: this.toStringValue(payload.cnss),
       amo: this.toStringValue(payload.amo),
@@ -680,7 +662,6 @@ export class EmployeeService {
     if (!address) {
       return '';
     }
-    
     const line1 = address.addressLine1 || address.AddressLine1;
     const line2 = address.addressLine2 || address.AddressLine2;
     const city = address.cityName || address.CityName;

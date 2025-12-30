@@ -79,13 +79,14 @@ export class CompanyService {
   readonly onCompanyUpdate$ = this.companyUpdated$.asObservable();
 
   getManagedCompanies(): Observable<Company[]> {
-    // Use the expert's cabinet/company id to request only companies managed by that expert
-    const expertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
-    if (!expertId) {
-      return of([]);
-    }
-
-    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
+    // ---------------------------------------------------------------------------
+    // FIX: The backend endpoint /companies/managedby/{id} DOES NOT EXIST.
+    // We fallback to /companies to get the list, preventing the 404 error.
+    // LIMITATION: Since the backend response DTO does not contain 'managedById',
+    // we cannot filter this list client-side. This will show ALL companies.
+    // ---------------------------------------------------------------------------
+    
+    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies`).pipe(
       map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
   }

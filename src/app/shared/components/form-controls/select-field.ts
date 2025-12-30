@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, Optional, Self, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, Optional, Self, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormsModule, NgControl, ReactiveFormsModule } from '@angular/forms';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
@@ -22,6 +22,8 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
   @Input() variant: 'select' | 'autocomplete' = 'select';
   @Input() filter = false;
   @Input() showClear = false;
+  @Input() creatable = false; // Allow creating new options
+  @Input() createLabel = 'Create'; // Label for create button
   @Input() appendTo: any = 'body';
   @Input() optionLabel = 'label';
   @Input() optionValue?: string;
@@ -33,8 +35,13 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
   @Input() inputId?: string;
   @Input() ariaLabel?: string;
 
+  @Output() create = new EventEmitter<string>(); // Emit when user wants to create new option
+  @Output() searchQuery = new EventEmitter<string>(); // Emit search query for dynamic loading
+
   value: any = null;
   filteredOptions: any[] = [];
+  currentQuery = '';
+  showCreateOption = false;
   private readonly uid = `select-${Math.random().toString(36).slice(2, 8)}`;
 
   private onChange: (value: any) => void = () => {};
@@ -76,17 +83,61 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
   }
 
   search(event: any) {
-    const query = event.query.toLowerCase();
-    this.filteredOptions = this.options.filter((option) => {
+    const query = event.query.toLowerCase().trim();
+    this.currentQuery = event.query.trim();
+    
+    // Emit search query for parent to handle dynamic loading
+    this.searchQuery.emit(this.currentQuery);
+    
+    // Filter existing options
+    const filtered = this.options.filter((option) => {
       const label = option[this.optionLabel];
       return label && label.toString().toLowerCase().includes(query);
     });
+    
+    this.filteredOptions = filtered;
+    
+    // Show create option if creatable and no exact match found
+    if (this.creatable && query && filtered.length === 0) {
+      this.showCreateOption = true;
+      // Add a special "create" option
+      this.filteredOptions = [{
+        [this.optionLabel]: `${this.createLabel} "${this.currentQuery}"`,
+        __isCreateOption: true,
+        __createValue: this.currentQuery
+      }];
+    } else if (this.creatable && query) {
+      // Check if there's an exact match
+      const exactMatch = filtered.some(opt => 
+        opt[this.optionLabel].toLowerCase() === query
+      );
+      
+      if (!exactMatch) {
+        // Add create option at the end
+        this.filteredOptions.push({
+          [this.optionLabel]: `${this.createLabel} "${this.currentQuery}"`,
+          __isCreateOption: true,
+          __createValue: this.currentQuery
+        });
+      }
+    }
   }
 
   onSelect(event: AutoCompleteSelectEvent) {
-    let val = event.value;
+    const selected = event.value;
+    
+    // Check if this is a "create new" option
+    if (selected.__isCreateOption) {
+      this.create.emit(selected.__createValue);
+      // Clear the input after emitting create event
+      this.value = null;
+      return;
+    }
+    
+    // Normal selection
+    let val = selected;
     if (this.optionValue) {
-      val = val[this.optionValue];
+      val = selected[this.optionValue];
     }
     this.onChange(val);
   }

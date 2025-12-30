@@ -9,9 +9,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DepartmentService } from '../../../core/services/department.service';
-import { CompanyContextService } from '../../../core/services/companyContext.service';
-import { Department } from '../../../core/models/department.model';
+import { DepartmentService } from '../../../../core/services/department.service';
+import { CompanyContextService } from '../../../../core/services/companyContext.service';
+import { Department } from '../../../../core/models/department.model';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({

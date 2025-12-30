@@ -9,9 +9,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { JobPositionService } from '../../../core/services/job-position.service';
-import { CompanyContextService } from '../../../core/services/companyContext.service';
-import { JobPosition } from '../../../core/models/job-position.model';
+import { JobPositionService } from '../../../../core/services/job-position.service';
+import { CompanyContextService } from '../../../../core/services/companyContext.service';
+import { JobPosition } from '../../../../core/models/job-position.model';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({

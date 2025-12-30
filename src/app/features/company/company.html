@@ -39,18 +39,6 @@
             <span>{{ 'company.tabs.hrSettings' | translate }}</span>
           </div>
         </p-tab>
-        <p-tab value="documents" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
-          <div class="flex items-center gap-2">
-            <i class="pi pi-file"></i>
-            <span>{{ 'company.tabs.documents' | translate }}</span>
-          </div>
-        </p-tab>
-        <p-tab value="users" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
-          <div class="flex items-center gap-2">
-            <i class="pi pi-users"></i>
-            <span>{{ 'company.tabs.users' | translate }}</span>
-          </div>
-        </p-tab>
         <p-tab value="departments" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
           <div class="flex items-center gap-2">
             <i class="pi pi-sitemap"></i>
@@ -61,6 +49,30 @@
           <div class="flex items-center gap-2">
             <i class="pi pi-briefcase"></i>
             <span>{{ 'company.tabs.jobPositions' | translate }}</span>
+          </div>
+        </p-tab>
+        <p-tab value="contractTypes" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-file-edit"></i>
+            <span>{{ 'company.tabs.contractTypes' | translate }}</span>
+          </div>
+        </p-tab>
+        <p-tab value="referenceData" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-database"></i>
+            <span>{{ 'company.tabs.referenceData' | translate }}</span>
+          </div>
+        </p-tab>
+        <p-tab value="users" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-users"></i>
+            <span>{{ 'company.tabs.users' | translate }}</span>
+          </div>
+        </p-tab>
+        <p-tab value="documents" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-file"></i>
+            <span>{{ 'company.tabs.documents' | translate }}</span>
           </div>
         </p-tab>
         <p-tab value="history" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
@@ -77,17 +89,23 @@
         <p-tabpanel value="hrSettings">
           <app-hr-settings-tab></app-hr-settings-tab>
         </p-tabpanel>
-        <p-tabpanel value="documents">
-          <app-documents-tab></app-documents-tab>
-        </p-tabpanel>
-        <p-tabpanel value="users">
-          <app-users-tab></app-users-tab>
-        </p-tabpanel>
         <p-tabpanel value="departments">
           <app-department-tab></app-department-tab>
         </p-tabpanel>
         <p-tabpanel value="jobPositions">
           <app-job-position-tab></app-job-position-tab>
+        </p-tabpanel>
+        <p-tabpanel value="contractTypes">
+          <app-contract-type-tab></app-contract-type-tab>
+        </p-tabpanel>
+        <p-tabpanel value="referenceData">
+          <app-reference-data-tab></app-reference-data-tab>
+        </p-tabpanel>
+        <p-tabpanel value="users">
+          <app-users-tab></app-users-tab>
+        </p-tabpanel>
+        <p-tabpanel value="documents">
+          <app-documents-tab></app-documents-tab>
         </p-tabpanel>
         <p-tabpanel value="history">
           <app-history-tab></app-history-tab>

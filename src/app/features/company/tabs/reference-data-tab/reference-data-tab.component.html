@@ -1,0 +1,256 @@
+<div class="p-4 sm:p-6">
+  <div class="max-w-5xl mx-auto space-y-8">
+    <header>
+      <h1 class="text-xl font-semibold text-gray-900">{{ 'company.referenceData.title' | translate }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ 'company.referenceData.subtitle' | translate }}</p>
+    </header>
+
+    <!-- Genders Section -->
+    <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <h2 class="text-base font-medium text-gray-900 flex items-center gap-2">
+          <i class="pi pi-users text-gray-500"></i>
+          {{ 'company.referenceData.genders.title' | translate }}
+        </h2>
+        <p-button 
+          icon="pi pi-plus" 
+          [label]="'company.referenceData.genders.add' | translate"
+          size="small"
+          (onClick)="openCreateDialog('gender')">
+        </p-button>
+      </div>
+      <p-table 
+        [value]="genders()" 
+        [loading]="loadingGenders()"
+        [rowHover]="true"
+        styleClass="p-datatable-sm"
+        responsiveLayout="scroll">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="py-3!">{{ 'company.referenceData.genders.name' | translate }}</th>
+            <th class="py-3! w-32"></th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-gender>
+          <tr>
+            <td class="py-3!">
+              <div class="font-medium text-gray-900">{{ gender.genderName }}</div>
+            </td>
+            <td class="py-3! text-right">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                severity="secondary"
+                size="small"
+                (onClick)="openEditDialog('gender', gender)"
+                class="mr-2">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                [rounded]="true" 
+                [text]="true"
+                severity="danger"
+                size="small"
+                (onClick)="confirmDelete('gender', gender)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="2" class="text-center py-6 text-gray-500">
+              {{ 'common.noData' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </section>
+
+    <!-- Marital Statuses Section -->
+    <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <h2 class="text-base font-medium text-gray-900 flex items-center gap-2">
+          <i class="pi pi-heart text-gray-500"></i>
+          {{ 'company.referenceData.maritalStatuses.title' | translate }}
+        </h2>
+        <p-button 
+          icon="pi pi-plus" 
+          [label]="'company.referenceData.maritalStatuses.add' | translate"
+          size="small"
+          (onClick)="openCreateDialog('maritalStatus')">
+        </p-button>
+      </div>
+      <p-table 
+        [value]="maritalStatuses()" 
+        [loading]="loadingMaritalStatuses()"
+        [rowHover]="true"
+        styleClass="p-datatable-sm"
+        responsiveLayout="scroll">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="py-3!">{{ 'company.referenceData.maritalStatuses.name' | translate }}</th>
+            <th class="py-3! w-32"></th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-status>
+          <tr>
+            <td class="py-3!">
+              <div class="font-medium text-gray-900">{{ status.maritalStatusName }}</div>
+            </td>
+            <td class="py-3! text-right">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                severity="secondary"
+                size="small"
+                (onClick)="openEditDialog('maritalStatus', status)"
+                class="mr-2">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                [rounded]="true" 
+                [text]="true"
+                severity="danger"
+                size="small"
+                (onClick)="confirmDelete('maritalStatus', status)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="2" class="text-center py-6 text-gray-500">
+              {{ 'common.noData' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </section>
+
+    <!-- Education Levels Section -->
+    <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <h2 class="text-base font-medium text-gray-900 flex items-center gap-2">
+          <i class="pi pi-book text-gray-500"></i>
+          {{ 'company.referenceData.educationLevels.title' | translate }}
+        </h2>
+        <p-button 
+          icon="pi pi-plus" 
+          [label]="'company.referenceData.educationLevels.add' | translate"
+          size="small"
+          (onClick)="openCreateDialog('educationLevel')">
+        </p-button>
+      </div>
+      <p-table 
+        [value]="educationLevels()" 
+        [loading]="loadingEducationLevels()"
+        [rowHover]="true"
+        styleClass="p-datatable-sm"
+        responsiveLayout="scroll">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="py-3!">{{ 'company.referenceData.educationLevels.name' | translate }}</th>
+            <th class="py-3! w-32"></th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-level>
+          <tr>
+            <td class="py-3!">
+              <div class="font-medium text-gray-900">{{ level.educationLevelName }}</div>
+            </td>
+            <td class="py-3! text-right">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                severity="secondary"
+                size="small"
+                (onClick)="openEditDialog('educationLevel', level)"
+                class="mr-2">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                [rounded]="true" 
+                [text]="true"
+                severity="danger"
+                size="small"
+                (onClick)="confirmDelete('educationLevel', level)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="2" class="text-center py-6 text-gray-500">
+              {{ 'common.noData' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </section>
+  </div>
+</div>
+
+<!-- Shared Dialog for all types -->
+<p-dialog 
+  [visible]="dialogVisible()" 
+  (visibleChange)="dialogVisible.set($event)"
+  [header]="getDialogTitle()"
+  [modal]="true"
+  [style]="{width: '30rem'}"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <form [formGroup]="itemForm" class="space-y-4">
+    <div>
+      <label for="itemName" class="block mb-2 text-sm font-medium text-gray-900">
+        {{ getFieldLabel() }}
+        <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
+      </label>
+      <input 
+        pInputText 
+        id="itemName" 
+        formControlName="name" 
+        class="w-full"
+        type="text"
+        [placeholder]="getPlaceholder()"
+        [ngClass]="{'ng-invalid ng-dirty': itemForm.get('name')?.invalid && itemForm.get('name')?.touched}" />
+      @if (itemForm.get('name')?.invalid && itemForm.get('name')?.touched) {
+        <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
+          <i class="pi pi-exclamation-circle text-xs"></i>
+          {{ 'errors.required' | translate }}
+        </small>
+      }
+    </div>
+  </form>
+  
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button 
+        [label]="'common.cancel' | translate" 
+        severity="secondary"
+        (onClick)="dialogVisible.set(false)">
+      </p-button>
+      <p-button 
+        [label]="'common.save' | translate" 
+        icon="pi pi-check"
+        [loading]="submitLoading()"
+        (onClick)="saveItem()">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmDialog [style]="{width: '450px'}" />
