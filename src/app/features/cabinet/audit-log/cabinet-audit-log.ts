@@ -127,57 +127,17 @@ export class CabinetAuditLogComponent implements OnInit {
 
   loadData(): void {
     this.isLoading.set(true);
-    // Mock data loading - replace with actual API call
-    // The current AuditLogService might need extending to fetch cabinet-wide logs
     
-    setTimeout(() => {
-      const mockLogs: AuditLogDisplayItem[] = [
-        {
-          id: 1,
-          type: 'company',
-          entityId: 101,
-          timestamp: new Date(),
-          eventType: AuditEventType.COMPANY_CREATED,
-          description: 'Created new company "Tech Solutions SARL"',
-          actor: { id: 1, name: 'Ayoub Owner', role: 'Owner' },
-          entityType: 'Company',
-          entityName: 'Tech Solutions SARL',
-          severity: 'success',
-          icon: 'pi pi-plus',
-          details: { legalForm: 'SARL', ice: '123456789' }
-        },
-        {
-          id: 2,
-          type: 'employee',
-          entityId: 201,
-          timestamp: new Date(Date.now() - 3600000),
-          eventType: AuditEventType.USER_ROLE_ASSIGNED,
-          description: 'Assigned role "Manager" to user "John Doe"',
-          actor: { id: 1, name: 'Ayoub Owner', role: 'Owner' },
-          entityType: 'User',
-          entityName: 'John Doe',
-          severity: 'info',
-          icon: 'pi pi-user-edit',
-          details: { role: 'Manager', scope: 'Tech Solutions SARL' }
-        },
-        {
-          id: 3,
-          type: 'company',
-          entityId: 102,
-          timestamp: new Date(Date.now() - 86400000),
-          eventType: AuditEventType.COMPANY_DELEGATION_ADDED,
-          description: 'Delegated access to "Cabinet Expert"',
-          actor: { id: 2, name: 'Client Admin', role: 'Admin' },
-          entityType: 'Company',
-          entityName: 'Green Energy Corp',
-          severity: 'warn',
-          icon: 'pi pi-share-alt',
-          details: { cabinet: 'Cabinet Expert' }
-        }
-      ];
-      this.logs.set(mockLogs);
-      this.isLoading.set(false);
-    }, 1000);
+    this.auditLogService.getCabinetAuditLogs().subscribe({
+      next: (logs) => {
+        this.logs.set(logs);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load audit logs', err);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   loadCompanies(): void {
