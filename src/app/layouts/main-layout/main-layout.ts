@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { Header } from '../../shared/components/header/header';
 import { LanguageSwitcher } from '../../shared/components/language-switcher/language-switcher';
+import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-main-layout',
@@ -18,6 +19,7 @@ import { LanguageSwitcher } from '../../shared/components/language-switcher/lang
     Sidebar,
     Header,
     LanguageSwitcher,
+    BreadcrumbComponent,
     CommonModule,
     RouterModule,
     InputTextModule,

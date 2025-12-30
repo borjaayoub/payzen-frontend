@@ -141,28 +141,14 @@ export class AuditLogService {
       params = params.set('companyId', filter.companyId.toString());
     }
 
-    // Client-side fallback: fetch managed companies then aggregate each company's history
-    // Prefer a backend endpoint like GET /companies/expert/history for efficiency.
-    return this.companyService.getManagedCompanies().pipe(
-      switchMap((companies: any[]) => {
-        console.log('[AuditLogService] getCabinetAuditLogs - managed companies:', companies?.length, companies);
-        if (!companies || companies.length === 0) return of([]);
-
-        const requests = companies.map(c =>
-          this.getCompanyAuditLogs(Number(c.id), filter).pipe(
-            map(items => items.map(it => ({ ...it, entityId: Number(c.id), entityName: c.legalName || String(c.id) })))
-          )
-        );
-
-        return forkJoin(requests).pipe(
-          map((arrays: AuditLogDisplayItem[][]) => {
-            const all = arrays.flat();
-            console.debug('[AuditLogService] getCabinetAuditLogs - aggregated items count:', all.length);
-            return all.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-          })
-        );
-      })
-    );
+    // For now, return empty array - backend endpoint needs to be implemented
+    // return this.http.get<any[]>(`${this.apiUrl}/audit-logs/cabinet`, { params })
+    //   .pipe(map(items => items.map(item => this.mapToDisplayItem(item))));
+    
+    return new Observable(observer => {
+      observer.next([]);
+      observer.complete();
+    });
   }
 
   /**

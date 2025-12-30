@@ -10,10 +10,8 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
-import { Gender, MaritalStatus, EducationLevel } from '../../../../core/models/reference-data.model';
+import { EducationLevel } from '../../../../core/models/reference-data.model';
 import { HttpErrorResponse } from '@angular/common/http';
-
-type ReferenceDataType = 'gender' | 'maritalStatus' | 'educationLevel';
 
 @Component({
   selector: 'app-reference-data-tab',
@@ -40,13 +38,9 @@ export class ReferenceDataTabComponent implements OnInit {
   private translate = inject(TranslateService);
 
   // Signals for data
-  genders = signal<Gender[]>([]);
-  maritalStatuses = signal<MaritalStatus[]>([]);
   educationLevels = signal<EducationLevel[]>([]);
   
   // Loading states
-  loadingGenders = signal(false);
-  loadingMaritalStatuses = signal(false);
   loadingEducationLevels = signal(false);
   
   // Dialog states
@@ -57,7 +51,6 @@ export class ReferenceDataTabComponent implements OnInit {
   itemForm!: FormGroup;
   isEditMode = false;
   currentItemId: number | null = null;
-  currentType: ReferenceDataType = 'gender';
 
   ngOnInit() {
     this.initForm();
@@ -71,39 +64,7 @@ export class ReferenceDataTabComponent implements OnInit {
   }
 
   private loadAllData() {
-    this.loadGenders();
-    this.loadMaritalStatuses();
     this.loadEducationLevels();
-  }
-
-  loadGenders() {
-    this.loadingGenders.set(true);
-    this.referenceDataService.getGenders().subscribe({
-      next: (data) => {
-        this.genders.set(data);
-        this.loadingGenders.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading genders', err);
-        this.loadingGenders.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load genders' });
-      }
-    });
-  }
-
-  loadMaritalStatuses() {
-    this.loadingMaritalStatuses.set(true);
-    this.referenceDataService.getMaritalStatuses().subscribe({
-      next: (data) => {
-        this.maritalStatuses.set(data);
-        this.loadingMaritalStatuses.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading marital statuses', err);
-        this.loadingMaritalStatuses.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load marital statuses' });
-      }
-    });
   }
 
   loadEducationLevels() {
@@ -122,43 +83,31 @@ export class ReferenceDataTabComponent implements OnInit {
   }
 
   // Dialog operations
-  openCreateDialog(type: ReferenceDataType) {
-    this.currentType = type;
+  openCreateDialog() {
     this.isEditMode = false;
     this.currentItemId = null;
     this.itemForm.reset();
     this.dialogVisible.set(true);
   }
 
-  openEditDialog(type: ReferenceDataType, item: Gender | MaritalStatus | EducationLevel) {
-    this.currentType = type;
+  openEditDialog(item: EducationLevel) {
     this.isEditMode = true;
     this.currentItemId = item.id;
-    
-    const name = this.getItemName(type, item);
-    this.itemForm.patchValue({ name });
+    this.itemForm.patchValue({ name: item.educationLevelName });
     this.dialogVisible.set(true);
-  }
-
-  private getItemName(type: ReferenceDataType, item: Gender | MaritalStatus | EducationLevel): string {
-    switch (type) {
-      case 'gender': return (item as Gender).genderName;
-      case 'maritalStatus': return (item as MaritalStatus).maritalStatusName;
-      case 'educationLevel': return (item as EducationLevel).educationLevelName;
-    }
   }
 
   getDialogTitle(): string {
     const action = this.isEditMode ? 'edit' : 'create';
-    return this.translate.instant(`company.referenceData.${this.currentType}s.${action}`);
+    return this.translate.instant(`company.referenceData.educationLevels.${action}`);
   }
 
   getFieldLabel(): string {
-    return this.translate.instant(`company.referenceData.${this.currentType}s.name`);
+    return this.translate.instant('company.referenceData.educationLevels.name');
   }
 
   getPlaceholder(): string {
-    return this.translate.instant(`company.referenceData.${this.currentType}s.placeholder`);
+    return this.translate.instant('company.referenceData.educationLevels.placeholder');
   }
 
   saveItem() {
@@ -178,61 +127,38 @@ export class ReferenceDataTabComponent implements OnInit {
   }
 
   private createItem(name: string) {
-    const onSuccess = () => {
-      this.submitLoading.set(false);
-      this.dialogVisible.set(false);
-      this.reloadCurrentType();
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item created successfully' });
-    };
-
-    const onError = (err: HttpErrorResponse) => {
-      this.submitLoading.set(false);
-      this.handleError(err);
-    };
-
-    switch (this.currentType) {
-      case 'gender':
-        this.referenceDataService.createGender({ GenderName: name }).subscribe({ next: onSuccess, error: onError });
-        break;
-      case 'maritalStatus':
-        this.referenceDataService.createMaritalStatus({ MaritalStatusName: name }).subscribe({ next: onSuccess, error: onError });
-        break;
-      case 'educationLevel':
-        this.referenceDataService.createEducationLevel({ EducationLevelName: name }).subscribe({ next: onSuccess, error: onError });
-        break;
-    }
+    this.referenceDataService.createEducationLevel({ EducationLevelName: name }).subscribe({
+      next: () => {
+        this.submitLoading.set(false);
+        this.dialogVisible.set(false);
+        this.loadEducationLevels();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item created successfully' });
+      },
+      error: (err: HttpErrorResponse) => {
+        this.submitLoading.set(false);
+        this.handleError(err);
+      }
+    });
   }
 
   private updateItem(name: string) {
     if (!this.currentItemId) return;
 
-    const onSuccess = () => {
-      this.submitLoading.set(false);
-      this.dialogVisible.set(false);
-      this.reloadCurrentType();
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item updated successfully' });
-    };
-
-    const onError = (err: HttpErrorResponse) => {
-      this.submitLoading.set(false);
-      this.handleError(err);
-    };
-
-    switch (this.currentType) {
-      case 'gender':
-        this.referenceDataService.updateGender(this.currentItemId, { GenderName: name }).subscribe({ next: onSuccess, error: onError });
-        break;
-      case 'maritalStatus':
-        this.referenceDataService.updateMaritalStatus(this.currentItemId, { MaritalStatusName: name }).subscribe({ next: onSuccess, error: onError });
-        break;
-      case 'educationLevel':
-        this.referenceDataService.updateEducationLevel(this.currentItemId, { EducationLevelName: name }).subscribe({ next: onSuccess, error: onError });
-        break;
-    }
+    this.referenceDataService.updateEducationLevel(this.currentItemId, { EducationLevelName: name }).subscribe({
+      next: () => {
+        this.submitLoading.set(false);
+        this.dialogVisible.set(false);
+        this.loadEducationLevels();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item updated successfully' });
+      },
+      error: (err: HttpErrorResponse) => {
+        this.submitLoading.set(false);
+        this.handleError(err);
+      }
+    });
   }
 
-  confirmDelete(type: ReferenceDataType, item: Gender | MaritalStatus | EducationLevel) {
-    this.currentType = type;
+  confirmDelete(item: EducationLevel) {
     this.confirmationService.confirm({
       message: this.translate.instant('company.referenceData.deleteConfirm'),
       header: this.translate.instant('common.confirmation'),
@@ -244,34 +170,15 @@ export class ReferenceDataTabComponent implements OnInit {
   }
 
   private deleteItem(id: number) {
-    const onSuccess = () => {
-      this.reloadCurrentType();
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item deleted successfully' });
-    };
-
-    const onError = (err: HttpErrorResponse) => {
-      this.handleError(err);
-    };
-
-    switch (this.currentType) {
-      case 'gender':
-        this.referenceDataService.deleteGender(id).subscribe({ next: onSuccess, error: onError });
-        break;
-      case 'maritalStatus':
-        this.referenceDataService.deleteMaritalStatus(id).subscribe({ next: onSuccess, error: onError });
-        break;
-      case 'educationLevel':
-        this.referenceDataService.deleteEducationLevel(id).subscribe({ next: onSuccess, error: onError });
-        break;
-    }
-  }
-
-  private reloadCurrentType() {
-    switch (this.currentType) {
-      case 'gender': this.loadGenders(); break;
-      case 'maritalStatus': this.loadMaritalStatuses(); break;
-      case 'educationLevel': this.loadEducationLevels(); break;
-    }
+    this.referenceDataService.deleteEducationLevel(id).subscribe({
+      next: () => {
+        this.loadEducationLevels();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Item deleted successfully' });
+      },
+      error: (err: HttpErrorResponse) => {
+        this.handleError(err);
+      }
+    });
   }
 
   private handleError(err: HttpErrorResponse) {

@@ -55,7 +55,8 @@
       "pendingLeaves": "Demandes de Congés en Attente",
       "recentActivity": "Activité Récente",
       "viewAll": "Voir Tout",
-      "backToPortfolio": "Retour au Portefeuille"
+      "backToPortfolio": "Retour au Portefeuille",
+      "viewingAsExpert": "Vous consultez cette entreprise en tant qu'Expert"
     }
   },
   "profile": {
@@ -160,8 +161,12 @@
     }
   },
   "common": {
+    "system": "Système",
+    "readOnly": "Lecture seule",
     "save": "Enregistrer",
     "cancel": "Annuler",
+    "create": "Créer",
+    "update": "Mettre à jour",
     "delete": "Supprimer",
     "edit": "Modifier",
     "add": "Ajouter",
@@ -433,8 +438,11 @@
       "subtitle": "Gérez les départements de l'entreprise",
       "add": "Ajouter un département",
       "edit": "Modifier le département",
-      "create": "Créer un département",
-      "table": {
+      "create": "Créer un département",      "editDescription": "Mettre à jour les informations du département",
+      "createDescription": "Ajouter un nouveau département à votre organisation",
+      "nameHint": "Saisissez un nom descriptif pour ce département",
+      "examples": "Suggestions rapides",
+      "footerInfo": "Les champs obligatoires sont marqués d'un *",      "table": {
         "name": "Nom du département"
       },
       "fields": {
@@ -450,6 +458,11 @@
       "add": "Ajouter un poste",
       "edit": "Modifier le poste",
       "create": "Créer un poste",
+      "editDescription": "Mettre à jour les détails du poste",
+      "createDescription": "Ajouter un nouveau poste à votre organisation",
+      "nameHint": "Entrez le titre du poste (ex: Ingénieur logiciel, Responsable RH)",
+      "examples": "Exemples courants",
+      "footerInfo": "Utilisé pour catégoriser les rôles des employés",
       "table": {
         "name": "Intitulé du poste"
       },
@@ -466,6 +479,11 @@
       "add": "Ajouter un type de contrat",
       "edit": "Modifier le type de contrat",
       "create": "Créer un type de contrat",
+      "editDescription": "Mettre à jour les détails du type de contrat",
+      "createDescription": "Ajouter un nouveau type de contrat pour les accords d'emploi",
+      "nameHint": "Entrez le nom du type de contrat (ex: Temps plein, Temps partiel)",
+      "examples": "Exemples courants",
+      "footerInfo": "Définit les catégories d'accords d'emploi",
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce type de contrat ? Cette action est irréversible.",
       "table": {
         "name": "Nom du type de contrat"

@@ -1,73 +1,168 @@
 <div class="p-4 sm:p-6">
-  <div class="max-w-5xl mx-auto space-y-6">
-    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-xl font-semibold text-gray-900">{{ 'company.jobPositions.title' | translate }}</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ 'company.jobPositions.subtitle' | translate }}</p>
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Enhanced Header with Icon -->
+    <header class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <!-- Icon Badge -->
+        <div class="shrink-0 size-12 rounded-xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-sm">
+          <i class="pi pi-briefcase text-white text-xl"></i>
+        </div>
+        
+        <!-- Title & Description -->
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900 leading-tight">
+            {{ 'company.jobPositions.title' | translate }}
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            {{ 'company.jobPositions.subtitle' | translate }}
+          </p>
+          
+          <!-- Stats Badge -->
+          @if (jobPositions().length > 0) {
+            <div class="flex items-center gap-2 mt-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">
+                <i class="pi pi-chart-bar text-[10px]"></i>
+                {{ jobPositions().length }} {{ jobPositions().length === 1 ? 'position' : 'positions' }}
+              </span>
+            </div>
+          }
+        </div>
       </div>
+      
+      <!-- Action Button -->
       <p-button 
         icon="pi pi-plus" 
         [label]="'company.jobPositions.add' | translate"
+        size="small"
         (onClick)="openCreateDialog()">
       </p-button>
     </header>
 
+    <!-- Main Content Card -->
     <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" aria-labelledby="jobPositions-heading">
       <h2 id="jobPositions-heading" class="sr-only">{{ 'company.jobPositions.title' | translate }}</h2>
       
-      <p-table 
-        [value]="jobPositions()" 
-        [loading]="loading()"
-        [rowHover]="true"
-        styleClass="p-datatable-sm"
-        responsiveLayout="scroll">
-        
-        <ng-template pTemplate="header">
-          <tr>
-            <th class="py-3!">{{ 'company.jobPositions.table.name' | translate }}</th>
-            <th class="py-3! w-32"></th>
-          </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="body" let-jobPosition>
-          <tr>
-            <td class="py-3!">
-              <div class="font-medium text-gray-900">{{ jobPosition.name }}</div>
-            </td>
-            
-            <td class="py-3! text-right">
-                <p-button 
-                    icon="pi pi-pencil" 
-                    [rounded]="true" 
-                    [text]="true"
-                    severity="secondary"
-                    size="small"
-                    (onClick)="openEditDialog(jobPosition)"
-                    class="mr-2">
-                </p-button>
-                <p-button 
-                    icon="pi pi-trash" 
-                    [rounded]="true" 
-                    [text]="true"
-                    severity="danger"
-                    size="small"
-                    (onClick)="confirmDelete(jobPosition)">
-                </p-button>
-            </td>
-          </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="2" class="text-center py-8">
-              <div class="flex flex-col items-center gap-2 text-gray-500">
-                <i class="pi pi-briefcase text-3xl text-gray-300"></i>
-                <span>{{ 'common.noData' | translate }}</span>
+      <!-- Card Header -->
+      <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">
+              {{ 'company.jobPositions.table.name' | translate }}
+            </h3>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Define roles and positions within your organization
+            </p>
+          </div>
+          
+          @if (jobPositions().length > 5) {
+            <div class="relative max-w-xs w-full sm:w-64">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <i class="pi pi-search text-sm"></i>
+              </span>
+              <input 
+                type="text"
+                placeholder="Search positions..."
+                class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white">
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- List Content -->
+      @if (loading()) {
+        <div class="p-8 flex items-center justify-center">
+          <div class="flex flex-col items-center gap-3 text-gray-400">
+            <i class="pi pi-spin pi-spinner text-3xl"></i>
+            <span class="text-sm">{{ 'common.loading' | translate }}</span>
+          </div>
+        </div>
+      } @else if (jobPositions().length === 0) {
+        <div class="p-12">
+          <div class="max-w-sm mx-auto text-center">
+            <div class="inline-flex items-center justify-center size-16 rounded-2xl bg-gray-100 mb-4">
+              <i class="pi pi-briefcase text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-900 mb-1">
+              No job positions yet
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">
+              Create job positions to better organize your team roles and responsibilities.
+            </p>
+            <p-button 
+              icon="pi pi-plus" 
+              [label]="'company.jobPositions.add' | translate"
+              size="small"
+              (onClick)="openCreateDialog()">
+            </p-button>
+          </div>
+        </div>
+      } @else {
+        <div class="divide-y divide-gray-100">
+          @for (jobPosition of jobPositions(); track jobPosition.id) {
+            <div class="group px-6 py-4 hover:bg-gray-50/80 transition-colors">
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <div class="shrink-0 size-10 rounded-lg bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+                    <i class="pi pi-briefcase text-purple-600 text-sm"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-medium text-gray-900 truncate">
+                        {{ jobPosition.name }}
+                      </h4>
+                      @if (!jobPosition.companyId) {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                          <i class="pi pi-lock text-[10px]"></i>
+                          {{ 'common.system' | translate }}
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      Job Position • {{ jobPosition.companyId ? 'Custom' : 'System' }}
+                    </p>
+                  </div>
+                </div>
+                
+                @if (jobPosition.companyId) {
+                  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      (click)="openEditDialog(jobPosition)"
+                      class="inline-flex items-center justify-center size-8 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 hover:shadow-sm transition-all"
+                      [attr.aria-label]="'common.edit' | translate">
+                      <i class="pi pi-pencil text-sm"></i>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="confirmDelete(jobPosition)"
+                      class="inline-flex items-center justify-center size-8 rounded-lg text-gray-600 hover:bg-white hover:text-red-600 hover:shadow-sm transition-all"
+                      [attr.aria-label]="'common.delete' | translate">
+                      <i class="pi pi-trash text-sm"></i>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="text-gray-400 text-sm px-3">
+                    <i class="pi pi-lock text-xs"></i>
+                  </div>
+                }
               </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+            </div>
+          }
+        </div>
+        
+        <div class="px-6 py-3 bg-gray-50/50 border-t border-gray-100">
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span>
+              Showing {{ jobPositions().length }} {{ jobPositions().length === 1 ? 'position' : 'positions' }}
+            </span>
+            <span class="flex items-center gap-1">
+              <i class="pi pi-info-circle text-blue-500"></i>
+              Last updated: now
+            </span>
+          </div>
+        </div>
+      }
     </section>
   </div>
 </div>
@@ -75,50 +170,119 @@
 <p-dialog 
   [visible]="dialogVisible()" 
   (visibleChange)="dialogVisible.set($event)"
-  [header]="(isEditMode ? 'company.jobPositions.edit' : 'company.jobPositions.create') | translate"
   [modal]="true"
-  [style]="{width: '30rem'}"
+  [style]="{width: '32rem'}"
   [draggable]="false"
-  [resizable]="false">
+  [resizable]="false"
+  [showHeader]="false"
+  styleClass="app-dialog app-dialog--narrow">
   
-  <form [formGroup]="jobPositionForm" class="space-y-4">
-    <div>
-      <label for="name" class="block mb-2 text-sm font-medium text-gray-900">
-        {{ 'company.jobPositions.fields.name' | translate }}
-        <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
-      </label>
-      <input 
-        pInputText 
-        id="name" 
-        formControlName="name" 
-        class="w-full"
-        type="text"
-        [placeholder]="'company.jobPositions.placeholders.name' | translate"
-        [ngClass]="{'ng-invalid ng-dirty': jobPositionForm.get('name')?.invalid && jobPositionForm.get('name')?.touched}" />
-      @if (jobPositionForm.get('name')?.invalid && jobPositionForm.get('name')?.touched) {
-        <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
-          <i class="pi pi-exclamation-circle text-xs"></i>
-          {{ 'errors.required' | translate }}
+  <!-- Custom Header -->
+  <div class="px-6 pt-6 pb-4 border-b border-gray-100">
+    <div class="flex items-start gap-4">
+      <div class="shrink-0 size-12 rounded-xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-sm">
+        <i class="pi pi-briefcase text-white text-xl"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="text-xl font-semibold text-gray-900 leading-tight">
+          {{ (isEditMode ? 'company.jobPositions.edit' : 'company.jobPositions.create') | translate }}
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ (isEditMode ? 'company.jobPositions.editDescription' : 'company.jobPositions.createDescription') | translate }}
+        </p>
+      </div>
+      <button 
+        type="button"
+        (click)="dialogVisible.set(false)"
+        class="shrink-0 size-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        [attr.aria-label]="'common.close' | translate">
+        <i class="pi pi-times text-lg"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Form Content -->
+  <div class="px-6 py-6">
+    <form [formGroup]="jobPositionForm">
+      <div class="form-field">
+        <label for="name" class="form-label form-label-required">
+          {{ 'company.jobPositions.fields.name' | translate }}
+        </label>
+        <p-autoComplete 
+          id="name" 
+          formControlName="name" 
+          [suggestions]="filteredJobPositions()" 
+          (completeMethod)="searchJobPositions($event)" 
+          field="name"
+          [dropdown]="true"
+          [forceSelection]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [placeholder]="'company.jobPositions.placeholders.name' | translate"
+          [ngClass]="{'ng-invalid ng-dirty': jobPositionForm.get('name')?.invalid && jobPositionForm.get('name')?.touched}">
+        </p-autoComplete>
+        @if (jobPositionForm.get('name')?.invalid && jobPositionForm.get('name')?.touched) {
+          <small class="form-error">
+            <i class="pi pi-exclamation-circle"></i>
+            {{ 'errors.required' | translate }}
+          </small>
+        }
+        <small class="block text-xs text-gray-500 mt-1.5">
+          {{ 'company.jobPositions.nameHint' | translate }}
         </small>
+      </div>
+      
+      <!-- Quick Examples -->
+      @if (!isEditMode) {
+        <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+          <div class="flex items-start gap-2">
+            <i class="pi pi-lightbulb text-blue-600 text-sm mt-0.5"></i>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-blue-900 mb-1">
+                {{ 'company.jobPositions.examples' | translate }}
+              </p>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" (click)="jobPositionForm.patchValue({name: 'Software Engineer'})" class="px-2 py-1 bg-white text-blue-700 rounded text-xs hover:bg-blue-100 transition-colors">
+                  Software Engineer
+                </button>
+                <button type="button" (click)="jobPositionForm.patchValue({name: 'Project Manager'})" class="px-2 py-1 bg-white text-blue-700 rounded text-xs hover:bg-blue-100 transition-colors">
+                  Project Manager
+                </button>
+                <button type="button" (click)="jobPositionForm.patchValue({name: 'HR Specialist'})" class="px-2 py-1 bg-white text-blue-700 rounded text-xs hover:bg-blue-100 transition-colors">
+                  HR Specialist
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       }
-    </div>
-  </form>
+    </form>
+  </div>
   
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-2">
-      <p-button 
-        [label]="'common.cancel' | translate" 
-        severity="secondary"
-        (onClick)="dialogVisible.set(false)">
-      </p-button>
-      <p-button 
-        [label]="'common.save' | translate" 
-        icon="pi pi-check"
-        [loading]="submitLoading()"
-        (onClick)="saveJobPosition()">
-      </p-button>
+  <!-- Footer Info & Actions -->
+  <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+    <div class="flex items-center justify-between gap-4">
+      <p class="text-xs text-gray-500 flex items-center gap-1.5">
+        <i class="pi pi-info-circle text-blue-500"></i>
+        {{ 'company.jobPositions.footerInfo' | translate }}
+      </p>
+      <div class="flex items-center gap-2">
+        <p-button 
+          [label]="'common.cancel' | translate" 
+          severity="secondary"
+          size="small"
+          (onClick)="dialogVisible.set(false)">
+        </p-button>
+        <p-button 
+          [label]="(isEditMode ? 'common.update' : 'common.create') | translate" 
+          icon="pi pi-check"
+          size="small"
+          [loading]="submitLoading()"
+          (onClick)="saveJobPosition()">
+        </p-button>
+      </div>
     </div>
-  </ng-template>
+  </div>
 </p-dialog>
 
 <p-toast />

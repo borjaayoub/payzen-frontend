@@ -23,6 +23,10 @@ export class ContractTypeService {
     return this.http.get<ContractType[]>(`${this.apiUrl}/by-company/${companyId}`);
   }
 
+  getPredefined(): Observable<ContractType[]> {
+    return this.http.get<ContractType[]>(`${this.apiUrl}/predefined`);
+  }
+
   create(dto: ContractTypeCreateDto): Observable<ContractType> {
     return this.http.post<ContractType>(this.apiUrl, dto);
   }

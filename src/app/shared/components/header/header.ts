@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
+import { TagModule } from 'primeng/tag';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { CompanyService } from '@app/core/services/company.service';
@@ -24,6 +25,7 @@ import { filter } from 'rxjs/operators';
     TooltipModule, 
     Select,
     BadgeModule,
+    TagModule,
     LanguageSwitcher
   ],
   templateUrl: './header.html',
@@ -63,53 +65,71 @@ export class Header implements OnInit {
     });
   }
   
-  // Computed: All selectable options (Portfolio + Client Companies)
+  // Computed: All selectable options (Portfolio + Client Companies OR Memberships)
   readonly companyOptions = computed(() => {
-    const current = this.contextService.currentContext();
-    if (!current?.cabinetId) return [];
+    // If Expert Mode: Show Portfolio + Managed Companies
+    if (this.isExpertMode()) {
+      const current = this.contextService.currentContext();
+      if (!current?.cabinetId) return [];
 
-    // Create portfolio option with all required Company fields
-    const portfolioOption: Company = {
-      id: current.cabinetId,
-      legalName: current.companyName || 'Portfolio',
-      ice: 'PORTFOLIO',
-      cnss: '',
-      address: '',
-      city: '',
-      postalCode: '',
-      country: 'Morocco',
-      phone: '',
-      email: '',
-      rc: '',
-      patente: '',
-      taxRegime: 'IS' as any,
-      fiscalYear: new Date().getFullYear(),
-      employeeCount: 0,
-      hrParameters: {
-        workingDays: [],
-        workingHoursPerDay: 8,
-        workingHoursPerWeek: 40,
-        leaveCalculationMode: 'MONTHLY',
-        absenceCalculationMode: 'DAYS',
-        annualLeaveDays: 22,
-        publicHolidays: [],
-        probationPeriodDays: 90,
-        noticePeriodDays: 30
-      },
-      documents: {
-        cnss_attestation: null,
-        amo: null,
-        logo: null,
-        rib: null,
-        other: []
-      },
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+      // Create portfolio option with all required Company fields
+      const portfolioOption: Company = {
+        id: current.cabinetId,
+        legalName: current.companyName || 'Portfolio',
+        ice: 'PORTFOLIO',
+        cnss: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        country: 'Morocco',
+        phone: '',
+        email: '',
+        rc: '',
+        patente: '',
+        taxRegime: 'IS' as any,
+        fiscalYear: new Date().getFullYear(),
+        employeeCount: 0,
+        hrParameters: {
+          workingDays: [],
+          workingHoursPerDay: 8,
+          workingHoursPerWeek: 40,
+          leaveCalculationMode: 'MONTHLY',
+          absenceCalculationMode: 'DAYS',
+          annualLeaveDays: 22,
+          publicHolidays: [],
+          probationPeriodDays: 90,
+          noticePeriodDays: 30
+        },
+        documents: {
+          cnss_attestation: null,
+          amo: null,
+          logo: null,
+          rib: null,
+          other: []
+        },
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    // Return portfolio first, then client companies
-    return [portfolioOption, ...this.clientCompanies()];
+      // Return portfolio first, then client companies
+      return [portfolioOption, ...this.clientCompanies()];
+    } 
+    
+    // If Standard Mode: Show Memberships as Company objects
+    const memberships = this.contextService.memberships();
+    if (memberships.length > 1) {
+      return memberships.map(m => ({
+        id: m.companyId,
+        legalName: m.companyName,
+        ice: m.role, // Storing role in ICE for display purposes temporarily
+        // Mock other required fields
+        cnss: '', address: '', city: '', postalCode: '', country: '', phone: '', email: '',
+        hrParameters: {} as any, documents: {} as any, isActive: true, createdAt: new Date(), updatedAt: new Date()
+      } as Company));
+    }
+
+    return [];
   });
 
   // Computed: Currently selected company from options
@@ -125,7 +145,7 @@ export class Header implements OnInit {
 
   // === Computed: Should show company selector? ===
   readonly showCompanySelector = computed(() => 
-    this.isExpertMode()
+    this.isExpertMode() || this.contextService.memberships().length > 1
   );
 
   ngOnInit(): void {
@@ -137,9 +157,9 @@ export class Header implements OnInit {
 
   // === Actions ===
   switchClient(): void {
-    // Reset to portfolio view and navigate to expert dashboard
+    // Reset to portfolio view and navigate to cabinet dashboard
     this.contextService.resetToPortfolioContext();
-    this.router.navigate(['/expert/dashboard']);
+    this.router.navigate(['/cabinet/dashboard']);
   }
 
   loadCompanies(): void {
@@ -163,25 +183,27 @@ export class Header implements OnInit {
     // If selecting the same company, do nothing
     if (company.id === this.companyId()) return;
 
-    const cabinetId = this.contextService.currentContext()?.cabinetId;
-    
-    // Check if selecting portfolio/cabinet
-    if (company.id === cabinetId) {
-      // Switch back to portfolio view
-      this.contextService.resetToPortfolioContext();
-      // Only navigate to dashboard if currently on a company-specific page
-      const currentUrl = this.router.url;
-      if (currentUrl.includes('/employees') || currentUrl.includes('/company') || currentUrl.includes('/leave')) {
-        this.router.navigate(['/expert/dashboard']);
+    // Handle Expert Mode Switching
+    if (this.isExpertMode()) {
+      const cabinetId = this.contextService.currentContext()?.cabinetId;
+      
+      // Check if selecting portfolio/cabinet
+      if (company.id === cabinetId) {
+        // Switch back to portfolio view
+        this.contextService.resetToPortfolioContext();
+        // Navigate to cabinet dashboard
+        this.router.navigate(['/cabinet/dashboard']);
+      } else {
+        // Switch to client view - don't navigate, stay on current page
+        // Components will auto-refresh via contextChanged$ subscription
+        this.contextService.switchToClientContext({
+          id: company.id,
+          legalName: company.legalName
+        }, false); // Don't navigate
       }
-      // Otherwise stay on current page - dashboard will auto-refresh via context change
     } else {
-      // Switch to client view - don't navigate, stay on current page
-      // Components will auto-refresh via contextChanged$ subscription
-      this.contextService.switchToClientContext({
-        id: company.id,
-        legalName: company.legalName
-      }, false); // Don't navigate
+      // Handle Standard Mode Switching (Multi-membership)
+      this.contextService.switchContext(company.id);
     }
   }
 }

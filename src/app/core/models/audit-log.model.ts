@@ -157,6 +157,7 @@ export interface EmployeeAuditLogDto {
 export interface AuditLogDisplayItem {
   id: number;
   type: 'company' | 'employee';
+  entityType?: string;
   entityId: number;
   entityName: string;
   eventType: AuditEventType;
@@ -165,6 +166,7 @@ export interface AuditLogDisplayItem {
     fieldName?: string;
     oldValue?: string;
     newValue?: string;
+    [key: string]: any;
   };
   timestamp: Date;
   actor: {
