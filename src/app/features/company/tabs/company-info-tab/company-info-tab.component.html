@@ -72,14 +72,15 @@
               <!-- Upload Button -->
               <p-fileUpload 
                 mode="basic" 
-                [chooseLabel]="'company.info.changeLogo' | translate" 
+                [chooseLabel]="'company.info.changeLogo' | translate"
+                chooseIcon="pi pi-upload"
                 name="logo" 
                 accept="image/*" 
                 [maxFileSize]="1000000" 
                 [customUpload]="true"
                 (uploadHandler)="onUpload($event)"
                 [auto]="true"
-                styleClass="w-full">
+                styleClass="w-full btn btn-primary ">
               </p-fileUpload>
               
               <!-- Company Name -->

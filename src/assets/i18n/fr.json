@@ -224,6 +224,10 @@
       "hrSettings": "Paramètres de Paie",
       "documents": "Signataires & Documents",
       "users": "Gestionnaires & Accès",
+      "departments": "Départements",
+      "jobPositions": "Postes",
+      "contractTypes": "Types de Contrat",
+      "referenceData": "Données de Référence",
       "history": "Historique"
     },
     "info": {
@@ -359,8 +363,10 @@
     "users": {
       "title": "Gestion des Utilisateurs",
       "subtitle": "Gérez qui peut accéder à ce profil d'entreprise.",
-      "invite": "Inviter un Utilisateur",
-      "sendInvite": "Envoyer l'Invitation",
+      "invite": "Ajouter un Utilisateur",
+      "sendInvite": "Créer le Compte",
+      "inviteSuccess": "Compte Utilisateur Créé",
+      "inviteSentTo": "Compte utilisateur créé pour {{name}}",
       "changeRole": "Changer le Rôle",
       "remove": "Supprimer",
       "table": {
@@ -377,11 +383,14 @@
         "remove": "Supprimer l'utilisateur"
       },
       "inviteDialog": {
-        "title": "Inviter un Nouvel Utilisateur",
+        "title": "Créer un Compte Utilisateur",
+        "selectEmployee": "Sélectionner un Employé",
+        "selectEmployeePlaceholder": "Rechercher ou sélectionner un employé...",
+        "noAvailableEmployees": "Tous les employés ont déjà un compte utilisateur.",
         "email": "Adresse Email",
-        "role": "Rôle",
+        "role": "Attribuer un Rôle",
         "selectRole": "Sélectionner un rôle",
-        "hint": "Un email d'invitation sera envoyé à l'utilisateur avec les instructions de connexion."
+        "hint": "Un compte utilisateur sera créé pour l'employé sélectionné."
       }
     },
     "status": {
@@ -449,6 +458,52 @@
       },
       "placeholders": {
         "name": "ex : Développeur .NET"
+      }
+    },
+    "contractTypes": {
+      "title": "Types de Contrat",
+      "subtitle": "Gérez les types de contrat de l'entreprise",
+      "add": "Ajouter un type de contrat",
+      "edit": "Modifier le type de contrat",
+      "create": "Créer un type de contrat",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce type de contrat ? Cette action est irréversible.",
+      "table": {
+        "name": "Nom du type de contrat"
+      },
+      "fields": {
+        "name": "Nom du type de contrat"
+      },
+      "placeholders": {
+        "name": "ex : CDI, CDD, Stage"
+      }
+    },
+    "referenceData": {
+      "title": "Données de Référence",
+      "subtitle": "Gérez les données de référence système utilisées dans l'application",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.",
+      "genders": {
+        "title": "Genres",
+        "name": "Nom du genre",
+        "add": "Ajouter un genre",
+        "edit": "Modifier le genre",
+        "create": "Créer un genre",
+        "placeholder": "ex : Masculin, Féminin"
+      },
+      "maritalStatuses": {
+        "title": "Situations Matrimoniales",
+        "name": "Nom du statut",
+        "add": "Ajouter un statut",
+        "edit": "Modifier le statut",
+        "create": "Créer un statut",
+        "placeholder": "ex : Célibataire, Marié(e)"
+      },
+      "educationLevels": {
+        "title": "Niveaux d'Éducation",
+        "name": "Nom du niveau",
+        "add": "Ajouter un niveau",
+        "edit": "Modifier le niveau",
+        "create": "Créer un niveau",
+        "placeholder": "ex : Licence, Master"
       }
     }
   },

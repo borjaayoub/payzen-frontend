@@ -8,6 +8,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { Company, CompanyCreateByExpertDto } from '@app/core/models/company.model';
 import { CompanyService } from '@app/core/services/company.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { EmployeeService, CityLookupOption } from '@app/core/services/employee.service';
+import { SelectFieldComponent } from '@app/shared/components/form-controls/select-field';
 
 @Component({
   selector: 'app-client-form',
@@ -18,7 +20,8 @@ import { AuthService } from '@app/core/services/auth.service';
     TranslateModule,
     ButtonModule,
     InputTextModule,
-    CheckboxModule
+    CheckboxModule,
+    SelectFieldComponent
   ],
   templateUrl: './client-form.component.html',
   styles: [`
@@ -31,6 +34,7 @@ export class ClientFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private companyService = inject(CompanyService);
   private authService = inject(AuthService);
+  private employeeService = inject(EmployeeService);
 
   @Input() mode: 'create' | 'edit' = 'create';
   @Input() company?: Company;
@@ -40,12 +44,60 @@ export class ClientFormComponent implements OnInit {
   form!: FormGroup;
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+  
+  // City search
+  cities = signal<CityLookupOption[]>([]);
+  citiesLoading = signal<boolean>(false);
 
   ngOnInit(): void {
     this.initForm();
+    this.loadInitialCities();
     if (this.mode === 'edit' && this.company) {
       this.patchForm();
     }
+  }
+
+  private loadInitialCities(): void {
+    this.citiesLoading.set(true);
+    this.employeeService.searchCities('').subscribe({
+      next: (cities) => {
+        this.cities.set(cities);
+        this.citiesLoading.set(false);
+      },
+      error: () => {
+        this.citiesLoading.set(false);
+      }
+    });
+  }
+
+  onCitySearch(query: string): void {
+    this.citiesLoading.set(true);
+    this.employeeService.searchCities(query).subscribe({
+      next: (cities) => {
+        this.cities.set(cities);
+        this.citiesLoading.set(false);
+      },
+      error: () => {
+        this.citiesLoading.set(false);
+      }
+    });
+  }
+
+  onCreateCity(cityName: string): void {
+    this.citiesLoading.set(true);
+    this.employeeService.createCity(cityName).subscribe({
+      next: (newCity) => {
+        // Add the new city to the list
+        this.cities.update(cities => [...cities, newCity]);
+        // Set it as the selected value
+        this.form.patchValue({ city: newCity.label });
+        this.citiesLoading.set(false);
+      },
+      error: (err) => {
+        this.errorMessage.set('Failed to create city. Please try again.');
+        this.citiesLoading.set(false);
+      }
+    });
   }
 
   private initForm(): void {

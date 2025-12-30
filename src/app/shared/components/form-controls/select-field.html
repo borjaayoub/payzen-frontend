@@ -18,7 +18,6 @@
   <div class="fc-control">
     @if (variant === 'autocomplete') {
       <p-autoComplete
-        class="input"
         [inputId]="resolvedInputId"
         [class]="invalid ? 'fc-select fc-select-invalid' : 'fc-select'"
         [suggestions]="filteredOptions"
@@ -26,11 +25,11 @@
         [optionLabel]="optionLabel"
         [dataKey]="optionValue"
         [dropdown]="true"
-        [forceSelection]="true"
+        [forceSelection]="false"
         [placeholder]="placeholder"
         [appendTo]="appendTo"
         [disabled]="disabled"
-        [panelStyleClass]="'fc-select-panel fc-no-filter-icon'"
+        [panelStyleClass]="'fc-select-panel'"
         [ngModel]="value"
         (onSelect)="onSelect($event)"
         (onClear)="onClear()"

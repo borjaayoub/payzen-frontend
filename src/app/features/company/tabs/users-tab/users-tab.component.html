@@ -105,30 +105,73 @@
   (visibleChange)="inviteDialogVisible.set($event)"
   [header]="'company.users.inviteDialog.title' | translate"
   [modal]="true"
-  [style]="{width: '28rem'}"
+  [style]="{width: '32rem'}"
   [draggable]="false"
   [resizable]="false">
   
   <form [formGroup]="inviteForm" class="space-y-4">
-    <!-- Email Field -->
+    <!-- Employee Selection -->
     <div>
-      <label for="inviteEmail" class="block mb-2 text-sm font-medium text-gray-900">
-        {{ 'company.users.inviteDialog.email' | translate }}
+      <label for="inviteEmployee" class="block mb-2 text-sm font-medium text-gray-900">
+        {{ 'company.users.inviteDialog.selectEmployee' | translate }}
         <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
       </label>
-      <input 
-        pInputText 
-        id="inviteEmail" 
-        formControlName="email" 
-        class="w-full"
-        type="email"
-        placeholder="user@company.com"
-        [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('email')}" />
-      @if (isFieldInvalid('email')) {
-        <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
-          <i class="pi pi-exclamation-circle text-xs"></i>
-          {{ 'errors.invalidEmail' | translate }}
-        </small>
+      
+      @if (loadingEmployees()) {
+        <div class="flex items-center gap-2 text-gray-500 py-2">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span class="text-sm">{{ 'common.loading' | translate }}</span>
+        </div>
+      } @else if (availableEmployees().length === 0) {
+        <p-message severity="info" styleClass="w-full">
+          <ng-template pTemplate="content">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ 'company.users.inviteDialog.noAvailableEmployees' | translate }}</span>
+            </div>
+          </ng-template>
+        </p-message>
+      } @else {
+        <p-select 
+          id="inviteEmployee"
+          [options]="availableEmployees()" 
+          formControlName="employee" 
+          optionLabel="fullName"
+          [placeholder]="'company.users.inviteDialog.selectEmployeePlaceholder' | translate"
+          [filter]="true"
+          filterBy="fullName,email"
+          [showClear]="true"
+          styleClass="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('employee')}">
+          <ng-template pTemplate="selectedItem" let-employee>
+            <div class="flex items-center gap-2" *ngIf="employee">
+              <span class="inline-flex items-center justify-center size-6 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                {{ employee.firstName?.charAt(0) }}{{ employee.lastName?.charAt(0) }}
+              </span>
+              <div>
+                <span class="font-medium">{{ employee.fullName }}</span>
+                <span class="text-gray-500 text-sm ml-2">{{ employee.email }}</span>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-employee>
+            <div class="flex items-center gap-3 py-1">
+              <span class="inline-flex items-center justify-center size-8 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
+                {{ employee.firstName?.charAt(0) }}{{ employee.lastName?.charAt(0) }}
+              </span>
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-900">{{ employee.fullName }}</span>
+                <span class="text-gray-500 text-xs">{{ employee.email }}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (isFieldInvalid('employee')) {
+          <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
+            <i class="pi pi-exclamation-circle text-xs"></i>
+            {{ 'errors.required' | translate }}
+          </small>
+        }
       }
     </div>
     
@@ -171,8 +214,9 @@
       </p-button>
       <p-button 
         [label]="'company.users.sendInvite' | translate" 
-        icon="pi pi-send"
+        icon="pi pi-user-plus"
         [loading]="inviteLoading()"
+        [disabled]="availableEmployees().length === 0"
         (onClick)="sendInvite()">
       </p-button>
     </div>
