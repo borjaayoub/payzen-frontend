@@ -20,6 +20,7 @@ export interface Company {
   hrParameters: HRParameters;
   documents: CompanyDocuments;
   isActive: boolean;
+  status?: 'active' | 'suspended' | 'pending';
   logoUrl?: string;
   rib?: string;                    // Bank account number
   // Cabinet/Multi-company management fields

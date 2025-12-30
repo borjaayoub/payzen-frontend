@@ -40,10 +40,13 @@
                 @if (company.ice === 'PORTFOLIO') {
                   <i class="pi pi-briefcase text-xs text-(--primary)"></i>
                   <span class="font-semibold text-(--primary)">{{ company.legalName }}</span>
-                  <span class="text-xs text-gray-500">({{ 'expert.portfolioView' | translate }})</span>
+                  <p-tag value="Cabinet" severity="info" [rounded]="true" class="ml-2 scale-75 origin-left"></p-tag>
                 } @else {
                   <i class="pi pi-building text-xs text-green-600"></i>
                   <span class="font-medium">{{ company.legalName }}</span>
+                  @if (!isExpertMode()) {
+                    <p-tag [value]="company.ice" severity="secondary" [rounded]="true" class="ml-2 scale-75 origin-left"></p-tag>
+                  }
                 }
               </div>
             } @else {
@@ -61,14 +64,18 @@
                   <div class="font-semibold text-(--primary)">{{ company.legalName }}</div>
                   <div class="text-xs text-gray-500">{{ 'expert.portfolioView' | translate }}</div>
                 </div>
+                <p-tag value="Cabinet" severity="info" [rounded]="true" class="ml-auto scale-75"></p-tag>
               </div>
             } @else {
               <div class="flex items-center gap-2 py-1">
                 <i class="pi pi-building text-xs" [class.text-green-600]="company.id === companyId()"></i>
                 <div>
                   <div class="font-medium" [class.text-green-600]="company.id === companyId()">{{ company.legalName }}</div>
-                  <div class="text-xs text-gray-500">{{ company.ice }}</div>
+                  <div class="text-xs text-gray-500">{{ isExpertMode() ? company.ice : 'Role: ' + company.ice }}</div>
                 </div>
+                @if (!isExpertMode()) {
+                   <p-tag [value]="company.ice" severity="secondary" [rounded]="true" class="ml-2 scale-75"></p-tag>
+                }
                 @if (company.id === companyId()) {
                   <i class="pi pi-check text-xs text-green-600 ml-auto"></i>
                 }

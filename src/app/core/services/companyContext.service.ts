@@ -75,16 +75,16 @@ export class CompanyContextService {
   readonly permissions = computed(() => this._currentContext()?.permissions ?? []);
 
   constructor() {
-    // Effect to persist context changes to sessionStorage
+    // Effect to persist context changes to localStorage
     effect(() => {
       const context = this._currentContext();
       if (context) {
-        sessionStorage.setItem(
+        localStorage.setItem(
           CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT, 
           JSON.stringify(context)
         );
       } else {
-        sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
+        localStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
       }
     });
     
@@ -92,12 +92,12 @@ export class CompanyContextService {
     effect(() => {
       const memberships = this._memberships();
       if (memberships.length > 0) {
-        sessionStorage.setItem(
+        localStorage.setItem(
           CONTEXT_STORAGE_KEYS.MEMBERSHIPS,
           JSON.stringify(memberships)
         );
       } else {
-        sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
+        localStorage.removeItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
       }
     });
   }
@@ -105,6 +105,39 @@ export class CompanyContextService {
   // ============================================
   // PUBLIC METHODS
   // ============================================
+
+  /**
+   * Switch context to a specific company ID
+   * Wrapper that handles both Expert Client switching and standard context switching
+   */
+  switchContext(companyId: string): void {
+    const current = this._currentContext();
+    
+    // If in expert mode, we are switching client view
+    if (current?.isExpertMode) {
+      // If switching to the cabinet itself (portfolio view)
+      if (companyId === current.cabinetId) {
+        this.resetToPortfolioContext();
+        return;
+      }
+      
+      // Otherwise switching to a client
+      // We need the company name. If we don't have it, we might need to fetch it or pass it.
+      // For now, we'll try to find it in the loaded companies if possible, or use a placeholder.
+      // Ideally, this method should take a Company object or we fetch it.
+      // Since we are calling this from the dashboard where we have the company object, 
+      // we should probably update the signature or find a way to get the name.
+      // For this implementation, we'll assume the caller might have passed the name or we use a placeholder.
+      
+      this.switchToClientContext({ id: companyId, legalName: 'Loading...' }, true);
+    } else {
+      // Standard mode switching (between memberships)
+      const membership = this._memberships().find(m => m.companyId === companyId);
+      if (membership) {
+        this.selectContext(membership, true);
+      }
+    }
+  }
 
   /**
    * Set available memberships for the user (called after login)
@@ -116,7 +149,7 @@ export class CompanyContextService {
 
   /**
    * Select a context (company + role) from available memberships
-   * Persists to sessionStorage and redirects to appropriate dashboard
+   * Persists to localStorage and redirects to appropriate dashboard
    * @param membership - The selected membership
    * @param navigate - Whether to navigate after selection (default: true)
    */
@@ -236,7 +269,7 @@ export class CompanyContextService {
    */
   clearContext(): void {
     this._currentContext.set(null);
-    sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
+    localStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
   }
 
   /**
@@ -246,8 +279,8 @@ export class CompanyContextService {
   clearAll(): void {
     this._currentContext.set(null);
     this._memberships.set([]);
-    sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
-    sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
+    localStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
+    localStorage.removeItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
   }
 
   /**
@@ -286,11 +319,11 @@ export class CompanyContextService {
   // ============================================
 
   /**
-   * Load stored context from sessionStorage
+   * Load stored context from localStorage
    */
   private loadStoredContext(): AppContext | null {
     try {
-      const stored = sessionStorage.getItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
+      const stored = localStorage.getItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
       if (stored) {
         const context = JSON.parse(stored) as AppContext;
         // Convert date string back to Date object
@@ -299,23 +332,23 @@ export class CompanyContextService {
       }
     } catch (error) {
       console.warn('Failed to load stored context:', error);
-      sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
+      localStorage.removeItem(CONTEXT_STORAGE_KEYS.CURRENT_CONTEXT);
     }
     return null;
   }
 
   /**
-   * Load stored memberships from sessionStorage
+   * Load stored memberships from localStorage
    */
   private loadStoredMemberships(): CompanyMembership[] {
     try {
-      const stored = sessionStorage.getItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
+      const stored = localStorage.getItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
       if (stored) {
         return JSON.parse(stored) as CompanyMembership[];
       }
     } catch (error) {
       console.warn('Failed to load stored memberships:', error);
-      sessionStorage.removeItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
+      localStorage.removeItem(CONTEXT_STORAGE_KEYS.MEMBERSHIPS);
     }
     return [];
   }

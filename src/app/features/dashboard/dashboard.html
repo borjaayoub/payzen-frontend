@@ -1,13 +1,17 @@
 <div class="flex flex-col gap-6 p-6">
   <!-- Expert Navigation -->
   @if (isExpertMode() && isClientView()) {
-    <div class="mb-2">
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between mb-2">
+      <div class="flex items-center gap-2 text-amber-800">
+        <i class="pi pi-eye text-lg"></i>
+        <span class="font-medium">{{ 'expert.dashboard.viewingAsExpert' | translate }}</span>
+      </div>
       <button
         pButton
         type="button"
         [label]="'expert.dashboard.backToPortfolio' | translate"
         icon="pi pi-arrow-left"
-        class="p-button-text p-button-sm"
+        class="p-button-text p-button-sm p-button-warning"
         (click)="backToPortfolio()"
       ></button>
     </div>

@@ -43,3 +43,8 @@ __screenshots__/
 Thumbs.db
 
 /backend
+
+/.claude
+/.cursor
+/.github
+/.vscode
