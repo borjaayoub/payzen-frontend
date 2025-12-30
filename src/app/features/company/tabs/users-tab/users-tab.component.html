@@ -1,100 +1,160 @@
 <!-- Main Content -->
 <div class="p-4 sm:p-6">
-  <div class="max-w-5xl mx-auto space-y-6">
+  <div class="max-w-6xl mx-auto space-y-6">
     
-    <!-- Page Header -->
-    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-xl font-semibold text-gray-900">{{ 'company.users.title' | translate }}</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ 'company.users.subtitle' | translate }}</p>
+    <!-- Enhanced Header with Icon -->
+    <header class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <!-- Icon Badge -->
+        <div class="shrink-0 size-12 rounded-xl bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-sm">
+          <i class="pi pi-users text-white text-xl"></i>
+        </div>
+        
+        <!-- Title & Description -->
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900 leading-tight">
+            {{ 'company.users.title' | translate }}
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            {{ 'company.users.subtitle' | translate }}
+          </p>
+          
+          <!-- Stats Badge -->
+          @if (users().length > 0) {
+            <div class="flex items-center gap-2 mt-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium">
+                <i class="pi pi-chart-bar text-[10px]"></i>
+                {{ users().length }} {{ users().length === 1 ? 'user' : 'users' }}
+              </span>
+            </div>
+          }
+        </div>
       </div>
+      
+      <!-- Action Button -->
       <p-button 
         icon="pi pi-user-plus" 
         [label]="'company.users.invite' | translate"
+        size="small"
         (onClick)="openInviteDialog()">
       </p-button>
     </header>
 
-    <!-- Users Table -->
+    <!-- Users Card -->
     <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" aria-labelledby="users-heading">
       <h2 id="users-heading" class="sr-only">{{ 'company.users.title' | translate }}</h2>
       
-      <p-table 
-        [value]="users()" 
-        [rowHover]="true"
-        styleClass="p-datatable-sm"
-        responsiveLayout="scroll">
-        
-        <ng-template pTemplate="header">
-          <tr>
-            <th class="py-3!">{{ 'company.users.table.user' | translate }}</th>
-            <th class="py-3!">{{ 'company.users.table.role' | translate }}</th>
-            <th class="py-3!">{{ 'company.users.table.status' | translate }}</th>
-            <th class="py-3! w-16"></th>
-          </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="body" let-user>
-          <tr>
-            <!-- User Info -->
-            <td class="py-3!">
-              <div class="flex items-center gap-3">
-                <span 
-                  class="inline-flex items-center justify-center size-9 rounded-full text-sm font-medium"
-                  [ngClass]="[getAvatarBgColor(user), getAvatarTextColor(user)]">
-                  {{ user.initials }}
-                </span>
-                <div>
-                  <div class="font-medium text-gray-900">{{ user.name }}</div>
-                  <div class="text-sm text-gray-500">{{ user.email }}</div>
+      <!-- Card Header -->
+      <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">
+              {{ 'company.users.table.user' | translate }}
+            </h3>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Manage user access and permissions
+            </p>
+          </div>
+          
+          @if (users().length > 5) {
+            <div class="relative max-w-xs w-full sm:w-64">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <i class="pi pi-search text-sm"></i>
+              </span>
+              <input 
+                type="text"
+                placeholder="Search users..."
+                class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white">
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Users List -->
+      @if (users().length === 0) {
+        <div class="p-12">
+          <div class="max-w-sm mx-auto text-center">
+            <div class="inline-flex items-center justify-center size-16 rounded-2xl bg-gray-100 mb-4">
+              <i class="pi pi-users text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-900 mb-1">
+              No users yet
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">
+              Invite employees to give them access to the platform.
+            </p>
+            <p-button 
+              icon="pi pi-user-plus" 
+              [label]="'company.users.invite' | translate"
+              size="small"
+              (onClick)="openInviteDialog()">
+            </p-button>
+          </div>
+        </div>
+      } @else {
+        <div class="divide-y divide-gray-100">
+          @for (user of users(); track user.id) {
+            <div class="group px-6 py-4 hover:bg-gray-50/80 transition-colors">
+              <div class="flex items-center justify-between gap-4">
+                <!-- User Info -->
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <!-- Avatar -->
+                  <span 
+                    class="shrink-0 inline-flex items-center justify-center size-10 rounded-full text-sm font-medium"
+                    [ngClass]="[getAvatarBgColor(user), getAvatarTextColor(user)]">
+                    {{ user.initials }}
+                  </span>
+                  
+                  <!-- Details -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-medium text-gray-900 truncate">{{ user.name }}</h4>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            [ngClass]="getRoleClasses(user.role)">
+                        {{ user.role | translate }}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium"
+                            [ngClass]="getStatusClasses(user.status)">
+                        <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(user.status)"></span>
+                        {{ 'company.status.' + user.status | translate }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p-button 
+                    icon="pi pi-ellipsis-v" 
+                    [rounded]="true" 
+                    [text]="true"
+                    severity="secondary"
+                    size="small"
+                    (onClick)="menu.toggle($event)"
+                    [attr.aria-label]="'common.actions' | translate">
+                  </p-button>
+                  <p-menu #menu [model]="getUserMenuItems(user)" [popup]="true" appendTo="body" />
                 </div>
               </div>
-            </td>
-            
-            <!-- Role Badge -->
-            <td class="py-3!">
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                    [ngClass]="getRoleClasses(user.role)">
-                {{ user.role | translate }}
-              </span>
-            </td>
-            
-            <!-- Status Badge -->
-            <td class="py-3!">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                    [ngClass]="getStatusClasses(user.status)">
-                <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(user.status)"></span>
-                {{ 'company.status.' + user.status | translate }}
-              </span>
-            </td>
-            
-            <!-- Actions -->
-            <td class="py-3! text-right">
-              <p-button 
-                icon="pi pi-ellipsis-v" 
-                [rounded]="true" 
-                [text]="true"
-                severity="secondary"
-                size="small"
-                (onClick)="menu.toggle($event)"
-                [attr.aria-label]="'common.actions' | translate">
-              </p-button>
-              <p-menu #menu [model]="getUserMenuItems(user)" [popup]="true" appendTo="body" />
-            </td>
-          </tr>
-        </ng-template>
+            </div>
+          }
+        </div>
         
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="4" class="text-center py-8">
-              <div class="flex flex-col items-center gap-2 text-gray-500">
-                <i class="pi pi-users text-3xl text-gray-300"></i>
-                <span>{{ 'common.noData' | translate }}</span>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+        <div class="px-6 py-3 bg-gray-50/50 border-t border-gray-100">
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span>
+              Showing {{ users().length }} {{ users().length === 1 ? 'user' : 'users' }}
+            </span>
+            <span class="flex items-center gap-1">
+              <i class="pi pi-info-circle text-blue-500"></i>
+              Last updated: now
+            </span>
+          </div>
+        </div>
+      }
     </section>
   </div>
 </div>
@@ -103,124 +163,155 @@
 <p-dialog 
   [visible]="inviteDialogVisible()" 
   (visibleChange)="inviteDialogVisible.set($event)"
-  [header]="'company.users.inviteDialog.title' | translate"
   [modal]="true"
   [style]="{width: '32rem'}"
   [draggable]="false"
-  [resizable]="false">
+  [resizable]="false"
+  [showHeader]="false"
+  styleClass="app-dialog app-dialog--narrow">
   
-  <form [formGroup]="inviteForm" class="space-y-4">
-    <!-- Employee Selection -->
-    <div>
-      <label for="inviteEmployee" class="block mb-2 text-sm font-medium text-gray-900">
-        {{ 'company.users.inviteDialog.selectEmployee' | translate }}
-        <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
-      </label>
+  <!-- Custom Header -->
+  <div class="px-6 pt-6 pb-4 border-b border-gray-100">
+    <div class="flex items-start gap-4">
+      <div class="shrink-0 size-12 rounded-xl bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-sm">
+        <i class="pi pi-user-plus text-white text-xl"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="text-xl font-semibold text-gray-900 leading-tight">
+          {{ 'company.users.inviteDialog.title' | translate }}
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">
+          Grant platform access to an employee
+        </p>
+      </div>
+      <button 
+        type="button"
+        (click)="closeInviteDialog()"
+        class="shrink-0 size-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        [attr.aria-label]="'common.close' | translate">
+        <i class="pi pi-times text-lg"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Form Content -->
+  <div class="px-6 py-6">
+    <form [formGroup]="inviteForm">
+      <!-- Employee Selection -->
+      <div class="form-field">
+        <label for="inviteEmployee" class="form-label form-label-required">
+          {{ 'company.users.inviteDialog.selectEmployee' | translate }}
+        </label>
+        
+        @if (loadingEmployees()) {
+          <div class="flex items-center gap-2 text-gray-500 py-3">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span class="text-sm">{{ 'common.loading' | translate }}</span>
+          </div>
+        } @else if (availableEmployees().length === 0) {
+          <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg">
+            <div class="flex items-start gap-2">
+              <i class="pi pi-info-circle text-blue-600 text-sm mt-0.5"></i>
+              <span class="text-xs text-blue-900">{{ 'company.users.inviteDialog.noAvailableEmployees' | translate }}</span>
+            </div>
+          </div>
+        } @else {
+          <p-select 
+            id="inviteEmployee"
+            [options]="availableEmployees()" 
+            formControlName="employee" 
+            optionLabel="fullName"
+            [placeholder]="'company.users.inviteDialog.selectEmployeePlaceholder' | translate"
+            [filter]="true"
+            filterBy="fullName,email"
+            [showClear]="true"
+            styleClass="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('employee')}">
+            <ng-template pTemplate="selectedItem" let-employee>
+              <div class="flex items-center gap-2" *ngIf="employee">
+                <span class="inline-flex items-center justify-center size-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
+                  {{ employee.firstName?.charAt(0) }}{{ employee.lastName?.charAt(0) }}
+                </span>
+                <div>
+                  <span class="font-medium">{{ employee.fullName }}</span>
+                  <span class="text-gray-500 text-sm ml-2">{{ employee.email }}</span>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="item" let-employee>
+              <div class="flex items-center gap-3 py-1">
+                <span class="inline-flex items-center justify-center size-8 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
+                  {{ employee.firstName?.charAt(0) }}{{ employee.lastName?.charAt(0) }}
+                </span>
+                <div class="flex flex-col">
+                  <span class="font-medium text-gray-900">{{ employee.fullName }}</span>
+                  <span class="text-gray-500 text-xs">{{ employee.email }}</span>
+                </div>
+              </div>
+            </ng-template>
+          </p-select>
+          @if (isFieldInvalid('employee')) {
+            <small class="form-error">
+              <i class="pi pi-exclamation-circle"></i>
+              {{ 'errors.required' | translate }}
+            </small>
+          }
+        }
+      </div>
       
-      @if (loadingEmployees()) {
-        <div class="flex items-center gap-2 text-gray-500 py-2">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span class="text-sm">{{ 'common.loading' | translate }}</span>
-        </div>
-      } @else if (availableEmployees().length === 0) {
-        <p-message severity="info" styleClass="w-full">
-          <ng-template pTemplate="content">
-            <div class="flex items-center gap-2">
-              <i class="pi pi-info-circle"></i>
-              <span>{{ 'company.users.inviteDialog.noAvailableEmployees' | translate }}</span>
-            </div>
-          </ng-template>
-        </p-message>
-      } @else {
+      <!-- Role Field -->
+      <div class="form-field">
+        <label for="inviteRole" class="form-label form-label-required">
+          {{ 'company.users.inviteDialog.role' | translate }}
+        </label>
         <p-select 
-          id="inviteEmployee"
-          [options]="availableEmployees()" 
-          formControlName="employee" 
-          optionLabel="fullName"
-          [placeholder]="'company.users.inviteDialog.selectEmployeePlaceholder' | translate"
-          [filter]="true"
-          filterBy="fullName,email"
-          [showClear]="true"
+          id="inviteRole"
+          [options]="roleOptions" 
+          formControlName="role" 
+          optionLabel="label" 
+          optionValue="value"
+          [placeholder]="'company.users.inviteDialog.selectRole' | translate"
           styleClass="w-full"
-          [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('employee')}">
-          <ng-template pTemplate="selectedItem" let-employee>
-            <div class="flex items-center gap-2" *ngIf="employee">
-              <span class="inline-flex items-center justify-center size-6 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                {{ employee.firstName?.charAt(0) }}{{ employee.lastName?.charAt(0) }}
-              </span>
-              <div>
-                <span class="font-medium">{{ employee.fullName }}</span>
-                <span class="text-gray-500 text-sm ml-2">{{ employee.email }}</span>
-              </div>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="item" let-employee>
-            <div class="flex items-center gap-3 py-1">
-              <span class="inline-flex items-center justify-center size-8 rounded-full bg-gray-100 text-gray-700 text-sm font-medium">
-                {{ employee.firstName?.charAt(0) }}{{ employee.lastName?.charAt(0) }}
-              </span>
-              <div class="flex flex-col">
-                <span class="font-medium text-gray-900">{{ employee.fullName }}</span>
-                <span class="text-gray-500 text-xs">{{ employee.email }}</span>
-              </div>
-            </div>
-          </ng-template>
+          [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('role')}">
         </p-select>
-        @if (isFieldInvalid('employee')) {
-          <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
-            <i class="pi pi-exclamation-circle text-xs"></i>
+        @if (isFieldInvalid('role')) {
+          <small class="form-error">
+            <i class="pi pi-exclamation-circle"></i>
             {{ 'errors.required' | translate }}
           </small>
         }
-      }
-    </div>
-    
-    <!-- Role Field -->
-    <div>
-      <label for="inviteRole" class="block mb-2 text-sm font-medium text-gray-900">
-        {{ 'company.users.inviteDialog.role' | translate }}
-        <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
-      </label>
-      <p-select 
-        id="inviteRole"
-        [options]="roleOptions" 
-        formControlName="role" 
-        optionLabel="label" 
-        optionValue="value"
-        [placeholder]="'company.users.inviteDialog.selectRole' | translate"
-        styleClass="w-full"
-        [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('role')}">
-      </p-select>
-      @if (isFieldInvalid('role')) {
-        <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
-          <i class="pi pi-exclamation-circle text-xs"></i>
-          {{ 'errors.required' | translate }}
+        <small class="block text-xs text-gray-500 mt-1.5">
+          {{ 'company.users.inviteDialog.hint' | translate }}
         </small>
-      }
-    </div>
-    
-    <small class="block text-xs text-gray-500">
-      <i class="pi pi-info-circle mr-1"></i>
-      {{ 'company.users.inviteDialog.hint' | translate }}
-    </small>
-  </form>
+      </div>
+    </form>
+  </div>
   
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-2">
-      <p-button 
-        [label]="'common.cancel' | translate" 
-        severity="secondary"
-        (onClick)="closeInviteDialog()">
-      </p-button>
-      <p-button 
-        [label]="'company.users.sendInvite' | translate" 
-        icon="pi pi-user-plus"
-        [loading]="inviteLoading()"
-        [disabled]="availableEmployees().length === 0"
-        (onClick)="sendInvite()">
-      </p-button>
+  <!-- Footer Info & Actions -->
+  <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+    <div class="flex items-center justify-between gap-4">
+      <p class="text-xs text-gray-500 flex items-center gap-1.5">
+        <i class="pi pi-info-circle text-blue-500"></i>
+        User will receive access credentials via email
+      </p>
+      <div class="flex items-center gap-2">
+        <p-button 
+          [label]="'common.cancel' | translate" 
+          severity="secondary"
+          size="small"
+          (onClick)="closeInviteDialog()">
+        </p-button>
+        <p-button 
+          [label]="'company.users.sendInvite' | translate" 
+          icon="pi pi-user-plus"
+          size="small"
+          [loading]="inviteLoading()"
+          [disabled]="availableEmployees().length === 0"
+          (onClick)="sendInvite()">
+        </p-button>
+      </div>
     </div>
-  </ng-template>
+  </div>
 </p-dialog>
 
 <p-toast />
