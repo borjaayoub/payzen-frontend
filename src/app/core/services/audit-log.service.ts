@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, forkJoin, of } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { CompanyService } from './company.service';
 import {
@@ -31,21 +31,9 @@ export class AuditLogService {
     companyId: number,
     filter?: AuditLogFilter
   ): Observable<AuditLogDisplayItem[]> {
-    const pluralUrl = `${this.apiUrl}/companies/${companyId}/history`;
-    const singularUrl = `${this.apiUrl}/company/${companyId}/history`;
-
-    return this.http.get<CompanyHistoryDto[]>(pluralUrl).pipe(
-      catchError(err => {
-        console.debug('[AuditLogService] plural history endpoint failed, trying singular:', pluralUrl, err?.status || err);
-        return this.http.get<CompanyHistoryDto[]>(singularUrl).pipe(
-          catchError(err2 => {
-            console.error('[AuditLogService] both history endpoints failed for company', companyId, err2?.status || err2);
-            return of([] as CompanyHistoryDto[]);
-          })
-        );
-      }),
-      map(dtos => dtos.map((dto, index) => this.mapHistoryDtoToDisplayItem(dto, companyId, index)))
-    );
+    return this.http
+      .get<CompanyHistoryDto[]>(`${this.apiUrl}/companies/${companyId}/history`)
+      .pipe(map(dtos => dtos.map((dto, index) => this.mapHistoryDtoToDisplayItem(dto, companyId, index))));
   }
 
   /**

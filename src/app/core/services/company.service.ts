@@ -83,23 +83,14 @@ export class CompanyService {
 
   getManagedCompanies(): Observable<Company[]> {
     // Use the expert's cabinet/company id to request only companies managed by that expert
-    const rawExpertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
-    const expertId = rawExpertId ? String(rawExpertId).trim() : undefined;
+    const expertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
     if (!expertId) {
-      console.debug('[CompanyService] getManagedCompanies - no expertId found in context or auth');
       return of([]);
     }
 
-    const url = `${this.apiUrl}/companies/managedby/${expertId}`;
-    console.debug('[CompanyService] getManagedCompanies - calling URL:', url, 'expertId:', expertId);
-
-    return this.http.get<CompanyDto[]>(url).pipe(
+    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
       tap(dtos => console.debug('[CompanyService] /companies/managedby raw DTOs:', dtos)),
-      map(dtos => dtos.map(dto => this.mapDtoToCompany(dto))),
-      // Log and rethrow detailed error for easier debugging
-      // (do not swallow error so caller can handle it)
-      // Use catchError lazily to avoid importing throwError unnecessarily
-      // We'll map error in subscribe call sites if needed
+      map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
   }
 
