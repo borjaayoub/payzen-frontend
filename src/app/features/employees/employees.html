@@ -238,7 +238,7 @@
             <!-- Contract Type -->
             <td class="px-6 py-4">
               <app-tag
-                [label]="employee.contractType"
+                [label]="getContractTypeLabel(employee)"
                 [variant]="getContractTypeVariant(employee.contractType)"
                 size="sm"
               ></app-tag>
@@ -254,7 +254,7 @@
             <!-- Status -->
             <td class="px-6 py-4">
               <app-tag
-                [label]="employee.statusName || employee.status"
+                [label]="getEmployeeStatusLabel(employee)"
                 [variant]="getStatusSeverity(employee.status)"
                 size="sm"
               ></app-tag>

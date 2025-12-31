@@ -30,7 +30,7 @@ export interface Employee {
   position: string;
   department: string;
   manager?: string;
-  contractType: 'CDI' | 'CDD' | 'Stage';
+  contractType: string;
   startDate: string;
   endDate?: string;
   probationPeriod: string;
@@ -43,7 +43,15 @@ export interface Employee {
   amo: string;
   cimr?: string;
   annualLeave: number;
-  status: 'active' | 'on_leave' | 'inactive';
+  /**
+   * Normalized status used by parts of the UI (may be derived),
+   * but primary status code comes from backend in `statusRaw`.
+   */
+  status: string;
+  /** Raw status code returned by backend API (e.g. "ACTIVE", "RESIGNED") */
+  statusRaw?: string;
+  /** Localized status label returned by backend (NameFr/NameEn/NameAr) */
+  statusName?: string;
   missingDocuments: number;
   companyId?: string;
   userId?: string;
@@ -121,7 +129,7 @@ export interface CreateEmployeeRequest {
   position: string;
   department: string;
   manager?: string;
-  contractType: 'CDI' | 'CDD' | 'Stage';
+  contractType: string;
   startDate: string;
   endDate?: string;
   probationPeriod: string;
@@ -135,7 +143,7 @@ export interface CreateEmployeeRequest {
   amo: string;
   cimr?: string;
   annualLeave?: number;
-  status?: 'active' | 'on_leave' | 'inactive';
+  status?: string;
   companyId?: string;
   userId?: string;
 }
@@ -156,7 +164,7 @@ export interface UpdateEmployeeRequest {
   position?: string;
   department?: string;
   manager?: string;
-  contractType?: 'CDI' | 'CDD' | 'Stage';
+  contractType?: string;
   startDate?: string;
   endDate?: string;
   probationPeriod?: string;
@@ -171,7 +179,7 @@ export interface UpdateEmployeeRequest {
   amo?: string;
   cimr?: string;
   annualLeave?: number;
-  status?: 'active' | 'on_leave' | 'inactive';
+  status?: string;
 }
 
 // Employee filters

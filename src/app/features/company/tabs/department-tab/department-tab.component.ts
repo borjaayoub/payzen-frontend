@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -38,6 +39,7 @@ export class DepartmentTabComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   // Signals
   departments = signal<Department[]>([]);
@@ -53,6 +55,14 @@ export class DepartmentTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadDepartments();
+
+    // Reload when company context changes
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.departments.set([]);
+        this.loadDepartments();
+      });
   }
 
   private initForm() {

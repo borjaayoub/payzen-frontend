@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { JobPositionService } from '../../../../core/services/job-position.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CompanyContextService } from '../../../../core/services/companyContext.service';
 import { JobPosition } from '../../../../core/models/job-position.model';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -44,6 +45,7 @@ export class JobPositionTabComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   // Signals
   jobPositions = signal<JobPosition[]>([]);
@@ -61,6 +63,10 @@ export class JobPositionTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadJobPositions();
+    // Reload when company context changes
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadJobPositions());
   }
 
   private initForm() {
@@ -72,20 +78,11 @@ export class JobPositionTabComponent implements OnInit {
   loadJobPositions() {
     const companyId = this.contextService.companyId();
     if (!companyId) return;
-
     this.loading.set(true);
-    
-    forkJoin({
-      predefined: this.jobPositionService.getPredefined().pipe(
-        catchError(() => of([] as JobPosition[]))
-      ),
-      company: this.jobPositionService.getByCompany(Number(companyId)).pipe(
-        catchError(() => of([] as JobPosition[]))
-      )
-    }).subscribe({
-      next: ({ predefined, company }) => {
-        this.predefinedJobPositions.set(predefined);
-        this.jobPositions.set([...predefined, ...company]);
+    this.predefinedJobPositions.set([]);
+    this.jobPositionService.getByCompany(Number(companyId)).subscribe({
+      next: (company) => {
+        this.jobPositions.set([...company]);
         this.loading.set(false);
       },
       error: (err) => {

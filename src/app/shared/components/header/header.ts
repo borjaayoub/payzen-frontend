@@ -12,6 +12,7 @@ import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { CompanyService } from '@app/core/services/company.service';
 import { Company } from '@app/core/models/company.model';
+import { AuthService } from '@app/core/services/auth.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -34,6 +35,7 @@ import { filter } from 'rxjs/operators';
 export class Header implements OnInit {
   private readonly contextService = inject(CompanyContextService);
   private readonly companyService = inject(CompanyService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   // === Reactive Context Signals ===
@@ -144,9 +146,29 @@ export class Header implements OnInit {
   );
 
   // === Computed: Should show company selector? ===
-  readonly showCompanySelector = computed(() => 
-    this.isExpertMode() || this.contextService.memberships().length > 1
-  );
+  readonly showCompanySelector = computed(() => {
+    // Hide selector on the select-context page or on dashboard immediately
+    const route = this.currentRoute();
+    if (route && (route.startsWith('/select-context') || route.startsWith('/app'))) return false;
+
+    // If user has multiple memberships, show selector in standard mode
+    if (this.contextService.memberships().length > 1) return true;
+
+    // In expert mode, hide the selector when the selected company is the expert's own portfolio (cabinet)
+    if (this.isExpertMode()) {
+      const selected = this.selectedCompany();
+      const cabinetId = this.contextService.currentContext()?.cabinetId;
+      const expertCompanyId = this.auth?.currentUser?.() ? this.auth.currentUser()?.companyId : undefined;
+      if (!selected) return true; // no selection yet -> show
+      // compare as strings to avoid type mismatches
+      const selId = String(selected.id ?? '');
+      const cabId = cabinetId !== undefined && cabinetId !== null ? String(cabinetId) : '';
+      const expId = expertCompanyId !== undefined && expertCompanyId !== null ? String(expertCompanyId) : '';
+      return selId !== cabId && selId !== expId;
+    }
+
+    return false;
+  });
 
   ngOnInit(): void {
     // Load companies if in expert mode

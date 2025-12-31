@@ -57,12 +57,7 @@
             <span>{{ 'company.tabs.contractTypes' | translate }}</span>
           </div>
         </p-tab>
-        <p-tab value="referenceData" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
-          <div class="flex items-center gap-2">
-            <i class="pi pi-database"></i>
-            <span>{{ 'company.tabs.referenceData' | translate }}</span>
-          </div>
-        </p-tab>
+        
         <p-tab value="users" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
           <div class="flex items-center gap-2">
             <i class="pi pi-users"></i>
@@ -98,9 +93,7 @@
         <p-tabpanel value="contractTypes">
           <app-contract-type-tab></app-contract-type-tab>
         </p-tabpanel>
-        <p-tabpanel value="referenceData">
-          <app-reference-data-tab></app-reference-data-tab>
-        </p-tabpanel>
+        
         <p-tabpanel value="users">
           <app-users-tab></app-users-tab>
         </p-tabpanel>
