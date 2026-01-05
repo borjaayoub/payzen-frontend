@@ -6,6 +6,7 @@ export interface Company {
   if?: string;                     // Identifiant Fiscal
   rc?: string;                     // Registre de Commerce
   patente?: string;                // Patente
+  legalForm?: string;
   cnss: string;                    // CNSS number
   address: string;
   city: string;

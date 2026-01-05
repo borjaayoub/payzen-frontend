@@ -86,7 +86,11 @@ export class UserService {
         const employees: EmployeeWithUserDto[] = this.normalizeEmployeeList(resp);
         return employees
           .filter(emp => emp.roleName !== null && emp.roleName !== undefined)
-          .map(emp => this.mapEmployeeToUser(emp));
+          .map(emp => {
+            const u = this.mapEmployeeToUser(emp);
+            u.companyId = companyId?.toString();
+            return u;
+          });
       })
     );
   }
@@ -137,6 +141,24 @@ export class UserService {
   // Invite user (might be a specific endpoint or just create)
   inviteUser(email: string, role: string, companyId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/invite`, { email, role, companyId });
+  }
+
+  /**
+   * Assigns a role to a user via POST api/users-roles/
+   * @param userId User ID
+   * @param roleId Role ID
+   */
+  assignUserRole(userId: number, roleId: number): Observable<any> {
+    const payload = { UserId: userId, RoleId: roleId };
+    return this.http.post(`${environment.apiUrl}/users-roles`, payload);
+  }
+
+  /**
+   * Get roles assigned to a specific user
+   * Calls GET api/users-rolesuser/{userId}
+   */
+  getUserRoles(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/users-roles/user/${userId}`);
   }
 
   private mapDtoToUser(dto: any): User {

@@ -150,6 +150,15 @@
   "user": {
     "profile": "Profil",
     "settings": "Paramètres",
+      "manageRole": "Gérer le rôle",
+      "assignRole": {
+        "title": "Gérer le rôle",
+        "subtitle": "Attribuer un rôle à l'utilisateur sélectionné",
+        "userLabel": "Utilisateur",
+        "roleLabel": "Rôle",
+        "selectRolePlaceholder": "Sélectionner un rôle",
+        "assign": "Attribuer le rôle"
+      },
     "role": {
       "admin": "Administrateur",
       "user": "Utilisateur",
@@ -246,10 +255,12 @@
       "generalInfo": "Informations Générales",
       "raisonSociale": "Raison Sociale",
       "ice": "ICE",
+      "identifiantFiscal": "Identifiant Fiscal",
       "rc": "RC",
       "patente": "Patente",
+      "legalForm": "Forme Juridique",
       "cnss": "N° Affiliation CNSS",
-      "regimeFiscal": "Régime Fiscal",
+      "rib": "Compte Bancaire Principal (RIB)",
       "address": "Adresse",
       "city": "Ville",
       "email": "Email Officiel",
@@ -368,6 +379,15 @@
     "users": {
       "title": "Gestion des Utilisateurs",
       "subtitle": "Gérez qui peut accéder à ce profil d'entreprise.",
+      "manageRole": "Gérer le rôle",
+      "assignRole": {
+        "title": "Gérer le rôle",
+        "subtitle": "Attribuer un rôle à l'utilisateur sélectionné",
+        "userLabel": "Utilisateur",
+        "roleLabel": "Rôle",
+        "selectRolePlaceholder": "Sélectionner un rôle",
+        "assign": "Attribuer le rôle"
+      },
       "invite": "Ajouter un Utilisateur",
       "sendInvite": "Créer le Compte",
       "inviteSuccess": "Compte Utilisateur Créé",
@@ -401,7 +421,10 @@
     "status": {
       "active": "Actif",
       "pending": "En attente",
-      "inactive": "Inactif"
+      "inactive": "Inactif",
+      "ACTIVE": "Actif",
+      "PENDING": "En attente",
+      "INACTIVE": "Inactif"
     },
     "documents": {
       "title": "Documents de l'Entreprise",
@@ -606,7 +629,7 @@
         "cin": "CIN",
         "contract": "Contrat",
         "jobDescription": "Fiche de Poste",
-        "rib": "RIB"
+        "rib": "Compte Bancaire Principal (RIB)"
       },
       "confirmChanges": {
         "title": "Confirmer les modifications",
@@ -845,6 +868,8 @@
       "assignRoles": "Attribuer des Rôles",
       "manageRoles": "Gérer les Rôles pour {{userName}}",
       "selectRoles": "Sélectionner des rôles",
+      "selectRole": "Sélectionner un rôle",
+      "noLinkedAccount": "Aucun compte utilisateur lié",
       "noRoles": "Aucun rôle attribué",
       "saveSuccess": "Rôles utilisateur mis à jour avec succès",
       "saveError": "Échec de la mise à jour des rôles utilisateur",

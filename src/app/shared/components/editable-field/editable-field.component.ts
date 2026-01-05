@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -54,7 +54,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
                 styleClass="w-full"
                 inputStyleClass="w-full p-inputtext-sm"
                 appendTo="body"
-                [autofocus]="true">
+                >
               </p-autoComplete>
 
               <!-- Standard Input -->
@@ -66,7 +66,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
                 (keydown.escape)="onCancel()"
                 class="w-full p-inputtext-sm"
                 [placeholder]="label"
-                autofocus
+                
               />
             </ng-container>
           </div>
@@ -119,10 +119,23 @@ export class EditableFieldComponent {
 
   isEditing = signal(false);
   tempValue: string | number | null | undefined = '';
+  private host = inject(ElementRef<HTMLElement>);
 
   startEditing() {
     this.tempValue = this.value;
     this.isEditing.set(true);
+    // Focus the first input inside the component after it enters edit mode.
+    setTimeout(() => {
+      try {
+        const root = this.host.nativeElement as HTMLElement;
+        const input = root.querySelector('input, textarea, .p-inputtext');
+        if (input && (input as HTMLInputElement).focus) {
+          (input as HTMLInputElement).focus();
+        }
+      } catch (e) {
+        // ignore focus errors
+      }
+    }, 0);
   }
 
   onSearch(event: any) {

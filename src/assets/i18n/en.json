@@ -248,8 +248,10 @@
       "ice": "ICE",
       "rc": "RC",
       "patente": "Patente",
+      "identifiantFiscal": "Fiscal Identifier",
       "cnss": "CNSS",
-      "regimeFiscal": "Tax Regime",
+      "legalForm": "Legal Form",
+      "rib": "Primary Bank Account (RIB)",
       "address": "Address",
       "city": "City",
       "email": "Official Email",
@@ -368,6 +370,15 @@
     "users": {
       "title": "User Management",
       "subtitle": "Manage who can access this company profile.",
+      "manageRole": "Manage Role",
+      "assignRole": {
+        "title": "Manage Role",
+        "subtitle": "Assign a role to the selected user",
+        "userLabel": "User",
+        "roleLabel": "Role",
+        "selectRolePlaceholder": "Select a role",
+        "assign": "Assign Role"
+      },
       "invite": "Add User",
       "sendInvite": "Create User Account",
       "inviteSuccess": "User Account Created",
@@ -401,7 +412,10 @@
     "status": {
       "active": "Active",
       "pending": "Pending",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "ACTIVE": "Active",
+      "PENDING": "Pending",
+      "INACTIVE": "Inactive"
     },
     "documents": {
       "title": "Company Documents",
@@ -608,7 +622,7 @@
         "cin": "National ID",
         "contract": "Contract",
         "jobDescription": "Job Description",
-        "rib": "Bank Details"
+        "rib": "Primary Bank Account (RIB)"
       },
       "confirmChanges": {
         "title": "Confirm Changes",
@@ -849,6 +863,8 @@
       "assignRoles": "Assign Roles",
       "manageRoles": "Manage Roles for {{userName}}",
       "selectRoles": "Select roles",
+      "selectRole": "Select role",
+      "noLinkedAccount": "No linked user account",
       "noRoles": "No roles assigned",
       "saveSuccess": "User roles updated successfully",
       "saveError": "Failed to update user roles",

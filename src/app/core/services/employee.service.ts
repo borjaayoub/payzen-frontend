@@ -23,6 +23,7 @@ export interface Employee {
   missingDocuments: number;
   contractType: string;
   manager?: string;
+  userId?: string | number;
 }
 
 export interface EmployeeFilters {
@@ -442,11 +443,14 @@ export class EmployeeService {
   createEmployeeRecord(payload: CreateEmployeeRequest): Observable<any> {
     const body: any = { ...payload };
     if (payload.dateOfBirth) {
-      body.birthdate = this.formatForDateInput(payload.dateOfBirth);
+      body.DateOfBirth = this.formatForDateInput(payload.dateOfBirth);
       delete body.dateOfBirth;
+      delete body.birthdate;
     }
     if (payload.startDate) {
-      body.startDate = this.formatForDateInput(payload.startDate);
+      body.StartDate = this.formatForDateInput(payload.startDate);
+      // keep camelCase startDate removed to avoid duplication
+      delete body.startDate;
     }
     return this.http.post<any>(this.EMPLOYEE_URL, body);
   }
@@ -458,11 +462,13 @@ export class EmployeeService {
   patchEmployeeProfile(id: string, payload: Partial<EmployeeProfileModel>): Observable<EmployeeProfileModel> {
     const body: any = { ...payload };
     if ((payload as any).dateOfBirth) {
-      body.birthdate = this.formatForDateInput((payload as any).dateOfBirth);
+      body.DateOfBirth = this.formatForDateInput((payload as any).dateOfBirth);
       delete body.dateOfBirth;
+      delete body.birthdate;
     }
     if ((payload as any).startDate) {
-      body.startDate = this.formatForDateInput((payload as any).startDate);
+      body.StartDate = this.formatForDateInput((payload as any).startDate);
+      delete body.startDate;
     }
     return this.http
       .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}`, body)
@@ -684,8 +690,9 @@ export class EmployeeService {
       statusName: localizedName || undefined,
       startDate: employee.startDate || employee.StartDate || '',
       missingDocuments: this.toNumberValue(employee.missingDocuments || employee.MissingDocuments),
-      contractType: this.mapContractType(employee.contractType || employee.ContractType),
-      manager: employee.manager || employee.Manager || undefined
+        contractType: this.mapContractType(employee.contractType || employee.ContractType),
+        manager: employee.manager || employee.Manager || undefined,
+        userId: employee.userId ?? employee.UserId ?? employee.user_id ?? employee.User_Id ?? undefined
     };
   }
 
@@ -776,7 +783,9 @@ export class EmployeeService {
       statusName: payload.statusName ?? undefined,
       missingDocuments: payload.missingDocuments ?? 0,
       companyId: this.toStringValue(payload.companyId) || undefined,
-      userId: this.toStringValue(payload.userId) || undefined,
+      userId: this.toStringValue(
+        payload.userId ?? (payload as any).UserId ?? (payload as any).user_id ?? (payload as any).User_Id
+      ) || undefined,
       createdAt: payload.createdAt ? new Date(payload.createdAt) : undefined,
       updatedAt: payload.updatedAt ? new Date(payload.updatedAt) : undefined,
       dateOfBirth: this.formatForDateInput(payload.dateOfBirth),

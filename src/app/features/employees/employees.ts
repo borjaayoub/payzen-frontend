@@ -8,6 +8,8 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
+// Dialog/MultiSelect/Toast removed for quick-action
 import { TagComponent } from '../../shared/components/tag/tag.component';
 import { TagVariant } from '../../shared/components/tag/tag.types';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
@@ -19,6 +21,8 @@ import { EmployeeService, Employee, EmployeeFilters, EmployeeStats, EmployeesRes
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { DepartmentService } from '@app/core/services/department.service';
 import { ContractTypeService } from '@app/core/services/contract-type.service';
+import { MessageService } from 'primeng/api';
+// Permission quick-action removed
 
 @Component({
   selector: 'app-employees',
@@ -31,6 +35,7 @@ import { ContractTypeService } from '@app/core/services/contract-type.service';
     ButtonModule,
     InputTextModule,
     SelectModule,
+    ToastModule,
     TagComponent,
     EmptyState,
     AvatarModule,
@@ -38,6 +43,7 @@ import { ContractTypeService } from '@app/core/services/contract-type.service';
     IconFieldModule,
     InputIconModule
   ],
+  providers: [MessageService],
   templateUrl: './employees.html',
   styleUrl: './employees.css'
 })
@@ -62,6 +68,8 @@ export class EmployeesPage implements OnInit {
     total: 0,
     active: 0
   });
+
+  // quick-role removed
 
   get searchQueryModel(): string {
     return this.searchQuery();
@@ -230,6 +238,8 @@ export class EmployeesPage implements OnInit {
     }
   }
 
+  
+
   /**
    * Load employees from backend
    */
@@ -397,6 +407,11 @@ export class EmployeesPage implements OnInit {
     };
     return variantMap[type] || 'default';
   }
+
+  manageRolesForEmployee(employee: Employee, event?: Event): void {
+    // quick-action removed
+  }
+  
 
   getContractTypeLabel(employee: Employee): string {
     try {

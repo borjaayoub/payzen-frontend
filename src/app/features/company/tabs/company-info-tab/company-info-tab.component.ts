@@ -67,9 +67,10 @@ export class CompanyInfoTabComponent implements OnInit, OnDestroy {
     { id: 'if', key: 'if', label: 'company.info.identifiantFiscal' },
     { id: 'rc', key: 'rc', label: 'company.info.rc' },
     { id: 'patente', key: 'patente', label: 'company.info.patente' },
+    { id: 'legalForm', key: 'legalForm', label: 'company.info.legalForm' },
     { id: 'cnss', key: 'cnss', label: 'company.info.cnss' },
     { id: 'rib', key: 'rib', label: 'company.info.rib' },
-    { id: 'taxRegime', key: 'taxRegime', label: 'company.info.regimeFiscal' }
+    { id: 'website', key: 'website', label: 'company.info.website' }
   ];
 
   readonly editableFields: FieldConfig[] = [
@@ -77,7 +78,7 @@ export class CompanyInfoTabComponent implements OnInit, OnDestroy {
     { id: 'phone', key: 'phone', label: 'company.info.phone' },
     { id: 'address', key: 'address', label: 'company.info.address', fullWidth: true },
     { id: 'city', key: 'city', label: 'company.info.city', type: 'autocomplete' },
-    { id: 'website', key: 'website', label: 'company.info.website' }
+    
   ];
 
   ngOnInit() {

@@ -130,10 +130,12 @@
       "generalInfo": "معلومات عامة",
       "raisonSociale": "الاسم القانوني",
       "ice": "ICE",
+      "identifiantFiscal": "المعرف الضريبي",
       "rc": "السجل التجاري",
       "patente": "الضريبة المهنية",
+      "legalForm": "الشكل القانوني",
       "cnss": "رقم الانخراط CNSS",
-      "regimeFiscal": "النظام الضريبي",
+      "rib": "الحساب البنكي الرئيسي (RIB)",
       "address": "العنوان",
       "city": "المدينة",
       "email": "البريد الإلكتروني الرسمي",
@@ -252,6 +254,15 @@
     "users": {
       "title": "إدارة المستخدمين",
       "subtitle": "إدارة من يمكنه الوصول إلى ملف تعريف الشركة هذا.",
+      "manageRole": "إدارة الدور",
+      "assignRole": {
+        "title": "إدارة الدور",
+        "subtitle": "تعيين دور للمستخدم المحدد",
+        "userLabel": "المستخدم",
+        "roleLabel": "الدور",
+        "selectRolePlaceholder": "اختر دورًا",
+        "assign": "تعيين الدور"
+      },
       "invite": "إضافة مستخدم",
       "sendInvite": "إنشاء الحساب",
       "inviteSuccess": "تم إنشاء حساب المستخدم",
@@ -285,7 +296,10 @@
     "status": {
       "active": "نشط",
       "pending": "قيد الانتظار",
-      "inactive": "غير نشط"
+      "inactive": "غير نشط",
+      "ACTIVE": "نشط",
+      "PENDING": "قيد الانتظار",
+      "INACTIVE": "غير نشط"
     },
     "documents": {
       "title": "مستندات الشركة",
@@ -479,7 +493,7 @@
         "cin": "البطاقة الوطنية",
         "contract": "العقد",
         "jobDescription": "الوصف الوظيفي",
-        "rib": "بيانات البنك"
+        "rib": "الحساب البنكي الرئيسي (RIB)"
       },
       "confirmChanges": {
         "title": "تأكيد التعديلات",
@@ -624,6 +638,15 @@
   "user": {
     "profile": "الملف الشخصي",
     "settings": "الإعدادات",
+      "manageRole": "إدارة الدور",
+      "assignRole": {
+        "title": "إدارة الدور",
+        "subtitle": "تعيين دور للمستخدم المحدد",
+        "userLabel": "المستخدم",
+        "roleLabel": "الدور",
+        "selectRolePlaceholder": "اختر دورًا",
+        "assign": "تعيين الدور"
+      },
     "role": {
       "admin": "مدير",
       "user": "مستخدم",
@@ -800,6 +823,8 @@
       "assignRoles": "تعيين الأدوار",
       "manageRoles": "إدارة الأدوار لـ {{userName}}",
       "selectRoles": "اختر الأدوار",
+      "selectRole": "اختر دورًا",
+      "noLinkedAccount": "لا يوجد حساب مستخدم مرتبط",
       "noRoles": "لم يتم تعيين أدوار",
       "saveSuccess": "تم تحديث أدوار المستخدم بنجاح",
       "saveError": "فشل تحديث أدوار المستخدم",

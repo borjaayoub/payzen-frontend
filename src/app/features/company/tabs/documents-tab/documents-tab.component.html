@@ -167,7 +167,7 @@
                          [class]="doc.status === 'uploaded' ? 'pi-file-pdf text-red-500' : 'pi-file text-gray-400'"></i>
                     </div>
                     <div class="min-w-0">
-                      <div class="text-sm font-medium text-gray-900 truncate">{{ doc.name }}</div>
+                      <div class="text-sm font-medium text-gray-900 truncate">{{ doc.name | translate }}</div>
                       @if (doc.date) {
                         <div class="text-xs text-gray-500">{{ doc.date | date:'mediumDate' }}</div>
                       } @else {
