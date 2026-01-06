@@ -23,6 +23,10 @@ export class JobPositionService {
     return this.http.get<JobPosition[]>(`${this.apiUrl}/by-company/${companyId}`);
   }
 
+  getPredefined(): Observable<JobPosition[]> {
+    return this.http.get<JobPosition[]>(`${this.apiUrl}/predefined`);
+  }
+
   create(dto: JobPositionCreateUpdateDto): Observable<JobPosition> {
     return this.http.post<JobPosition>(this.apiUrl, dto);
   }

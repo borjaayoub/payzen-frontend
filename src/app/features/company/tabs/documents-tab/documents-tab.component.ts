@@ -68,11 +68,11 @@ export class DocumentsTabComponent implements OnInit, OnDestroy {
 
   // Document configuration
   private readonly expectedDocs: ExpectedDocument[] = [
-    { key: 'cnss_attestation', label: 'Attestation CNSS' },
-    { key: 'amo', label: 'Attestation AMO' },
-    { key: 'rib', label: 'RIB Bancaire' },
-    { key: 'rc', label: 'Registre de Commerce' },
-    { key: 'patente', label: 'Patente' }
+    { key: 'cnss_attestation', label: 'company.documents.cnss_attestation' },
+    { key: 'amo', label: 'company.documents.amo' },
+    { key: 'rib', label: 'company.info.rib' },
+    { key: 'rc', label: 'company.info.rc' },
+    { key: 'patente', label: 'company.info.patente' }
   ];
 
   ngOnInit() {

@@ -14,6 +14,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { ChipModule } from 'primeng/chip';
 import { AuditLogService } from '@app/core/services/audit-log.service';
+import { CompanyService } from '@app/core/services/company.service';
 import { 
   AuditLogDisplayItem, 
   AuditLogFilter, 
@@ -44,6 +45,7 @@ import {
 })
 export class AuditLogComponent implements OnInit, OnChanges {
   private auditLogService = inject(AuditLogService);
+  private companyService = inject(CompanyService);
 
   // Inputs
   @Input() companyId?: number;
@@ -156,19 +158,45 @@ export class AuditLogComponent implements OnInit, OnChanges {
     };
 
     if (this.companyId) {
-      // Load company history/audit logs
-      this.auditLogService.getCompanyAuditLogs(this.companyId, filter).subscribe({
-        next: (logs: AuditLogDisplayItem[]) => {
-          this.auditLogs.set(logs);
-          this.isLoading.set(false);
-          this.hasError.set(false);
+      // Load company history/audit logs and attach company name for clarity
+      const companyIdNum = Number(this.companyId);
+      this.companyService.getManagedCompanies().subscribe({
+        next: (companies) => {
+          const company = companies.find(c => Number(c.id) === companyIdNum);
+          const companyName = company?.legalName || String(companyIdNum);
+
+          this.auditLogService.getCompanyAuditLogs(companyIdNum, filter).subscribe({
+            next: (logs: AuditLogDisplayItem[]) => {
+              const withNames = logs.map(l => ({ ...l, entityName: companyName }));
+              this.auditLogs.set(withNames);
+              this.isLoading.set(false);
+              this.hasError.set(false);
+            },
+            error: (err) => {
+              console.error('Failed to load company audit logs', err);
+              this.auditLogs.set([]);
+              this.isLoading.set(false);
+              this.hasError.set(true);
+              this.errorMessage.set(err.message || 'Failed to load audit logs');
+            }
+          });
         },
         error: (err) => {
-          console.error('Failed to load company audit logs', err);
-          this.auditLogs.set([]);
-          this.isLoading.set(false);
-          this.hasError.set(true);
-          this.errorMessage.set(err.message || 'Failed to load audit logs');
+          // Fallback: still load logs without company name
+          this.auditLogService.getCompanyAuditLogs(companyIdNum, filter).subscribe({
+            next: (logs: AuditLogDisplayItem[]) => {
+              this.auditLogs.set(logs);
+              this.isLoading.set(false);
+              this.hasError.set(false);
+            },
+            error: (err2) => {
+              console.error('Failed to load company audit logs', err2);
+              this.auditLogs.set([]);
+              this.isLoading.set(false);
+              this.hasError.set(true);
+              this.errorMessage.set(err2.message || 'Failed to load audit logs');
+            }
+          });
         }
       });
     } else if (this.employeeId) {

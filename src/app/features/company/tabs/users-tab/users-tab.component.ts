@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -14,7 +14,8 @@ import { MenuModule } from 'primeng/menu';
 import { MessageModule } from 'primeng/message';
 import { MessageService, MenuItem } from 'primeng/api';
 import { UserService, AvailableEmployee } from '../../../../core/services/user.service';
-import { User } from '../../../../core/models/user.model';
+import { EmployeeService } from '../../../../core/services/employee.service';
+import { User, UserRole } from '../../../../core/models/user.model';
 import { CompanyContextService } from '../../../../core/services/companyContext.service';
 import { Subscription } from 'rxjs';
 
@@ -23,7 +24,7 @@ interface UserDisplay {
   name: string;
   email: string;
   role: string;
-  status: 'active' | 'pending' | 'inactive';
+  status: string;
   initials: string;
   avatarColor: string;
 }
@@ -39,6 +40,8 @@ interface RoleOption {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    // Needed for [(ngModel)] in assign role dialog
+    FormsModule,
     TranslateModule,
     ButtonModule,
     TableModule,
@@ -59,8 +62,11 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   private readonly userService = inject(UserService);
+  private readonly employeeService = inject(EmployeeService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly contextService = inject(CompanyContextService);
   private contextSub?: Subscription;
+  private langChangeSub?: Subscription;
 
   // State
   users = signal<UserDisplay[]>([]);
@@ -69,6 +75,16 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   inviteDialogVisible = signal(false);
   inviteLoading = signal(false);
   loadingEmployees = signal(false);
+  // Roles
+  roles = signal<RoleOption[]>([]);
+  roleLoadError = signal<string | null>(null);
+
+  // Assign role dialog
+  assignRoleDialogVisible = signal(false);
+  assigningRoleLoading = signal(false);
+  selectedUserForAssign: UserDisplay | null = null;
+  selectedRoleForAssign: string | null = null;
+  assignRoleForm!: FormGroup;
   formSubmitted = false;
 
   // Forms
@@ -76,10 +92,16 @@ export class UsersTabComponent implements OnInit, OnDestroy {
 
   // Role options for select
   readonly roleOptions: RoleOption[] = [
-    { label: 'HR Manager', value: 'rh' },
-    { label: 'Manager', value: 'manager' },
-    { label: 'Viewer', value: 'viewer' }
+    // initial placeholder; will be replaced by loaded roles
   ];
+
+  // Localized labels for Assign Role modal (populated on init)
+  assignRoleTitle = '';
+  assignRoleSubtitle = '';
+  assignRoleUserLabel = '';
+  assignRoleRoleLabel = '';
+  assignRoleAssignLabel = '';
+  
 
   // Avatar color palette
   private readonly avatarColors = [
@@ -94,16 +116,66 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initForm();
     this.loadUsers();
+    this.loadRoles();
     
     // Subscribe to company context changes to refresh users
     this.contextSub = this.contextService.contextChanged$.subscribe(() => {
       this.loadUsers();
+    });
+
+    this.assignRoleForm = this.fb.group({
+      role: [null, Validators.required]
+    });
+
+    // populate localized labels for the Assign Role modal and refresh on language change
+    this.populateAssignRoleLabels();
+    this.langChangeSub = this.translate.onLangChange.subscribe(() => this.populateAssignRoleLabels());
+  }
+
+  private populateAssignRoleLabels() {
+    this.translate.get([
+      'company.users.assignRole.title',
+      'company.users.assignRole.subtitle',
+      'company.users.assignRole.userLabel',
+      'company.users.assignRole.roleLabel',
+      'company.users.assignRole.assign'
+    ]).subscribe(res => {
+      this.assignRoleTitle = res['company.users.assignRole.title'] || this.assignRoleTitle;
+      this.assignRoleSubtitle = res['company.users.assignRole.subtitle'] || this.assignRoleSubtitle;
+      this.assignRoleUserLabel = res['company.users.assignRole.userLabel'] || this.assignRoleUserLabel;
+      this.assignRoleRoleLabel = res['company.users.assignRole.roleLabel'] || this.assignRoleRoleLabel;
+      this.assignRoleAssignLabel = res['company.users.assignRole.assign'] || this.assignRoleAssignLabel;
+    });
+  }
+
+  private loadRoles() {
+    this.userService.getRoles().subscribe({
+      next: (items) => {
+        const options = items
+          .filter(r => {
+            const name = (r.name || '').toLowerCase();
+            const code = (r.code || '').toLowerCase();
+            return !name.includes('admin payzen') && !code.includes('adminpayzen');
+          })
+          .map(r => ({ 
+            label: r.name, 
+            value: String(r.id)
+          }));
+        this.roles.set(options);
+      },
+      error: (err) => {
+        console.error('Error loading roles', err);
+        this.roleLoadError.set('Failed to load roles');
+      }
     });
   }
 
   ngOnDestroy() {
     if (this.contextSub) {
       this.contextSub.unsubscribe();
+    }
+    if (this.langChangeSub) {
+      this.langChangeSub.unsubscribe();
     }
   }
 
@@ -126,23 +198,23 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   }
 
   /** Get status badge classes */
-  getStatusClasses(status: UserDisplay['status']): string {
-    const statusMap: Record<UserDisplay['status'], string> = {
+  getStatusClasses(status: string): string {
+    const statusMap: Record<string, string> = {
       active: 'bg-green-100 text-green-700',
       pending: 'bg-amber-100 text-amber-700',
       inactive: 'bg-gray-100 text-gray-600'
     };
-    return statusMap[status];
+    return statusMap[status] ?? 'bg-gray-100 text-gray-600';
   }
 
   /** Get status dot color class */
-  getStatusDotClass(status: UserDisplay['status']): string {
-    const dotMap: Record<UserDisplay['status'], string> = {
+  getStatusDotClass(status: string): string {
+    const dotMap: Record<string, string> = {
       active: 'bg-green-500',
       pending: 'bg-amber-500',
       inactive: 'bg-gray-400'
     };
-    return dotMap[status];
+    return dotMap[status] ?? 'bg-gray-400';
   }
 
   /** Get role badge classes */
@@ -158,6 +230,12 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   /** Get menu items for a specific user */
   getUserMenuItems(user: UserDisplay): MenuItem[] {
     return [
+      {
+        label: 'Affecter rôle',
+        icon: 'pi pi-user-edit',
+        command: () => this.openAssignRoleDialog(user)
+      },
+      { separator: true },
       {
         label: this.translate.instant('company.users.actions.edit'),
         icon: 'pi pi-pencil',
@@ -178,6 +256,143 @@ export class UsersTabComponent implements OnInit, OnDestroy {
         command: () => this.removeUser(user)
       }
     ];
+  }
+
+  openAssignRoleDialog(user: UserDisplay) {
+    this.selectedUserForAssign = user;
+
+    // Try to preload assigned roles from server and select accordingly.
+    const userIdNum = Number(user.id);
+    if (!Number.isNaN(userIdNum)) {
+      this.userService.getUserRoles(userIdNum).subscribe({
+        next: (assignments) => {
+          if (Array.isArray(assignments) && assignments.length > 0) {
+            const first = assignments[0];
+            const roleId = first?.RoleId ?? first?.roleId ?? first?.RoleID ?? first?.Role?.id ?? first?.role?.id ?? null;
+            if (roleId != null) {
+              const match = this.roles().find(o => String(o.value) === String(roleId));
+              this.selectedRoleForAssign = match ? match.value : null;
+              this.assignRoleForm.patchValue({ role: this.selectedRoleForAssign });
+              this.assignRoleDialogVisible.set(true);
+              return;
+            }
+          }
+
+          // Fallback to local name-based matching
+          this.selectInitialRoleFromDisplay(user);
+          this.assignRoleDialogVisible.set(true);
+        },
+        error: (err) => {
+          console.error('Error fetching user roles', err);
+          this.selectInitialRoleFromDisplay(user);
+          this.assignRoleDialogVisible.set(true);
+        }
+      });
+    } else {
+      this.selectInitialRoleFromDisplay(user);
+      this.assignRoleDialogVisible.set(true);
+    }
+  }
+
+  private selectInitialRoleFromDisplay(user: UserDisplay) {
+    const currentRoleName = user.role?.replace('user.role.', '').toLowerCase() || null;
+    const options = this.roles();
+    const match = options.find(o => 
+      String(o.label).toLowerCase().includes(currentRoleName || '') ||
+      currentRoleName?.includes(String(o.label).toLowerCase())
+    );
+    this.selectedRoleForAssign = match ? match.value : null;
+    this.assignRoleForm.patchValue({ role: this.selectedRoleForAssign });
+  }
+
+  onAssignRoleDialogVisibleChange(visible: boolean) {
+    this.assignRoleDialogVisible.set(visible);
+    if (!visible) {
+      // reset temporary state when dialog is closed
+      this.selectedUserForAssign = null;
+      this.selectedRoleForAssign = null;
+      this.assignRoleForm.reset();
+      this.assigningRoleLoading.set(false);
+    }
+  }
+
+  assignRole() {
+    if (!this.selectedUserForAssign) return;
+    const selectedRole = this.assignRoleForm?.value?.role ?? this.selectedRoleForAssign;
+    if (!selectedRole) return;
+    this.assigningRoleLoading.set(true);
+    const userId = this.selectedUserForAssign.id;
+    
+    // Find the role ID from the selected role value
+    const selectedRoleOption = this.roles().find(r => String(r.value) === String(selectedRole));
+    if (!selectedRoleOption) {
+      this.assigningRoleLoading.set(false);
+      this.showToast('error', 'Error', 'Invalid role selected');
+      return;
+    }
+
+    // Call api/users-roles/ POST endpoint with UserId and RoleId
+    const payload = {
+      UserId: Number(userId),
+      RoleId: Number(selectedRoleOption.value)
+    };
+
+    this.userService.assignUserRole(payload.UserId, payload.RoleId).subscribe({
+      next: () => {
+        this.assigningRoleLoading.set(false);
+        this.assignRoleDialogVisible.set(false);
+        this.showToast('success', 'Success', 'Role assigned successfully');
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error('Error assigning role', err);
+        this.assigningRoleLoading.set(false);
+        
+        // If 404, try to create user account first
+        if (err?.status === 404) {
+          const email = this.selectedUserForAssign?.email;
+          const companyIdStr = this.contextService.companyId();
+          const companyId = companyIdStr ? Number(companyIdStr) : 0;
+          if (!email) {
+            this.showToast('error', 'Error', 'No email available to create account');
+            return;
+          }
+          this.userService.inviteUser(email, String(selectedRole), companyId).subscribe({
+            next: () => {
+              this.assigningRoleLoading.set(false);
+              this.assignRoleDialogVisible.set(false);
+              this.showToast('success', 'Success', 'Account created and role assigned');
+              this.loadUsers();
+            },
+            error: (e2) => {
+              console.error('Error inviting user after failed role assignment', e2);
+              this.assigningRoleLoading.set(false);
+              this.showToast('error', 'Error', 'Failed to create account and assign role');
+            }
+          });
+          return;
+        }
+
+        this.showToast('error', 'Error', 'Failed to assign role');
+      }
+    });
+  }
+
+  selectRole(roleValue: string) {
+    // Toggle selection: deselect if already selected
+    const current = this.assignRoleForm?.value?.role ?? this.selectedRoleForAssign;
+    if (String(current) === String(roleValue)) {
+      this.selectedRoleForAssign = null;
+      if (this.assignRoleForm) this.assignRoleForm.patchValue({ role: null });
+    } else {
+      this.selectedRoleForAssign = roleValue;
+      if (this.assignRoleForm) this.assignRoleForm.patchValue({ role: roleValue });
+    }
+  }
+
+  isRoleSelected(roleValue: string): boolean {
+    const current = this.assignRoleForm?.value?.role ?? this.selectedRoleForAssign;
+    return String(current) === String(roleValue);
   }
 
   openInviteDialog() {
@@ -265,25 +480,36 @@ export class UsersTabComponent implements OnInit, OnDestroy {
     }
 
     this.loading.set(true);
-    this.userService.getUsers(Number(companyId)).subscribe({
-      next: (users) => {
-        const displayUsers: UserDisplay[] = users.map(u => ({
-          id: u.id,
-          name: `${u.firstName} ${u.lastName}`.trim() || u.username,
-          email: u.email,
-          role: `user.role.${u.role}`,
-          status: u.isActive ? 'active' : 'inactive',
-          initials: this.getInitials(u.firstName ? `${u.firstName} ${u.lastName}` : u.username),
-          avatarColor: 'blue' // Default, will be overridden by getAvatarBgColor
-        }));
+    // Prefer fetching company employees (includes linked users and role info)
+    this.employeeService.getEmployees({ companyId: Number(companyId) }).subscribe({
+      next: (resp) => {
+        const beforeCount = (resp?.employees || []).length;
+        const employees = resp.employees || [];
+        console.debug('[UsersTab] employees fetched:', beforeCount);
+
+        const displayUsers: UserDisplay[] = employees.map(e => {
+          const email = (e as any).email ?? (e as any).Email ?? '';
+          const roleRaw = (e as any).roleName ?? (e as any).RoleName ?? (e as any).role ?? null;
+          const role = roleRaw ? `user.role.${roleRaw}` : 'user.role.viewer';
+          const name = `${e.firstName ?? ''} ${e.lastName ?? ''}`.trim() || email || `#${e.id}`;
+          return {
+            id: String((e as any).id ?? (e as any).Id ?? ''),
+            name,
+            email,
+            role,
+            status: (e as any).statusRaw ?? (e as any).status ?? 'inactive',
+            initials: this.getInitials(name || email || ''),
+            avatarColor: 'blue'
+          };
+        });
+
         this.users.set(displayUsers);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error loading users:', err);
+        console.error('Error loading employees for users tab:', err);
         this.loading.set(false);
-        // Fallback to empty state or show error
-        this.showToast('error', 'Error', 'Failed to load users');
+        this.showToast('error', 'Error', 'Failed to load company employees');
       }
     });
   }
@@ -300,6 +526,16 @@ export class UsersTabComponent implements OnInit, OnDestroy {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  /** Format a name into Proper Case (Title Case) for display */
+  formatProperName(name?: string | null): string {
+    if (!name) return '';
+    return String(name)
+      .split(' ')
+      .filter(Boolean)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
   }
 
   private editUser(user: UserDisplay) {

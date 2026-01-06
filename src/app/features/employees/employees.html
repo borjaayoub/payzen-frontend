@@ -2,6 +2,7 @@
   <!-- Page Header -->
   <div>
     <div class="max-w-7xl mx-auto px-6 pt-4">
+  <p-toast />
       <div class="flex items-center justify-between">
         <div>
           <div class="flex items-center gap-3 mb-2">
@@ -238,7 +239,7 @@
             <!-- Contract Type -->
             <td class="px-6 py-4">
               <app-tag
-                [label]="employee.contractType"
+                [label]="getContractTypeLabel(employee)"
                 [variant]="getContractTypeVariant(employee.contractType)"
                 size="sm"
               ></app-tag>
@@ -254,7 +255,7 @@
             <!-- Status -->
             <td class="px-6 py-4">
               <app-tag
-                [label]="employee.statusName || employee.status"
+                [label]="getEmployeeStatusLabel(employee)"
                 [variant]="getStatusSeverity(employee.status)"
                 size="sm"
               ></app-tag>
@@ -276,6 +277,7 @@
                 </span>
               }
             </td>
+
           </tr>
         </ng-template>
 

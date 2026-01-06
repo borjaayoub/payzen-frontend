@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -6,13 +6,18 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
+import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ContractTypeService } from '../../../../core/services/contract-type.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CompanyContextService } from '../../../../core/services/companyContext.service';
 import { ContractType } from '../../../../core/models/contract-type.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contract-type-tab',
@@ -25,7 +30,9 @@ import { HttpErrorResponse } from '@angular/common/http';
     TableModule,
     DialogModule,
     InputTextModule,
+    AutoCompleteModule,
     ToastModule,
+    TagModule,
     ConfirmDialogModule
   ],
   providers: [MessageService, ConfirmationService],
@@ -38,8 +45,11 @@ export class ContractTypeTabComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   // Signals
+  predefinedContractTypes = signal<ContractType[]>([]);
+  filteredContractTypes = signal<ContractType[]>([]);
   contractTypes = signal<ContractType[]>([]);
   loading = signal(false);
   dialogVisible = signal(false);
@@ -53,6 +63,10 @@ export class ContractTypeTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadContractTypes();
+    // Reload when company context changes
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadContractTypes());
   }
 
   private initForm() {
@@ -66,9 +80,10 @@ export class ContractTypeTabComponent implements OnInit {
     if (!companyId) return;
 
     this.loading.set(true);
+    this.predefinedContractTypes.set([]);
     this.contractTypeService.getByCompany(Number(companyId)).subscribe({
-      next: (data) => {
-        this.contractTypes.set(data);
+      next: (company) => {
+        this.contractTypes.set([...company]);
         this.loading.set(false);
       },
       error: (err) => {
@@ -84,6 +99,14 @@ export class ContractTypeTabComponent implements OnInit {
     this.currentContractTypeId = null;
     this.contractTypeForm.reset();
     this.dialogVisible.set(true);
+  }
+
+  searchContractTypes(event: any) {
+    const query = event.query.toLowerCase();
+    const filtered = this.predefinedContractTypes().filter(c => 
+      c.contractTypeName.toLowerCase().includes(query)
+    );
+    this.filteredContractTypes.set(filtered);
   }
 
   openEditDialog(contractType: ContractType) {
@@ -109,10 +132,13 @@ export class ContractTypeTabComponent implements OnInit {
 
     this.submitLoading.set(true);
 
+    const formValue = this.contractTypeForm.value.contractTypeName;
+    const name = typeof formValue === 'string' ? formValue : formValue?.contractTypeName;
+
     if (this.isEditMode && this.currentContractTypeId) {
       // Update only needs the name
       const updatePayload = {
-        ContractTypeName: this.contractTypeForm.value.contractTypeName
+        ContractTypeName: name
       };
 
       this.contractTypeService.update(this.currentContractTypeId, updatePayload).subscribe({
@@ -134,7 +160,7 @@ export class ContractTypeTabComponent implements OnInit {
     } else {
       // Create needs name and company ID
       const createPayload = {
-        ContractTypeName: this.contractTypeForm.value.contractTypeName,
+        ContractTypeName: name,
         CompanyId: Number(companyId)
       };
 

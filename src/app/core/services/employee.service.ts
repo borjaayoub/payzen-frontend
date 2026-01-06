@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, startWith } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '@environments/environment';
 import { Employee as EmployeeProfileModel } from '@app/core/models/employee.model';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
@@ -13,11 +14,16 @@ export interface Employee {
   lastName: string;
   position: string;
   department: string;
-  status: 'active' | 'on_leave' | 'inactive';
+  status?: string;
+  // raw status code returned by backend (e.g. 'ACTIVE', 'RESIGNED')
+  statusRaw?: string;
+  // localized label coming from backend (NameFr/NameEn/NameAr)
+  statusName?: string;
   startDate: string;
   missingDocuments: number;
-  contractType: 'CDI' | 'CDD' | 'Stage';
+  contractType: string;
   manager?: string;
+  userId?: string | number;
 }
 
 export interface EmployeeFilters {
@@ -35,7 +41,7 @@ export interface EmployeesResponse {
   total: number;
   active: number;
   departments: string[];
-  statuses: string[];
+  statuses: LookupOption[];
 }
 
 export interface EmployeeStats {
@@ -106,6 +112,7 @@ interface EmployeeFormDataResponse {
 export interface LookupOption {
   id: number;
   label: string;
+  value?: string;
 }
 
 export interface CountryLookupOption extends LookupOption {
@@ -255,6 +262,7 @@ export class EmployeeService {
   private readonly EMPLOYEE_SUMMARY_URL = `${environment.apiUrl}/employee/summary`;
 
   private readonly contextService = inject(CompanyContextService);
+  private readonly translate = inject(TranslateService);
 
   constructor(private http: HttpClient) {}
 
@@ -279,32 +287,59 @@ export class EmployeeService {
    * 2. Otherwise fallback to /api/employee/summary
    */
   getEmployees(filters?: EmployeeFilters): Observable<EmployeesResponse> {
-    const effectiveFilters: EmployeeFilters = {
-      ...filters,
-      companyId: filters?.companyId ?? this.contextService.companyId() ?? undefined
-    };
+    // Prefer company-specific endpoint when companyId is provided (from filters or current context)
+    const companyId = filters?.companyId ?? this.contextService.companyId();
+    if (companyId) {
+      const url = `${this.EMPLOYEE_URL}/company/${companyId}`;
+      return this.http.get<any>(url).pipe(
+        map(response => {
+          // Backend may return PascalCase (e.g. Employees, TotalEmployees) or camelCase.
+          if (!response) return this.mapArrayToEmployeesResponse([]);
 
-    const params = this.buildFilterParams(effectiveFilters);
+          // If the response is a plain array
+          if (Array.isArray(response)) {
+            return this.mapArrayToEmployeesResponse(response);
+          }
 
-    // Case 1: We have a specific company ID (Expert Mode or specific filter)
-    if (effectiveFilters.companyId) {
-      const companyUrl = `${this.EMPLOYEE_URL}/company/${effectiveFilters.companyId}`;
-      
-      // The backend endpoint for /company/{id} returns a simple Array, not the DashboardResponse object.
-      // We must map it differently.
-      return this.http.get<any[]>(companyUrl, { params }).pipe(
-        map(responseArray => {
-          // If the response is null/undefined, treat as empty array
-          const safeArray = Array.isArray(responseArray) ? responseArray : [];
-          return this.mapArrayToEmployeesResponse(safeArray);
+          // Normalize possible Dashboard response shapes (PascalCase / camelCase)
+          const employeesArray = response.employees ?? response.Employees ?? [];
+          const totalEmployees = response.totalEmployees ?? response.TotalEmployees ?? employeesArray.length;
+          const activeEmployees = response.activeEmployees ?? response.ActiveEmployees ?? 0;
+          const departments = response.departments ?? response.Departements ?? response.Departments ?? [];
+          const statuses = response.statuses ?? response.Statuses ?? response.statuses ?? [];
+
+          const normalized: DashboardEmployeesResponse = {
+            totalEmployees,
+            activeEmployees,
+            employees: employeesArray,
+            departments,
+            statuses
+          };
+
+          return this.mapDashboardEmployeesResponse(normalized);
         })
       );
     }
 
-    // Case 2: No company ID (Legacy/Default behavior)
+    const params = this.buildFilterParams(filters);
     return this.http
       .get<DashboardEmployeesResponse>(this.EMPLOYEE_SUMMARY_URL, { params })
       .pipe(map(response => this.mapDashboardEmployeesResponse(response)));
+  }
+
+  /**
+   * Returns an observable that re-fetches employees whenever the company context changes.
+   * Components can subscribe to this to automatically refresh when the selected company changes.
+   */
+  watchEmployees(filters?: EmployeeFilters): Observable<EmployeesResponse> {
+    const ctxChanged = (this.contextService as any).contextChanged$;
+    if (!ctxChanged || typeof ctxChanged.pipe !== 'function') {
+      return this.getEmployees(filters);
+    }
+    return (ctxChanged as Observable<any>).pipe(
+      startWith(null),
+      switchMap(() => this.getEmployees(filters))
+    );
   }
 
   /**
@@ -320,7 +355,9 @@ export class EmployeeService {
     
     // Extract unique values for filter dropdowns
     const departments = Array.from(new Set(employees.map(e => e.department).filter(Boolean)));
-    const statuses = Array.from(new Set(employees.map(e => e.status).filter(Boolean)));
+    const statusCandidates = employees.map(e => e.statusRaw ?? e.status).filter(Boolean);
+    const uniqueStatuses = Array.from(new Set(statusCandidates));
+    const statuses = uniqueStatuses.map((s, idx) => ({ id: idx, label: String(s), value: String(s) } as LookupOption));
 
     return {
       employees,
@@ -354,12 +391,68 @@ export class EmployeeService {
       .pipe(map(response => this.mapEmployeeFormDataResponse(response)));
   }
 
+  /**
+   * Fetch statuses from referential endpoint
+   * Backend endpoint: GET /api/statuses?includeInactive={bool}
+   */
+  getStatuses(includeInactive: boolean = false): Observable<LookupOption[]> {
+    let params = new HttpParams();
+    if (includeInactive) params = params.set('includeInactive', 'true');
+
+    return this.http.get<any[]>(`${environment.apiUrl}/statuses`, { params }).pipe(
+      map(items => {
+        console.log('[EmployeeService] /api/statuses response:', items, 'lang:', this.translate?.currentLang);
+        return (items || []).map(i => {
+        const it: any = i;
+        const label = this.getLocalizedLabel(it);
+        const value = it.Code ?? it.code ?? String(it.Id ?? it.id);
+        return {
+          id: it.Id ?? it.id,
+          label,
+          value: value
+        } as LookupOption & { value: string };
+        });
+      })
+    );
+  }
+
+  private getLocalizedLabel(it: any): string {
+    const lang = (this.translate?.currentLang || (this.translate?.getBrowserLang && this.translate.getBrowserLang()) || 'fr').toString().toLowerCase();
+    const suffix = lang.startsWith('fr') ? 'Fr' : lang.startsWith('ar') ? 'Ar' : 'En';
+    return (
+      it[`Name${suffix}`] ??
+      it[`name${suffix}`] ??
+      it.Name ??
+      it.name ??
+      it.NameEn ??
+      it.nameEn ??
+      it.NameFr ??
+      it.nameFr ??
+      it.NameAr ??
+      it.nameAr ??
+      it.Code ??
+      it.code ??
+      String(it.id ?? it.Id ?? '')
+    );
+  }
+
   createEmployee(employee: Partial<Employee>): Observable<Employee> {
     return this.http.post<Employee>(this.EMPLOYEE_URL, employee);
   }
 
   createEmployeeRecord(payload: CreateEmployeeRequest): Observable<any> {
-    return this.http.post<any>(this.EMPLOYEE_URL, payload);
+    const body: any = { ...payload };
+    if (payload.dateOfBirth) {
+      body.DateOfBirth = this.formatForDateInput(payload.dateOfBirth);
+      delete body.dateOfBirth;
+      delete body.birthdate;
+    }
+    if (payload.startDate) {
+      body.StartDate = this.formatForDateInput(payload.startDate);
+      // keep camelCase startDate removed to avoid duplication
+      delete body.startDate;
+    }
+    return this.http.post<any>(this.EMPLOYEE_URL, body);
   }
 
   updateEmployee(id: string, employee: Partial<Employee>): Observable<Employee> {
@@ -367,8 +460,18 @@ export class EmployeeService {
   }
 
   patchEmployeeProfile(id: string, payload: Partial<EmployeeProfileModel>): Observable<EmployeeProfileModel> {
+    const body: any = { ...payload };
+    if ((payload as any).dateOfBirth) {
+      body.DateOfBirth = this.formatForDateInput((payload as any).dateOfBirth);
+      delete body.dateOfBirth;
+      delete body.birthdate;
+    }
+    if ((payload as any).startDate) {
+      body.StartDate = this.formatForDateInput((payload as any).startDate);
+      delete body.startDate;
+    }
     return this.http
-      .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}`, payload)
+      .patch<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}`, body)
       .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
   }
 
@@ -472,8 +575,32 @@ export class EmployeeService {
   }
 
   private mapEmployeeFormDataResponse(response: EmployeeFormDataResponse = {} as EmployeeFormDataResponse): EmployeeFormData {
+    const lang = (this.translate?.currentLang || (this.translate?.getBrowserLang && this.translate.getBrowserLang()) || 'fr').toString().toLowerCase();
+    const suffix = lang.startsWith('fr') ? 'Fr' : lang.startsWith('ar') ? 'Ar' : 'En';
+
+    const getLocalizedLabel = (it: any) => {
+      return (
+        it[`Name${suffix}`] ??
+        it[`name${suffix}`] ??
+        it.Name ??
+        it.name ??
+        it.NameEn ??
+        it.nameEn ??
+        it.NameFr ??
+        it.nameFr ??
+        it.NameAr ??
+        it.nameAr ??
+        it.code ??
+        it.Code ??
+        String(it.id)
+      );
+    };
+
     const toLookupOption = (items?: LookupResponseItem[]): LookupOption[] =>
-      (items ?? []).map(item => ({ id: item.id, label: item.name }));
+      (items ?? []).map(item => ({
+        id: (item as any).Id ?? (item as any).id,
+        label: getLocalizedLabel(item)
+      }));
 
     const toCountryOption = (items?: CountryResponseItem[]): CountryLookupOption[] =>
       (items ?? []).map(item => ({
@@ -528,9 +655,20 @@ export class EmployeeService {
     const departments = Array.from(new Set(response?.departments ?? employees
       .map(emp => emp.department)
       .filter(dep => !!dep))) as string[];
-    const statuses = Array.from(new Set(response?.statuses ?? employees
-      .map(emp => emp.status)
-      .filter(status => !!status))) as string[];
+    // Use raw status codes or API-provided status objects when available so the UI can present all distinct statuses
+    const statusCandidates = response?.statuses ?? employees.map(emp => emp.statusRaw ?? emp.status);
+    const unique = Array.from(new Set((statusCandidates || []).filter(s => !!s)));
+    const statuses = unique.map((s, idx) => {
+      if (s && typeof s === 'object') {
+        const it: any = s;
+        const value = it.Code ?? it.code ?? String(it.Id ?? it.id ?? idx);
+        const lang = (this.translate?.currentLang || (this.translate?.getBrowserLang && this.translate.getBrowserLang()) || 'fr').toString().toLowerCase();
+        const suffix = lang.startsWith('fr') ? 'Fr' : lang.startsWith('ar') ? 'Ar' : 'En';
+        const label = it[`Name${suffix}`] ?? it[`name${suffix}`] ?? it.Name ?? it.name ?? it.NameEn ?? it.NameFr ?? it.NameAr ?? String(value);
+        return { id: it.Id ?? it.id ?? idx, label, value: String(value) } as LookupOption;
+      }
+      return { id: idx, label: String(s), value: String(s) } as LookupOption;
+    });
 
     return { employees, total, active, departments, statuses };
   }
@@ -538,18 +676,58 @@ export class EmployeeService {
   private mapDashboardEmployee(employee: any): Employee {
     // We treat the input as 'any' to handle both DashboardEmployee and EmployeeReadDto shapes
     // which might use PascalCase (Backend default) or camelCase (if auto-serialized)
+    const rawStatus = this.extractStatusCode(employee);
+    const localizedName = employee.NameFr ?? employee.NameEn ?? employee.NameAr ?? employee.name ?? employee.StatusName ?? employee.statusName ?? '';
+
     return {
       id: this.toStringValue(employee.id || employee.Id),
       firstName: employee.firstName || employee.FirstName || '',
       lastName: employee.lastName || employee.LastName || '',
       position:  employee.position || employee.Position || 'Non assigné',
       department: employee.department || employee.Department || '',
-      status: this.mapEmployeeStatus(employee.status || employee.Status || ''),
+      status: this.mapEmployeeStatus(rawStatus),
+      statusRaw: rawStatus || undefined,
+      statusName: localizedName || undefined,
       startDate: employee.startDate || employee.StartDate || '',
       missingDocuments: this.toNumberValue(employee.missingDocuments || employee.MissingDocuments),
-      contractType: this.mapContractType(employee.contractType || employee.ContractType),
-      manager: employee.manager || employee.Manager || undefined
+        contractType: this.mapContractType(employee.contractType || employee.ContractType),
+        manager: employee.manager || employee.Manager || undefined,
+        userId: employee.userId ?? employee.UserId ?? employee.user_id ?? employee.User_Id ?? undefined
     };
+  }
+
+  private extractStatusCode(employee: any): string {
+    // Normalize the various shapes the backend may return.
+    // Examples:
+    // - { status: 'ACTIVE' }
+    // - { statuses: 'ACTIVE' }
+    // - { Status: { Code: 'ACTIVE' } }
+    // - { StatusCode: 'ACTIVE' }
+    if (!employee) return '';
+
+    if (typeof employee === 'string') return employee;
+
+    if (typeof employee.status === 'string') return employee.status;
+    if (typeof employee.statuses === 'string') return employee.statuses;
+    if (typeof employee.Status === 'string') return employee.Status;
+    if (typeof employee.Statuses === 'string') return employee.Statuses;
+    if (typeof employee.statusName === 'string') return employee.statusName;
+    if (typeof employee.StatusName === 'string') return employee.StatusName;
+
+    if (employee.StatusCode) return employee.StatusCode;
+    if (employee.statusCode) return employee.statusCode;
+
+    if (employee.Status && typeof employee.Status === 'object') {
+      return (
+        employee.Status.Code ??
+        employee.Status.code ??
+        employee.Status.StatusCode ??
+        employee.Status.statusCode ??
+        ''
+      );
+    }
+
+    return '';
   }
 
   private mapEmployeeDetailsResponse(payload: EmployeeDetailsResponse): EmployeeProfileModel {
@@ -572,7 +750,6 @@ export class EmployeeService {
       photo: undefined,
       cin: payload.cinNumber ?? '',
       maritalStatus: this.mapMaritalStatus(payload.maritalStatusName),
-      dateOfBirth: payload.dateOfBirth ?? '',
       birthPlace: cityName,
       professionalEmail: payload.email ?? '',
       personalEmail: payload.email ?? '',
@@ -588,7 +765,7 @@ export class EmployeeService {
       department: payload.department ?? payload.departmentName ?? payload.departments ?? '',
       manager: payload.managerName ?? '',
       contractType: this.mapContractType(payload.contractTypeName),
-      startDate: payload.contractStartDate ?? '',
+      
       endDate: undefined,
       probationPeriod: payload.probationPeriod ?? '',
       exitReason: undefined,
@@ -600,12 +777,19 @@ export class EmployeeService {
       amo: this.toStringValue(payload.amo),
       cimr: this.toStringValue(payload.cimr) || undefined,
       annualLeave: payload.annualLeave ?? 0,
-      status: this.mapEmployeeStatus(payload.statusName),
+      // Preserve raw status code (if present in payload) and localized label
+      status: (this.mapEmployeeStatus(this.extractStatusCode(payload) || payload.statusName) as unknown) as string,
+      statusRaw: this.extractStatusCode(payload) || payload.statusName || undefined,
+      statusName: payload.statusName ?? undefined,
       missingDocuments: payload.missingDocuments ?? 0,
       companyId: this.toStringValue(payload.companyId) || undefined,
-      userId: this.toStringValue(payload.userId) || undefined,
+      userId: this.toStringValue(
+        payload.userId ?? (payload as any).UserId ?? (payload as any).user_id ?? (payload as any).User_Id
+      ) || undefined,
       createdAt: payload.createdAt ? new Date(payload.createdAt) : undefined,
       updatedAt: payload.updatedAt ? new Date(payload.updatedAt) : undefined,
+      dateOfBirth: this.formatForDateInput(payload.dateOfBirth),
+      startDate: this.formatForDateInput(payload.contractStartDate),
       events: (payload.events || []).map(event => ({
         type: event.type,
         title: event.title,
@@ -624,17 +808,39 @@ export class EmployeeService {
   }
 
   private mapEmployeeStatus(status?: string): Employee['status'] {
-    const normalized = (status ?? '').toLowerCase();
-    if (normalized === 'active') return 'active';
-    if (normalized === 'on_leave' || normalized === 'on leave' || normalized === 'en congé') return 'on_leave';
+    const raw = (status ?? '').toString().trim().toLowerCase();
+    if (!raw) return 'inactive';
+
+    const activeSet = new Set(['active', 'actif', 'enabled']);
+    const onLeaveSet = new Set(['on_leave', 'on leave', 'leave', 'onleave', 'absent']);
+    const inactiveSet = new Set(['inactive', 'resigned', 'resign', 'retired', 'suspended', 'terminated', 'left', 'departed']);
+
+    if (activeSet.has(raw)) return 'active';
+    if (onLeaveSet.has(raw)) return 'on_leave';
+    if (inactiveSet.has(raw)) return 'inactive';
+
+    // Handle common code patterns (safe exact matches already covered above).
+    if (raw === 'on_leave' || raw === 'on-leave') return 'on_leave';
+    if (raw === 'active') return 'active';
+
+    // Fallback heuristics: prefer 'on_leave' if it clearly references leave/congé,
+    // otherwise prefer 'inactive' as the safe default.
+    if (raw.includes('leave') || raw.includes('cong') || raw.includes('abs')) return 'on_leave';
+    if (raw.includes('active') && !raw.startsWith('in')) return 'active';
+
     return 'inactive';
   }
 
   private mapContractType(type?: string): Employee['contractType'] {
-    const normalized = (type ?? '').toLowerCase();
+    const raw = (type ?? '').toString().trim();
+    const normalized = raw.toLowerCase();
+    if (!normalized) return '';
+    // Keep common canonical short values
     if (normalized === 'cdd') return 'CDD';
-    if (normalized === 'stage' || normalized === 'intern') return 'Stage';
-    return 'CDI';
+    if (normalized === 'cdi') return 'CDI';
+    if (normalized === 'stage' || normalized === 'intern' || normalized.includes('stage')) return 'Stage';
+    // For company-specific contract type names (e.g. "Atlas Leader"), preserve the original label
+    return raw;
   }
 
   private mapMaritalStatus(status?: string): EmployeeProfileModel['maritalStatus'] {
@@ -656,6 +862,16 @@ export class EmployeeService {
     const cleanCode = code ? String(code).trim() : '';
     const cleanPhone = phone ? String(phone).trim() : '';
     return `${cleanCode} ${cleanPhone}`.trim();
+  }
+
+  private formatForDateInput(date?: string | Date | null): string {
+    if (!date) return '';
+    const d = typeof date === 'string' ? new Date(date) : date;
+    if (!d || Number.isNaN(d.getTime())) return '';
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   private formatAddress(address?: any): string {

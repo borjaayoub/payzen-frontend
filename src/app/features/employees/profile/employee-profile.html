@@ -477,15 +477,16 @@
                   <label class="form-label required">{{ 'employees.profile.position.contractType' | translate }}</label>
                   @if (isEditMode()) {
                     <p-select
-                      [options]="contractTypeOptions"
+                      [options]="contractTypeSelectOptions()"
                       [ngModel]="employee().contractType"
                       (ngModelChange)="updateField('contractType', $event)"
+                      [showClear]="true"
                       optionLabel="label"
                       optionValue="value"
                       class="w-full input"
                     ></p-select>
                   } @else {
-                    <p class="read-only-value">{{ employee().contractType }}</p>
+                    <p class="read-only-value">{{ getContractTypeLabel() }}</p>
                   }
                 </div>
 
@@ -502,7 +503,7 @@
                   <label class="form-label">{{ 'employees.profile.position.status' | translate }}</label>
                   @if (isEditMode()) {
                     <p-select
-                      [options]="statusOptions"
+                      [options]="formData().statuses.length ? formData().statuses : statusOptions()"
                       [ngModel]="employee().status"
                       (ngModelChange)="updateField('status', $event)"
                       optionLabel="label"
@@ -510,7 +511,7 @@
                       class="w-full input"
                     ></p-select>
                   } @else {
-                    <p class="read-only-value">{{ employee().status }}</p>
+                    <p class="read-only-value">{{ employee().statusName || getStatusLabel() }}</p>
                   }
                 </div>
 

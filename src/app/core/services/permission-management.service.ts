@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import {
   PermissionEntity,
@@ -239,6 +240,91 @@ export class PermissionManagementService {
     return this.http.request<void>('delete', `${this.apiUrl}/users-roles`, {
       body: dto
     });
+  }
+
+  // ==================== HIGH-LEVEL USER-ROLE HELPERS ====================
+
+  /**
+   * Assign a single role to a user with fallbacks and idempotent handling.
+   * POST /api/users-roles with { UserId, RoleId }
+   * On 409 treat as success. On 404 try legacy endpoints.
+   */
+  assignRole(dto: UserRoleAssignDto): Observable<void> {
+    if (!dto || !dto.UserId || !dto.RoleId) return throwError(() => new Error('Invalid parameters'));
+    const url = `${this.apiUrl}/users-roles`;
+    return this.http.post<any>(url, dto).pipe(
+      map(() => void 0),
+      catchError((err: any) => {
+        if (err?.status === 409) return of(void 0);
+        if (err?.status === 404) {
+          // fallback 1
+          return this.http.post<any>(`${this.apiUrl}/employee/${dto.UserId}/assign-role`, { roleId: dto.RoleId }).pipe(
+            map(() => void 0),
+            catchError((err2: any) => {
+              if (err2?.status === 409) return of(void 0);
+              if (err2?.status === 404) {
+                // fallback 2
+                return this.http.post<any>(`${this.apiUrl}/employee/${dto.UserId}/role`, { roleId: dto.RoleId }).pipe(
+                  map(() => void 0),
+                  catchError((err3: any) => {
+                    if (err3?.status === 409) return of(void 0);
+                    return throwError(() => err3);
+                  })
+                );
+              }
+              return throwError(() => err2);
+            })
+          );
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Assign multiple roles to a user. Tries bulk assign then falls back to per-role assign.
+   */
+  assignRoles(userId: number, roleIds: number[]): Observable<void> {
+    if (!userId || !Array.isArray(roleIds)) return throwError(() => new Error('Invalid parameters'));
+    const url = `${this.apiUrl}/users-roles/bulk-assign`;
+    const dto: UserRoleBulkAssignDto = { UserId: userId, RoleIds: roleIds };
+    return this.http.post<UserRoleBulkAssignResponse>(url, dto).pipe(
+      map(() => void 0),
+      catchError((err: any) => {
+        if (err?.status === 409) return of(void 0);
+        if (err?.status === 404) {
+          // fallback: call assignRole for each role individually
+          const calls = (roleIds || []).map(rid => this.assignRole({ UserId: userId, RoleId: rid }).pipe(catchError(() => of(void 0))));
+          return forkJoin(calls).pipe(map(() => void 0));
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Replace all roles for a user using the replace endpoint.
+   */
+  replaceRoles(userId: number, roleIds: number[]): Observable<void> {
+    if (!userId || !Array.isArray(roleIds)) return throwError(() => new Error('Invalid parameters'));
+    const dto: UserRoleReplaceDto = { UserId: userId, RoleIds: roleIds };
+    return this.replaceUserRoles(dto).pipe(
+      map(() => void 0)
+    );
+  }
+
+  /**
+   * Remove a role from a user (treat 404 as success).
+   */
+  removeRole(userId: number, roleId: number): Observable<void> {
+    if (!userId || !roleId) return throwError(() => new Error('Invalid parameters'));
+    const dto: UserRoleAssignDto = { UserId: userId, RoleId: roleId };
+    return this.removeRoleFromUser(dto).pipe(
+      catchError((err: any) => {
+        if (err?.status === 404) return of(void 0);
+        return throwError(() => err);
+      })
+    );
   }
 
   // ==================== PRIVATE MAPPERS ====================

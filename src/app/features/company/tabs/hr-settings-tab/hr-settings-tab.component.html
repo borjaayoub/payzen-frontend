@@ -1,7 +1,7 @@
 <!-- Help Popover -->
 <p-popover #helpPopover>
   <ng-template pTemplate="content">
-    <div class="w-80 p-1">
+    <div class="w-80 p-3">
       <div class="flex items-start gap-3 mb-4">
         <div class="shrink-0 size-9 bg-blue-100 rounded-lg flex items-center justify-center">
           <i class="pi pi-info-circle text-blue-600 text-lg"></i>
@@ -112,59 +112,112 @@
           
           <div class="p-6 space-y-6">
             <!-- Working Days -->
-            <div>
-              <label for="workingDays" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="workingDays" class="form-label form-label-required">
                 {{ 'company.hrSettings.workingDays' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </label>
-              <p-selectButton 
-                id="workingDays"
-                [options]="workingDaysOptions" 
-                formControlName="workingDays" 
-                [multiple]="true" 
-                optionLabel="label" 
-                optionValue="value"
-                styleClass="w-full"
-                [attr.aria-required]="true"
-                [attr.aria-invalid]="isFieldInvalid('workingDays')"
-                aria-describedby="workingDays-help">
-              </p-selectButton>
-              <small id="workingDays-help" class="block mt-2 text-xs text-gray-500">
-                {{ 'company.hrSettings.workingDaysHint' | translate }}
+              
+              <!-- Days Selector with Enhanced UI -->
+              <div class="grid grid-cols-7 gap-2">
+                @for (day of workingDaysOptions; track day.value) {
+                  <button
+                    type="button"
+                    [class]="'relative flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ' + 
+                      (hrForm.get('workingDays')?.value?.includes(day.value) 
+                        ? (day.isWeekend ? 'bg-amber-50 border-amber-400 text-amber-700' : 'bg-blue-50 border-blue-500 text-blue-700')
+                        : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50')"
+                    (click)="toggleWorkingDay(day.value)"
+                    [attr.aria-label]="day.fullName"
+                    [attr.aria-pressed]="hrForm.get('workingDays')?.value?.includes(day.value)">
+                    
+                    <!-- Selection Indicator -->
+                    @if (hrForm.get('workingDays')?.value?.includes(day.value)) {
+                      <div class="absolute -top-1 -right-1 size-4 rounded-full flex items-center justify-center"
+                           [class]="day.isWeekend ? 'bg-amber-500' : 'bg-blue-600'">
+                        <i class="pi pi-check text-white text-[10px]"></i>
+                      </div>
+                    }
+                    
+                    <!-- Day Icon -->
+                    <i [class]="'pi text-base mb-1 ' + day.icon"></i>
+                    
+                    <!-- Day Label -->
+                    <span class="text-[11px] font-semibold tracking-wide">{{ day.label }}</span>
+                    
+                    <!-- Tooltip on hover -->
+                    <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+                      {{ day.fullName }}
+                    </span>
+                  </button>
+                }
+              </div>
+              
+              <small id="workingDays-help" class="mt-3 text-xs text-gray-500 flex items-start gap-1.5">
+                <i class="pi pi-info-circle text-blue-500 mt-0.5 shrink-0"></i>
+                <span>{{ 'company.hrSettings.workingDaysHint' | translate }}</span>
               </small>
+              
               @if (isFieldInvalid('workingDays')) {
-                <small class="block mt-1.5 text-sm text-red-600" role="alert">
-                  <i class="pi pi-exclamation-circle mr-1"></i>
-                  {{ 'company.hrSettings.errors.workingDaysRequired' | translate }}
+                <small class="form-error flex items-center gap-1.5" role="alert">
+                  <i class="pi pi-exclamation-circle"></i>
+                  <span>{{ 'company.hrSettings.errors.workingDaysRequired' | translate }}</span>
                 </small>
               }
             </div>
 
             <!-- Standard Hours -->
-            <div>
-              <label for="standardHoursPerDay" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label class="form-label form-label-required">
                 {{ 'company.hrSettings.standardHoursPerDay' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </label>
-              <p-inputNumber 
-                id="standardHoursPerDay"
-                formControlName="standardHoursPerDay" 
-                [min]="0"
-                [max]="24"
-                [minFractionDigits]="1"
-                [maxFractionDigits]="1"
-                suffix=" hrs"
-                styleClass="w-full"
-                [attr.aria-required]="true"
-                [attr.aria-invalid]="isFieldInvalid('standardHoursPerDay')"
-                aria-describedby="hours-help">
-              </p-inputNumber>
+              
+              <!-- Quick Preset Hours + Custom Input -->
+              <div class="flex items-center gap-3">
+                <!-- Preset Buttons -->
+                <div class="flex gap-1.5">
+                  @for (preset of hoursPresets; track preset) {
+                    <button
+                      type="button"
+                      [class]="'relative flex items-center justify-center size-10 rounded-lg border transition-colors duration-150 text-sm font-semibold ' +
+                        (hrForm.get('standardHoursPerDay')?.value === preset
+                          ? 'bg-blue-600 border-blue-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:bg-blue-50')"
+                      (click)="setStandardHours(preset)"
+                      [attr.aria-label]="preset + ' hours'"
+                      [attr.aria-pressed]="hrForm.get('standardHoursPerDay')?.value === preset">
+                      {{ preset }}h
+                    </button>
+                  }
+                </div>
+                
+                <!-- Divider -->
+                <div class="h-8 w-px bg-gray-300"></div>
+                
+                <!-- Custom Input -->
+                <div class="flex-1 max-w-[180px]">
+                  <p-inputNumber
+                    id="standardHoursPerDay"
+                    formControlName="standardHoursPerDay"
+                    [min]="0"
+                    [max]="24"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    suffix=" hrs"
+                    styleClass="w-full"
+                    [attr.aria-required]="true"
+                    [attr.aria-invalid]="isFieldInvalid('standardHoursPerDay')"
+                    aria-describedby="hours-help">
+                  </p-inputNumber>
+                </div>
+              </div>
+              
               <small id="hours-help" class="block mt-2 text-xs text-gray-500">
                 {{ 'company.hrSettings.standardHoursHint' | translate }}
               </small>
+              
               @if (isFieldInvalid('standardHoursPerDay')) {
-                <small class="block mt-1.5 text-sm text-red-600" role="alert">
-                  <i class="pi pi-exclamation-circle mr-1"></i>
+                <small class="form-error flex items-center gap-1" role="alert">
+                  <i class="pi pi-exclamation-circle"></i>
                   {{ 'company.hrSettings.errors.hoursInvalid' | translate }}
                 </small>
               }
@@ -184,12 +237,11 @@
             </p>
           </div>
           
-          <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="p-6 form-grid">
             <!-- Leave Rate -->
-            <div>
-              <label for="leaveRate" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="leaveRate" class="form-label form-label-required">
                 {{ 'company.hrSettings.leaveRate' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </label>
               <p-select 
                 id="leaveRate"
@@ -207,10 +259,9 @@
             </div>
 
             <!-- Include Saturdays -->
-            <div>
-              <span class="block mb-3 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <span class="form-label form-label-required">
                 {{ 'company.hrSettings.includeSaturdays' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </span>
               <div class="flex items-center gap-6" role="radiogroup">
                 <div class="flex items-center gap-2">
@@ -252,12 +303,11 @@
             </h2>
           </div>
           
-          <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="p-6 form-grid">
             <!-- Currency -->
-            <div>
-              <label for="currency" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="currency" class="form-label form-label-required">
                 {{ 'company.hrSettings.currency' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </label>
               <p-select 
                 id="currency"
@@ -277,10 +327,9 @@
             </div>
 
             <!-- Payment Frequency -->
-            <div>
-              <label for="paymentFrequency" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="paymentFrequency" class="form-label form-label-required">
                 {{ 'company.hrSettings.paymentFrequency' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </label>
               <p-select 
                 id="paymentFrequency"
@@ -300,10 +349,9 @@
             </div>
 
             <!-- Fiscal Year Start Month -->
-            <div>
-              <label for="fiscalMonth" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="fiscalMonth" class="form-label form-label-required">
                 {{ 'company.hrSettings.fiscalYearStartMonth' | translate }}
-                <span class="text-red-500 ml-0.5">*</span>
               </label>
               <p-select 
                 id="fiscalMonth"
@@ -323,8 +371,8 @@
             </div>
 
             <!-- Payment Mode -->
-            <div>
-              <label for="paymentMode" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="paymentMode" class="form-label">
                 {{ 'company.hrSettings.paymentModeEmployees' | translate }}
                 <span class="text-gray-400 text-xs font-normal ml-1">({{ 'common.optional' | translate }})</span>
               </label>
@@ -356,10 +404,10 @@
             </h2>
           </div>
           
-          <div class="p-6 space-y-6">
+          <div class="p-6 form-container">
             <!-- Sector / Activity -->
-            <div>
-              <label for="sector" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="sector" class="form-label">
                 {{ 'company.hrSettings.sector' | translate }}
               </label>
               <p-select 
@@ -380,8 +428,8 @@
             </div>
 
             <!-- Collective Agreement -->
-            <div>
-              <label for="collectiveAgreement" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="collectiveAgreement" class="form-label">
                 {{ 'company.hrSettings.collectiveAgreement' | translate }}
                 <span class="text-gray-400 text-xs font-normal ml-1">({{ 'company.hrSettings.collectiveAgreementHint' | translate }})</span>
               </label>
@@ -389,14 +437,14 @@
                 pInputText 
                 id="collectiveAgreement" 
                 formControlName="collectiveAgreement" 
-                class="w-full"
+                class="input"
                 [placeholder]="'company.hrSettings.collectiveAgreementPlaceholder' | translate"
                 maxlength="200" />
             </div>
 
             <!-- CNSS Specific Parameters -->
-            <div>
-              <label for="cnssParams" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="cnssParams" class="form-label">
                 {{ 'company.hrSettings.cnssSpecificParams' | translate }}
                 <span class="text-gray-400 text-xs font-normal ml-1">({{ 'company.hrSettings.cnssSpecificParamsHint' | translate }})</span>
               </label>
@@ -404,7 +452,7 @@
                 pTextarea 
                 id="cnssParams" 
                 formControlName="cnssSpecificParameters" 
-                class="w-full"
+                class="input"
                 [placeholder]="'company.hrSettings.cnssSpecificParamsPlaceholder' | translate"
                 rows="3"
                 maxlength="500">
@@ -412,8 +460,8 @@
             </div>
 
             <!-- IR Specific Parameters -->
-            <div>
-              <label for="irParams" class="block mb-2 text-sm font-medium text-gray-900">
+            <div class="form-field">
+              <label for="irParams" class="form-label">
                 {{ 'company.hrSettings.irSpecificParams' | translate }}
                 <span class="text-gray-400 text-xs font-normal ml-1">({{ 'company.hrSettings.irSpecificParamsHint' | translate }})</span>
               </label>
@@ -421,7 +469,7 @@
                 pTextarea 
                 id="irParams" 
                 formControlName="irSpecificParameters" 
-                class="w-full"
+                class="input"
                 [placeholder]="'company.hrSettings.irSpecificParamsPlaceholder' | translate"
                 rows="3"
                 maxlength="500">
@@ -431,7 +479,7 @@
         </section>
 
         <!-- Form Actions -->
-        <footer class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+        <footer class="form-actions justify-between">
           <p class="text-sm text-gray-500 flex items-center gap-1">
             <i class="pi pi-info-circle"></i>
             {{ 'company.hrSettings.saveNote' | translate }}

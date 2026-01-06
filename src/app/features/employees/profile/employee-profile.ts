@@ -25,6 +25,10 @@ import {
   EmployeeFormData,
   LookupOption
 } from '@app/core/services/employee.service';
+import { JobPositionService } from '@app/core/services/job-position.service';
+import { ContractTypeService } from '@app/core/services/contract-type.service';
+import { JobPosition } from '@app/core/models/job-position.model';
+import { ContractType } from '@app/core/models/contract-type.model';
 import { Employee as EmployeeProfileModel, EmployeeEvent } from '@app/core/models/employee.model';
 import { DraftService } from '@app/core/services/draft.service';
 import { ChangeTracker, ChangeSet } from '@app/core/utils/change-tracker.util';
@@ -83,6 +87,8 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private employeeService = inject(EmployeeService);
   private draftService = inject(DraftService);
   private translate = inject(TranslateService);
+  private jobPositionService = inject(JobPositionService);
+  private contractTypeService = inject(ContractTypeService);
   private destroyRef = inject(DestroyRef);
   private contextService = inject(CompanyContextService);
 
@@ -293,11 +299,44 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     { id: 3, label: 'Stage', value: 'Stage' }
   ];
 
-  readonly statusOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['status'] }> = [
-    { id: 1, label: 'Actif', value: 'active' },
-    { id: 2, label: 'En congé', value: 'on_leave' },
-    { id: 3, label: 'Inactif', value: 'inactive' }
-  ];
+  readonly contractTypeSelectOptions = computed(() => {
+    const key = 'employees.profile.position.contractTypePlaceholder';
+    const translated = this.translate?.instant ? this.translate.instant(key) : null;
+    const placeholderLabel = (translated && translated !== key) ? translated : 'Choisissez un type de contrat';
+    const placeholder = { id: -1, label: placeholderLabel, value: null };
+    const formItems = this.formData()?.contractTypes ?? [];
+    // If company-specific contract types are available, return them
+    if (formItems && formItems.length > 0) {
+      return [placeholder, ...formItems.map((o: any, idx: number) => ({ id: o.id ?? idx, label: o.label, value: o.value ?? o.label }))];
+    }
+
+    // If a company context exists but there are no contract types for it, return only the placeholder
+    const cid = this.contextService.companyId();
+    if (cid !== null && cid !== undefined) {
+      return [placeholder];
+    }
+
+    // No company context: fall back to static options
+    return [placeholder, ...this.contractTypeOptions.map(o => ({ id: o.id, label: o.label, value: o.value ?? o.label }))];
+  });
+
+  readonly statusOptions = computed(() => {
+    const opts = this.formData()?.statuses ?? [];
+    if (!opts || opts.length === 0) {
+      // Fallback to the previous hardcoded options when API data is not yet available
+      return [
+        { id: 1, label: 'Actif', value: 'active' as EmployeeProfileModel['status'] },
+        { id: 2, label: 'En congé', value: 'on_leave' as EmployeeProfileModel['status'] },
+        { id: 3, label: 'Inactif', value: 'inactive' as EmployeeProfileModel['status'] }
+      ];
+    }
+
+    return opts.map((o, idx) => ({
+      id: (o as any).id ?? idx,
+      label: o.label,
+      value: ((o as any).value ?? String((o as any).id ?? idx)) as EmployeeProfileModel['status']
+    }));
+  });
 
   readonly paymentMethodOptions: Array<{ id: number; label: string; value: EmployeeProfileModel['paymentMethod'] }> = [
     { id: 1, label: 'Virement bancaire', value: 'bank_transfer' },
@@ -396,6 +435,22 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
         this.draftRestored.set(true);
         this.announce('A newer draft is available from another tab.');
       });
+
+    // When company context changes, refresh form lookup data (departments, job positions, contract types)
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.formData.set(this.emptyFormData);
+        this.loadFormData();
+      });
+
+    // Also react directly to the companyId signal to ensure reload in all change paths
+    effect(() => {
+      const cid = this.contextService.companyId();
+      this.formData.set(this.emptyFormData);
+      this.loadFormData();
+      return () => {};
+    });
   }
 
   private loadEmployeeDetails(id: string): void {
@@ -404,9 +459,12 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     
     forkJoin({
       details: this.employeeService.getEmployeeDetails(id),
-      salary: this.employeeService.getEmployeeSalaryDetails(id)
+      salary: this.employeeService.getEmployeeSalaryDetails(id),
+      statuses: this.employeeService.getStatuses(false)
     }).subscribe({
-      next: ({ details, salary }) => {
+      next: ({ details, salary, statuses }) => {
+        console.log('[EmployeeProfile] loaded details, statuses from API:', statuses, 'currentLang:', this.translate?.currentLang);
+        console.log('[EmployeeProfile] raw details:', details);
         this.isRestoringDraft = true;
         
         // Merge salary components with IDs
@@ -416,9 +474,65 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
           salaryComponents: salary.components.length > 0 ? salary.components : details.salaryComponents
         };
 
+        // We'll set the employee and try to enrich its `statusName` from referential statuses.
         this.employee.set(mergedEmployee);
-        this.originalEmployee = { ...mergedEmployee };
-        this.lastSerializedEmployee = JSON.stringify(mergedEmployee);
+        console.debug('[EmployeeProfile] loaded details', { id: id, status: mergedEmployee.status });
+        // Enrich statusName from referential statuses when available (robust matching)
+        let finalEmployee = mergedEmployee;
+        try {
+          if (statuses && statuses.length) {
+            const opts = statuses as any[];
+            const normalize = (v: any) => (v === undefined || v === null) ? '' : String(v).toLowerCase().replace(/[^a-z0-9]+/g, '');
+            const candidates = new Set<string>();
+            candidates.add(normalize((mergedEmployee as any).statusRaw ?? ''));
+            candidates.add(normalize(mergedEmployee.status ?? ''));
+            candidates.add(normalize(mergedEmployee.statusName ?? ''));
+            const norm = normalize(mergedEmployee.status ?? '');
+            if (norm === 'active') candidates.add(normalize('actif'));
+            if (norm === 'onleave') candidates.add(normalize('conge'));
+            if (norm === 'inactive') candidates.add('inact');
+
+            let match: any = null;
+            for (const o of opts) {
+              const anyO = o as any;
+              const val = normalize(anyO.value ?? anyO.id ?? anyO.label ?? '');
+              const lbl = normalize(o.label ?? '');
+              if (candidates.has(val) || candidates.has(lbl)) { match = o; break; }
+              for (const c of Array.from(candidates)) {
+                if (c && (val.includes(c) || lbl.includes(c))) { match = o; break; }
+              }
+              if (match) break;
+            }
+            if (match) {
+              finalEmployee = { ...mergedEmployee, statusName: match.label };
+              this.employee.set(finalEmployee);
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+        // Ensure contractType is null when not provided so the select placeholder stays selected
+        if (!finalEmployee.contractType || finalEmployee.contractType === '') {
+          finalEmployee = { ...finalEmployee, contractType: null as any };
+          this.employee.set(finalEmployee);
+        }
+        this.originalEmployee = { ...finalEmployee };
+        this.lastSerializedEmployee = JSON.stringify(finalEmployee);
+        // Load company-specific contract types when available so the contract select shows company items
+        try {
+          const compId = (finalEmployee as any).companyId ?? (finalEmployee as any).CompanyId ?? this.contextService.companyId();
+          const cidNum = Number(compId);
+          if (!Number.isNaN(cidNum) && cidNum) {
+            this.contractTypeService.getByCompany(cidNum).subscribe({
+              next: (items: ContractType[]) => {
+                this.formData.update(f => ({ ...f, contractTypes: items.map((i: ContractType) => ({ id: i.id, label: i.contractTypeName, value: i.contractTypeName })) }));
+              },
+              error: () => {}
+            });
+          }
+        } catch (e) {
+          // ignore
+        }
         this.resetChangeTracking();
         
         // Check for existing draft
@@ -450,6 +564,25 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   }
 
   getStatusSeverity(): TagVariant {
+    const emp = this.employee();
+    // Prefer referential match
+    try {
+      const opts = this.formData()?.statuses ?? [];
+      const norm = (s: any) => (s === undefined || s === null) ? '' : String(s).toLowerCase().replace(/[^a-z0-9]+/g, '');
+      const code = norm((emp as any).statusRaw ?? emp.status ?? emp.statusName ?? '');
+      for (const o of opts) {
+        const anyO = o as any;
+        const val = norm(anyO.value ?? anyO.id ?? anyO.label ?? '');
+        const lbl = norm(o.label ?? '');
+        if (val === code || lbl === code || val.includes(code) || lbl.includes(code)) {
+          const key = (anyO.value ?? anyO.label ?? '').toString().toLowerCase();
+          if (key.includes('active') || key.includes('actif') || key.includes('enabled')) return 'success';
+          if (key.includes('leave') || key.includes('cong') || key.includes('abs')) return 'warning';
+          return 'danger';
+        }
+      }
+    } catch (e) {}
+
     const status = this.employee().status;
     if (status === 'active') return 'success';
     if (status === 'on_leave') return 'warning';
@@ -457,6 +590,25 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   }
 
   getStatusLabel(): string {
+    const emp = this.employee();
+    // If referential label is present on the employee, use it
+    if (emp.statusName && emp.statusName.trim()) return emp.statusName;
+
+    // Otherwise try to resolve from formData statuses
+    try {
+      const opts = this.formData()?.statuses ?? [];
+      const norm = (s: any) => (s === undefined || s === null) ? '' : String(s).toLowerCase().replace(/[^a-z0-9]+/g, '');
+      const code = norm((emp as any).statusRaw ?? emp.status ?? emp.statusName ?? '');
+      for (const o of opts) {
+        const anyO = o as any;
+        const val = norm(anyO.value ?? anyO.id ?? anyO.label ?? '');
+        const lbl = norm(o.label ?? '');
+        if (val === code || lbl === code || val.includes(code) || lbl.includes(code)) {
+          return o.label;
+        }
+      }
+    } catch (e) {}
+
     const status = this.employee().status;
     if (status === 'active') return 'Actif';
     if (status === 'on_leave') return 'En congé';
@@ -478,6 +630,31 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     return country?.label || '-';
   }
 
+  getContractTypeLabel(): string {
+    const emp = this.employee();
+    // Prefer contractTypes from formData (company-specific)
+    try {
+      const opts = this.formData()?.contractTypes ?? [];
+      if (opts && opts.length) {
+        const norm = (v: any) => (v === undefined || v === null) ? '' : String(v).toLowerCase().replace(/[^a-z0-9]+/g, '');
+        const code = norm(emp.contractType ?? '');
+        if (!code) return emp.contractType || '';
+        for (const o of opts) {
+          const anyO = o as any;
+          const val = norm(anyO.value ?? anyO.id ?? anyO.label ?? '');
+          const lbl = norm(o.label ?? '');
+          if (val === code || lbl === code || (code && (val.includes(code) || lbl.includes(code)))) {
+            return (o as any).label ?? String(o.label ?? emp.contractType);
+          }
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return emp.contractType || '-';
+  }
+
   // Helper to update employee signal (triggers effect)
   updateField<K extends keyof EmployeeProfileModel>(field: K, value: EmployeeProfileModel[K]): void {
     this.saveError.set(null);
@@ -487,6 +664,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   toggleEditMode(): void {
     if (!this.isEditMode()) {
       // Entering edit mode
+      console.debug('[EmployeeProfile] entering edit mode, current status:', this.employee().status);
       this.loadFormData();
       this.lastSerializedEmployee = JSON.stringify(this.employee());
       this.resetChangeTracking();
@@ -496,6 +674,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       return;
     }
     this.isEditMode.update(v => !v);
+    console.log('[EmployeeProfile] isEditMode now', this.isEditMode());
     this.saveError.set(null);
     this.saveSuccess.set(null);
   }
@@ -505,16 +684,47 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       return;
     }
     this.isLoadingFormData.set(true);
-    this.employeeService.getEmployeeFormData().subscribe({
-      next: (data) => {
-        this.formData.set(data);
-        this.isLoadingFormData.set(false);
-      },
+    // Load both form lookups and statuses referential
+    forkJoin({
+      form: this.employeeService.getEmployeeFormData(),
+      statuses: this.employeeService.getStatuses(false)
+    }).subscribe({
+        next: ({ form, statuses }) => {
+          // Merge statuses into formData (convert to LookupOption[] expected shape)
+          const merged = { ...form, statuses } as EmployeeFormData;
+          this.formData.set(merged);
+          this.isLoadingFormData.set(false);
+
+          // Fallbacks: if jobPositions or contractTypes are missing, load them by companyId
+          const companyIdRaw = this.contextService.companyId();
+          if (companyIdRaw !== null && companyIdRaw !== undefined) {
+            const companyIdNum = Number(companyIdRaw as any);
+            if (!Number.isNaN(companyIdNum)) {
+              if (!merged.jobPositions || merged.jobPositions.length === 0) {
+                this.jobPositionService.getByCompany(companyIdNum).subscribe({
+                  next: (items: JobPosition[]) => this.formData.update(f => ({ ...f, jobPositions: items.map((i: JobPosition) => ({ id: i.id, label: i.name })) })),
+                  error: () => {}
+                });
+              }
+              if (!merged.contractTypes || merged.contractTypes.length === 0) {
+                this.contractTypeService.getByCompany(companyIdNum).subscribe({
+                  next: (items: ContractType[]) => this.formData.update(f => ({ ...f, contractTypes: items.map((i: ContractType) => ({ id: i.id, label: i.contractTypeName, value: i.contractTypeName })) })),
+                  error: () => {}
+                });
+              }
+            }
+          }
+        },
       error: (err) => {
-        console.error('Error loading form data', err);
+        console.error('Error loading form data or statuses', err);
+        // fallback: try to at least set form data
+        this.employeeService.getEmployeeFormData().subscribe({
+          next: (data) => this.formData.set(data),
+          error: () => {}
+        });
         this.isLoadingFormData.set(false);
       }
-    })
+    });
   }
 
 

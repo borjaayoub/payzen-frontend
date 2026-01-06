@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { environment } from '@environments/environment';
+import { CompanyService } from './company.service';
 import {
   CompanyAuditLog,
   EmployeeAuditLog,
@@ -18,6 +20,7 @@ import {
 })
 export class AuditLogService {
   private readonly http = inject(HttpClient);
+  private readonly companyService = inject(CompanyService);
   private readonly apiUrl = `${environment.apiUrl}`;
 
   /**
@@ -138,32 +141,14 @@ export class AuditLogService {
       params = params.set('companyId', filter.companyId.toString());
     }
 
-    return this.http.get<any[]>(`${this.apiUrl}/audit-logs/cabinet`, { params })
-      .pipe(map(items => items.map((item, index) => this.mapBackendLogToDisplayItem(item, index))));
-  }
-
-  private mapBackendLogToDisplayItem(dto: any, index: number): AuditLogDisplayItem {
-    const eventType = this.parseEventTypeFromTitle(dto.title || dto.eventType);
-    const { icon, severity } = this.getEventMetadata(eventType);
-
-    return {
-      id: dto.id || index,
-      type: dto.type || 'company',
-      entityId: dto.entityId || 0,
-      entityName: dto.entityName || 'Unknown',
-      entityType: dto.entityType || 'Unknown',
-      eventType,
-      description: dto.description || dto.title || 'Unknown event',
-      details: dto.details,
-      timestamp: new Date(dto.timestamp || dto.createdAt),
-      actor: {
-        id: dto.actor?.id || dto.createdBy || 0,
-        name: dto.actor?.name || dto.createdByName || 'Unknown',
-        role: dto.actor?.role || dto.createdByRole || 'Unknown'
-      },
-      icon: 'pi ' + icon,
-      severity
-    };
+    // For now, return empty array - backend endpoint needs to be implemented
+    // return this.http.get<any[]>(`${this.apiUrl}/audit-logs/cabinet`, { params })
+    //   .pipe(map(items => items.map(item => this.mapToDisplayItem(item))));
+    
+    return new Observable(observer => {
+      observer.next([]);
+      observer.complete();
+    });
   }
 
   /**

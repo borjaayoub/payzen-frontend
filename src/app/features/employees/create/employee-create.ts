@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, effect } from '@angular/core';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,6 +12,8 @@ import { MessageService } from 'primeng/api';
 import { InputFieldComponent } from '@app/shared/components/form-controls/input-field';
 import { SelectFieldComponent } from '@app/shared/components/form-controls/select-field';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
+import { JobPositionService } from '@app/core/services/job-position.service';
+import { ContractTypeService } from '@app/core/services/contract-type.service';
 import {
   CityLookupOption,
   CreateEmployeeRequest,
@@ -19,6 +21,8 @@ import {
   EmployeeService,
   ManagerLookupOption
 } from '@app/core/services/employee.service';
+import { JobPosition } from '@app/core/models/job-position.model';
+import { ContractType } from '@app/core/models/contract-type.model';
 
 @Component({
   selector: 'app-employee-create',
@@ -63,6 +67,8 @@ export class EmployeeCreatePage implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly messageService = inject(MessageService);
   private readonly contextService = inject(CompanyContextService);
+  private readonly jobPositionService = inject(JobPositionService);
+  private readonly contractTypeService = inject(ContractTypeService);
 
   // Route prefix based on current context mode
   readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
@@ -121,6 +127,23 @@ export class EmployeeCreatePage implements OnInit {
 
   ngOnInit(): void {
     this.loadFormData();
+
+    // Reload form lookups when the selected company changes
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.formData.set(this.emptyFormData);
+        this.loadFormData();
+      });
+
+    // Also react directly to the companyId signal in case context changes via signals elsewhere
+    effect(() => {
+      const cid = this.contextService.companyId();
+      // When companyId changes, reload form data
+      this.formData.set(this.emptyFormData);
+      this.loadFormData();
+      return () => {};
+    });
   }
 
   loadFormData(): void {
@@ -129,6 +152,12 @@ export class EmployeeCreatePage implements OnInit {
     this.employeeService.getEmployeeFormData().subscribe({
       next: (data) => {
         this.formData.set(data);
+        console.log('[EmployeeCreate] mapped formData', {
+          genders: data.genders,
+          educationLevels: data.educationLevels,
+          maritalStatuses: data.maritalStatuses,
+          statuses: data.statuses
+        });
         if (data.countries.length) {
           const defaultCountry = this.findDefaultCountry(data.countries);
           if (!this.employeeForm.controls.phoneCountryId.value) {
@@ -139,6 +168,26 @@ export class EmployeeCreatePage implements OnInit {
           }
         }
         this.isLoading.set(false);
+        // Fallbacks: if backend didn't return company-specific job positions or contract types,
+        // load them explicitly using companyId from context (expert mode).
+        const companyIdRaw = this.contextService.companyId();
+        if (companyIdRaw !== null && companyIdRaw !== undefined) {
+          const companyIdNum = Number(companyIdRaw as any);
+          if (!Number.isNaN(companyIdNum)) {
+            if (!data.jobPositions || data.jobPositions.length === 0) {
+              this.jobPositionService.getByCompany(companyIdNum).subscribe({
+                next: (items: JobPosition[]) => this.formData.update(f => ({ ...f, jobPositions: items.map((i: JobPosition) => ({ id: i.id, label: i.name })) })),
+                error: () => {}
+              });
+            }
+            if (!data.contractTypes || data.contractTypes.length === 0) {
+              this.contractTypeService.getByCompany(companyIdNum).subscribe({
+                next: (items: ContractType[]) => this.formData.update(f => ({ ...f, contractTypes: items.map((i: ContractType) => ({ id: i.id, label: i.contractTypeName })) })),
+                error: () => {}
+              });
+            }
+          }
+        }
       },
       error: (err) => {
         console.error('Error loading employee form data', err);

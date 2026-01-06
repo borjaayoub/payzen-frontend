@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 import { CompanyContextService } from './companyContext.service';
@@ -34,15 +35,33 @@ export class UserService {
   private contextService = inject(CompanyContextService);
   private apiUrl = `${environment.apiUrl}/users`;
   private employeeApiUrl = `${environment.apiUrl}/employee`;
+  private rolesApiUrl = `${environment.apiUrl}/roles`;
+
+  /**
+   * Fetch available roles from backend and exclude the internal Payzen admin role.
+   */
+  getRoles(): Observable<{ id: number; code: string; name: string }[]> {
+    return this.http.get<any[]>(this.rolesApiUrl).pipe(
+      map(items =>
+        (items || [])
+          .filter(i => {
+            const code = (i.code ?? i.Code ?? '').toString().toLowerCase();
+            // exclude the Payzen admin role by code
+            return code !== 'admin_payzen' && code !== 'payzen_admin';
+          })
+          .map(i => ({ id: i.id ?? i.Id, code: i.code ?? i.Code, name: i.name ?? i.Name ?? i.displayName ?? String(i.id) }))
+      )
+    );
+  }
 
   /**
    * Get employees who don't have a user account yet (available for invitation).
    * These are employees with roleName = null.
    */
   getAvailableEmployees(companyId: number): Observable<AvailableEmployee[]> {
-    return this.http.get<EmployeeWithUserDto[]>(`${this.employeeApiUrl}/company/${companyId}`).pipe(
-      map(employees => {
-        // Filter to employees who DON'T have a role (meaning no user account)
+    return this.http.get<any>(`${this.employeeApiUrl}/company/${companyId}`).pipe(
+      map(resp => {
+        const employees: EmployeeWithUserDto[] = this.normalizeEmployeeList(resp);
         return employees
           .filter(emp => emp.roleName === null || emp.roleName === undefined || emp.roleName === '')
           .map(emp => ({
@@ -62,15 +81,30 @@ export class UserService {
    * Only returns employees who have an associated user account (with roleName).
    */
   getUsersByCompany(companyId: number): Observable<User[]> {
-    return this.http.get<EmployeeWithUserDto[]>(`${this.employeeApiUrl}/company/${companyId}`).pipe(
-      map(employees => {
-        // Filter to only employees who have a role (meaning they have a user account)
-        // Employees without user accounts won't have a roleName
+    return this.http.get<any>(`${this.employeeApiUrl}/company/${companyId}`).pipe(
+      map(resp => {
+        const employees: EmployeeWithUserDto[] = this.normalizeEmployeeList(resp);
         return employees
           .filter(emp => emp.roleName !== null && emp.roleName !== undefined)
-          .map(emp => this.mapEmployeeToUser(emp));
+          .map(emp => {
+            const u = this.mapEmployeeToUser(emp);
+            u.companyId = companyId?.toString();
+            return u;
+          });
       })
     );
+  }
+
+  /**
+   * Normalize various backend shapes for the company employees endpoint.
+   * Accepts either an array or an object with an `employees` property.
+   */
+  private normalizeEmployeeList(resp: any): EmployeeWithUserDto[] {
+    if (!resp) return [];
+    if (Array.isArray(resp)) return resp as EmployeeWithUserDto[];
+    if (Array.isArray(resp.employees)) return resp.employees as EmployeeWithUserDto[];
+    if (Array.isArray(resp.data)) return resp.data as EmployeeWithUserDto[];
+    return [];
   }
 
   getUsers(companyId?: number): Observable<User[]> {
@@ -107,6 +141,24 @@ export class UserService {
   // Invite user (might be a specific endpoint or just create)
   inviteUser(email: string, role: string, companyId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/invite`, { email, role, companyId });
+  }
+
+  /**
+   * Assigns a role to a user via POST api/users-roles/
+   * @param userId User ID
+   * @param roleId Role ID
+   */
+  assignUserRole(userId: number, roleId: number): Observable<any> {
+    const payload = { UserId: userId, RoleId: roleId };
+    return this.http.post(`${environment.apiUrl}/users-roles`, payload);
+  }
+
+  /**
+   * Get roles assigned to a specific user
+   * Calls GET api/users-rolesuser/{userId}
+   */
+  getUserRoles(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/users-roles/user/${userId}`);
   }
 
   private mapDtoToUser(dto: any): User {

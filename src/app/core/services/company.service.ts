@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject, map, of, throwError } from 'rxjs';
+import { Observable, Subject, map, of, throwError, tap } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company, CompanyEvent, TaxRegime, CompanyCreateByExpertDto } from '../models/company.model';
 import { AuthService } from './auth.service';
@@ -21,6 +22,8 @@ interface CompanyDto {
   countryName: string;
   cnssNumber: string;
   iceNumber: string;
+  employeeCount?: number;
+  totalEmployees?: number;
   rcNumber?: string;
   ifNumber?: string;
   ribNumber?: string;
@@ -28,6 +31,8 @@ interface CompanyDto {
   phoneNumber: string;
   email: string;
   createdAt: string;
+  website?: string;
+  taxRegime?: string;
   // Add other fields as needed based on backend response
 }
 
@@ -45,9 +50,11 @@ interface CompanyUpdateDto {
   IfNumber?: string;
   RibNumber?: string;
   TaxRegime?: string;
+  WebsiteUrl?: string;
+  LegalForm?: string;
 }
 
-// Mapping configuration from frontend model to backend DTO
+  // Mapping configuration from frontend model to backend DTO
 const COMPANY_FIELD_MAP: Partial<Record<keyof Company, keyof CompanyUpdateDto>> = {
   legalName: 'CompanyName',
   email: 'Email',
@@ -61,7 +68,8 @@ const COMPANY_FIELD_MAP: Partial<Record<keyof Company, keyof CompanyUpdateDto>> 
   cnss: 'CnssNumber',
   if: 'IfNumber',
   rib: 'RibNumber',
-  taxRegime: 'TaxRegime'
+  legalForm: 'LegalForm',
+  website: 'WebsiteUrl',
 };
 
 @Injectable({
@@ -79,14 +87,13 @@ export class CompanyService {
   readonly onCompanyUpdate$ = this.companyUpdated$.asObservable();
 
   getManagedCompanies(): Observable<Company[]> {
-    // ---------------------------------------------------------------------------
-    // FIX: The backend endpoint /companies/managedby/{id} DOES NOT EXIST.
-    // We fallback to /companies to get the list, preventing the 404 error.
-    // LIMITATION: Since the backend response DTO does not contain 'managedById',
-    // we cannot filter this list client-side. This will show ALL companies.
-    // ---------------------------------------------------------------------------
-    
-    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies`).pipe(
+    // Use the expert's cabinet/company id to request only companies managed by that expert
+    const expertId = this.contextService.currentContext()?.cabinetId || this.authService.currentUser()?.companyId;
+    if (!expertId) {
+      return of([]);
+    }
+
+    return this.http.get<CompanyDto[]>(`${this.apiUrl}/companies/managedby/${expertId}`).pipe(
       map(dtos => dtos.map(dto => this.mapDtoToCompany(dto)))
     );
   }
@@ -103,6 +110,23 @@ export class CompanyService {
 
     return this.http.get<CompanyDto>(`${this.apiUrl}/companies/${companyId}`).pipe(
       map(dto => this.mapDtoToCompany(dto))
+    );
+  }
+
+  /**
+   * Fetch employee count for a specific company by calling the employee summary
+   * endpoint while forcing `X-Company-Id` header to the target company.
+   * This is a fallback approach when the managed-by endpoint doesn't include counts.
+   */
+  getCompanyEmployeeCount(companyId: string): Observable<number> {
+    if (!companyId) return of(0);
+
+    const url = `${this.apiUrl}/employee/summary`;
+    const params = new HttpParams().set('companyId', companyId);
+    const headers = { 'X-Company-Id': String(companyId) };
+
+    return this.http.get<any>(url, { params, headers }).pipe(
+      map(res => res?.totalEmployees ?? 0)
     );
   }
 
@@ -198,6 +222,19 @@ export class CompanyService {
   }
 
   private mapDtoToCompany(dto: CompanyDto): Company {
+    console.debug('[CompanyService] mapping CompanyDto:', dto);
+    // Resolve tax regime and legal form from possible backend fields
+    const rawTax = (dto as any).taxRegime || (dto as any).TaxRegime || (dto as any).tax_regime || '';
+    let resolvedTax: TaxRegime = TaxRegime.IS;
+    if (rawTax) {
+      const up = String(rawTax).toUpperCase();
+      if (up.includes('IR')) resolvedTax = TaxRegime.IR;
+      else if (up.includes('AUTO')) resolvedTax = TaxRegime.AUTO_ENTREPRENEUR;
+      else resolvedTax = TaxRegime.IS;
+    }
+
+    const legalForm = (dto as any).legalForm || (dto as any).LegalForm || (dto as any).legal_form || '';
+
     return {
       id: dto.id.toString(),
       legalName: (dto as any).companyName || (dto as any).legalName || (dto as any).name || String(dto.id),
@@ -206,17 +243,19 @@ export class CompanyService {
       cnss: dto.cnssNumber,
       if: dto.ifNumber,
       rib: dto.ribNumber,
-      patente: dto.patente,
+      patente: (dto as any).patente || (dto as any).Patente || (dto as any).patent || (dto as any).patenteNumber || '',
       address: dto.companyAddress,
       city: dto.cityName,
       country: dto.countryName || 'Maroc', // Default if missing
       email: dto.email,
       phone: dto.phoneNumber,
+      website: (dto as any).website || (dto as any).websiteUrl || (dto as any).WebsiteUrl || '',
+      legalForm: legalForm,
       // Map other fields with defaults
       postalCode: '',
-      taxRegime: TaxRegime.IS, // Default
+      taxRegime: resolvedTax,
       fiscalYear: new Date().getFullYear(),
-      employeeCount: 0,
+      employeeCount: (dto as any).employeeCount ?? (dto as any).totalEmployees ?? 0,
       hrParameters: {
         workingDays: [],
         workingHoursPerDay: 8,

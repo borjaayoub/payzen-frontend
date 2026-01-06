@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -6,13 +6,18 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
+import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { JobPositionService } from '../../../../core/services/job-position.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CompanyContextService } from '../../../../core/services/companyContext.service';
 import { JobPosition } from '../../../../core/models/job-position.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-position-tab',
@@ -25,8 +30,10 @@ import { HttpErrorResponse } from '@angular/common/http';
     TableModule,
     DialogModule,
     InputTextModule,
+    AutoCompleteModule,
     ToastModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TagModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './job-position-tab.component.html',
@@ -38,9 +45,12 @@ export class JobPositionTabComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   // Signals
   jobPositions = signal<JobPosition[]>([]);
+  predefinedJobPositions = signal<JobPosition[]>([]);
+  filteredJobPositions = signal<JobPosition[]>([]);
   loading = signal(false);
   dialogVisible = signal(false);
   submitLoading = signal(false);
@@ -53,6 +63,10 @@ export class JobPositionTabComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadJobPositions();
+    // Reload when company context changes
+    this.contextService.contextChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadJobPositions());
   }
 
   private initForm() {
@@ -64,11 +78,11 @@ export class JobPositionTabComponent implements OnInit {
   loadJobPositions() {
     const companyId = this.contextService.companyId();
     if (!companyId) return;
-
     this.loading.set(true);
+    this.predefinedJobPositions.set([]);
     this.jobPositionService.getByCompany(Number(companyId)).subscribe({
-      next: (data) => {
-        this.jobPositions.set(data);
+      next: (company) => {
+        this.jobPositions.set([...company]);
         this.loading.set(false);
       },
       error: (err) => {
@@ -84,6 +98,14 @@ export class JobPositionTabComponent implements OnInit {
     this.currentJobPositionId = null;
     this.jobPositionForm.reset();
     this.dialogVisible.set(true);
+  }
+
+  searchJobPositions(event: any) {
+    const query = event.query.toLowerCase();
+    const filtered = this.predefinedJobPositions().filter(p => 
+      p.name.toLowerCase().includes(query)
+    );
+    this.filteredJobPositions.set(filtered);
   }
 
   openEditDialog(jobPosition: JobPosition) {
@@ -108,8 +130,12 @@ export class JobPositionTabComponent implements OnInit {
     }
 
     this.submitLoading.set(true);
+    
+    const formValue = this.jobPositionForm.value.name;
+    const name = typeof formValue === 'string' ? formValue : formValue?.name;
+
     const payload = {
-      Name: this.jobPositionForm.value.name,
+      Name: name,
       CompanyId: this.isEditMode ? undefined : Number(companyId)
     };
 

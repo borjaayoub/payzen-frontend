@@ -59,13 +59,13 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
 
   // Form options
   readonly workingDaysOptions = [
-    { label: 'Mon', value: 'monday' },
-    { label: 'Tue', value: 'tuesday' },
-    { label: 'Wed', value: 'wednesday' },
-    { label: 'Thu', value: 'thursday' },
-    { label: 'Fri', value: 'friday' },
-    { label: 'Sat', value: 'saturday' },
-    { label: 'Sun', value: 'sunday' }
+    { label: 'Mon', value: 'monday', fullName: 'Monday', icon: 'pi-briefcase', isWeekend: false },
+    { label: 'Tue', value: 'tuesday', fullName: 'Tuesday', icon: 'pi-briefcase', isWeekend: false },
+    { label: 'Wed', value: 'wednesday', fullName: 'Wednesday', icon: 'pi-briefcase', isWeekend: false },
+    { label: 'Thu', value: 'thursday', fullName: 'Thursday', icon: 'pi-briefcase', isWeekend: false },
+    { label: 'Fri', value: 'friday', fullName: 'Friday', icon: 'pi-briefcase', isWeekend: false },
+    { label: 'Sat', value: 'saturday', fullName: 'Saturday', icon: 'pi-sun', isWeekend: true },
+    { label: 'Sun', value: 'sunday', fullName: 'Sunday', icon: 'pi-home', isWeekend: true }
   ];
 
   readonly leaveRateOptions = [
@@ -122,6 +122,10 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
     { label: 'company.hrSettings.sectors.finance', value: 'finance' },
     { label: 'company.hrSettings.sectors.other', value: 'other' }
   ];
+
+  // Hour presets and visual indicators
+  readonly hoursPresets = [6, 7, 8, 9];
+  readonly visualHours = Array.from({ length: 24 }, (_, i) => i + 1);
 
   // Default form values
   private readonly defaultValues = {
@@ -265,6 +269,21 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
     
     this.resetFormToCompanyData();
     this.showToast('info', 'Changes Discarded', 'Your changes have been discarded');
+  }
+
+  toggleWorkingDay(dayValue: string) {
+    const currentDays = this.hrForm.get('workingDays')?.value || [];
+    const updatedDays = currentDays.includes(dayValue)
+      ? currentDays.filter((day: string) => day !== dayValue)
+      : [...currentDays, dayValue];
+    
+    this.hrForm.patchValue({ workingDays: updatedDays });
+    this.hrForm.get('workingDays')?.markAsTouched();
+  }
+
+  setStandardHours(hours: number) {
+    this.hrForm.patchValue({ standardHoursPerDay: hours });
+    this.hrForm.get('standardHoursPerDay')?.markAsTouched();
   }
 
   private showToast(severity: 'success' | 'error' | 'info', summary: string, detail: string) {
