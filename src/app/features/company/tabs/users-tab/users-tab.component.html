@@ -119,7 +119,7 @@
                       <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium"
                             [ngClass]="getStatusClasses(user.status)">
                         <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(user.status)"></span>
-                        {{ 'company.status.' + user.status | translate }}
+                        {{ user.status | translate }}
                       </span>
                     </div>
                   </div>
@@ -129,9 +129,10 @@
                 <div class="flex items-center gap-2 transition-opacity">
                   <p-button
                     icon="pi pi-user-edit"
-                    [label]="'company.users.manageRole'"
+                    [label]="'company.users.manageRole' | translate"
                     size="small"
                     (onClick)="openAssignRoleDialog(user)"
+                    (click)="openAssignRoleDialog(user)"
                     styleClass="px-3 py-2 rounded-md bg-white border border-gray-200 hover:bg-gray-50 shadow-sm text-sm"
                     [attr.aria-label]="'company.users.manageRole' | translate"
                     [attr.title]="'company.users.manageRole' | translate">

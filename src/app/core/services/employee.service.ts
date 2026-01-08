@@ -140,6 +140,8 @@ export interface EmployeeFormData {
   jobPositions: LookupOption[];
   contractTypes: LookupOption[];
   potentialManagers: ManagerLookupOption[];
+  attendanceTypes?: LookupOption[];
+  employeeCategories?: LookupOption[];
 }
 
 export interface CreateEmployeeRequest {
@@ -168,6 +170,8 @@ export interface CreateEmployeeRequest {
   salary?: number | null;
   cnssNumber?: string | null;
   cimrNumber?: string | null;
+  attendanceTypeId?: number | null;
+  employeeCategoryId?: number | null;
 }
 
 interface DashboardEmployee {
@@ -786,6 +790,7 @@ export class EmployeeService {
       userId: this.toStringValue(
         payload.userId ?? (payload as any).UserId ?? (payload as any).user_id ?? (payload as any).User_Id
       ) || undefined,
+      employeeCategoryId: (payload as any).categoryId ?? (payload as any).CategoryId ?? (payload as any).employeeCategoryId ?? undefined,
       createdAt: payload.createdAt ? new Date(payload.createdAt) : undefined,
       updatedAt: payload.updatedAt ? new Date(payload.updatedAt) : undefined,
       dateOfBirth: this.formatForDateInput(payload.dateOfBirth),

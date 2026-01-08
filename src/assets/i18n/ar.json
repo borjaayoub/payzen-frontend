@@ -58,6 +58,55 @@
       "backToPortfolio": "العودة إلى المحفظة"
     }
   },
+  "attendance": {
+    "title": "حضوري",
+    "subtitle": "تتبع ساعات عملك وحضورك",
+    "date": "التاريخ",
+    "refresh": "تحديث",
+    "checkIn": "تسجيل الدخول",
+    "checkOut": "تسجيل الخروج",
+    "status": "الحالة",
+    "timeIn": "وقت الدخول",
+    "timeOut": "وقت الخروج",
+    "duration": "المدة",
+    "employee": "الموظف",
+    "noRecords": "لم يتم العثور على سجلات حضور",
+    "todayStatus": "حالة اليوم",
+    "notCheckedIn": "لم يتم تسجيل الدخول بعد",
+    "checkedIn": "تم تسجيل الدخول",
+    "checkedOut": "تم تسجيل الخروج",
+    "checkInSuccess": "تم تسجيل الدخول بنجاح",
+    "checkOutSuccess": "تم تسجيل الخروج بنجاح",
+    "alreadyCheckedIn": "لقد قمت بتسجيل الدخول اليوم بالفعل",
+    "alreadyCheckedOut": "لقد قمت بتسجيل الخروج اليوم بالفعل",
+    "history": "سجل الحضور",
+    "report": "تقرير الحضور",
+    "thisWeek": "هذا الأسبوع",
+    "thisMonth": "هذا الشهر",
+    "present": "حاضر",
+    "absent": "غائب",
+    "late": "متأخر",
+    "currentStatus": "الحالة الحالية",
+    "startBreak": "بدء الاستراحة",
+    "endBreak": "إنهاء الاستراحة",
+    "breaks": "الاستراحات",
+    "todayBreaks": "استراحات اليوم",
+    "noBreaks": "لا توجد استراحات مسجلة",
+    "breakMinutesApplied": "دقائق الاستراحة المطبقة",
+    "ongoing": "جارية"
+  },
+  "attendanceReport": {
+    "title": "تقرير الحضور",
+    "subtitle": "إنشاء ملخص الحضور لجميع الموظفين",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "generate": "إنشاء",
+    "employee": "الموظف",
+    "position": "المنصب",
+    "department": "القسم",
+    "totalWorked": "إجمالي العمل",
+    "totalWorkedDays": "إجمالي أيام العمل"
+  },
   "profile": {
     "title": "الملف الشخصي",
     "personalSettings": "الإعدادات الشخصية",
@@ -116,6 +165,7 @@
       "departments": "الأقسام",
       "jobPositions": "المناصب الوظيفية",
       "contractTypes": "أنواع العقود",
+      "employeeCategories": "فئات الموظفين",
       "referenceData": "البيانات المرجعية",
       "history": "السجل"
     },
@@ -395,6 +445,39 @@
         "name": "مثال: عقد دائم، عقد محدد المدة، تدريب"
       }
     },
+    "employeeCategories": {
+      "title": "فئات الموظفين",
+      "subtitle": "إدارة فئات تصنيف الموظفين",
+      "add": "إضافة فئة",
+      "edit": "تعديل الفئة",
+      "create": "إنشاء فئة",
+      "editDescription": "تحديث تفاصيل فئة الموظف",
+      "createDescription": "إضافة فئة جديدة لتصنيف الموظفين",
+      "nameHint": "أدخل اسم الفئة (مثال: مدير، تنفيذي، متدرب)",
+      "descriptionHint": "وصف اختياري لهذه الفئة",
+      "footerInfo": "تساعد الفئات في تنظيم وتصنيف الموظفين",
+      "deleteConfirm": "هل أنت متأكد من حذف فئة الموظف هذه؟ لا يمكن التراجع عن هذا الإجراء.",
+      "noCategories": "لا توجد فئات موظفين حتى الآن. قم بإنشاء واحدة للبدء في تنظيم القوى العاملة لديك.",
+      "table": {
+        "name": "اسم الفئة",
+        "description": "الوصف",
+        "actions": "الإجراءات"
+      },
+      "fields": {
+        "name": "اسم الفئة",
+        "description": "الوصف"
+      },
+      "form": {
+        "name": "اسم الفئة",
+        "namePlaceholder": "أدخل اسم الفئة",
+        "description": "الوصف",
+        "descriptionPlaceholder": "أدخل الوصف (اختياري)"
+      },
+      "placeholders": {
+        "name": "مثال: مدير، تنفيذي، تقني",
+        "description": "وصف اختياري"
+      }
+    },
     "referenceData": {
       "title": "البيانات المرجعية",
       "subtitle": "إدارة البيانات المرجعية المستخدمة في التطبيق",
@@ -578,6 +661,10 @@
         "managerPlaceholder": "أسند مديراً (اختياري)",
         "startDate": "تاريخ الالتحاق",
         "salary": "الأجر الإجمالي",
+        "attendanceType": "نوع الحضور",
+        "attendanceTypePlaceholder": "اختر نوع الحضور",
+        "employeeCategory": "فئة الموظف",
+        "employeeCategoryPlaceholder": "اختر الفئة",
         "country": "البلد",
         "countryPlaceholder": "اختر بلداً",
         "city": "المدينة",

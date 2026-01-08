@@ -491,6 +491,24 @@
                 </div>
 
                 <div class="form-field">
+                  <label class="form-label">{{ 'employees.create.form.employeeCategory' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-select
+                      [options]="formData().employeeCategories || []"
+                      [ngModel]="employee().employeeCategoryId"
+                      (ngModelChange)="updateField('employeeCategoryId', $event)"
+                      [showClear]="true"
+                      optionLabel="label"
+                      optionValue="id"
+                      [placeholder]="'employees.create.form.employeeCategoryPlaceholder' | translate"
+                      class="w-full input"
+                    ></p-select>
+                  } @else {
+                    <p class="read-only-value">{{ getEmployeeCategoryLabel() }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.position.startDate' | translate }}</label>
                   @if (isEditMode()) {
                     <input pInputText type="date" [ngModel]="employee().startDate" (ngModelChange)="updateField('startDate', $event)" class="w-full input" title="{{ 'employees.profile.position.startDate' | translate }}" />
@@ -663,14 +681,7 @@
                   }
                 </div>
 
-                <div class="form-field">
-                  <label class="form-label required">{{ 'employees.profile.legal.amo' | translate }}</label>
-                  @if (isEditMode()) {
-                    <input pInputText [ngModel]="employee().amo" (ngModelChange)="updateField('amo', $event)" class="w-full input" title="{{ 'employees.profile.legal.amo' | translate }}" />
-                  } @else {
-                    <p class="read-only-value">{{ employee().amo }}</p>
-                  }
-                </div>
+
 
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.legal.cimr' | translate }}</label>

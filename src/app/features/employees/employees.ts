@@ -394,7 +394,8 @@ export class EmployeesPage implements OnInit {
     const labelMap: Record<string, string> = {
       active: 'Actif',
       on_leave: 'En congé',
-      inactive: 'Inactif'
+      inactive: 'Inactif',
+      retired: 'RETIRED'
     };
     return labelMap[status] || status;
   }

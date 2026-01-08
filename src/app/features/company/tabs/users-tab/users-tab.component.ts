@@ -15,6 +15,8 @@ import { MessageModule } from 'primeng/message';
 import { MessageService, MenuItem } from 'primeng/api';
 import { UserService, AvailableEmployee } from '../../../../core/services/user.service';
 import { EmployeeService } from '../../../../core/services/employee.service';
+import { forkJoin, of } from 'rxjs';
+import { PermissionManagementService } from '../../../../core/services/permission-management.service';
 import { User, UserRole } from '../../../../core/models/user.model';
 import { CompanyContextService } from '../../../../core/services/companyContext.service';
 import { Subscription } from 'rxjs';
@@ -65,6 +67,7 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   private readonly employeeService = inject(EmployeeService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly contextService = inject(CompanyContextService);
+  private readonly permissionService = inject(PermissionManagementService);
   private contextSub?: Subscription;
   private langChangeSub?: Subscription;
 
@@ -83,7 +86,10 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   assignRoleDialogVisible = signal(false);
   assigningRoleLoading = signal(false);
   selectedUserForAssign: UserDisplay | null = null;
-  selectedRoleForAssign: string | null = null;
+  // Support multiple role selection
+  selectedRoleIdsForAssign: string[] = [];
+  // Track initial assigned roles to compute adds/removes
+  initialAssignedRoleIds: string[] = [];
   assignRoleForm!: FormGroup;
   formSubmitted = false;
 
@@ -124,7 +130,7 @@ export class UsersTabComponent implements OnInit, OnDestroy {
     });
 
     this.assignRoleForm = this.fb.group({
-      role: [null, Validators.required]
+      role: [null]
     });
 
     // populate localized labels for the Assign Role modal and refresh on language change
@@ -162,6 +168,7 @@ export class UsersTabComponent implements OnInit, OnDestroy {
             value: String(r.id)
           }));
         this.roles.set(options);
+        console.log('[UsersTab] loadRoles -> roles set', options);
       },
       error: (err) => {
         console.error('Error loading roles', err);
@@ -222,7 +229,7 @@ export class UsersTabComponent implements OnInit, OnDestroy {
     const roleMap: Record<string, string> = {
       'user.role.hr': 'bg-purple-100 text-purple-700',
       'user.role.manager': 'bg-blue-100 text-blue-700',
-      'user.role.viewer': 'bg-gray-100 text-gray-600'
+      'viewer': 'bg-gray-100 text-gray-600'
     };
     return roleMap[role] || 'bg-gray-100 text-gray-600';
   }
@@ -259,6 +266,7 @@ export class UsersTabComponent implements OnInit, OnDestroy {
   }
 
   openAssignRoleDialog(user: UserDisplay) {
+    console.log('[UsersTab] openAssignRoleDialog called for user', user);
     this.selectedUserForAssign = user;
 
     // Try to preload assigned roles from server and select accordingly.
@@ -266,30 +274,67 @@ export class UsersTabComponent implements OnInit, OnDestroy {
     if (!Number.isNaN(userIdNum)) {
       this.userService.getUserRoles(userIdNum).subscribe({
         next: (assignments) => {
-          if (Array.isArray(assignments) && assignments.length > 0) {
-            const first = assignments[0];
-            const roleId = first?.RoleId ?? first?.roleId ?? first?.RoleID ?? first?.Role?.id ?? first?.role?.id ?? null;
-            if (roleId != null) {
-              const match = this.roles().find(o => String(o.value) === String(roleId));
-              this.selectedRoleForAssign = match ? match.value : null;
-              this.assignRoleForm.patchValue({ role: this.selectedRoleForAssign });
-              this.assignRoleDialogVisible.set(true);
-              return;
-            }
+          console.log('[UsersTab] getUserRoles -> assignments', assignments);
+          const mappedIds: string[] = (Array.isArray(assignments) ? assignments : [])
+            .map(a => String(a?.RoleId ?? a?.roleId ?? a?.Role?.id ?? a?.role?.id ?? a?.id ?? ''))
+            .filter(Boolean);
+
+          this.initialAssignedRoleIds = mappedIds;
+
+          const openWithRoles = () => {
+            // select those role ids that exist in loaded roles
+            this.selectedRoleIdsForAssign = mappedIds
+              .map(id => this.roles().find(o => String(o.value) === String(id)))
+              .filter(Boolean)
+              .map((m: any) => String(m.value));
+            console.log('[UsersTab] preselected roles', this.selectedRoleIdsForAssign);
+            this.blurActiveElement();
+            this.assignRoleDialogVisible.set(true);
+          };
+
+          if (!this.roles() || this.roles().length === 0) {
+            this.userService.getRoles().subscribe({
+              next: (items) => {
+                const options = items
+                  .filter(r => {
+                    const name = (r.name || '').toLowerCase();
+                    const code = (r.code || '').toLowerCase();
+                    return !name.includes('admin payzen') && !code.includes('adminpayzen');
+                  })
+                  .map(r => ({ label: r.name, value: String(r.id) }));
+                this.roles.set(options);
+                openWithRoles();
+              },
+              error: (e) => {
+                console.error('Error loading roles while matching user role', e);
+                this.selectInitialRoleFromDisplay(user);
+                this.blurActiveElement();
+                this.assignRoleDialogVisible.set(true);
+              }
+            });
+            return;
+          }
+
+          if (mappedIds.length > 0) {
+            openWithRoles();
+            return;
           }
 
           // Fallback to local name-based matching
           this.selectInitialRoleFromDisplay(user);
+          this.blurActiveElement();
           this.assignRoleDialogVisible.set(true);
         },
         error: (err) => {
           console.error('Error fetching user roles', err);
           this.selectInitialRoleFromDisplay(user);
+          this.blurActiveElement();
           this.assignRoleDialogVisible.set(true);
         }
       });
     } else {
       this.selectInitialRoleFromDisplay(user);
+      this.blurActiveElement();
       this.assignRoleDialogVisible.set(true);
     }
   }
@@ -301,8 +346,10 @@ export class UsersTabComponent implements OnInit, OnDestroy {
       String(o.label).toLowerCase().includes(currentRoleName || '') ||
       currentRoleName?.includes(String(o.label).toLowerCase())
     );
-    this.selectedRoleForAssign = match ? match.value : null;
-    this.assignRoleForm.patchValue({ role: this.selectedRoleForAssign });
+    const single = match ? match.value : null;
+    this.selectedRoleIdsForAssign = single ? [String(single)] : [];
+    this.initialAssignedRoleIds = this.selectedRoleIdsForAssign.slice();
+    this.assignRoleForm.patchValue({ role: single });
   }
 
   onAssignRoleDialogVisibleChange(visible: boolean) {
@@ -310,7 +357,8 @@ export class UsersTabComponent implements OnInit, OnDestroy {
     if (!visible) {
       // reset temporary state when dialog is closed
       this.selectedUserForAssign = null;
-      this.selectedRoleForAssign = null;
+      this.selectedRoleIdsForAssign = [];
+      this.initialAssignedRoleIds = [];
       this.assignRoleForm.reset();
       this.assigningRoleLoading.set(false);
     }
@@ -318,81 +366,69 @@ export class UsersTabComponent implements OnInit, OnDestroy {
 
   assignRole() {
     if (!this.selectedUserForAssign) return;
-    const selectedRole = this.assignRoleForm?.value?.role ?? this.selectedRoleForAssign;
-    if (!selectedRole) return;
-    this.assigningRoleLoading.set(true);
-    const userId = this.selectedUserForAssign.id;
-    
-    // Find the role ID from the selected role value
-    const selectedRoleOption = this.roles().find(r => String(r.value) === String(selectedRole));
-    if (!selectedRoleOption) {
-      this.assigningRoleLoading.set(false);
-      this.showToast('error', 'Error', 'Invalid role selected');
+    const userId = Number(this.selectedUserForAssign.id);
+    const selectedIds = (this.selectedRoleIdsForAssign || []).map(String).filter(Boolean);
+    if (!selectedIds || selectedIds.length === 0) {
+      this.showToast('error', 'Error', 'No role selected');
       return;
     }
 
-    // Call api/users-roles/ POST endpoint with UserId and RoleId
-    const payload = {
-      UserId: Number(userId),
-      RoleId: Number(selectedRoleOption.value)
-    };
+    this.assigningRoleLoading.set(true);
 
-    this.userService.assignUserRole(payload.UserId, payload.RoleId).subscribe({
+    const toAdd = selectedIds.filter(id => !(this.initialAssignedRoleIds || []).includes(id)).map(Number);
+    const toRemove = (this.initialAssignedRoleIds || []).filter(id => !selectedIds.includes(id)).map(Number);
+
+    const add$ = toAdd.length ? this.permissionService.assignRoles(userId, toAdd) : of(void 0);
+
+    add$.subscribe({
       next: () => {
-        this.assigningRoleLoading.set(false);
-        this.assignRoleDialogVisible.set(false);
-        this.showToast('success', 'Success', 'Role assigned successfully');
-        this.loadUsers();
-      },
-      error: (err) => {
-        console.error('Error assigning role', err);
-        this.assigningRoleLoading.set(false);
-        
-        // If 404, try to create user account first
-        if (err?.status === 404) {
-          const email = this.selectedUserForAssign?.email;
-          const companyIdStr = this.contextService.companyId();
-          const companyId = companyIdStr ? Number(companyIdStr) : 0;
-          if (!email) {
-            this.showToast('error', 'Error', 'No email available to create account');
-            return;
-          }
-          this.userService.inviteUser(email, String(selectedRole), companyId).subscribe({
-            next: () => {
-              this.assigningRoleLoading.set(false);
-              this.assignRoleDialogVisible.set(false);
-              this.showToast('success', 'Success', 'Account created and role assigned');
-              this.loadUsers();
-            },
-            error: (e2) => {
-              console.error('Error inviting user after failed role assignment', e2);
-              this.assigningRoleLoading.set(false);
-              this.showToast('error', 'Error', 'Failed to create account and assign role');
-            }
-          });
+        if (toRemove.length === 0) {
+          this.assigningRoleLoading.set(false);
+          this.assignRoleDialogVisible.set(false);
+          this.showToast('success', 'Success', 'Roles updated successfully');
+          this.loadUsers();
           return;
         }
 
-        this.showToast('error', 'Error', 'Failed to assign role');
+        const removeCalls = toRemove.map(rid => this.permissionService.removeRole(userId, rid));
+        forkJoin(removeCalls).subscribe({
+          next: () => {
+            this.assigningRoleLoading.set(false);
+            this.assignRoleDialogVisible.set(false);
+            this.showToast('success', 'Success', 'Roles updated successfully');
+            this.loadUsers();
+          },
+          error: (err) => {
+            console.error('Error removing roles', err);
+            this.assigningRoleLoading.set(false);
+            const apiMsg = this.formatApiError(err);
+            this.showToast('error', 'Error', apiMsg);
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error assigning roles', err);
+        this.assigningRoleLoading.set(false);
+        const apiMsg = this.formatApiError(err);
+        this.showToast('error', 'Error', apiMsg);
       }
     });
   }
 
   selectRole(roleValue: string) {
-    // Toggle selection: deselect if already selected
-    const current = this.assignRoleForm?.value?.role ?? this.selectedRoleForAssign;
-    if (String(current) === String(roleValue)) {
-      this.selectedRoleForAssign = null;
-      if (this.assignRoleForm) this.assignRoleForm.patchValue({ role: null });
+    // Toggle selection for multi-role: add/remove from selectedRoleIdsForAssign
+    const idx = this.selectedRoleIdsForAssign.indexOf(String(roleValue));
+    if (idx >= 0) {
+      this.selectedRoleIdsForAssign.splice(idx, 1);
     } else {
-      this.selectedRoleForAssign = roleValue;
-      if (this.assignRoleForm) this.assignRoleForm.patchValue({ role: roleValue });
+      this.selectedRoleIdsForAssign.push(String(roleValue));
     }
+    // keep the form's single role value for compatibility (first selected or null)
+    if (this.assignRoleForm) this.assignRoleForm.patchValue({ role: this.selectedRoleIdsForAssign[0] ?? null });
   }
 
   isRoleSelected(roleValue: string): boolean {
-    const current = this.assignRoleForm?.value?.role ?? this.selectedRoleForAssign;
-    return String(current) === String(roleValue);
+    return (this.selectedRoleIdsForAssign || []).some(id => String(id) === String(roleValue));
   }
 
   openInviteDialog() {
@@ -485,7 +521,7 @@ export class UsersTabComponent implements OnInit, OnDestroy {
       next: (resp) => {
         const beforeCount = (resp?.employees || []).length;
         const employees = resp.employees || [];
-        console.debug('[UsersTab] employees fetched:', beforeCount);
+        console.log('[UsersTab] employees fetched:', beforeCount);
 
         const displayUsers: UserDisplay[] = employees.map(e => {
           const email = (e as any).email ?? (e as any).Email ?? '';
@@ -563,5 +599,57 @@ export class UsersTabComponent implements OnInit, OnDestroy {
 
   private showToast(severity: 'success' | 'error' | 'info', summary: string, detail: string) {
     this.messageService.add({ severity, summary, detail, life: 4000 });
+  }
+
+  private blurActiveElement(): void {
+    try {
+      if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+        const el = document.activeElement as HTMLElement;
+        el.blur();
+        console.log('[UsersTab] blurActiveElement: blurred active element');
+      }
+    } catch (e) {
+      console.log('[UsersTab] blurActiveElement error', e);
+    }
+  }
+
+  private formatApiError(err: any): string {
+    try {
+      if (!err) return 'Unknown error';
+      const errorObj = err?.error ?? err;
+
+      // Prefer common server message fields (capitalized and lowercase)
+      if (errorObj?.Message) return String(errorObj.Message);
+      if (errorObj?.message) return String(errorObj.message);
+      if (errorObj?.detail) return String(errorObj.detail);
+
+      // If error is an array, join stringified elements
+      if (Array.isArray(errorObj)) return errorObj.map(e => typeof e === 'string' ? e : JSON.stringify(e)).join('; ');
+
+      // If it's a plain string (possibly JSON), try parsing
+      if (typeof errorObj === 'string') {
+        try {
+          const parsed = JSON.parse(errorObj);
+          if (parsed?.Message) return String(parsed.Message);
+          if (parsed?.message) return String(parsed.message);
+          if (parsed?.detail) return String(parsed.detail);
+        } catch (_) {
+          // not JSON, return as-is
+          const s = errorObj as string;
+          return s.length > 300 ? s.slice(0, 297) + '...' : s;
+        }
+      }
+
+      // Fall back to HttpErrorResponse metadata
+      if (err?.status && err?.statusText) return `${err.status} ${err.statusText}`;
+      if (err?.message) return String(err.message);
+
+      // As a last resort, stringify the error object
+      const out = JSON.stringify(errorObj);
+      if (!out) return 'Unknown error';
+      return out.length > 300 ? out.slice(0, 297) + '...' : out;
+    } catch (e) {
+      return 'Unknown error';
+    }
   }
 }

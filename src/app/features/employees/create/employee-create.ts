@@ -14,6 +14,8 @@ import { SelectFieldComponent } from '@app/shared/components/form-controls/selec
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { JobPositionService } from '@app/core/services/job-position.service';
 import { ContractTypeService } from '@app/core/services/contract-type.service';
+import { AttendanceTypeService, AttendanceTypeLookupOption } from '@app/core/services/attendance-type.service';
+import { EmployeeCategoryService, EmployeeCategoryLookupOption } from '@app/core/services/employee-category.service';
 import {
   CityLookupOption,
   CreateEmployeeRequest,
@@ -58,7 +60,9 @@ export class EmployeeCreatePage implements OnInit {
     departments: [],
     jobPositions: [],
     contractTypes: [],
-    potentialManagers: []
+    potentialManagers: [],
+    attendanceTypes: [],
+    employeeCategories: []
   };
   readonly formData = signal<EmployeeFormData>(this.emptyFormData);
   private readonly fb = inject(FormBuilder);
@@ -69,6 +73,8 @@ export class EmployeeCreatePage implements OnInit {
   private readonly contextService = inject(CompanyContextService);
   private readonly jobPositionService = inject(JobPositionService);
   private readonly contractTypeService = inject(ContractTypeService);
+  private readonly attendanceTypeService = inject(AttendanceTypeService);
+  private readonly employeeCategoryService = inject(EmployeeCategoryService);
 
   // Route prefix based on current context mode
   readonly routePrefix = computed(() => this.contextService.isExpertMode() ? '/expert' : '/app');
@@ -96,7 +102,9 @@ export class EmployeeCreatePage implements OnInit {
     contractTypeId: [null, Validators.required],
     managerId: [null],
     startDate: ['', Validators.required],
-    salary: [null, Validators.min(0)]
+    salary: [null, Validators.min(0)],
+    attendanceTypeId: [null],
+    employeeCategoryId: [null]
   });
 
   readonly selectedCountryId = toSignal(this.employeeForm.controls.countryId.valueChanges, {
@@ -168,9 +176,24 @@ export class EmployeeCreatePage implements OnInit {
           }
         }
         this.isLoading.set(false);
+        // Load attendance types
+        this.attendanceTypeService.getLookupOptions().subscribe({
+          next: (types) => this.formData.update(f => ({ ...f, attendanceTypes: types })),
+          error: (err) => console.error('Failed to load attendance types', err)
+        });
+        // Load employee categories
+        const companyIdRaw = this.contextService.companyId();
+        if (companyIdRaw !== null && companyIdRaw !== undefined) {
+          const companyIdNum = Number(companyIdRaw as any);
+          if (!Number.isNaN(companyIdNum)) {
+            this.employeeCategoryService.getLookupOptions(companyIdNum).subscribe({
+              next: (categories) => this.formData.update(f => ({ ...f, employeeCategories: categories })),
+              error: (err) => console.error('Failed to load employee categories', err)
+            });
+          }
+        }
         // Fallbacks: if backend didn't return company-specific job positions or contract types,
         // load them explicitly using companyId from context (expert mode).
-        const companyIdRaw = this.contextService.companyId();
         if (companyIdRaw !== null && companyIdRaw !== undefined) {
           const companyIdNum = Number(companyIdRaw as any);
           if (!Number.isNaN(companyIdNum)) {
@@ -230,7 +253,9 @@ export class EmployeeCreatePage implements OnInit {
       startDate: value.startDate || null,
       salary: value.salary != null ? Number(value.salary) : null,
       cnssNumber: null,
-      cimrNumber: null
+      cimrNumber: null,
+      attendanceTypeId: value.attendanceTypeId ? Number(value.attendanceTypeId) : null,
+      employeeCategoryId: value.employeeCategoryId ? Number(value.employeeCategoryId) : null
     };
 
     this.isSubmitting.set(true);

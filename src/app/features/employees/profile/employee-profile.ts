@@ -27,6 +27,7 @@ import {
 } from '@app/core/services/employee.service';
 import { JobPositionService } from '@app/core/services/job-position.service';
 import { ContractTypeService } from '@app/core/services/contract-type.service';
+import { EmployeeCategoryService } from '@app/core/services/employee-category.service';
 import { JobPosition } from '@app/core/models/job-position.model';
 import { ContractType } from '@app/core/models/contract-type.model';
 import { Employee as EmployeeProfileModel, EmployeeEvent } from '@app/core/models/employee.model';
@@ -89,6 +90,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private translate = inject(TranslateService);
   private jobPositionService = inject(JobPositionService);
   private contractTypeService = inject(ContractTypeService);
+  private employeeCategoryService = inject(EmployeeCategoryService);
   private destroyRef = inject(DestroyRef);
   private contextService = inject(CompanyContextService);
 
@@ -201,7 +203,9 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     departments: [],
     jobPositions: [],
     contractTypes: [],
-    potentialManagers: []
+    potentialManagers: [],
+    attendanceTypes: [],
+    employeeCategories: []
   };
   readonly formData = signal<EmployeeFormData>(this.emptyFormData);
 
@@ -529,6 +533,13 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
               },
               error: () => {}
             });
+            // Load employee categories
+            this.employeeCategoryService.getLookupOptions(cidNum).subscribe({
+              next: (categories) => {
+                this.formData.update(f => ({ ...f, employeeCategories: categories }));
+              },
+              error: () => {}
+            });
           }
         } catch (e) {
           // ignore
@@ -653,6 +664,13 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     }
 
     return emp.contractType || '-';
+  }
+
+  getEmployeeCategoryLabel(): string {
+    const categoryId = this.employee().employeeCategoryId;
+    if (!categoryId) return '-';
+    const category = this.formData().employeeCategories?.find(c => c.id === categoryId);
+    return category?.label || '-';
   }
 
   // Helper to update employee signal (triggers effect)
@@ -911,6 +929,12 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       );
 
       if (Object.keys(patch).length > 0) {
+        // backend expects categoryId (Employee model uses CategoryId)
+        if ((patch as any).employeeCategoryId !== undefined) {
+          (patch as any).categoryId = (patch as any).employeeCategoryId;
+          delete (patch as any).employeeCategoryId;
+        }
+
         await firstValueFrom(
           this.employeeService.patchEmployeeProfile(this.employeeId()!, patch)
         );

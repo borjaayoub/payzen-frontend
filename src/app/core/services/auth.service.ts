@@ -488,7 +488,19 @@ export class AuthService {
   private normalizeUserPayload(userRaw: any, fallbackUser: User | null = null): User {
     const permissions = Array.isArray(userRaw?.permissions ?? userRaw?.Permissions) ? (userRaw?.permissions ?? userRaw?.Permissions) : [];
     const rolesArray = Array.isArray(userRaw?.roles ?? userRaw?.Roles) ? (userRaw?.roles ?? userRaw?.Roles) : [];
-    const resolvedRole = userRaw?.role ?? userRaw?.Role ?? rolesArray[0];
+    // Prefer 'admin' role if present in the roles array (regardless of order)
+    let resolvedRole: any = null;
+    if (rolesArray && rolesArray.length) {
+      const foundAdmin = rolesArray.find((r: any) => {
+        const s = (typeof r === 'string' ? r : (r?.name ?? r?.role ?? r?.code ?? r?.id ?? '')).toString().toLowerCase();
+        return s === 'admin' || s === 'administrator';
+      });
+      if (foundAdmin) {
+        resolvedRole = typeof foundAdmin === 'string' ? foundAdmin : (foundAdmin?.name ?? foundAdmin?.role ?? foundAdmin?.code ?? foundAdmin?.id);
+      }
+    }
+    // Fallback to explicit role field or first role in array
+    resolvedRole = resolvedRole ?? (userRaw?.role ?? userRaw?.Role ?? rolesArray[0]);
     
     // Try to get companyId from payload, fallback to existing user if missing
     const rawCompanyId = userRaw?.companyId ?? userRaw?.CompanyId;

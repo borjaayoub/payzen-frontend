@@ -73,6 +73,15 @@ export const routes: Routes = [
         canActivate: [rhGuard]
       },
       {
+        path: 'attendance',
+        loadComponent: () => import('./features/employees/attendance/attendance').then(m => m.AttendancePage)
+      },
+      {
+        path: 'reports/attendance',
+        loadComponent: () => import('./features/reports/attendance-report/attendance-report').then(m => m.AttendanceReportPage),
+        canActivate: []
+      },
+      {
         path: 'employees/create',
         component: EmployeeCreatePage,
         canActivate: [rhGuard]

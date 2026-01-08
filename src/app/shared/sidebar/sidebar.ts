@@ -201,6 +201,13 @@ export class Sidebar {
       requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER],
       modes: ['standard']
     },
+    {
+      label: 'nav.attendance',
+      icon: 'pi pi-clock',
+      routerLink: '/attendance',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER, UserRole.EMPLOYEE],
+      modes: ['standard']
+    },
     { 
       label: 'nav.leave', 
       icon: 'pi pi-calendar', 
@@ -220,6 +227,13 @@ export class Sidebar {
       icon: 'pi pi-chart-bar', 
       routerLink: '/reports',
       requiredRoles: [UserRole.ADMIN, UserRole.RH],
+      modes: ['standard']
+    },
+    { 
+      label: 'nav.attendanceReport', 
+      icon: 'pi pi-file', 
+      routerLink: '/reports/attendance',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER],
       modes: ['standard']
     },
     { 

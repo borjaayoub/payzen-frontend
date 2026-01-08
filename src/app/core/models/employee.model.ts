@@ -43,6 +43,7 @@ export interface Employee {
   amo: string;
   cimr?: string;
   annualLeave: number;
+  employeeCategoryId?: number;
   /**
    * Normalized status used by parts of the UI (may be derived),
    * but primary status code comes from backend in `statusRaw`.

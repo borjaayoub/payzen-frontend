@@ -28,7 +28,8 @@
     "userManagement": "User Management",
     "backToPortfolio": "Back to Portfolio",
     "portfolio": "Portfolio",
-    "leave": "Leave"
+    "leave": "Leave",
+    "attendance": "Attendance"
   },
   "expert": {
     "activeClient": "Active Client",
@@ -58,6 +59,55 @@
       "backToPortfolio": "Back to Portfolio",
       "viewingAsExpert": "You are viewing this company as an Expert"
     }
+  },
+  "attendance": {
+    "title": "My Attendance",
+    "subtitle": "Track your work hours and attendance",
+    "date": "Date",
+    "refresh": "Refresh",
+    "checkIn": "Check In",
+    "checkOut": "Check Out",
+    "status": "Status",
+    "timeIn": "Time In",
+    "timeOut": "Time Out",
+    "duration": "Duration",
+    "employee": "Employee",
+    "noRecords": "No attendance records found",
+    "todayStatus": "Today's Status",
+    "notCheckedIn": "Not checked in yet",
+    "checkedIn": "Checked In",
+    "checkedOut": "Checked Out",
+    "checkInSuccess": "Successfully checked in",
+    "checkOutSuccess": "Successfully checked out",
+    "alreadyCheckedIn": "You have already checked in today",
+    "alreadyCheckedOut": "You have already checked out today",
+    "history": "Attendance History",
+    "report": "Attendance Report",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "present": "Present",
+    "absent": "Absent",
+    "late": "Late",
+    "currentStatus": "Current Status",
+    "startBreak": "Start Break",
+    "endBreak": "End Break",
+    "breaks": "Breaks",
+    "todayBreaks": "Today's Breaks",
+    "noBreaks": "No breaks recorded",
+    "breakMinutesApplied": "Break minutes applied",
+    "ongoing": "Ongoing"
+  },
+  "attendanceReport": {
+    "title": "Attendance Report",
+    "subtitle": "Generate attendance summary for all employees",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "generate": "Generate",
+    "employee": "Employee",
+    "position": "Position",
+    "department": "Department",
+    "totalWorked": "Total Worked",
+    "totalWorkedDays": "Total Worked Days"
   },
   "profile": {
     "title": "Profile",
@@ -222,7 +272,7 @@
   "company": {
     "title": "Company Management",
     "subtitle": "Manage your company information and settings",
-    "status": "Status",
+
     "active": "Active",
     "tabs": {
       "info": "Identity & Legal",
@@ -232,6 +282,7 @@
       "departments": "Departments",
       "jobPositions": "Job Positions",
       "contractTypes": "Contract Types",
+      "employeeCategories": "Employee Categories",
       "referenceData": "Reference Data",
       "history": "History"
     },
@@ -511,6 +562,39 @@
         "name": "e.g. CDI, CDD, Internship"
       }
     },
+    "employeeCategories": {
+      "title": "Employee Categories",
+      "subtitle": "Manage employee classification categories",
+      "add": "Add Category",
+      "edit": "Edit Category",
+      "create": "Create Category",
+      "editDescription": "Update the employee category details",
+      "createDescription": "Add a new category to classify employees",
+      "nameHint": "Enter the category name (e.g., Manager, Executive, Intern)",
+      "descriptionHint": "Optional description for this category",
+      "footerInfo": "Categories help organize and classify employees",
+      "deleteConfirm": "Are you sure you want to delete this employee category? This action cannot be undone.",
+      "noCategories": "No employee categories yet. Create one to start organizing your workforce.",
+      "table": {
+        "name": "Category Name",
+        "description": "Description",
+        "actions": "Actions"
+      },
+      "fields": {
+        "name": "Category Name",
+        "description": "Description"
+      },
+      "form": {
+        "name": "Category Name",
+        "namePlaceholder": "Enter category name",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter description (optional)"
+      },
+      "placeholders": {
+        "name": "e.g. Manager, Executive, Technician",
+        "description": "Optional description"
+      }
+    },
     "referenceData": {
       "title": "Reference Data",
       "subtitle": "Manage system-wide reference data used across the application",
@@ -707,6 +791,10 @@
         "managerPlaceholder": "Assign a manager (optional)",
         "startDate": "Start date",
         "salary": "Gross salary",
+        "attendanceType": "Attendance Type",
+        "attendanceTypePlaceholder": "Select attendance type",
+        "employeeCategory": "Employee Category",
+        "employeeCategoryPlaceholder": "Select employee category",
         "country": "Country",
         "countryPlaceholder": "Select a country",
         "city": "City",

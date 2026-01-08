@@ -59,6 +59,55 @@
       "viewingAsExpert": "Vous consultez cette entreprise en tant qu'Expert"
     }
   },
+  "attendance": {
+    "title": "Ma Présence",
+    "subtitle": "Suivez vos heures de travail et votre présence",
+    "date": "Date",
+    "refresh": "Actualiser",
+    "checkIn": "Pointer l'arrivée",
+    "checkOut": "Pointer le départ",
+    "status": "Statut",
+    "timeIn": "Heure d'arrivée",
+    "timeOut": "Heure de départ",
+    "duration": "Durée",
+    "employee": "Employé",
+    "noRecords": "Aucun enregistrement de présence trouvé",
+    "todayStatus": "Statut du jour",
+    "notCheckedIn": "Pas encore pointé",
+    "checkedIn": "Arrivée pointée",
+    "checkedOut": "Départ pointé",
+    "checkInSuccess": "Arrivée enregistrée avec succès",
+    "checkOutSuccess": "Départ enregistré avec succès",
+    "alreadyCheckedIn": "Vous avez déjà pointé votre arrivée aujourd'hui",
+    "alreadyCheckedOut": "Vous avez déjà pointé votre départ aujourd'hui",
+    "history": "Historique de présence",
+    "report": "Rapport de présence",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois",
+    "present": "Présent",
+    "absent": "Absent",
+    "late": "En retard",
+    "currentStatus": "Statut actuel",
+    "startBreak": "Commencer la pause",
+    "endBreak": "Terminer la pause",
+    "breaks": "Pauses",
+    "todayBreaks": "Pauses d'aujourd'hui",
+    "noBreaks": "Aucune pause enregistrée",
+    "breakMinutesApplied": "Minutes de pause appliquées",
+    "ongoing": "En cours"
+  },
+  "attendanceReport": {
+    "title": "Rapport de présence",
+    "subtitle": "Générer le récapitulatif de présence pour tous les employés",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "generate": "Générer",
+    "employee": "Employé",
+    "position": "Poste",
+    "department": "Département",
+    "totalWorked": "Total travaillé",
+    "totalWorkedDays": "Nombre de jours travaillés"
+  },
   "profile": {
     "title": "Profil",
     "personalSettings": "Paramètres Personnels",
@@ -231,7 +280,6 @@
   "company": {
     "title": "Gestion de l'Entreprise",
     "subtitle": "Gérez les informations et paramètres de votre société",
-    "status": "Statut",
     "active": "Actif",
     "tabs": {
       "info": "Identité & Légal",
@@ -241,6 +289,7 @@
       "departments": "Départements",
       "jobPositions": "Postes",
       "contractTypes": "Types de Contrat",
+      "employeeCategories": "Catégories d'Employés",
       "referenceData": "Données de Référence",
       "history": "Historique"
     },
@@ -377,6 +426,7 @@
       }
     },
     "users": {
+      
       "title": "Gestion des Utilisateurs",
       "subtitle": "Gérez qui peut accéder à ce profil d'entreprise.",
       "manageRole": "Gérer le rôle",
@@ -516,6 +566,39 @@
       },
       "placeholders": {
         "name": "ex : CDI, CDD, Stage"
+      }
+    },
+    "employeeCategories": {
+      "title": "Catégories d'Employés",
+      "subtitle": "Gérez les catégories de classification des employés",
+      "add": "Ajouter une catégorie",
+      "edit": "Modifier la catégorie",
+      "create": "Créer une catégorie",
+      "editDescription": "Mettre à jour les détails de la catégorie d'employé",
+      "createDescription": "Ajouter une nouvelle catégorie pour classifier les employés",
+      "nameHint": "Entrez le nom de la catégorie (ex: Manager, Cadre, Stagiaire)",
+      "descriptionHint": "Description optionnelle pour cette catégorie",
+      "footerInfo": "Les catégories aident à organiser et classifier les employés",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette catégorie d'employé ? Cette action est irréversible.",
+      "noCategories": "Aucune catégorie d'employé pour le moment. Créez-en une pour commencer à organiser votre personnel.",
+      "table": {
+        "name": "Nom de la catégorie",
+        "description": "Description",
+        "actions": "Actions"
+      },
+      "fields": {
+        "name": "Nom de la catégorie",
+        "description": "Description"
+      },
+      "form": {
+        "name": "Nom de la catégorie",
+        "namePlaceholder": "Entrez le nom de la catégorie",
+        "description": "Description",
+        "descriptionPlaceholder": "Entrez la description (optionnel)"
+      },
+      "placeholders": {
+        "name": "ex : Manager, Cadre, Technicien",
+        "description": "Description optionnelle"
       }
     },
     "referenceData": {
@@ -714,6 +797,10 @@
         "managerPlaceholder": "Affecter un manager (optionnel)",
         "startDate": "Date d'entrée",
         "salary": "Salaire brut",
+        "attendanceType": "Type de présence",
+        "attendanceTypePlaceholder": "Choisir le type de présence",
+        "employeeCategory": "Catégorie d'employé",
+        "employeeCategoryPlaceholder": "Sélectionner une catégorie",
         "country": "Pays",
         "countryPlaceholder": "Sélectionnez un pays",
         "city": "Ville",
