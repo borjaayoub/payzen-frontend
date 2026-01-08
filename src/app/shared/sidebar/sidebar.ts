@@ -174,6 +174,14 @@ export class Sidebar {
       modes: ['expert-all'],
       requiresCompanyContext: false // Allow access to manage Cabinet or Client
     },
+    {
+      label: 'nav.absences',
+      icon: 'pi pi-calendar-times',
+      routerLink: '/absences/hr',
+      requiredRoles: [UserRole.CABINET, UserRole.ADMIN_PAYZEN],
+      modes: ['expert-all'],
+      requiresCompanyContext: false
+    },
     { 
       label: 'nav.leave', 
       icon: 'pi pi-calendar', 
@@ -206,6 +214,20 @@ export class Sidebar {
       icon: 'pi pi-clock',
       routerLink: '/attendance',
       requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER, UserRole.EMPLOYEE],
+      modes: ['standard']
+    },
+    {
+      label: 'nav.absences',
+      icon: 'pi pi-calendar-times',
+      routerLink: '/absences',
+      requiredRoles: [UserRole.EMPLOYEE],
+      modes: ['standard']
+    },
+    {
+      label: 'nav.absences',
+      icon: 'pi pi-calendar-times',
+      routerLink: '/absences/hr',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER],
       modes: ['standard']
     },
     { 
@@ -280,10 +302,36 @@ export class Sidebar {
         // 2. Check Role
         // If no role restrictions, show to everyone
         if (!item.requiredRoles || item.requiredRoles.length === 0) {
+          // Still check permissions if present
+          if (item.requiredPermissions && item.requiredPermissions.length > 0) {
+            return item.requiredPermissions.some(p => this.contextService.hasPermission(p) || (user?.permissions ?? []).includes(p));
+          }
           return true;
         }
         // Check if effective role is in the required roles
-        return item.requiredRoles.includes(effectiveRole as UserRole);
+        if (!item.requiredRoles.includes(effectiveRole as UserRole)) return false;
+
+        // 3. Check Permissions (if specified)
+        if (item.requiredPermissions && item.requiredPermissions.length > 0) {
+          const hasPermission = item.requiredPermissions.some(p => this.contextService.hasPermission(p) || (user?.permissions ?? []).includes(p));
+          if (!hasPermission) return false;
+        }
+
+        // 4. Check Employee Mode restrictions
+        // Show only the appropriate page based on mode
+        if (user?.mode) {
+          const userMode = user.mode.toLowerCase();
+          // Mode 'attendance' or 'presence' = attendance only (hide absence menu)
+          if ((userMode === 'attendance' || userMode === 'presence') && item.routerLink?.includes('/absences')) {
+            return false;
+          }
+          // Mode 'absence' = absence only (hide attendance menu)
+          if (userMode === 'absence' && item.routerLink?.includes('/attendance')) {
+            return false;
+          }
+        }
+
+        return true;
       })
       .map(item => ({
         ...item,

@@ -254,6 +254,7 @@ interface EmployeeDetailsResponse {
   salaryPaymentMethod?: string;
   annualLeave?: number;
   probationPeriod?: string;
+  CategoryName?: string;
   events?: BackendEventResponse[];
 }
 
@@ -379,7 +380,10 @@ export class EmployeeService {
   getEmployeeDetails(id: string): Observable<EmployeeProfileModel> {
     return this.http
       .get<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}/details`)
-      .pipe(map(response => this.mapEmployeeDetailsResponse(response)));
+      .pipe(map(response => {
+        console.log('[EmployeeService] API response for employee details:', response);
+        return this.mapEmployeeDetailsResponse(response);
+      }));
   }
 
   getEmployeeFormData(): Observable<EmployeeFormData> {
@@ -455,6 +459,11 @@ export class EmployeeService {
       body.StartDate = this.formatForDateInput(payload.startDate);
       // keep camelCase startDate removed to avoid duplication
       delete body.startDate;
+    }
+    // Ensure category field matches backend expectation (categoryId)
+    if ((payload as any).employeeCategoryId !== undefined && (payload as any).employeeCategoryId !== null) {
+      body.categoryId = (payload as any).employeeCategoryId;
+      delete body.employeeCategoryId;
     }
     return this.http.post<any>(this.EMPLOYEE_URL, body);
   }
@@ -601,10 +610,14 @@ export class EmployeeService {
     };
 
     const toLookupOption = (items?: LookupResponseItem[]): LookupOption[] =>
-      (items ?? []).map(item => ({
-        id: (item as any).Id ?? (item as any).id,
-        label: getLocalizedLabel(item)
-      }));
+      (items ?? []).map(item => {
+        const rawVal = (item as any).Code ?? (item as any).code ?? (item as any).Id ?? (item as any).id;
+        return {
+          id: (item as any).Id ?? (item as any).id,
+          label: getLocalizedLabel(item),
+          value: String(rawVal ?? '').toLowerCase()
+        };
+      });
 
     const toCountryOption = (items?: CountryResponseItem[]): CountryLookupOption[] =>
       (items ?? []).map(item => ({
@@ -665,13 +678,14 @@ export class EmployeeService {
     const statuses = unique.map((s, idx) => {
       if (s && typeof s === 'object') {
         const it: any = s;
-        const value = it.Code ?? it.code ?? String(it.Id ?? it.id ?? idx);
+        let value: any = it.Code ?? it.code ?? it.Id ?? it.id ?? idx;
+        value = String(value).toLowerCase();
         const lang = (this.translate?.currentLang || (this.translate?.getBrowserLang && this.translate.getBrowserLang()) || 'fr').toString().toLowerCase();
         const suffix = lang.startsWith('fr') ? 'Fr' : lang.startsWith('ar') ? 'Ar' : 'En';
         const label = it[`Name${suffix}`] ?? it[`name${suffix}`] ?? it.Name ?? it.name ?? it.NameEn ?? it.NameFr ?? it.NameAr ?? String(value);
         return { id: it.Id ?? it.id ?? idx, label, value: String(value) } as LookupOption;
       }
-      return { id: idx, label: String(s), value: String(s) } as LookupOption;
+      return { id: idx, label: String(s), value: String(s).toLowerCase() } as LookupOption;
     });
 
     return { employees, total, active, departments, statuses };
@@ -808,6 +822,12 @@ export class EmployeeService {
         timestamp: event.timestamp
       }))
     };
+
+    console.log('[EmployeeService] Mapped employeeCategoryId:', detail.employeeCategoryId, 'from payload:', {
+      categoryId: (payload as any).categoryId,
+      CategoryId: (payload as any).CategoryId,
+      employeeCategoryId: (payload as any).employeeCategoryId
+    });
 
     return detail;
   }

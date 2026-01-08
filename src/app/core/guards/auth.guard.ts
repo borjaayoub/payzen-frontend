@@ -208,3 +208,83 @@ export const managerGuard: CanActivateFn = createRoleGuard(['admin', 'rh', 'mana
  * Cabinet Guard - Cabinet and Admin PayZen
  */
 export const cabinetGuard: CanActivateFn = createRoleGuard(['cabinet', 'admin_payzen']);
+
+/**
+ * Permission Guard Factory - Checks current context or user permissions
+ */
+export const createPermissionGuard = (permission: string): CanActivateFn => {
+  return (route, state) => {
+    const authService = inject(AuthService);
+    const contextService = inject(CompanyContextService);
+    const router = inject(Router);
+
+    if (!authService.isAuthenticated()) {
+      router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+      return false;
+    }
+
+    // Check current context permissions first
+    if (contextService.hasContext() && contextService.hasPermission(permission)) {
+      return true;
+    }
+
+    // Fallback to user-level permissions
+    const user = authService.getCurrentUser();
+    if (user && Array.isArray(user.permissions) && user.permissions.includes(permission)) {
+      return true;
+    }
+
+    // Redirect to access denied page
+    router.navigate(['/access-denied']);
+    return false;
+  };
+};
+
+/**
+ * View Presence Guard - Checks employee mode
+ * Only allows access if mode is 'Presence' or 'Attendance'
+ */
+export const viewPresenceGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+
+  const user = authService.getCurrentUser();
+  
+  // If mode is 'Absence', deny access to presence/attendance
+  if (user?.mode && user.mode.toLowerCase() === 'absence') {
+    router.navigate(['/access-denied']);
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * View Absence Guard - Checks employee mode
+ * Only allows access if mode is 'Absence'
+ */
+export const viewAbsenceGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+
+  const user = authService.getCurrentUser();
+  
+  // If mode is 'Presence' or 'Attendance', deny access to absence
+  const userMode = user?.mode?.toLowerCase();
+  if (userMode && (userMode === 'presence' || userMode === 'attendance')) {
+    router.navigate(['/access-denied']);
+    return false;
+  }
+
+  return true;
+};

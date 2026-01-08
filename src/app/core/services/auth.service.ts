@@ -512,6 +512,12 @@ export class AuthService {
     // Get isCabinetExpert flag from backend response
     const isCabinetExpert = userRaw?.isCabinetExpert ?? userRaw?.IsCabinetExpert ?? false;
 
+    // Get employeeCategoryId from backend response
+    const employeeCategoryId = userRaw?.employeeCategoryId ?? userRaw?.EmployeeCategoryId;
+
+    // Get mode from backend response
+    const mode = this.normalizeString(userRaw?.mode ?? userRaw?.Mode);
+
     return {
       id: this.normalizeString(userRaw?.id ?? userRaw?.Id) ?? '',
       email: this.normalizeString(userRaw?.email ?? userRaw?.Email) ?? '',
@@ -524,6 +530,8 @@ export class AuthService {
       companyId,
       companyName,
       isCabinetExpert,
+      employeeCategoryId,
+      mode,
       permissions
     };
   }

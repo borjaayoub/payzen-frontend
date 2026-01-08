@@ -143,15 +143,6 @@ export class EmployeeCreatePage implements OnInit {
         this.formData.set(this.emptyFormData);
         this.loadFormData();
       });
-
-    // Also react directly to the companyId signal in case context changes via signals elsewhere
-    effect(() => {
-      const cid = this.contextService.companyId();
-      // When companyId changes, reload form data
-      this.formData.set(this.emptyFormData);
-      this.loadFormData();
-      return () => {};
-    });
   }
 
   loadFormData(): void {

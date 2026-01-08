@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-(--bg-page)">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <button
+          pButton
+          icon="pi pi-arrow-left"
+          [label]="'common.back' | translate"
+          (click)="goBack()"
+          [text]="true"
+          class="mb-2"
+        ></button>
+        <h1 class="text-3xl font-bold text-(--text-primary) mb-2">
+          {{ 'absences.employeeAbsences' | translate }}: {{ employeeName() }}
+        </h1>
+        <p class="text-(--text-secondary)">
+          {{ 'absences.manageEmployeeAbsences' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="card">
+        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</div>
+        <div class="text-2xl font-bold text-(--text-primary)">{{ stats().totalAbsences }}</div>
+      </div>
+      <div class="card">
+        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</div>
+        <div class="text-2xl font-bold text-(--primary)">{{ stats().totalDays }}</div>
+      </div>
+    </div>
+
+    <!-- Absences Table -->
+    <div class="card">
+      <p-table
+        [value]="absences()"
+        [loading]="isLoading()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        styleClass="p-datatable-gridlines"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'absences.table.date' | translate }}</th>
+            <th>{{ 'absences.table.type' | translate }}</th>
+            <th>{{ 'absences.table.duration' | translate }}</th>
+            <th>{{ 'absences.table.reason' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-absence>
+          <tr>
+            <td>{{ absence.absenceDate | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag 
+                [value]="getAbsenceTypeLabel(absence.absenceType) | translate" 
+                [severity]="getAbsenceTypeSeverity(absence.absenceType)"
+              ></p-tag>
+            </td>
+            <td>{{ getDurationLabel(absence) | translate }}</td>
+            <td>{{ absence.reason || '-' }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center py-8 text-(--text-secondary)">
+              {{ 'absences.noAbsences' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

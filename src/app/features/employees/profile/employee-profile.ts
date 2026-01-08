@@ -449,12 +449,6 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       });
 
     // Also react directly to the companyId signal to ensure reload in all change paths
-    effect(() => {
-      const cid = this.contextService.companyId();
-      this.formData.set(this.emptyFormData);
-      this.loadFormData();
-      return () => {};
-    });
   }
 
   private loadEmployeeDetails(id: string): void {
@@ -712,6 +706,8 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
           const merged = { ...form, statuses } as EmployeeFormData;
           this.formData.set(merged);
           this.isLoadingFormData.set(false);
+          console.debug('[EmployeeProfile] formData.statuses:', merged.statuses);
+          console.debug('[EmployeeProfile] current employee status (signal):', this.employee()?.status, this.employee()?.statusRaw, this.employee()?.statusName);
 
           // Fallbacks: if jobPositions or contractTypes are missing, load them by companyId
           const companyIdRaw = this.contextService.companyId();
@@ -730,6 +726,11 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
                   error: () => {}
                 });
               }
+              // Load company-scoped employee categories so edit forms have the lookup available
+              this.employeeCategoryService.getLookupOptions(companyIdNum).subscribe({
+                next: (categories) => this.formData.update(f => ({ ...f, employeeCategories: categories })),
+                error: () => {}
+              });
             }
           }
         },
@@ -912,6 +913,8 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
 
       if (!currentCityId && currentCityName) {
         try {
+           console.log('Creating country with name:', currentCountryName);
+           console.log('Creating city with name:', currentCityName, 'and countryId:', currentCountryId);
            const newCity = await firstValueFrom(this.employeeService.createCity(currentCityName, currentCountryId));
            if (newCity) {
              this.updateField('cityId', newCity.id);

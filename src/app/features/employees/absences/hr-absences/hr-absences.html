@@ -1,0 +1,87 @@
+<div class="min-h-screen bg-(--bg-page)">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-(--text-primary) mb-2">
+        {{ 'absences.hrTitle' | translate }}
+      </h1>
+      <p class="text-(--text-secondary)">
+        {{ 'absences.hrSubtitle' | translate }}
+      </p>
+    </div>
+
+    <!-- Company Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="card">
+        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</div>
+        <div class="text-2xl font-bold text-(--text-primary)">{{ companyStats().totalAbsences }}</div>
+      </div>
+      <div class="card">
+        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</div>
+        <div class="text-2xl font-bold text-(--primary)">{{ companyStats().totalDays }}</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card mb-6">
+      <div class="flex items-center gap-4">
+        <span class="p-input-icon-left flex-1">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            [placeholder]="'absences.searchEmployee' | translate"
+            class="w-full"
+          />
+        </span>
+      </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="card">
+      <p-table
+        [value]="filteredEmployees()"
+        [loading]="isLoading()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        styleClass="p-datatable-gridlines"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'absences.table.employee' | translate }}</th>
+            <th>{{ 'absences.table.totalAbsences' | translate }}</th>
+            <th>{{ 'absences.table.totalDays' | translate }}</th>
+            <th>{{ 'common.actions' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-employee>
+          <tr>
+            <td class="font-medium">{{ employee.employeeName }}</td>
+            <td>{{ employee.totalAbsences }}</td>
+            <td>{{ employee.totalDays }} {{ 'absences.days' | translate }}</td>
+            <td>
+              <button
+                pButton
+                icon="pi pi-eye"
+                [label]="'absences.viewDetails' | translate"
+                (click)="viewEmployeeAbsences(employee.employeeId)"
+                severity="info"
+                [text]="true"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center py-8 text-(--text-secondary)">
+              {{ 'absences.noEmployees' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

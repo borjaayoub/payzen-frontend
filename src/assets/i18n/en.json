@@ -29,7 +29,9 @@
     "backToPortfolio": "Back to Portfolio",
     "portfolio": "Portfolio",
     "leave": "Leave",
-    "attendance": "Attendance"
+    "attendance": "Attendance",
+    "absences": "Absences",
+    "attendanceReport": "Attendance Report"
   },
   "expert": {
     "activeClient": "Active Client",
@@ -565,6 +567,8 @@
     "employeeCategories": {
       "title": "Employee Categories",
       "subtitle": "Manage employee classification categories",
+      "createTitle": "Create Category",
+      "editTitle": "Edit Category",
       "add": "Add Category",
       "edit": "Edit Category",
       "create": "Create Category",
@@ -572,11 +576,13 @@
       "createDescription": "Add a new category to classify employees",
       "nameHint": "Enter the category name (e.g., Manager, Executive, Intern)",
       "descriptionHint": "Optional description for this category",
+      "examples": "Common examples",
       "footerInfo": "Categories help organize and classify employees",
       "deleteConfirm": "Are you sure you want to delete this employee category? This action cannot be undone.",
       "noCategories": "No employee categories yet. Create one to start organizing your workforce.",
       "table": {
         "name": "Category Name",
+        "mode": "Mode",
         "description": "Description",
         "actions": "Actions"
       },
@@ -588,7 +594,12 @@
         "name": "Category Name",
         "namePlaceholder": "Enter category name",
         "description": "Description",
-        "descriptionPlaceholder": "Enter description (optional)"
+        "descriptionPlaceholder": "Enter description (optional)",
+        "mode": "Mode",
+        "modeOptions": {
+          "attendance": "Attendance",
+          "absence": "Absence"
+        }
       },
       "placeholders": {
         "name": "e.g. Manager, Executive, Technician",
@@ -962,6 +973,7 @@
     },
     "common": {
       "save": "Save",
+        "goBack": "Go back",
       "cancel": "Cancel",
       "delete": "Delete",
       "edit": "Edit",
@@ -972,7 +984,93 @@
       "reset": "Reset",
       "apply": "Apply"
     }
+  },
+  "absences": {
+    "accessDenied": {
+      "title": "Access denied",
+      "message": "You are not authorized to access this page."
+    },
+    "myAbsences": "My Absences",
+    "hrTitle": "Absence Management",
+    "hrSubtitle": "Manage absence requests for all employees",
+    "subtitle": "View and manage your absence requests",
+    "requestAbsence": "Request Absence",
+    "declareAbsence": "Declare Absence",
+    "declare": "Declare",
+    "employeeAbsences": "Absences for",
+    "manageEmployeeAbsences": "Manage absence requests for this employee",
+    "searchEmployee": "Search employee...",
+    "viewDetails": "View Details",
+    "days": "days",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "noAbsences": "No absences recorded",
+    "noEmployees": "No employees found",
+    "submit": "Submit",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveRequest": "Approve Request",
+    "rejectRequest": "Reject Request",
+    "confirmApprove": "Are you sure you want to approve this absence request?",
+    "cancelRequest": "Cancel Request",
+    "rejectionReason": "Rejection Reason",
+    "rejectionReasonPlaceholder": "Please provide a reason for rejection...",
+    "stats": {
+      "total": "Total Absences",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "totalDays": "Total Days"
+    },
+    "table": {
+      "employee": "Employee",
+      "date": "Date",
+      "type": "Type",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "duration": "Duration",
+      "status": "Status",
+      "reason": "Reason",
+      "totalAbsences": "Total Absences",
+      "pendingRequests": "Pending Requests",
+      "approvedAbsences": "Approved Absences",
+      "totalDays": "Total Days"
+    },
+    "types": {
+      "annual_leave": "Annual Leave",
+      "sick": "Sick Leave",
+      "maternity": "Maternity Leave",
+      "paternity": "Paternity Leave",
+      "unpaid": "Unpaid Leave",
+      "mission": "Mission",
+      "training": "Training",
+      "justified": "Justified Absence",
+      "unjustified": "Unjustified Absence",
+      "accident_work": "Work Accident",
+      "exceptional": "Exceptional Leave",
+      "religious": "Religious Leave"
+    },
+    "durations": {
+      "fullDay": "Full Day",
+      "halfDay": "Half Day",
+      "halfDayMorning": "Half Day (Morning)",
+      "halfDayAfternoon": "Half Day (Afternoon)",
+      "hourly": "Hourly"
+    },
+    "form": {
+      "date": "Date",
+      "type": "Absence Type",
+      "durationType": "Duration",
+      "period": "Period",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "Provide a reason for your absence request..."
+    }
   }
 }
+
 
 

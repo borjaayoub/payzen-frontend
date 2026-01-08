@@ -13,7 +13,9 @@ import {
   contextGuard, 
   contextSelectionGuard,
   expertModeGuard,
-  standardModeGuard 
+  standardModeGuard,
+  viewPresenceGuard,
+  viewAbsenceGuard
 } from '@app/core/guards/auth.guard';
 import { unsavedChangesGuard } from '@app/core/guards/unsaved-changes.guard';
 
@@ -74,12 +76,28 @@ export const routes: Routes = [
       },
       {
         path: 'attendance',
-        loadComponent: () => import('./features/employees/attendance/attendance').then(m => m.AttendancePage)
+        loadComponent: () => import('./features/employees/attendance/attendance').then(m => m.AttendancePage),
+        canActivate: [viewPresenceGuard]
       },
       {
         path: 'reports/attendance',
         loadComponent: () => import('./features/reports/attendance-report/attendance-report').then(m => m.AttendanceReportPage),
         canActivate: []
+      },
+      {
+        path: 'absences',
+        loadComponent: () => import('./features/employees/absences/employee-absences').then(m => m.EmployeeAbsencesComponent),
+        canActivate: [viewAbsenceGuard]
+      },
+      {
+        path: 'absences/hr',
+        loadComponent: () => import('./features/employees/absences/hr-absences/hr-absences').then(m => m.HrAbsencesComponent),
+        canActivate: [rhGuard]
+      },
+      {
+        path: 'absences/employee/:id',
+        loadComponent: () => import('./features/employees/absences/employee-absence-detail/employee-absence-detail').then(m => m.EmployeeAbsenceDetailComponent),
+        canActivate: [rhGuard]
       },
       {
         path: 'employees/create',
@@ -180,6 +198,21 @@ export const routes: Routes = [
         data: { expertMode: true }
       },
       {
+        path: 'absences',
+        loadComponent: () => import('./features/employees/absences/employee-absences').then(m => m.EmployeeAbsencesComponent),
+        data: { expertMode: true }
+      },
+      {
+        path: 'absences/hr',
+        loadComponent: () => import('./features/employees/absences/hr-absences/hr-absences').then(m => m.HrAbsencesComponent),
+        data: { expertMode: true }
+      },
+      {
+        path: 'absences/employee/:id',
+        loadComponent: () => import('./features/employees/absences/employee-absence-detail/employee-absence-detail').then(m => m.EmployeeAbsenceDetailComponent),
+        data: { expertMode: true }
+      },
+      {
         path: 'employees/create',
         component: EmployeeCreatePage,
         data: { expertMode: true }
@@ -237,6 +270,10 @@ export const routes: Routes = [
   // ============================================
   // FALLBACK
   // ============================================
+  {
+    path: 'access-denied',
+    loadComponent: () => import('./features/auth/access-denied').then(m => m.AccessDeniedComponent)
+  },
   {
     path: '**',
     redirectTo: 'login'

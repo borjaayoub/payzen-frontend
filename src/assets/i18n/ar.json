@@ -28,7 +28,9 @@
     "userManagement": "إدارة المستخدمين",
     "backToPortfolio": "العودة إلى المحفظة",
     "portfolio": "المحفظة",
-    "leave": "الإجازات"
+    "leave": "الإجازات",
+    "absences": "الغيابات",
+    "attendanceReport": "تقرير الحضور"
   },
   "expert": {
     "activeClient": "العميل الحالي",
@@ -448,6 +450,8 @@
     "employeeCategories": {
       "title": "فئات الموظفين",
       "subtitle": "إدارة فئات تصنيف الموظفين",
+      "createTitle": "إنشاء فئة",
+      "editTitle": "تعديل الفئة",
       "add": "إضافة فئة",
       "edit": "تعديل الفئة",
       "create": "إنشاء فئة",
@@ -455,11 +459,13 @@
       "createDescription": "إضافة فئة جديدة لتصنيف الموظفين",
       "nameHint": "أدخل اسم الفئة (مثال: مدير، تنفيذي، متدرب)",
       "descriptionHint": "وصف اختياري لهذه الفئة",
+      "examples": "أمثلة شائعة",
       "footerInfo": "تساعد الفئات في تنظيم وتصنيف الموظفين",
       "deleteConfirm": "هل أنت متأكد من حذف فئة الموظف هذه؟ لا يمكن التراجع عن هذا الإجراء.",
       "noCategories": "لا توجد فئات موظفين حتى الآن. قم بإنشاء واحدة للبدء في تنظيم القوى العاملة لديك.",
       "table": {
         "name": "اسم الفئة",
+        "mode": "الوضع",
         "description": "الوصف",
         "actions": "الإجراءات"
       },
@@ -471,7 +477,12 @@
         "name": "اسم الفئة",
         "namePlaceholder": "أدخل اسم الفئة",
         "description": "الوصف",
-        "descriptionPlaceholder": "أدخل الوصف (اختياري)"
+        "descriptionPlaceholder": "أدخل الوصف (اختياري)",
+        "mode": "الوضع",
+        "modeOptions": {
+          "attendance": "الحضور",
+          "absence": "الغياب"
+        }
       },
       "placeholders": {
         "name": "مثال: مدير، تنفيذي، تقني",
@@ -931,7 +942,89 @@
       "reset": "إعادة تعيين",
       "apply": "تطبيق"
     }
+  },
+  "absences": {
+    "myAbsences": "غياباتي",
+    "hrTitle": "إدارة الغيابات",
+    "hrSubtitle": "إدارة طلبات الغياب لجميع الموظفين",
+    "subtitle": "عرض وإدارة طلبات الغياب الخاصة بك",
+    "requestAbsence": "طلب غياب",
+    "declareAbsence": "تصريح بغياب",
+    "declare": "تصريح",
+    "employeeAbsences": "غيابات",
+    "manageEmployeeAbsences": "إدارة طلبات الغياب لهذا الموظف",
+    "searchEmployee": "البحث عن موظف...",
+    "viewDetails": "عرض التفاصيل",
+    "days": "أيام",
+    "morning": "صباح",
+    "afternoon": "بعد الظهر",
+    "noAbsences": "لا توجد غيابات مسجلة",
+    "noEmployees": "لم يتم العثور على موظفين",
+    "submit": "إرسال",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "approveRequest": "الموافقة على الطلب",
+    "rejectRequest": "رفض الطلب",
+    "confirmApprove": "هل أنت متأكد من الموافقة على طلب الغياب هذا؟",
+    "cancelRequest": "إلغاء الطلب",
+    "rejectionReason": "سبب الرفض",
+    "rejectionReasonPlaceholder": "يرجى تقديم سبب للرفض...",
+    "stats": {
+      "total": "إجمالي الغيابات",
+      "pending": "قيد الانتظار",
+      "approved": "موافق عليها",
+      "rejected": "مرفوضة",
+      "totalDays": "إجمالي الأيام"
+    },
+    "table": {
+      "employee": "الموظف",
+      "date": "التاريخ",
+      "type": "النوع",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "duration": "المدة",
+      "status": "الحالة",
+      "reason": "السبب",
+      "totalAbsences": "إجمالي الغيابات",
+      "pendingRequests": "الطلبات المعلقة",
+      "approvedAbsences": "الغيابات الموافق عليها",
+      "totalDays": "إجمالي الأيام"
+    },
+    "types": {
+      "annual_leave": "إجازة سنوية",
+      "sick": "إجازة مرضية",
+      "maternity": "إجازة أمومة",
+      "paternity": "إجازة أبوة",
+      "unpaid": "إجازة بدون أجر",
+      "mission": "مهمة",
+      "training": "تكوين",
+      "justified": "غياب مبرر",
+      "unjustified": "غياب غير مبرر",
+      "accident_work": "حادث عمل",
+      "exceptional": "إجازة استثنائية",
+      "religious": "إجازة دينية"
+    },
+    "durations": {
+      "fullDay": "يوم كامل",
+      "halfDay": "نصف يوم",
+      "halfDayMorning": "نصف يوم (صباح)",
+      "halfDayAfternoon": "نصف يوم (بعد الظهر)",
+      "hourly": "ساعات"
+    },
+    "form": {
+      "date": "التاريخ",
+      "type": "نوع الغياب",
+      "durationType": "المدة",
+      "period": "الفترة",
+      "startTime": "وقت البداية",
+      "endTime": "وقت النهاية",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "reason": "السبب (اختياري)",
+      "reasonPlaceholder": "قدم سببا لطلب الغياب الخاص بك..."
+    }
   }
 }
+
 
 

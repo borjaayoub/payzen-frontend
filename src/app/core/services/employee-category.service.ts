@@ -42,9 +42,10 @@ export class EmployeeCategoryService {
    * Get all categories for a company
    */
   getByCompany(companyId: number): Observable<EmployeeCategory[]> {
-    // Try the more explicit "by-company" route first, then fallback to older "company" route
-    const primary = `${this.baseUrl}/by-company/${companyId}`;
-    const fallback = `${this.baseUrl}/company/${companyId}`;
+    // Use the `/company/{id}` route for lookups (backend exposes this for company-scoped categories).
+    // Keep a fallback to the older `/by-company/{id}` route if the server returns 404.
+    const primary = `${this.baseUrl}/company/${companyId}`;
+    const fallback = `${this.baseUrl}/by-company/${companyId}`;
 
     return this.http.get<EmployeeCategory[]>(primary).pipe(
       catchError(err => {

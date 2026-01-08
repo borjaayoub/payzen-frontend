@@ -27,6 +27,8 @@ export interface User {
   isCabinetExpert?: boolean;      // Expert mode flag from backend
   permissions?: string[];
   isActive?: boolean;             // Whether the user account is active
+  employeeCategoryId?: number;    // Employee category (e.g., 1=presence, 2=absence)
+  mode?: string;                  // Employee mode: 'Presence' or 'Absence'
 }
 
 /**

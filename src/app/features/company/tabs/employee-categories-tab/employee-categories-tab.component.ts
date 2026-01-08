@@ -4,7 +4,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -21,7 +20,6 @@ import { CompanyContextService } from '@app/core/services/companyContext.service
     TranslateModule,
     ButtonModule,
     InputTextModule,
-    TableModule,
     DialogModule,
     ToastModule,
     TooltipModule

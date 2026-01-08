@@ -28,7 +28,9 @@
     "userManagement": "Gestion des Utilisateurs",
     "backToPortfolio": "Retour au Portefeuille",
     "portfolio": "Portefeuille",
-    "leave": "Congés"
+    "leave": "Congés",
+    "absences": "Absences",
+    "attendanceReport": "Rapport de Présence"
   },
   "expert": {
     "activeClient": "Client Actif",
@@ -571,6 +573,8 @@
     "employeeCategories": {
       "title": "Catégories d'Employés",
       "subtitle": "Gérez les catégories de classification des employés",
+      "createTitle": "Créer une catégorie",
+      "editTitle": "Modifier la catégorie",
       "add": "Ajouter une catégorie",
       "edit": "Modifier la catégorie",
       "create": "Créer une catégorie",
@@ -578,11 +582,13 @@
       "createDescription": "Ajouter une nouvelle catégorie pour classifier les employés",
       "nameHint": "Entrez le nom de la catégorie (ex: Manager, Cadre, Stagiaire)",
       "descriptionHint": "Description optionnelle pour cette catégorie",
+      "examples": "Exemples courants",
       "footerInfo": "Les catégories aident à organiser et classifier les employés",
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette catégorie d'employé ? Cette action est irréversible.",
       "noCategories": "Aucune catégorie d'employé pour le moment. Créez-en une pour commencer à organiser votre personnel.",
       "table": {
         "name": "Nom de la catégorie",
+        "mode": "Mode",
         "description": "Description",
         "actions": "Actions"
       },
@@ -594,7 +600,12 @@
         "name": "Nom de la catégorie",
         "namePlaceholder": "Entrez le nom de la catégorie",
         "description": "Description",
-        "descriptionPlaceholder": "Entrez la description (optionnel)"
+        "descriptionPlaceholder": "Entrez la description (optionnel)",
+        "mode": "Mode",
+        "modeOptions": {
+          "attendance": "Présence",
+          "absence": "Absence"
+        }
       },
       "placeholders": {
         "name": "ex : Manager, Cadre, Technicien",
@@ -976,7 +987,89 @@
       "reset": "Réinitialiser",
       "apply": "Appliquer"
     }
+  },
+  "absences": {
+    "myAbsences": "Mes Absences",
+    "hrTitle": "Gestion des Absences",
+    "hrSubtitle": "Gérez les demandes d'absence de tous les employés",
+    "subtitle": "Consultez et gérez vos demandes d'absence",
+    "requestAbsence": "Demander une Absence",
+    "declareAbsence": "Déclarer une Absence",
+    "declare": "Déclarer",
+    "employeeAbsences": "Absences de",
+    "manageEmployeeAbsences": "Gérez les demandes d'absence de cet employé",
+    "searchEmployee": "Rechercher un employé...",
+    "viewDetails": "Voir Détails",
+    "days": "jours",
+    "morning": "Matin",
+    "afternoon": "Après-midi",
+    "noAbsences": "Aucune absence enregistrée",
+    "noEmployees": "Aucun employé trouvé",
+    "submit": "Soumettre",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "approveRequest": "Approuver la Demande",
+    "rejectRequest": "Rejeter la Demande",
+    "confirmApprove": "Êtes-vous sûr de vouloir approuver cette demande d'absence ?",
+    "cancelRequest": "Annuler la Demande",
+    "rejectionReason": "Motif de Rejet",
+    "rejectionReasonPlaceholder": "Veuillez indiquer la raison du rejet...",
+    "stats": {
+      "total": "Total Absences",
+      "pending": "En Attente",
+      "approved": "Approuvées",
+      "rejected": "Rejetées",
+      "totalDays": "Total Jours"
+    },
+    "table": {
+      "employee": "Employé",
+      "date": "Date",
+      "type": "Type",
+      "startDate": "Date Début",
+      "endDate": "Date Fin",
+      "duration": "Durée",
+      "status": "Statut",
+      "reason": "Motif",
+      "totalAbsences": "Total Absences",
+      "pendingRequests": "Demandes en Attente",
+      "approvedAbsences": "Absences Approuvées",
+      "totalDays": "Total Jours"
+    },
+    "types": {
+      "annual_leave": "Congé Annuel",
+      "sick": "Maladie",
+      "maternity": "Maternité",
+      "paternity": "Paternité",
+      "unpaid": "Sans Solde",
+      "mission": "Mission",
+      "training": "Formation",
+      "justified": "Absence Justifiée",
+      "unjustified": "Absence Non Justifiée",
+      "accident_work": "Accident de Travail",
+      "exceptional": "Exceptionnelle",
+      "religious": "Religieuse"
+    },
+    "durations": {
+      "fullDay": "Journée complète",
+      "halfDay": "Demi-journée",
+      "halfDayMorning": "Demi-journée (Matin)",
+      "halfDayAfternoon": "Demi-journée (Après-midi)",
+      "hourly": "Tranche horaire"
+    },
+    "form": {
+      "date": "Date",
+      "type": "Type d'Absence",
+      "durationType": "Durée",
+      "period": "Période",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin",
+      "startDate": "Date de Début",
+      "endDate": "Date de Fin",
+      "reason": "Motif (optionnel)",
+      "reasonPlaceholder": "Indiquez le motif de votre demande d'absence..."
+    }
   }
 }
+
 
 
