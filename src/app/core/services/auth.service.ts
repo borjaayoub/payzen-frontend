@@ -44,6 +44,7 @@ export class AuthService {
   currentUser = signal<User | null>(this.getStoredUser());
   isAuthenticated = signal<boolean>(!!this.getStoredToken());
   isLoading = signal<boolean>(false);
+  hasSubordinates = signal<boolean>(false);
 
   // Computed signals
   userRole = computed(() => this.currentUser()?.role);
@@ -53,6 +54,7 @@ export class AuthService {
   isEmployee = computed(() => this.currentUser()?.role === UserRole.EMPLOYEE);
   isCabinet = computed(() => this.currentUser()?.role === UserRole.CABINET);
   isAdminPayZen = computed(() => this.currentUser()?.role === UserRole.ADMIN_PAYZEN);
+  isManagerWithTeam = computed(() => this.hasSubordinates());
 
   constructor(
     private http: HttpClient,
@@ -81,12 +83,42 @@ export class AuthService {
         isLoading: false,
         error: null
       });
+      // Check if user has subordinates
+      this.checkSubordinates();
     } else {
       // Clear invalid/expired session
       this.clearStorage();
       this.currentUser.set(null);
       this.isAuthenticated.set(false);
     }
+  }
+
+  /**
+   * Check if current user has subordinates (is a manager with team)
+   */
+  checkSubordinates(): void {
+    const user = this.currentUser();
+    if (!user || !user.employee_id) {
+      this.hasSubordinates.set(false);
+      return;
+    }
+
+    // Import EmployeeService dynamically to avoid circular dependency
+    import('./employee.service').then(module => {
+      const injector = inject(Injector);
+      const employeeService = injector.get(module.EmployeeService);
+      
+      employeeService.getSubordinates(user.employee_id!).subscribe({
+        next: (subordinates) => {
+          this.hasSubordinates.set(subordinates.length > 0);
+        },
+        error: () => {
+          this.hasSubordinates.set(false);
+        }
+      });
+    }).catch(() => {
+      this.hasSubordinates.set(false);
+    });
   }
 
   /**
@@ -204,6 +236,9 @@ export class AuthService {
     } else {
       proceedWithMemberships(response.user as User);
     }
+
+    // Check for subordinates after successful login
+    this.checkSubordinates();
   }
 
   /**

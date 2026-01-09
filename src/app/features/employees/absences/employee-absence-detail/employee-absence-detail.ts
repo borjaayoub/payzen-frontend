@@ -84,7 +84,7 @@ export class EmployeeAbsenceDetailComponent implements OnInit {
     this.absenceService.getEmployeeAbsences(String(employeeId)).subscribe({
       next: (response) => {
         this.absences.set(response.absences);
-        this.stats.set(response.stats);
+        this.stats.set(response.stats ?? { totalAbsences: 0, totalDays: 0 });
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -100,10 +100,18 @@ export class EmployeeAbsenceDetailComponent implements OnInit {
 
   getAbsenceTypeLabel(type: AbsenceType): string {
     const typeMap: Partial<Record<AbsenceType, string>> = {
+      'ANNUAL_LEAVE': 'absences.types.annual_leave',
+      'SICK': 'absences.types.sick',
+      'MATERNITY': 'absences.types.maternity',
+      'PATERNITY': 'absences.types.paternity',
+      'UNPAID': 'absences.types.unpaid',
+      'MISSION': 'absences.types.mission',
+      'TRAINING': 'absences.types.training',
       'JUSTIFIED': 'absences.types.justified',
       'UNJUSTIFIED': 'absences.types.unjustified',
-      'SICK': 'absences.types.sick',
-      'MISSION': 'absences.types.mission'
+      'ACCIDENT_WORK': 'absences.types.accident_work',
+      'EXCEPTIONAL': 'absences.types.exceptional',
+      'RELIGIOUS': 'absences.types.religious'
     };
     return typeMap[type] || type;
   }
@@ -113,19 +121,40 @@ export class EmployeeAbsenceDetailComponent implements OnInit {
       return 'absences.durations.fullDay';
     } else if (absence.durationType === 'HalfDay') {
       return absence.isMorning ? 'absences.durations.halfDayMorning' : 'absences.durations.halfDayAfternoon';
-    } else {
-      return `${absence.startTime} - ${absence.endTime}`;
+    } else if (absence.durationType === 'Hourly' && absence.startTime && absence.endTime) {
+      // Calculate hours
+      const start = absence.startTime.split(':');
+      const end = absence.endTime.split(':');
+      const startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
+      const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
+      const durationMinutes = endMinutes - startMinutes;
+      const hours = Math.floor(durationMinutes / 60);
+      const minutes = durationMinutes % 60;
+      
+      if (minutes > 0) {
+        return `${hours}h ${minutes}min`;
+      }
+      return `${hours}h`;
     }
+    return '-';
   }
 
   getAbsenceTypeSeverity(type: AbsenceType): 'success' | 'warn' | 'danger' | 'info' {
     switch (type) {
       case 'JUSTIFIED':
+      case 'ANNUAL_LEAVE':
+      case 'MATERNITY':
+      case 'PATERNITY':
         return 'success';
       case 'SICK':
-        return 'info';
       case 'MISSION':
+      case 'TRAINING':
+      case 'RELIGIOUS':
+      case 'EXCEPTIONAL':
         return 'info';
+      case 'UNPAID':
+      case 'ACCIDENT_WORK':
+        return 'warn';
       case 'UNJUSTIFIED':
         return 'danger';
       default:

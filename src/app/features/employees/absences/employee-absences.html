@@ -1,71 +1,152 @@
-<div class="min-h-screen bg-(--bg-page)">
-  <div class="max-w-7xl mx-auto px-6 py-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-(--text-primary) mb-2">
-          {{ 'absences.myAbsences' | translate }}
-        </h1>
-        <p class="text-(--text-secondary)">
-          {{ 'absences.subtitle' | translate }}
-        </p>
+<div class="min-h-screen bg-gray-50">
+  <div>
+    <div class="max-w-7xl mx-auto px-6 pt-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="bg-(--primary)/10 text-(--primary) p-3 rounded-(--rads-lg)">
+            <i class="pi pi-calendar text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="heading">
+              {{ 'absences.myAbsences' | translate }}
+            </h1>
+            <p class="subheading mt-1">
+              {{ 'absences.subtitle' | translate }}
+            </p>
+          </div>
+        </div>
+        <button
+          pButton
+          [label]="'absences.declareAbsence' | translate"
+          icon="pi pi-plus"
+          (click)="openCreateDialog()"
+        ></button>
       </div>
-      <button
-        pButton
-        [label]="'absences.declareAbsence' | translate"
-        icon="pi pi-plus"
-        (click)="openCreateDialog()"
-        class="btn btn-primary"
-      ></button>
     </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 py-6">
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div class="card">
-        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</div>
-        <div class="text-2xl font-bold text-(--text-primary)">{{ stats().totalAbsences }}</div>
-      </div>
-      <div class="card">
-        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</div>
-        <div class="text-2xl font-bold text-(--primary)">{{ stats().totalDays }}</div>
-      </div>
+      <p-card styleClass="card h-full">
+        <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
+          <div class="flex-1">
+            <p class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</p>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ stats().totalAbsences }}</h3>
+          </div>
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-(--primary)/10">
+            <i class="pi pi-calendar text-(--primary) text-xl"></i>
+          </div>
+        </div>
+      </p-card>
+      <p-card styleClass="card h-full">
+        <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
+          <div class="flex-1">
+            <p class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</p>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ stats().totalDays }}</h3>
+          </div>
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-(--primary)/10">
+            <i class="pi pi-clock text-(--primary) text-xl"></i>
+          </div>
+        </div>
+      </p-card>
     </div>
 
     <!-- Absences Table -->
-    <div class="card">
+    <div class="card-compact relative">
+      <!-- Loading Overlay -->
+      @if (isLoading()) {
+        <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-spin pi-spinner text-primary text-4xl"></i>
+            <p class="text-gray-500 font-medium">{{ 'common.loading' | translate }}</p>
+          </div>
+        </div>
+      }
+
       <p-table
         [value]="absences()"
-        [loading]="isLoading()"
+        styleClass="p-datatable-sm"
+        [tableStyle]="{'min-width': '50rem'}"
         [paginator]="true"
         [rows]="10"
         [rowsPerPageOptions]="[10, 25, 50]"
-        styleClass="p-datatable-gridlines"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>{{ 'absences.table.date' | translate }}</th>
-            <th>{{ 'absences.table.type' | translate }}</th>
-            <th>{{ 'absences.table.duration' | translate }}</th>
-            <th>{{ 'absences.table.reason' | translate }}</th>
+            <th pSortableColumn="absenceDate" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.date' | translate }}
+                <p-sortIcon field="absenceDate"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="absenceType" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.type' | translate }}
+                <p-sortIcon field="absenceType"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="durationType" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.duration' | translate }}
+                <p-sortIcon field="durationType"></p-sortIcon>
+              </div>
+            </th>
+            <th class="saas-table-header">{{ 'absences.table.reason' | translate }}</th>
+            <th class="saas-table-header">{{ 'common.actions' | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-absence>
-          <tr>
-            <td>{{ absence.absenceDate | date: 'dd/MM/yyyy' }}</td>
-            <td>
+          <tr class="saas-table-row">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50">
+                  <i class="pi pi-calendar text-blue-600"></i>
+                </div>
+                <div>
+                  <div class="font-medium text-(--text-primary)">{{ absence.absenceDate | date: 'dd/MM/yyyy' }}</div>
+                  <div class="text-xs text-(--text-secondary)">{{ absence.absenceDate | date: 'EEEE' }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
               <p-tag 
                 [value]="getAbsenceTypeLabel(absence.absenceType) | translate" 
                 [severity]="getAbsenceTypeSeverity(absence.absenceType)"
               ></p-tag>
             </td>
-            <td>{{ getDurationLabel(absence) | translate }}</td>
-            <td>{{ absence.reason || '-' }}</td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-clock text-(--text-secondary) text-sm"></i>
+                <span class="font-medium text-(--text-primary)">{{ getDurationLabel(absence) | translate }}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-(--text-secondary)">{{ absence.reason || '-' }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <button
+                pButton
+                icon="pi pi-eye"
+                [pTooltip]="'absences.viewDetails' | translate"
+                tooltipPosition="top"
+                (click)="openDetailDialog(absence)"
+                severity="info"
+                [text]="true"
+                [rounded]="true"
+              ></button>
+            </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="4" class="text-center py-8 text-(--text-secondary)">
-              {{ 'absences.noAbsences' | translate }}
+            <td colspan="5" class="text-center py-12">
+              <div class="flex flex-col items-center gap-3">
+                <i class="pi pi-calendar-times text-gray-300 text-5xl"></i>
+                <p class="text-(--text-secondary) font-medium">{{ 'absences.noAbsences' | translate }}</p>
+              </div>
             </td>
           </tr>
         </ng-template>
@@ -116,7 +197,7 @@
         {{ 'absences.form.date' | translate }}
       </label>
       <p-datepicker
-        [ngModel]="newAbsence().absenceDate"
+        [ngModel]="newAbsenceDate()"
         (ngModelChange)="updateField('absenceDate', $event)"
         dateFormat="dd/mm/yy"
         [showIcon]="true"
@@ -237,6 +318,155 @@
         icon="pi pi-check"
         size="small"
         (onClick)="submitAbsenceRequest()">
+      </p-button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Absence Detail Dialog -->
+<p-dialog
+  [(visible)]="showDetailDialog"
+  [modal]="true"
+  [style]="{width: '40rem'}"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  styleClass="app-dialog"
+>
+  <!-- Custom Header -->
+  <div class="px-6 pt-6 pb-4 border-b border-gray-100">
+    <div class="flex items-start gap-4">
+      <div class="shrink-0 size-12 rounded-xl bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-sm">
+        <i class="pi pi-info-circle text-white text-xl"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="text-xl font-semibold text-gray-900 leading-tight">
+          {{ 'absences.detailTitle' | translate }}
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ selectedAbsence()?.absenceDate | date: 'dd/MM/yyyy' }}
+        </p>
+      </div>
+      <button 
+        type="button" 
+        (click)="showDetailDialog.set(false)" 
+        class="shrink-0 size-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        [attr.aria-label]="'common.close' | translate">
+        <i class="pi pi-times text-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Detail Content -->
+  @if (selectedAbsence()) {
+    <div class="px-6 py-6 space-y-4">
+      <!-- Date -->
+      <div class="detail-row">
+        <div class="detail-label">
+          <i class="pi pi-calendar text-gray-400 mr-2"></i>
+          {{ 'absences.form.date' | translate }}
+        </div>
+        <div class="detail-value">
+          {{ selectedAbsence()!.absenceDate | date: 'fullDate' }}
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="detail-row">
+        <div class="detail-label">
+          <i class="pi pi-tag text-gray-400 mr-2"></i>
+          {{ 'absences.form.type' | translate }}
+        </div>
+        <div class="detail-value">
+          <p-tag 
+            [value]="getAbsenceTypeLabel(selectedAbsence()!.absenceType) | translate" 
+            [severity]="getAbsenceTypeSeverity(selectedAbsence()!.absenceType)"
+          ></p-tag>
+        </div>
+      </div>
+
+      <!-- Duration Type -->
+      <div class="detail-row">
+        <div class="detail-label">
+          <i class="pi pi-clock text-gray-400 mr-2"></i>
+          {{ 'absences.form.durationType' | translate }}
+        </div>
+        <div class="detail-value">
+          {{ getDurationLabel(selectedAbsence()!) | translate }}
+        </div>
+      </div>
+
+      <!-- Period (if HalfDay) -->
+      @if (selectedAbsence()!.durationType === 'HalfDay') {
+        <div class="detail-row">
+          <div class="detail-label">
+            <i class="pi pi-sun text-gray-400 mr-2"></i>
+            {{ 'absences.form.period' | translate }}
+          </div>
+          <div class="detail-value">
+            {{ selectedAbsence()!.isMorning ? ('absences.morning' | translate) : ('absences.afternoon' | translate) }}
+          </div>
+        </div>
+      }
+
+      <!-- Time Range (if Hourly) -->
+      @if (selectedAbsence()!.durationType === 'Hourly') {
+        <div class="detail-row">
+          <div class="detail-label">
+            <i class="pi pi-hourglass text-gray-400 mr-2"></i>
+            {{ 'absences.form.timeRange' | translate }}
+          </div>
+          <div class="detail-value">
+            {{ selectedAbsence()!.startTime }} - {{ selectedAbsence()!.endTime }}
+          </div>
+        </div>
+      }
+
+      <!-- Reason -->
+      @if (selectedAbsence()!.reason) {
+        <div class="detail-row">
+          <div class="detail-label">
+            <i class="pi pi-align-left text-gray-400 mr-2"></i>
+            {{ 'absences.form.reason' | translate }}
+          </div>
+          <div class="detail-value whitespace-pre-wrap">
+            {{ selectedAbsence()!.reason }}
+          </div>
+        </div>
+      }
+
+      <!-- Created By -->
+      <div class="detail-row">
+        <div class="detail-label">
+          <i class="pi pi-user text-gray-400 mr-2"></i>
+          {{ 'absences.createdBy' | translate }}
+        </div>
+        <div class="detail-value">
+          {{ selectedAbsence()!.createdBy }}
+        </div>
+      </div>
+
+      <!-- Created At -->
+      <div class="detail-row">
+        <div class="detail-label">
+          <i class="pi pi-calendar-plus text-gray-400 mr-2"></i>
+          {{ 'absences.createdAt' | translate }}
+        </div>
+        <div class="detail-value">
+          {{ selectedAbsence()!.createdAt | date: 'short' }}
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Footer Actions -->
+  <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+    <div class="flex items-center justify-end gap-3">
+      <p-button 
+        [label]="'common.close' | translate" 
+        severity="secondary"
+        size="small"
+        (onClick)="showDetailDialog.set(false)">
       </p-button>
     </div>
   </div>

@@ -6,14 +6,14 @@
         <div>
           <div class="flex items-center gap-3 mb-2">
             <div class="bg-(--primary)/10 text-(--primary) p-3 rounded-(--rads-lg)">
-              <i class="pi pi-calendar text-2xl"></i>
+              <i class="pi pi-users text-2xl"></i>
             </div>
             <div>
               <h1 class="heading">
-                {{ 'absences.hrTitle' | translate }}
+                {{ 'absences.teamTitle' | translate }}
               </h1>
               <p class="subheading mt-1">
-                {{ 'absences.hrSubtitle' | translate }}
+                {{ 'absences.teamSubtitle' | translate }}
               </p>
             </div>
           </div>
@@ -23,13 +23,13 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-6 py-6">
-    <!-- Company Stats Cards -->
+    <!-- Team Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <p-card styleClass="card h-full">
         <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
           <div class="flex-1">
             <p class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</p>
-            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ companyStats().totalAbsences }}</h3>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ teamStats().totalAbsences }}</h3>
           </div>
           <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-(--primary)/10">
             <i class="pi pi-calendar text-(--primary) text-xl"></i>
@@ -40,7 +40,7 @@
         <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
           <div class="flex-1">
             <p class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</p>
-            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ companyStats().totalDays }}</h3>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ teamStats().totalDays }}</h3>
           </div>
           <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-(--primary)/10">
             <i class="pi pi-clock text-(--primary) text-xl"></i>
@@ -175,7 +175,7 @@
             <td colspan="4" class="text-center py-12">
               <div class="flex flex-col items-center gap-3">
                 <i class="pi pi-users text-gray-300 text-5xl"></i>
-                <p class="text-(--text-secondary) font-medium">{{ 'absences.noEmployees' | translate }}</p>
+                <p class="text-(--text-secondary) font-medium">{{ 'absences.noTeamMembers' | translate }}</p>
               </div>
             </td>
           </tr>

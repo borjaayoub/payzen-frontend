@@ -944,9 +944,14 @@
     }
   },
   "absences": {
+    "accessDenied": {
+      "title": "الوصول مرفوض",
+      "message": "أنت غير مخول بالوصول إلى هذه الصفحة."
+    },
     "myAbsences": "غياباتي",
     "hrTitle": "إدارة الغيابات",
     "hrSubtitle": "إدارة طلبات الغياب لجميع الموظفين",
+    "hrGrant": "منح إجازة",
     "subtitle": "عرض وإدارة طلبات الغياب الخاصة بك",
     "requestAbsence": "طلب غياب",
     "declareAbsence": "تصريح بغياب",
@@ -955,6 +960,9 @@
     "manageEmployeeAbsences": "إدارة طلبات الغياب لهذا الموظف",
     "searchEmployee": "البحث عن موظف...",
     "viewDetails": "عرض التفاصيل",
+    "detailTitle": "تفاصيل الغياب",
+    "createdBy": "أنشئ بواسطة",
+    "createdAt": "تاريخ الإنشاء",
     "days": "أيام",
     "morning": "صباح",
     "afternoon": "بعد الظهر",
@@ -1018,6 +1026,7 @@
       "period": "الفترة",
       "startTime": "وقت البداية",
       "endTime": "وقت النهاية",
+      "timeRange": "النطاق الزمني",
       "startDate": "تاريخ البدء",
       "endDate": "تاريخ الانتهاء",
       "reason": "السبب (اختياري)",

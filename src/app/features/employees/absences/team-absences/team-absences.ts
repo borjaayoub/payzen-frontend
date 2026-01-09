@@ -15,6 +15,7 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { AbsenceService } from '@app/core/services/absence.service';
 import { EmployeeService } from '@app/core/services/employee.service';
+import { AuthService } from '@app/core/services/auth.service';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { Absence } from '@app/core/models/absence.model';
 import { AbsenceType, AbsenceDurationType, CreateAbsenceRequest } from '@app/core/models/absence.model';
@@ -32,7 +33,7 @@ interface GrantAbsenceRequest extends CreateAbsenceRequest {
 }
 
 @Component({
-  selector: 'app-hr-absences',
+  selector: 'app-team-absences',
   standalone: true,
   imports: [
     CommonModule,
@@ -49,12 +50,13 @@ interface GrantAbsenceRequest extends CreateAbsenceRequest {
     CardModule,
     TooltipModule
   ],
-  templateUrl: './hr-absences.html',
-  styleUrl: './hr-absences.css'
+  templateUrl: './team-absences.html',
+  styleUrl: './team-absences.css'
 })
-export class HrAbsencesComponent implements OnInit {
+export class TeamAbsencesComponent implements OnInit {
   private absenceService = inject(AbsenceService);
   private employeeService = inject(EmployeeService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private contextService = inject(CompanyContextService);
   private translate = inject(TranslateService);
@@ -91,7 +93,7 @@ export class HrAbsencesComponent implements OnInit {
 
   readonly routePrefix = signal('/app');
 
-  companyStats = signal({
+  teamStats = signal({
     totalAbsences: 0,
     totalDays: 0
   });
@@ -101,7 +103,7 @@ export class HrAbsencesComponent implements OnInit {
     if (this.contextService.isExpertMode()) {
       this.routePrefix.set('/expert');
     }
-    // init translated option labels (populate options before any dialog opens)
+    // init translated option labels
     this.absenceTypes = [
       { label: this.translate.instant('absences.types.annual_leave'), value: 'ANNUAL_LEAVE' },
       { label: this.translate.instant('absences.types.sick'), value: 'SICK' },
@@ -128,8 +130,7 @@ export class HrAbsencesComponent implements OnInit {
       { label: this.translate.instant('absences.afternoon'), value: false }
     ];
 
-    // Now load employees (options are ready for immediate dialog use)
-    this.loadEmployeesAbsences();
+    this.loadTeamAbsences();
   }
 
   openGrantDialog(employeeId: number, employeeName: string) {
@@ -142,7 +143,6 @@ export class HrAbsencesComponent implements OnInit {
       reason: ''
     });
     this.showGrantDialog.set(true);
-    console.debug('[HR] openGrantDialog', { employeeId, employeeName, grantRequest: this.grantRequest() });
   }
 
   submitGrant() {
@@ -150,7 +150,6 @@ export class HrAbsencesComponent implements OnInit {
     if (!req) return;
     if (!req.absenceDate) return;
 
-    // Validate based on duration type (same logic as employee flow)
     if (req.durationType === 'HalfDay' && req.isMorning === undefined) {
       return;
     }
@@ -158,33 +157,20 @@ export class HrAbsencesComponent implements OnInit {
       return;
     }
 
-    // Remove employeeName from the request as it's not part of the API
     const { employeeName, ...apiRequest } = req;
-
-    console.log('[HR submitGrant] Original request:', req);
-    console.log('[HR submitGrant] API request (before service):', apiRequest);
 
     this.absenceService.createAbsence(apiRequest).subscribe({
       next: () => {
         this.showGrantDialog.set(false);
-        this.loadEmployeesAbsences();
+        this.loadTeamAbsences();
       },
       error: (err) => {
         console.error('Failed to grant absence', err);
-        console.error('Error response:', err?.error);
-        if (err?.error?.errors) {
-          console.error('Validation errors:', JSON.stringify(err.error.errors, null, 2));
-          // Log each validation error for clarity
-          Object.keys(err.error.errors).forEach(key => {
-            console.error(`Field '${key}':`, err.error.errors[key]);
-          });
-        }
       }
     });
   }
 
   updateGrantField(field: keyof CreateAbsenceRequest, value: any) {
-    // Normalize date/time formats for backend compatibility
     let normalized = value;
     if (field === 'absenceDate') {
       if (value instanceof Date) {
@@ -202,20 +188,21 @@ export class HrAbsencesComponent implements OnInit {
       const base = current ?? ({} as GrantAbsenceRequest);
       return { ...base, [field]: normalized } as GrantAbsenceRequest;
     });
-    // log after update to help debug binding issues in the dialog
-    console.debug('[HR] updateGrantField', field, value, this.grantRequest());
   }
 
-  loadEmployeesAbsences() {
+  loadTeamAbsences() {
     this.isLoading.set(true);
+    const user = this.authService.currentUser();
+    
+    if (!user || !user.employee_id) {
+      this.isLoading.set(false);
+      return;
+    }
 
-    // Load all employees
-    this.employeeService.getEmployees().subscribe({
-      next: (response) => {
-        const employees = response.employees || [];
-        
-        // For each employee, get their absence stats
-        const summaries: EmployeeAbsenceSummary[] = employees.map(emp => ({
+    // Load subordinates only
+    this.employeeService.getSubordinates(user.employee_id).subscribe({
+      next: (subordinates) => {
+        const summaries: EmployeeAbsenceSummary[] = subordinates.map(emp => ({
           employeeId: Number(emp.id),
           employeeName: `${emp.firstName} ${emp.lastName}`,
           totalAbsences: 0,
@@ -223,13 +210,10 @@ export class HrAbsencesComponent implements OnInit {
         }));
 
         this.employees.set(summaries);
+        this.teamStats.set({ totalAbsences: 0, totalDays: 0 });
 
-        // Load company-wide stats by fetching all employees' absences
-        // In production, this should be a dedicated endpoint
-        this.companyStats.set({ totalAbsences: 0, totalDays: 0 });
-
-        // Load individual employee stats using the new endpoint
-        employees.forEach((emp, index) => {
+        // Load stats for each subordinate
+        subordinates.forEach((emp, index) => {
           this.absenceService.getEmployeeAbsences(String(emp.id)).subscribe({
             next: (response) => {
               this.employees.update(current => {
@@ -241,15 +225,21 @@ export class HrAbsencesComponent implements OnInit {
                 };
                 return updated;
               });
+
+              // Update team-wide stats
+              this.teamStats.update(current => ({
+                totalAbsences: current.totalAbsences + (response.stats?.totalAbsences ?? 0),
+                totalDays: current.totalDays + (response.stats?.totalDays ?? 0)
+              }));
             },
-            error: (err) => console.error(`Failed to load stats for employee ${emp.id}`, err)
+            error: (err) => console.error(`Failed to load stats for subordinate ${emp.id}`, err)
           });
         });
 
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Failed to load employees', err);
+        console.error('Failed to load subordinates', err);
         this.isLoading.set(false);
       }
     });

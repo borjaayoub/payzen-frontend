@@ -19,6 +19,7 @@ interface MenuItemConfig extends MenuItem {
   requiredPermissions?: string[];
   modes?: ('expert' | 'standard' | 'expert-client' | 'expert-all')[];
   requiresCompanyContext?: boolean; // New flag to indicate if company selection is needed
+  id?: string; // Unique identifier for special filtering
 }
 
 @Component({
@@ -209,13 +210,7 @@ export class Sidebar {
       requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER],
       modes: ['standard']
     },
-    {
-      label: 'nav.attendance',
-      icon: 'pi pi-clock',
-      routerLink: '/attendance',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER, UserRole.EMPLOYEE],
-      modes: ['standard']
-    },
+    // Attendance menu removed per request (hidden from sidebar)
     {
       label: 'nav.absences',
       icon: 'pi pi-calendar-times',
@@ -224,10 +219,19 @@ export class Sidebar {
       modes: ['standard']
     },
     {
+      label: 'nav.absencesTeam',
+      icon: 'pi pi-users',
+      routerLink: '/absences/team',
+      requiredRoles: [UserRole.MANAGER, UserRole.ADMIN, UserRole.RH],
+      modes: ['standard'],
+      // Will be filtered dynamically based on hasSubordinates
+      id: 'team-absences'
+    },
+    {
       label: 'nav.absences',
       icon: 'pi pi-calendar-times',
       routerLink: '/absences/hr',
-      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER],
+      requiredRoles: [UserRole.ADMIN, UserRole.RH],
       modes: ['standard']
     },
     { 
@@ -289,6 +293,11 @@ export class Sidebar {
 
     return this.menuItemsTemplate
       .filter(item => {
+        // Filter team absences based on hasSubordinates
+        if (item.id === 'team-absences' && !this.authService.hasSubordinates()) {
+          return false;
+        }
+
         // 1. Check Mode
         if (item.modes) {
           // For expert-all, show if in any expert mode
@@ -319,15 +328,17 @@ export class Sidebar {
 
         // 4. Check Employee Mode restrictions
         // Show only the appropriate page based on mode
+        // NOTE: Admin and RH should still see both Attendance and Absences regardless of personal mode
         if (user?.mode) {
           const userMode = user.mode.toLowerCase();
+          const isPrivilegedRole = effectiveRole === UserRole.ADMIN || effectiveRole === UserRole.RH;
           // Mode 'attendance' or 'presence' = attendance only (hide absence menu)
           if ((userMode === 'attendance' || userMode === 'presence') && item.routerLink?.includes('/absences')) {
-            return false;
+            if (!isPrivilegedRole) return false;
           }
           // Mode 'absence' = absence only (hide attendance menu)
           if (userMode === 'absence' && item.routerLink?.includes('/attendance')) {
-            return false;
+            if (!isPrivilegedRole) return false;
           }
         }
 

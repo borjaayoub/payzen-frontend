@@ -90,6 +90,11 @@ export const routes: Routes = [
         canActivate: [viewAbsenceGuard]
       },
       {
+        path: 'absences/team',
+        loadComponent: () => import('./features/employees/absences/team-absences/team-absences').then(m => m.TeamAbsencesComponent),
+        canActivate: [authGuard]
+      },
+      {
         path: 'absences/hr',
         loadComponent: () => import('./features/employees/absences/hr-absences/hr-absences').then(m => m.HrAbsencesComponent),
         canActivate: [rhGuard]
@@ -200,6 +205,11 @@ export const routes: Routes = [
       {
         path: 'absences',
         loadComponent: () => import('./features/employees/absences/employee-absences').then(m => m.EmployeeAbsencesComponent),
+        data: { expertMode: true }
+      },
+      {
+        path: 'absences/team',
+        loadComponent: () => import('./features/employees/absences/team-absences/team-absences').then(m => m.TeamAbsencesComponent),
         data: { expertMode: true }
       },
       {

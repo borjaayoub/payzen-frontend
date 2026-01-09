@@ -377,6 +377,30 @@ export class EmployeeService {
     return this.http.get<Employee>(`${this.EMPLOYEE_URL}/${id}`);
   }
 
+  /**
+   * Get subordinates for a manager
+   */
+  getSubordinates(managerId: string | number): Observable<Employee[]> {
+    return this.http.get<any[]>(`${this.EMPLOYEE_URL}/manager/${managerId}/subordinates`).pipe(
+      map(subordinates => {
+        if (!Array.isArray(subordinates)) return [];
+        return subordinates.map(sub => ({
+          id: String(sub.id || sub.Id),
+          firstName: sub.firstName || sub.FirstName || '',
+          lastName: sub.lastName || sub.LastName || '',
+          position: sub.position || sub.Position || sub.jobPositionName || sub.JobPositionName || '',
+          department: sub.department || sub.Department || sub.departementName || sub.DepartementName || '',
+          status: sub.status || sub.Status || 'ACTIVE',
+          startDate: sub.startDate || sub.StartDate || '',
+          missingDocuments: sub.missingDocuments || sub.MissingDocuments || 0,
+          contractType: sub.contractType || sub.ContractType || sub.contractTypeName || sub.ContractTypeName || '',
+          manager: sub.manager || sub.Manager || '',
+          userId: sub.userId || sub.UserId
+        }));
+      })
+    );
+  }
+
   getEmployeeDetails(id: string): Observable<EmployeeProfileModel> {
     return this.http
       .get<EmployeeDetailsResponse>(`${this.EMPLOYEE_URL}/${id}/details`)

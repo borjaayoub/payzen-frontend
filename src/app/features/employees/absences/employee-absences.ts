@@ -45,6 +45,8 @@ export class EmployeeAbsencesComponent implements OnInit {
   absences = signal<Absence[]>([]);
   isLoading = signal(false);
   showCreateDialog = signal(false);
+  showDetailDialog = signal(false);
+  selectedAbsence = signal<Absence | null>(null);
   
   stats = signal({
     totalAbsences: 0,
@@ -58,6 +60,17 @@ export class EmployeeAbsencesComponent implements OnInit {
     durationType: 'FullDay',
     absenceType: 'JUSTIFIED',
     reason: ''
+  });
+
+  newAbsenceDate = computed(() => {
+    const rawValue = this.newAbsence().absenceDate as unknown;
+    if (!rawValue) return null;
+    if (rawValue instanceof Date) return rawValue;
+    if (typeof rawValue === 'string') {
+      const parsed = new Date(rawValue);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    return null;
   });
 
   absenceTypes: Array<{ label: string; value: AbsenceType }> = [];
@@ -109,8 +122,8 @@ export class EmployeeAbsencesComponent implements OnInit {
 
     this.absenceService.getEmployeeAbsences(String(employeeId)).subscribe({
       next: (response) => {
-        this.absences.set(response.absences);
-        this.stats.set(response.stats);
+        this.absences.set(response?.absences ?? []);
+        this.stats.set(response?.stats ?? { totalAbsences: 0, totalDays: 0 });
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -132,6 +145,11 @@ export class EmployeeAbsencesComponent implements OnInit {
       reason: ''
     });
     this.showCreateDialog.set(true);
+  }
+
+  openDetailDialog(absence: Absence) {
+    this.selectedAbsence.set(absence);
+    this.showDetailDialog.set(true);
   }
 
   submitAbsenceRequest() {
@@ -174,9 +192,22 @@ export class EmployeeAbsencesComponent implements OnInit {
       return 'absences.durations.fullDay';
     } else if (absence.durationType === 'HalfDay') {
       return absence.isMorning ? 'absences.durations.halfDayMorning' : 'absences.durations.halfDayAfternoon';
-    } else {
-      return `${absence.startTime} - ${absence.endTime}`;
+    } else if (absence.durationType === 'Hourly' && absence.startTime && absence.endTime) {
+      // Calculate hours
+      const start = absence.startTime.split(':');
+      const end = absence.endTime.split(':');
+      const startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
+      const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
+      const durationMinutes = endMinutes - startMinutes;
+      const hours = Math.floor(durationMinutes / 60);
+      const minutes = durationMinutes % 60;
+      
+      if (minutes > 0) {
+        return `${hours}h ${minutes}min`;
+      }
+      return `${hours}h`;
     }
+    return '-';
   }
 
   getAbsenceTypeSeverity(type: AbsenceType): 'success' | 'warn' | 'danger' | 'info' {
@@ -195,6 +226,19 @@ export class EmployeeAbsencesComponent implements OnInit {
   }
 
   updateField(field: keyof CreateAbsenceRequest, value: any) {
-    this.newAbsence.update(current => ({ ...current, [field]: value }));
+    let normalized = value;
+    if (field === 'absenceDate') {
+      if (value instanceof Date) {
+        const y = value.getFullYear();
+        const m = String(value.getMonth() + 1).padStart(2, '0');
+        const d = String(value.getDate()).padStart(2, '0');
+        normalized = `${y}-${m}-${d}`;
+      } else if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+        const [dd, mm, yyyy] = value.split('/');
+        normalized = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+      }
+    }
+
+    this.newAbsence.update(current => ({ ...current, [field]: normalized }));
   }
 }

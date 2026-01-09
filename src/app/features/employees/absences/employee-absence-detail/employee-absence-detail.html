@@ -1,72 +1,175 @@
-<div class="min-h-screen bg-(--bg-page)">
-  <div class="max-w-7xl mx-auto px-6 py-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div>
+<div class="min-h-screen bg-gray-50">
+  <div>
+    <div class="max-w-7xl mx-auto px-6 pt-4">
+      <!-- Header -->
+      <div class="mb-6">
         <button
           pButton
           icon="pi pi-arrow-left"
           [label]="'common.back' | translate"
           (click)="goBack()"
           [text]="true"
-          class="mb-2"
+          severity="secondary"
+          class="mb-3"
         ></button>
-        <h1 class="text-3xl font-bold text-(--text-primary) mb-2">
-          {{ 'absences.employeeAbsences' | translate }}: {{ employeeName() }}
-        </h1>
-        <p class="text-(--text-secondary)">
-          {{ 'absences.manageEmployeeAbsences' | translate }}
-        </p>
+        <div class="flex items-center gap-3">
+          <div class="bg-(--primary)/10 text-(--primary) p-3 rounded-(--rads-lg)">
+            <i class="pi pi-user text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="heading">
+              {{ employeeName() }}
+            </h1>
+            <p class="subheading mt-1">
+              {{ 'absences.manageEmployeeAbsences' | translate }}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 py-6">
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div class="card">
-        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</div>
-        <div class="text-2xl font-bold text-(--text-primary)">{{ stats().totalAbsences }}</div>
-      </div>
-      <div class="card">
-        <div class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</div>
-        <div class="text-2xl font-bold text-(--primary)">{{ stats().totalDays }}</div>
-      </div>
+      <p-card styleClass="card h-full">
+        <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
+          <div class="flex-1">
+            <p class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.total' | translate }}</p>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ stats().totalAbsences }}</h3>
+          </div>
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-(--primary)/10">
+            <i class="pi pi-calendar text-(--primary) text-xl"></i>
+          </div>
+        </div>
+      </p-card>
+      <p-card styleClass="card h-full">
+        <div class="stat-card items-start justify-between gap-4 p-0 border-none shadow-none">
+          <div class="flex-1">
+            <p class="text-sm text-(--text-secondary) mb-1">{{ 'absences.stats.totalDays' | translate }}</p>
+            <h3 class="text-2xl font-semibold text-(--text-primary) mb-2">{{ stats().totalDays }}</h3>
+          </div>
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-(--primary)/10">
+            <i class="pi pi-clock text-(--primary) text-xl"></i>
+          </div>
+        </div>
+      </p-card>
     </div>
 
     <!-- Absences Table -->
-    <div class="card">
+    <div class="card-compact relative">
+      <!-- Loading Overlay -->
+      @if (isLoading()) {
+        <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-spin pi-spinner text-primary text-4xl"></i>
+            <p class="text-gray-500 font-medium">{{ 'common.loading' | translate }}</p>
+          </div>
+        </div>
+      }
+
       <p-table
         [value]="absences()"
-        [loading]="isLoading()"
+        styleClass="p-datatable-sm"
+        [tableStyle]="{'min-width': '50rem'}"
         [paginator]="true"
         [rows]="10"
         [rowsPerPageOptions]="[10, 25, 50]"
-        styleClass="p-datatable-gridlines"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>{{ 'absences.table.date' | translate }}</th>
-            <th>{{ 'absences.table.type' | translate }}</th>
-            <th>{{ 'absences.table.duration' | translate }}</th>
-            <th>{{ 'absences.table.reason' | translate }}</th>
+            <th pSortableColumn="absenceDate" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.date' | translate }}
+                <p-sortIcon field="absenceDate"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="absenceType" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.type' | translate }}
+                <p-sortIcon field="absenceType"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="durationType" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.duration' | translate }}
+                <p-sortIcon field="durationType"></p-sortIcon>
+              </div>
+            </th>
+            <th class="saas-table-header">{{ 'absences.table.reason' | translate }}</th>
+            <th pSortableColumn="createdAt" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.createdAt' | translate }}
+                <p-sortIcon field="createdAt"></p-sortIcon>
+              </div>
+            </th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-absence>
-          <tr>
-            <td>{{ absence.absenceDate | date: 'dd/MM/yyyy' }}</td>
-            <td>
+          <tr class="saas-table-row">
+            <!-- Date -->
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50">
+                  <i class="pi pi-calendar text-blue-600"></i>
+                </div>
+                <div>
+                  <div class="font-medium text-(--text-primary)">{{ absence.absenceDate | date: 'dd/MM/yyyy' }}</div>
+                  <div class="text-xs text-(--text-secondary)">{{ absence.absenceDate | date: 'EEEE' }}</div>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Type -->
+            <td class="px-6 py-4">
               <p-tag 
                 [value]="getAbsenceTypeLabel(absence.absenceType) | translate" 
                 [severity]="getAbsenceTypeSeverity(absence.absenceType)"
               ></p-tag>
             </td>
-            <td>{{ getDurationLabel(absence) | translate }}</td>
-            <td>{{ absence.reason || '-' }}</td>
+            
+            <!-- Duration -->
+            <td class="px-6 py-4">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-clock text-(--text-secondary) text-sm"></i>
+                  <span class="font-medium text-(--text-primary)">{{ getDurationLabel(absence) | translate }}</span>
+                </div>
+                @if (absence.durationType === 'HalfDay' && absence.isMorning !== undefined) {
+                  <span class="text-xs text-(--text-secondary) ml-5">
+                    {{ absence.isMorning ? ('absences.morning' | translate) : ('absences.afternoon' | translate) }}
+                  </span>
+                }
+                @if (absence.durationType === 'Hourly' && absence.startTime && absence.endTime) {
+                  <span class="text-xs text-(--text-secondary) ml-5">
+                    {{ absence.startTime }} - {{ absence.endTime }}
+                  </span>
+                }
+              </div>
+            </td>
+            
+            <!-- Reason -->
+            <td class="px-6 py-4">
+              <span class="text-(--text-secondary)">{{ absence.reason || '-' }}</span>
+            </td>
+            
+            <!-- Created At -->
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-clock text-(--text-secondary) text-sm"></i>
+                <span class="text-sm text-(--text-secondary)">{{ absence.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="4" class="text-center py-8 text-(--text-secondary)">
-              {{ 'absences.noAbsences' | translate }}
+            <td colspan="5" class="text-center py-12">
+              <div class="flex flex-col items-center gap-3">
+                <i class="pi pi-calendar-times text-gray-300 text-5xl"></i>
+                <p class="text-(--text-secondary) font-medium">{{ 'absences.noAbsences' | translate }}</p>
+              </div>
             </td>
           </tr>
         </ng-template>
