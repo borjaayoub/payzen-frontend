@@ -23,6 +23,7 @@ import { Subscription } from 'rxjs';
 
 interface UserDisplay {
   id: string;
+  userId: string | null; // User ID for API calls
   name: string;
   email: string;
   role: string;
@@ -270,9 +271,9 @@ export class UsersTabComponent implements OnInit, OnDestroy {
     this.selectedUserForAssign = user;
 
     // Try to preload assigned roles from server and select accordingly.
-    const userIdNum = Number(user.id);
-    if (!Number.isNaN(userIdNum)) {
-      this.userService.getUserRoles(userIdNum).subscribe({
+    const employeeIdNum = Number(user.id);
+    if (!Number.isNaN(employeeIdNum)) {
+      this.userService.getEmployeeRoles(employeeIdNum).subscribe({
         next: (assignments) => {
           console.log('[UsersTab] getUserRoles -> assignments', assignments);
           const mappedIds: string[] = (Array.isArray(assignments) ? assignments : [])
@@ -366,7 +367,11 @@ export class UsersTabComponent implements OnInit, OnDestroy {
 
   assignRole() {
     if (!this.selectedUserForAssign) return;
-    const userId = Number(this.selectedUserForAssign.id);
+    const employeeId = Number(this.selectedUserForAssign.id);
+    if (isNaN(employeeId)) {
+      this.showToast('error', 'Error', 'Employee ID not found');
+      return;
+    }
     const selectedIds = (this.selectedRoleIdsForAssign || []).map(String).filter(Boolean);
     if (!selectedIds || selectedIds.length === 0) {
       this.showToast('error', 'Error', 'No role selected');
@@ -375,36 +380,17 @@ export class UsersTabComponent implements OnInit, OnDestroy {
 
     this.assigningRoleLoading.set(true);
 
-    const toAdd = selectedIds.filter(id => !(this.initialAssignedRoleIds || []).includes(id)).map(Number);
-    const toRemove = (this.initialAssignedRoleIds || []).filter(id => !selectedIds.includes(id)).map(Number);
+    const roleIdsToAssign = selectedIds.map(Number);
 
-    const add$ = toAdd.length ? this.permissionService.assignRoles(userId, toAdd) : of(void 0);
+    // Use the new employee-based endpoint
+    const assign$ = this.permissionService.assignRolesToEmployee(employeeId, roleIdsToAssign);
 
-    add$.subscribe({
+    assign$.subscribe({
       next: () => {
-        if (toRemove.length === 0) {
-          this.assigningRoleLoading.set(false);
-          this.assignRoleDialogVisible.set(false);
-          this.showToast('success', 'Success', 'Roles updated successfully');
-          this.loadUsers();
-          return;
-        }
-
-        const removeCalls = toRemove.map(rid => this.permissionService.removeRole(userId, rid));
-        forkJoin(removeCalls).subscribe({
-          next: () => {
-            this.assigningRoleLoading.set(false);
-            this.assignRoleDialogVisible.set(false);
-            this.showToast('success', 'Success', 'Roles updated successfully');
-            this.loadUsers();
-          },
-          error: (err) => {
-            console.error('Error removing roles', err);
-            this.assigningRoleLoading.set(false);
-            const apiMsg = this.formatApiError(err);
-            this.showToast('error', 'Error', apiMsg);
-          }
-        });
+        this.assigningRoleLoading.set(false);
+        this.assignRoleDialogVisible.set(false);
+        this.showToast('success', 'Success', 'Roles updated successfully');
+        this.loadUsers();
       },
       error: (err) => {
         console.error('Error assigning roles', err);
@@ -528,8 +514,10 @@ export class UsersTabComponent implements OnInit, OnDestroy {
           const roleRaw = (e as any).roleName ?? (e as any).RoleName ?? (e as any).role ?? null;
           const role = roleRaw ? `user.role.${roleRaw}` : 'user.role.viewer';
           const name = `${e.firstName ?? ''} ${e.lastName ?? ''}`.trim() || email || `#${e.id}`;
+          const userId = (e as any).userId ?? (e as any).UserId ?? null;
           return {
             id: String((e as any).id ?? (e as any).Id ?? ''),
+            userId: userId ? String(userId) : null,
             name,
             email,
             role,

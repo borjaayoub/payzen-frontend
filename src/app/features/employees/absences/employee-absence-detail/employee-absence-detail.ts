@@ -52,6 +52,11 @@ export class EmployeeAbsenceDetailComponent implements OnInit {
     totalDays: 0
   });
 
+  // Reject dialog
+  showRejectDialog = signal(false);
+  selectedAbsenceId = signal<number | null>(null);
+  rejectReason = signal('');
+
   ngOnInit() {
     // Determine route prefix
     if (this.contextService.isExpertMode()) {
@@ -98,6 +103,50 @@ export class EmployeeAbsenceDetailComponent implements OnInit {
     this.router.navigate([`${this.routePrefix()}/absences/hr`]);
   }
 
+  approveAbsence(absenceId: number) {
+    this.absenceService.approveAbsence(absenceId).subscribe({
+      next: () => {
+        // Reload absences after approval
+        this.loadAbsences(this.employeeId());
+      },
+      error: (err) => {
+        console.error('Failed to approve absence', err);
+      }
+    });
+  }
+
+  rejectAbsence(absenceId: number) {
+    this.selectedAbsenceId.set(absenceId);
+    this.rejectReason.set('');
+    this.showRejectDialog.set(true);
+  }
+
+  confirmRejection() {
+    const absenceId = this.selectedAbsenceId();
+    const reason = this.rejectReason();
+
+    if (!absenceId) return;
+
+    this.absenceService.rejectAbsence(absenceId, reason).subscribe({
+      next: () => {
+        this.showRejectDialog.set(false);
+        this.selectedAbsenceId.set(null);
+        this.rejectReason.set('');
+        // Reload absences after rejection
+        this.loadAbsences(this.employeeId());
+      },
+      error: (err) => {
+        console.error('Failed to reject absence', err);
+      }
+    });
+  }
+
+  cancelRejection() {
+    this.showRejectDialog.set(false);
+    this.selectedAbsenceId.set(null);
+    this.rejectReason.set('');
+  }
+
   getAbsenceTypeLabel(type: AbsenceType): string {
     const typeMap: Partial<Record<AbsenceType, string>> = {
       'ANNUAL_LEAVE': 'absences.types.annual_leave',
@@ -114,6 +163,12 @@ export class EmployeeAbsenceDetailComponent implements OnInit {
       'RELIGIOUS': 'absences.types.religious'
     };
     return typeMap[type] || type;
+  }
+
+  formatTime(time: string | undefined): string {
+    if (!time) return '';
+    const parts = time.split(':');
+    return `${parts[0]}:${parts[1]}`;
   }
 
   getDurationLabel(absence: Absence): string {

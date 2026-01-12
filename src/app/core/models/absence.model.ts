@@ -1,3 +1,5 @@
+export type AbsenceStatus = 'Submitted' | 'Approved' | 'Rejected' | 'Cancelled' | 'Expired';
+
 export interface Absence {
   id: number;
   employeeId: number;
@@ -9,6 +11,8 @@ export interface Absence {
   endTime?: string; // TimeOnly from backend (HH:mm format)
   absenceType: AbsenceType;
   reason?: string;
+  status?: AbsenceStatus;
+  statusDescription?: string;
   createdAt: string;
   createdBy: number;
 }
@@ -33,6 +37,7 @@ export interface AbsenceFilters {
   employeeId?: number;
   absenceType?: AbsenceType;
   durationType?: AbsenceDurationType;
+  status?: AbsenceStatus;
   startDate?: string;
   endDate?: string;
   page?: number;

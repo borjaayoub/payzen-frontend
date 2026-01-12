@@ -13,6 +13,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
+import { RippleModule } from 'primeng/ripple';
 import { AbsenceService } from '@app/core/services/absence.service';
 import { EmployeeService } from '@app/core/services/employee.service';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
@@ -25,6 +26,7 @@ interface EmployeeAbsenceSummary {
   employeeName: string;
   totalAbsences: number;
   totalDays: number;
+  absences?: Absence[]; // Store detailed absences
 }
 
 interface GrantAbsenceRequest extends CreateAbsenceRequest {
@@ -47,7 +49,8 @@ interface GrantAbsenceRequest extends CreateAbsenceRequest {
     DatePickerModule,
     TextareaModule,
     CardModule,
-    TooltipModule
+    TooltipModule,
+    RippleModule
   ],
   templateUrl: './hr-absences.html',
   styleUrl: './hr-absences.css'
@@ -60,12 +63,23 @@ export class HrAbsencesComponent implements OnInit {
   private translate = inject(TranslateService);
 
   employees = signal<EmployeeAbsenceSummary[]>([]);
+  pendingAbsences = signal<Absence[]>([]);
   isLoading = signal(false);
   searchQuery = signal('');
+
+  // Pending absences filters
+  pendingEmployeeFilter = signal('');
+  pendingTypeFilter = signal<AbsenceType | ''>('');
+  pendingDurationFilter = signal<AbsenceDurationType | ''>('');
 
   // Grant absence dialog state
   showGrantDialog = signal(false);
   grantRequest = signal<GrantAbsenceRequest | null>(null);
+
+  // Reject dialog
+  showRejectDialog = signal(false);
+  selectedAbsenceId = signal<number | null>(null);
+  rejectReason = signal('');
 
   // Computed signals for form fields
   grantAbsenceDate = computed(() => {
@@ -89,11 +103,48 @@ export class HrAbsencesComponent implements OnInit {
   durationTypes: Array<{ label: string; value: AbsenceDurationType }> = [];
   halfDayOptions: Array<{ label: string; value: boolean }> = [];
 
+  // Filter options with 'All' option
+  absenceTypeFilterOptions = computed(() => [
+    { label: this.translate.instant('common.all'), value: '' },
+    ...this.absenceTypes
+  ]);
+  durationTypeFilterOptions = computed(() => [
+    { label: this.translate.instant('common.all'), value: '' },
+    ...this.durationTypes
+  ]);
+
   readonly routePrefix = signal('/app');
 
   companyStats = signal({
     totalAbsences: 0,
     totalDays: 0
+  });
+
+  // Filtered pending absences
+  filteredPendingAbsences = computed(() => {
+    let filtered = this.pendingAbsences();
+
+    // Filter by employee name
+    const nameFilter = this.pendingEmployeeFilter().toLowerCase().trim();
+    if (nameFilter) {
+      filtered = filtered.filter(a => 
+        a.employeeName?.toLowerCase().includes(nameFilter)
+      );
+    }
+
+    // Filter by absence type
+    const typeFilter = this.pendingTypeFilter();
+    if (typeFilter) {
+      filtered = filtered.filter(a => a.absenceType === typeFilter);
+    }
+
+    // Filter by duration type
+    const durationFilter = this.pendingDurationFilter();
+    if (durationFilter) {
+      filtered = filtered.filter(a => a.durationType === durationFilter);
+    }
+
+    return filtered;
   });
 
   ngOnInit() {
@@ -130,6 +181,7 @@ export class HrAbsencesComponent implements OnInit {
 
     // Now load employees (options are ready for immediate dialog use)
     this.loadEmployeesAbsences();
+    this.loadPendingAbsences();
   }
 
   openGrantDialog(employeeId: number, employeeName: string) {
@@ -139,7 +191,9 @@ export class HrAbsencesComponent implements OnInit {
       absenceDate: '',
       durationType: 'FullDay',
       absenceType: 'JUSTIFIED',
-      reason: ''
+      reason: '',
+      startTime: '08:00',
+      endTime: '08:00'
     });
     this.showGrantDialog.set(true);
     console.debug('[HR] openGrantDialog', { employeeId, employeeName, grantRequest: this.grantRequest() });
@@ -168,6 +222,7 @@ export class HrAbsencesComponent implements OnInit {
       next: () => {
         this.showGrantDialog.set(false);
         this.loadEmployeesAbsences();
+        this.loadPendingAbsences();
       },
       error: (err) => {
         console.error('Failed to grant absence', err);
@@ -206,6 +261,14 @@ export class HrAbsencesComponent implements OnInit {
     console.debug('[HR] updateGrantField', field, value, this.grantRequest());
   }
 
+  get hoursList(): string[] {
+    return this.absenceService.hoursList;
+  }
+
+  get hoursOptions(): Array<{ label: string; value: string }> {
+    return this.hoursList.map(h => ({ label: h, value: h }));
+  }
+
   loadEmployeesAbsences() {
     this.isLoading.set(true);
 
@@ -237,7 +300,8 @@ export class HrAbsencesComponent implements OnInit {
                 updated[index] = {
                   ...updated[index],
                   totalAbsences: response.stats?.totalAbsences ?? 0,
-                  totalDays: response.stats?.totalDays ?? 0
+                  totalDays: response.stats?.totalDays ?? 0,
+                  absences: response.absences ?? [] // Store absences
                 };
                 return updated;
               });
@@ -255,8 +319,22 @@ export class HrAbsencesComponent implements OnInit {
     });
   }
 
-  viewEmployeeAbsences(employeeId: string) {
-    this.router.navigate([`${this.routePrefix()}/absences/employee`, employeeId]);
+  viewEmployeeAbsences(employeeId: number | string) {
+    this.router.navigate([`${this.routePrefix()}/absences/employee`, String(employeeId)]);
+  }
+
+  approveEmployee(employeeId: number) {
+    console.debug('[HR] approveEmployee', employeeId);
+    // TODO: integrate with backend approval endpoint once available.
+    // For now open the employee absences page for review and log action.
+    this.viewEmployeeAbsences(String(employeeId));
+  }
+
+  rejectEmployee(employeeId: number) {
+    console.debug('[HR] rejectEmployee', employeeId);
+    // TODO: integrate with backend rejection endpoint once available.
+    // For now open the employee absences page for review and log action.
+    this.viewEmployeeAbsences(String(employeeId));
   }
 
   filteredEmployees() {
@@ -271,5 +349,90 @@ export class HrAbsencesComponent implements OnInit {
 
   getEmployeeInitials(name: string): string {
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  /**
+   * Get translated absence type label
+   */
+  getAbsenceTypeLabel(type: AbsenceType): string {
+    return `absences.types.${type.toLowerCase()}`;
+  }
+
+  /**
+   * Format time string from HH:mm:ss to HH:mm
+   */
+  formatTime(time: string | undefined): string {
+    if (!time) return '';
+    // Remove seconds if present (HH:mm:ss -> HH:mm)
+    return time.substring(0, 5);
+  }
+
+
+
+  /**
+   * Load all pending absences for the company (HR view)
+   */
+  loadPendingAbsences() {
+    const companyId = this.contextService.companyId();
+    if (!companyId) return;
+
+    this.absenceService.getAbsences({ status: 'Submitted', limit: 200 }).subscribe({
+      next: (response) => {
+        this.pendingAbsences.set(response.absences);
+      },
+      error: (err) => {
+        console.error('Failed to load pending absences', err);
+      }
+    });
+  }
+
+  /**
+   * Approve a pending absence
+   */
+  approveAbsence(absenceId: number) {
+    this.absenceService.approveAbsence(absenceId).subscribe({
+      next: () => {
+        this.loadPendingAbsences();
+        this.loadEmployeesAbsences();
+      },
+      error: (err) => {
+        console.error('Failed to approve absence', err);
+      }
+    });
+  }
+
+  /**
+   * Reject a pending absence
+   */
+  rejectAbsence(absenceId: number) {
+    this.selectedAbsenceId.set(absenceId);
+    this.rejectReason.set('');
+    this.showRejectDialog.set(true);
+  }
+
+  confirmRejection() {
+    const absenceId = this.selectedAbsenceId();
+    const reason = this.rejectReason();
+
+    if (!absenceId) return;
+
+    this.absenceService.rejectAbsence(absenceId, reason).subscribe({
+      next: () => {
+        this.showRejectDialog.set(false);
+        this.selectedAbsenceId.set(null);
+        this.rejectReason.set('');
+        this.loadPendingAbsences();
+        this.loadEmployeesAbsences();
+      },
+      error: (err) => {
+        console.error('Failed to reject absence', err);
+      }
+    });
+  }
+
+  cancelRejection() {
+    this.showRejectDialog.set(false);
+    this.selectedAbsenceId.set(null);
+    this.rejectReason.set('');
   }
 }

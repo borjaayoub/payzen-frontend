@@ -1009,15 +1009,19 @@
     "manageEmployeeAbsences": "Gérez les demandes d'absence de cet employé",
     "searchEmployee": "Rechercher un employé...",
     "viewDetails": "Voir Détails",
+    "viewEmployee": "Voir Employé",
     "detailTitle": "Détails de l'Absence",
     "createdBy": "Créé Par",
     "createdAt": "Créé Le",
     "days": "jours",
     "morning": "Matin",
     "afternoon": "Après-midi",
+    "pending": "En Attente",
+    "pendingRequests": "Demandes en Attente",
     "noAbsences": "Aucune absence enregistrée",
     "noEmployees": "Aucun employé trouvé",
     "noTeamMembers": "Aucun membre d'équipe trouvé",
+    "details": "Détails des Absences",
     "submit": "Soumettre",
     "approve": "Approuver",
     "reject": "Rejeter",
@@ -1033,6 +1037,14 @@
       "approved": "Approuvées",
       "rejected": "Rejetées",
       "totalDays": "Total Jours"
+    },
+    "status": {
+      "pending": "En Attente",
+      "submitted": "Soumise",
+      "approved": "Approuvée",
+      "rejected": "Rejetée",
+      "cancelled": "Annulée",
+      "expired": "Expirée"
     },
     "table": {
       "employee": "Employé",
@@ -1081,6 +1093,19 @@
       "endDate": "Date de Fin",
       "reason": "Motif (optionnel)",
       "reasonPlaceholder": "Indiquez le motif de votre demande d'absence..."
+    },
+    "rejectDialog": {
+      "title": "Rejeter la demande d'absence",
+      "description": "Vous êtes sur le point de rejeter cette demande d'absence. Veuillez fournir un motif.",
+      "reason": "Motif du rejet",
+      "reasonPlaceholder": "Indiquez le motif du rejet...",
+      "hint": "Ce motif sera communiqué à l'employé.",
+      "confirm": "Rejeter"
+    },
+    "filters": {
+      "searchEmployee": "Rechercher un employé...",
+      "allTypes": "Tous les types",
+      "allDurations": "Toutes les durées"
     }
   }
 }

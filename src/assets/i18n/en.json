@@ -1074,6 +1074,19 @@
       "endDate": "End Date",
       "reason": "Reason (optional)",
       "reasonPlaceholder": "Provide a reason for your absence request..."
+    },
+    "rejectDialog": {
+      "title": "Reject Absence Request",
+      "description": "You are about to reject this absence request. Please provide a reason.",
+      "reason": "Rejection Reason",
+      "reasonPlaceholder": "Provide a reason for rejection...",
+      "hint": "This reason will be communicated to the employee.",
+      "confirm": "Reject"
+    },
+    "filters": {
+      "searchEmployee": "Search employee...",
+      "allTypes": "All types",
+      "allDurations": "All durations"
     }
   }
 }

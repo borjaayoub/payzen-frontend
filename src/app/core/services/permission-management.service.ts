@@ -327,6 +327,21 @@ export class PermissionManagementService {
     );
   }
 
+  /**
+   * Assign multiple roles to an employee (by employee ID).
+   */
+  assignRolesToEmployee(employeeId: number, roleIds: number[]): Observable<void> {
+    if (!employeeId || !Array.isArray(roleIds)) return throwError(() => new Error('Invalid parameters'));
+    const url = `${this.apiUrl}/users-roles/employee/${employeeId}/assign`;
+    return this.http.post<any>(url, roleIds).pipe(
+      map(() => void 0),
+      catchError((err: any) => {
+        if (err?.status === 409) return of(void 0);
+        return throwError(() => err);
+      })
+    );
+  }
+
   // ==================== PRIVATE MAPPERS ====================
 
   private mapPermissionDtoToEntity(dto: PermissionReadDto): PermissionEntity {

@@ -37,6 +37,8 @@ import { Absence, AbsenceType, AbsenceDurationType, CreateAbsenceRequest } from 
   templateUrl: './employee-absences.html',
   styleUrl: './employee-absences.css'
 })
+
+
 export class EmployeeAbsencesComponent implements OnInit {
   private absenceService = inject(AbsenceService);
   private authService = inject(AuthService);
@@ -241,4 +243,27 @@ export class EmployeeAbsencesComponent implements OnInit {
 
     this.newAbsence.update(current => ({ ...current, [field]: normalized }));
   }
+
+  get hoursList(): string[] {
+    return this.absenceService.hoursList;
+  }
+
+  get isRH(): boolean {
+    return this.authService.isRH();
+  }
+
+  approveAbsence(absenceId: number) {
+    console.debug('[EmployeeAbsences] approveAbsence', absenceId);
+    // TODO: integrate backend approval API; currently simulate by closing dialog and reloading list
+    this.showDetailDialog.set(false);
+    this.loadAbsences();
+  }
+
+  rejectAbsence(absenceId: number) {
+    console.debug('[EmployeeAbsences] rejectAbsence', absenceId);
+    // TODO: integrate backend rejection API; currently simulate by closing dialog and reloading list
+    this.showDetailDialog.set(false);
+    this.loadAbsences();
+  }
 }
+

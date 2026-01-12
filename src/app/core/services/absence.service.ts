@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, WritableSignal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -10,7 +10,8 @@ import {
   CreateAbsenceRequest,
   UpdateAbsenceRequest,
   AbsenceStats,
-  AbsenceDurationType
+  AbsenceDurationType,
+  AbsenceStatus
 } from '@app/core/models/absence.model';
 import { CompanyContextService } from './companyContext.service';
 
@@ -31,6 +32,8 @@ interface AbsenceReadDto {
   endTime: string | null;
   absenceType: string;
   reason: string | null;
+  status: number; // 1=Submitted, 6=Pending, etc.
+  statusDescription: string;
   createdAt: string;
 }
 
@@ -40,6 +43,19 @@ interface AbsenceReadDto {
 export class AbsenceService {
   private readonly ABSENCE_URL = `${environment.apiUrl}/absences`;
   private contextService = inject(CompanyContextService);
+
+  public readonly hoursList: string[] = Array.from({ length: 24 }, (_, i) =>
+    `${i.toString().padStart(2, '0')}:00`
+  );
+
+  public newAbsence: WritableSignal<Partial<CreateAbsenceRequest>> = signal({});
+
+  updateField(field: string, value: string) {
+    this.newAbsence.update(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -53,6 +69,44 @@ export class AbsenceService {
       3: 'Hourly'
     };
 
+    // Map status number to string based on StatusDescription or number
+    let status: AbsenceStatus | undefined;
+    if (dto.status) {
+      // Map by status number directly
+      switch (dto.status) {
+        case 1:
+          status = 'Submitted';
+          break;
+        case 2:
+          status = 'Approved';
+          break;
+        case 3:
+          status = 'Rejected';
+          break;
+        case 4:
+          status = 'Cancelled';
+          break;
+        case 5:
+          status = 'Expired';
+          break;
+      }
+    }
+    // Fallback to StatusDescription if numeric mapping fails
+    if (!status && dto.statusDescription) {
+      const statusDesc = dto.statusDescription.toLowerCase();
+      if (statusDesc === 'submitted') {
+        status = 'Submitted';
+      } else if (statusDesc === 'approved') {
+        status = 'Approved';
+      } else if (statusDesc === 'rejected') {
+        status = 'Rejected';
+      } else if (statusDesc === 'cancelled') {
+        status = 'Cancelled';
+      } else if (statusDesc === 'expired') {
+        status = 'Expired';
+      }
+    }
+
     return {
       id: dto.id,
       employeeId: dto.employeeId,
@@ -64,6 +118,8 @@ export class AbsenceService {
       endTime: dto.endTime ?? undefined,
       absenceType: dto.absenceType as any,
       reason: dto.reason ?? undefined,
+      status,
+      statusDescription: dto.statusDescription,
       createdAt: dto.createdAt,
       createdBy: 0 // Not provided by backend
     };
@@ -84,26 +140,23 @@ export class AbsenceService {
       if (filters.employeeId) params = params.set('employeeId', filters.employeeId.toString());
       if (filters.absenceType) params = params.set('absenceType', filters.absenceType);
       if (filters.durationType) params = params.set('durationType', filters.durationType);
+      if (filters.status) params = params.set('status', filters.status);
       if (filters.startDate) params = params.set('startDate', filters.startDate);
       if (filters.endDate) params = params.set('endDate', filters.endDate);
       if (filters.page) params = params.set('page', filters.page.toString());
       if (filters.limit) params = params.set('limit', filters.limit.toString());
     }
 
-    return this.http.get<AbsencesResponse>(this.ABSENCE_URL, { params });
-  }
-
-  /**
-   * Get absences for a specific employee
-   */
-  getEmployeeAbsences(employeeId: string): Observable<AbsencesResponse> {
-    return this.http.get<AbsenceReadDto[]>(`${this.ABSENCE_URL}/employee/${employeeId}`).pipe(
+    return this.http.get<AbsenceReadDto[]>(this.ABSENCE_URL, { params }).pipe(
       map(dtos => {
         const absences = dtos.map(dto => this.mapDtoToAbsence(dto));
         
-        // Calculate stats from absences
-        const totalAbsences = absences.length;
-        const totalDays = absences.reduce((acc, a) => {
+        // Filter only approved absences for stats calculation
+        const approvedAbsences = absences.filter(a => a.status === 'Approved');
+        
+        // Calculate stats from approved absences only
+        const totalAbsences = approvedAbsences.length;
+        const totalDays = approvedAbsences.reduce((acc, a) => {
           if (a.durationType === 'FullDay') return acc + 1;
           if (a.durationType === 'HalfDay') return acc + 0.5;
           if (a.durationType === 'Hourly' && a.startTime && a.endTime) {
@@ -121,15 +174,23 @@ export class AbsenceService {
 
         return {
           absences,
-          total: totalAbsences,
+          total: absences.length,
           stats: { totalAbsences, totalDays }
         };
       }),
       catchError(err => {
-        console.error('Failed to fetch employee absences:', err);
+        console.error('Failed to fetch absences:', err);
         return throwError(() => err);
       })
     );
+  }
+
+  /**
+   * Get absences for a specific employee
+   */
+  getEmployeeAbsences(employeeId: string): Observable<AbsencesResponse> {
+    // Use the existing getAbsences method with employeeId filter
+    return this.getAbsences({ employeeId: Number(employeeId) });
   }
 
   /**
@@ -242,6 +303,22 @@ export class AbsenceService {
   }
 
   /**
+   * Approve an absence request (HR action)
+   */
+  approveAbsence(id: number): Observable<void> {
+    return this.http.post<void>(`${this.ABSENCE_URL}/${id}/approve`, {});
+  }
+
+  /**
+   * Reject an absence request (HR action)
+   */
+  rejectAbsence(id: number, reason?: string): Observable<void> {
+    return this.http.post<void>(`${this.ABSENCE_URL}/${id}/reject`, { 
+      Reason: reason || ''
+    });
+  }
+
+  /**
    * Get absence statistics
    */
   getAbsenceStats(filters?: AbsenceFilters): Observable<AbsenceStats> {
@@ -267,9 +344,11 @@ export class AbsenceService {
           return this.http.get<AbsencesResponse>(this.ABSENCE_URL, { params: fallbackParams }).pipe(
             map(resp => {
               const absences = resp.absences || [];
-              const totalAbsences = absences.length;
+              // Filter only approved absences for stats
+              const approvedAbsences = absences.filter(a => a.status === 'Approved');
+              const totalAbsences = approvedAbsences.length;
               // totalDays: sum full days + 0.5 for half days, else compute from start/end if hourly
-              const totalDays = absences.reduce((acc, a) => {
+              const totalDays = approvedAbsences.reduce((acc, a) => {
                 if (a.durationType === 'FullDay') return acc + 1;
                 if (a.durationType === 'HalfDay') return acc + 0.5;
                 if (a.durationType === 'Hourly') return acc + 0; // hourly counted as 0 days (or compute hours if needed)

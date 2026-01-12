@@ -155,10 +155,18 @@ export class UserService {
 
   /**
    * Get roles assigned to a specific user
-   * Calls GET api/users-rolesuser/{userId}
+   * Calls GET api/users-roles/user/{userId}
    */
   getUserRoles(userId: number): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/users-roles/user/${userId}`);
+  }
+
+  /**
+   * Get roles assigned to an employee (by employee ID)
+   * Calls GET api/users-roles/employee/{employeeId}
+   */
+  getEmployeeRoles(employeeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/users-roles/employee/${employeeId}`);
   }
 
   private mapDtoToUser(dto: any): User {

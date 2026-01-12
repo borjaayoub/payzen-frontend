@@ -1031,6 +1031,19 @@
       "endDate": "تاريخ الانتهاء",
       "reason": "السبب (اختياري)",
       "reasonPlaceholder": "قدم سببا لطلب الغياب الخاص بك..."
+    },
+    "rejectDialog": {
+      "title": "رفض طلب الغياب",
+      "description": "أنت على وشك رفض طلب الغياب هذا. يرجى تقديم سبب.",
+      "reason": "سبب الرفض",
+      "reasonPlaceholder": "قدم سببا للرفض...",
+      "hint": "سيتم إبلاغ هذا السبب للموظف.",
+      "confirm": "رفض"
+    },
+    "filters": {
+      "searchEmployee": "البحث عن موظف...",
+      "allTypes": "جميع الأنواع",
+      "allDurations": "جميع المدد"
     }
   }
 }
