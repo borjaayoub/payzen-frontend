@@ -14,6 +14,7 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { AbsenceService } from '@app/core/services/absence.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { EmployeeService } from '@app/core/services/employee.service';
 import { Absence, AbsenceType, AbsenceDurationType, CreateAbsenceRequest } from '@app/core/models/absence.model';
 
 @Component({
@@ -43,6 +44,7 @@ export class EmployeeAbsencesComponent implements OnInit {
   private absenceService = inject(AbsenceService);
   private authService = inject(AuthService);
   private translate = inject(TranslateService);
+  private employeeService = inject(EmployeeService);
 
   absences = signal<Absence[]>([]);
   isLoading = signal(false);
@@ -114,22 +116,27 @@ export class EmployeeAbsencesComponent implements OnInit {
 
   loadAbsences() {
     this.isLoading.set(true);
-    const user = this.authService.currentUser();
-    const employeeId = user?.employee_id || user?.id;
-
-    if (!employeeId) {
-      this.isLoading.set(false);
-      return;
-    }
-
-    this.absenceService.getEmployeeAbsences(String(employeeId)).subscribe({
-      next: (response) => {
-        this.absences.set(response?.absences ?? []);
-        this.stats.set(response?.stats ?? { totalAbsences: 0, totalDays: 0 });
-        this.isLoading.set(false);
+    
+    // Use getCurrentEmployee to get the real employeeId from Employees table
+    this.employeeService.getCurrentEmployee().subscribe({
+      next: (employee) => {
+        const employeeId = employee.id;
+        console.log('[EmployeeAbsences] Loading absences for employeeId:', employeeId);
+        
+        this.absenceService.getEmployeeAbsences(String(employeeId)).subscribe({
+          next: (response) => {
+            this.absences.set(response?.absences ?? []);
+            this.stats.set(response?.stats ?? { totalAbsences: 0, totalDays: 0 });
+            this.isLoading.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load absences', err);
+            this.isLoading.set(false);
+          }
+        });
       },
       error: (err) => {
-        console.error('Failed to load absences', err);
+        console.error('Failed to get current employee', err);
         this.isLoading.set(false);
       }
     });
@@ -137,36 +144,140 @@ export class EmployeeAbsencesComponent implements OnInit {
 
   openCreateDialog() {
     const user = this.authService.currentUser();
-    const employeeId = user?.employee_id || user?.id;
+    const userId = user?.id;
     
+    if (!userId) {
+      console.error('[EmployeeAbsences] No userId found');
+      alert('Erreur: Impossible de déterminer votre identité.');
+      return;
+    }
+    
+    console.log('[EmployeeAbsences] Getting current employee for userId:', userId);
+    
+    // Use the new getCurrentEmployee endpoint - much more efficient!
+    this.employeeService.getCurrentEmployee().subscribe({
+      next: (employee) => {
+        const employeeId = Number(employee.id);
+        console.log('[EmployeeAbsences] Current employee:', {
+          employeeId: employeeId,
+          name: `${employee.firstName} ${employee.lastName}`
+        });
+        this.initializeNewAbsence(employeeId);
+        this.showCreateDialog.set(true);
+      },
+      error: (err) => {
+        console.error('[EmployeeAbsences] Failed to get current employee:', err);
+        if (err.status === 404) {
+          alert(`Erreur: Aucun employé trouvé pour votre compte.\n\nVeuillez contacter l'administrateur pour créer votre fiche employé (lier UserId=${userId} à un employé).`);
+        } else {
+          alert('Erreur lors de la récupération de vos informations employé.');
+        }
+      }
+    });
+  }
+  
+  private initializeNewAbsence(employeeId: number) {
     this.newAbsence.set({
-      employeeId: Number(employeeId),
+      employeeId: employeeId,
       absenceDate: '',
       durationType: 'FullDay',
       absenceType: 'JUSTIFIED',
-      reason: ''
+      reason: '',
+      startTime: '08:00',
+      endTime: '17:00'
     });
-    this.showCreateDialog.set(true);
   }
 
   openDetailDialog(absence: Absence) {
-    this.selectedAbsence.set(absence);
-    this.showDetailDialog.set(true);
+    // Fetch full details to ensure all fields (createdBy, decisionBy, etc.) are populated
+    this.absenceService.getAbsenceById(absence.id).subscribe({
+      next: (fullAbsence) => {
+        this.selectedAbsence.set(fullAbsence);
+        this.showDetailDialog.set(true);
+      },
+      error: (err) => {
+        console.error('Failed to load absence details', err);
+        // Fallback to list data if detail fetch fails
+        this.selectedAbsence.set(absence);
+        this.showDetailDialog.set(true);
+      }
+    });
+  }
+
+  cancelAbsence(absenceId: number) {
+    if (!confirm(this.translate.instant('absences.confirmCancel'))) {
+      return;
+    }
+
+    this.absenceService.cancelAbsence(absenceId).subscribe({
+      next: () => {
+        console.log('[EmployeeAbsences] Absence cancelled successfully');
+        this.loadAbsences();
+      },
+      error: (err) => {
+        console.error('[EmployeeAbsences] Failed to cancel absence:', err);
+        const errorMessage = err?.error?.Message || err?.error?.message || 'Erreur lors de l\'annulation de l\'absence';
+        alert(`Erreur: ${errorMessage}`);
+      }
+    });
+  }
+
+  canCancelAbsence(absence: Absence): boolean {
+    // Peut annuler si statut est Submitted ou Approved
+    return absence.status === 'Submitted' || absence.status === 'Approved';
+  }
+
+  getStatusLabel(status?: string): string {
+    if (!status) return 'absences.status.unknown';
+    const statusMap: Record<string, string> = {
+      'Submitted': 'absences.status.submitted',
+      'Approved': 'absences.status.approved',
+      'Rejected': 'absences.status.rejected',
+      'Cancelled': 'absences.status.cancelled',
+      'Expired': 'absences.status.expired'
+    };
+    return statusMap[status] || status;
+  }
+
+  getStatusSeverity(status?: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    if (!status) return 'secondary';
+    const severityMap: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
+      'Submitted': 'info',
+      'Approved': 'success',
+      'Rejected': 'danger',
+      'Cancelled': 'secondary',
+      'Expired': 'warn'
+    };
+    return severityMap[status] || 'secondary';
   }
 
   submitAbsenceRequest() {
     const request = this.newAbsence();
+    
+    // Validate employee ID
+    if (!request.employeeId || request.employeeId === 0) {
+      console.error('[EmployeeAbsences] Invalid employeeId:', request.employeeId);
+      alert('Erreur: Identifiant d\'employé invalide.');
+      return;
+    }
+    
     if (!request.absenceDate) {
+      alert('Veuillez sélectionner une date d\'absence.');
       return;
     }
 
     // Validate based on duration type
     if (request.durationType === 'HalfDay' && request.isMorning === undefined) {
+      alert('Veuillez sélectionner matin ou après-midi.');
       return;
     }
     if (request.durationType === 'Hourly' && (!request.startTime || !request.endTime)) {
+      alert('Veuillez sélectionner l\'heure de début et de fin.');
       return;
     }
+
+    console.log('[EmployeeAbsences] Submitting absence request:', request);
+    console.log('[EmployeeAbsences] EmployeeId being sent to backend:', request.employeeId);
 
     this.absenceService.createAbsence(request).subscribe({
       next: () => {
@@ -175,6 +286,26 @@ export class EmployeeAbsencesComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to create absence request', err);
+        console.error('Error response:', err?.error);
+        console.error('Request that was sent:', request);
+        
+        if (err?.error?.errors) {
+          console.error('Validation errors:', JSON.stringify(err.error.errors, null, 2));
+          // Log each validation error for clarity
+          Object.keys(err.error.errors).forEach(key => {
+            console.error(`Field '${key}':`, err.error.errors[key]);
+          });
+        }
+        
+        // Show user-friendly error message
+        let errorMessage = err?.error?.Message || err?.error?.message || 'Une erreur est survenue lors de la création de l\'absence';
+        
+        // Special handling for employee not found error
+        if (err?.status === 404 && errorMessage.includes('Employé non trouvé')) {
+          errorMessage = `Employé non trouvé (ID: ${request.employeeId}). Votre compte utilisateur n'est pas lié à un employé valide dans le système. Veuillez contacter l'administrateur pour créer votre fiche employé.`;
+        }
+        
+        alert(`Erreur: ${errorMessage}`);
       }
     });
   }

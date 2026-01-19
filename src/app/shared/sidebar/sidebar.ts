@@ -234,6 +234,13 @@ export class Sidebar {
       requiredRoles: [UserRole.ADMIN, UserRole.RH],
       modes: ['standard']
     },
+    {
+      label: 'nav.overtime',
+      icon: 'pi pi-clock',
+      routerLink: '/overtime',
+      requiredRoles: [UserRole.ADMIN, UserRole.RH, UserRole.MANAGER, UserRole.EMPLOYEE],
+      modes: ['standard']
+    },
     { 
       label: 'nav.leave', 
       icon: 'pi pi-calendar', 

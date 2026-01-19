@@ -1,0 +1,457 @@
+<div class="holidays-container">
+  <p-toast />
+  <p-confirmDialog />
+
+  <!-- Header -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'holidays.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'holidays.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <p-button
+        [label]="'holidays.addHoliday' | translate"
+        icon="pi pi-plus"
+        (onClick)="openCreateDialog()"
+        styleClass="p-button-primary"
+      />
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <!-- Year Filter -->
+      <div class="filter-field">
+        <label for="yearFilter">{{ 'holidays.filters.year' | translate }}</label>
+        <p-select
+          id="yearFilter"
+          [(ngModel)]="selectedYear"
+          [options]="yearOptions()"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="applyFilters()"
+          styleClass="w-full"
+        />
+      </div>
+
+      <!-- Scope Filter -->
+      <div class="filter-field">
+        <label for="scopeFilter">{{ 'holidays.filters.scope' | translate }}</label>
+        <p-select
+          id="scopeFilter"
+          [(ngModel)]="selectedScope"
+          [options]="scopeOptions()"
+          optionValue="value"
+          (onChange)="applyFilters()"
+          styleClass="w-full"
+        >
+          <ng-template let-option pTemplate="item">
+            {{ option.label | translate }}
+          </ng-template>
+          <ng-template let-option pTemplate="selectedItem">
+            {{ option.label | translate }}
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="filter-field">
+        <label for="typeFilter">{{ 'holidays.filters.type' | translate }}</label>
+        <p-select
+          id="typeFilter"
+          [(ngModel)]="selectedType"
+          [options]="typeOptions()"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="applyFilters()"
+          styleClass="w-full"
+        />
+      </div>
+
+      <!-- Active Filter -->
+      <div class="filter-field">
+        <label for="activeFilter">{{ 'holidays.filters.status' | translate }}</label>
+        <p-select
+          id="activeFilter"
+          [(ngModel)]="selectedActive"
+          [options]="activeOptions()"
+          optionValue="value"
+          (onChange)="applyFilters()"
+          styleClass="w-full"
+        >
+          <ng-template let-option pTemplate="item">
+            {{ option.label | translate }}
+          </ng-template>
+          <ng-template let-option pTemplate="selectedItem">
+            {{ option.label | translate }}
+          </ng-template>
+        </p-select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Holidays Table -->
+  <div class="table-section">
+    <p-table
+      [value]="holidays()"
+      [loading]="isLoading()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{{ 'common.table.showing' | translate }}"
+      styleClass="p-datatable-striped"
+      [tableStyle]="{'min-width': '80rem'}"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="holidayDate">
+            {{ 'holidays.table.date' | translate }}
+            <p-sortIcon field="holidayDate" />
+          </th>
+          <th pSortableColumn="nameFr">
+            {{ 'holidays.table.nameFr' | translate }}
+            <p-sortIcon field="nameFr" />
+          </th>
+          <th>{{ 'holidays.table.nameAr' | translate }}</th>
+          <th>{{ 'holidays.table.nameEn' | translate }}</th>
+          <th>{{ 'holidays.table.type' | translate }}</th>
+          <th pSortableColumn="scope">
+            {{ 'holidays.table.scope' | translate }}
+            <p-sortIcon field="scope" />
+          </th>
+          <th>{{ 'holidays.table.paid' | translate }}</th>
+          <th>{{ 'holidays.table.status' | translate }}</th>
+          <th>{{ 'common.actions' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-holiday>
+        <tr>
+          <td>{{ holiday.holidayDate | date: 'dd/MM/yyyy' }}</td>
+          <td><strong>{{ holiday.nameFr }}</strong></td>
+          <td>{{ holiday.nameAr }}</td>
+          <td>{{ holiday.nameEn }}</td>
+          <td>{{ holiday.holidayType }}</td>
+          <td>
+            <p-tag
+              [value]="holiday.scopeDescription"
+              [severity]="getScopeSeverity(holiday.scope)"
+            />
+          </td>
+          <td>
+            <i [class]="holiday.isPaid ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"></i>
+          </td>
+          <td>
+            <p-tag
+              [value]="(holiday.isActive ? 'holidays.status.active' : 'holidays.status.inactive') | translate"
+              [severity]="getActiveSeverity(holiday.isActive)"
+            />
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [text]="true"
+                severity="info"
+                (onClick)="openEditDialog(holiday)"
+                [pTooltip]="'common.edit' | translate"
+              />
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                (onClick)="deleteHoliday(holiday)"
+                [pTooltip]="'common.delete' | translate"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            {{ 'holidays.noData' | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Holiday Dialog -->
+  <p-dialog 
+    [visible]="showDialog" 
+    (visibleChange)="showDialog = $event"
+    [modal]="true"
+    [closable]="true"
+    [dismissableMask]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="app-dialog">
+    
+    <!-- Custom Header with Icon -->
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <div class="shrink-0 size-10 rounded-lg flex items-center justify-center"
+             [ngClass]="isEditMode() ? 'bg-blue-100' : 'bg-green-100'">
+          <i [class]="'text-lg ' + (isEditMode() ? 'pi pi-pencil text-blue-600' : 'pi pi-plus text-green-600')"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 leading-tight">
+            {{ (isEditMode() ? 'holidays.editHoliday' : 'holidays.addHoliday') | translate }}
+          </h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            {{ (isEditMode() ? 'holidays.editDescription' : 'holidays.createDescription') | translate }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+    
+    <!-- Form Content -->
+    <form [formGroup]="holidayForm" class="holiday-form">
+      <!-- Name Fr -->
+      <div class="form-field">
+        <label for="nameFr" class="form-label required">
+          {{ 'holidays.form.nameFr' | translate }}
+        </label>
+        <input
+          id="nameFr"
+          type="text"
+          pInputText
+          formControlName="nameFr"
+          class="w-full"
+          [placeholder]="'holidays.form.nameFrPlaceholder' | translate"
+        />
+        <small
+          *ngIf="holidayForm.get('nameFr')?.invalid && holidayForm.get('nameFr')?.touched"
+          class="p-error"
+        >
+          {{ 'common.validation.required' | translate }}
+        </small>
+      </div>
+
+      <!-- Name Ar -->
+      <div class="form-field">
+        <label for="nameAr" class="form-label required">
+          {{ 'holidays.form.nameAr' | translate }}
+        </label>
+        <input
+          id="nameAr"
+          type="text"
+          pInputText
+          formControlName="nameAr"
+          class="w-full"
+          [placeholder]="'holidays.form.nameArPlaceholder' | translate"
+        />
+        <small
+          *ngIf="holidayForm.get('nameAr')?.invalid && holidayForm.get('nameAr')?.touched"
+          class="p-error"
+        >
+          {{ 'common.validation.required' | translate }}
+        </small>
+      </div>
+
+      <!-- Name En -->
+      <div class="form-field">
+        <label for="nameEn" class="form-label required">
+          {{ 'holidays.form.nameEn' | translate }}
+        </label>
+        <input
+          id="nameEn"
+          type="text"
+          pInputText
+          formControlName="nameEn"
+          class="w-full"
+          [placeholder]="'holidays.form.nameEnPlaceholder' | translate"
+        />
+        <small
+          *ngIf="holidayForm.get('nameEn')?.invalid && holidayForm.get('nameEn')?.touched"
+          class="p-error"
+        >
+          {{ 'common.validation.required' | translate }}
+        </small>
+      </div>
+
+      <!-- Date -->
+      <div class="form-field">
+        <label for="holidayDate" class="form-label required">
+          {{ 'holidays.form.date' | translate }}
+        </label>
+        <p-datepicker
+          id="holidayDate"
+          formControlName="holidayDate"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          [placeholder]="'holidays.form.selectDate' | translate"
+          styleClass="w-full"
+        />
+        <small
+          *ngIf="holidayForm.get('holidayDate')?.invalid && holidayForm.get('holidayDate')?.touched"
+          class="p-error"
+        >
+          {{ 'common.validation.required' | translate }}
+        </small>
+      </div>
+
+      <!-- Type -->
+      <div class="form-field">
+        <label for="holidayType" class="form-label required">
+          {{ 'holidays.form.type' | translate }}
+        </label>
+        <input
+          id="holidayType"
+          type="text"
+          pInputText
+          formControlName="holidayType"
+          class="w-full"
+          [placeholder]="'holidays.form.typePlaceholder' | translate"
+        />
+        <small
+          *ngIf="holidayForm.get('holidayType')?.invalid && holidayForm.get('holidayType')?.touched"
+          class="p-error"
+        >
+          {{ 'common.validation.required' | translate }}
+        </small>
+      </div>
+
+      <!-- Description -->
+      <div class="form-field">
+        <label for="description" class="form-label">
+          {{ 'holidays.form.description' | translate }}
+        </label>
+        <textarea
+          id="description"
+          pTextarea
+          formControlName="description"
+          [rows]="3"
+          class="w-full"
+          [placeholder]="'holidays.form.descriptionPlaceholder' | translate"
+        ></textarea>
+      </div>
+
+      <!-- Checkboxes Grid -->
+      <div class="checkboxes-grid">
+        <div class="checkbox-field">
+          <p-checkbox
+            formControlName="isMandatory"
+            [binary]="true"
+            inputId="isMandatory"
+          />
+          <label for="isMandatory" class="checkbox-label">
+            {{ 'holidays.form.mandatory' | translate }}
+          </label>
+        </div>
+
+        <div class="checkbox-field">
+          <p-checkbox
+            formControlName="isPaid"
+            [binary]="true"
+            inputId="isPaid"
+          />
+          <label for="isPaid" class="checkbox-label">
+            {{ 'holidays.form.paid' | translate }}
+          </label>
+        </div>
+
+        <div class="checkbox-field">
+          <p-checkbox
+            formControlName="affectPayroll"
+            [binary]="true"
+            inputId="affectPayroll"
+          />
+          <label for="affectPayroll" class="checkbox-label">
+            {{ 'holidays.form.affectPayroll' | translate }}
+          </label>
+        </div>
+
+        <div class="checkbox-field">
+          <p-checkbox
+            formControlName="affectAttendance"
+            [binary]="true"
+            inputId="affectAttendance"
+          />
+          <label for="affectAttendance" class="checkbox-label">
+            {{ 'holidays.form.affectAttendance' | translate }}
+          </label>
+        </div>
+
+        <div class="checkbox-field">
+          <p-checkbox
+            formControlName="isActive"
+            [binary]="true"
+            inputId="isActive"
+          />
+          <label for="isActive" class="checkbox-label">
+            {{ 'holidays.form.active' | translate }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Recurrence -->
+      <div class="form-field">
+        <label for="recurrence" class="form-label required">
+          {{ 'holidays.form.recurrence' | translate }}
+        </label>
+        <p-select
+          id="recurrence"
+          formControlName="recurrence"
+          [options]="recurrenceOptions()"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        >
+          <ng-template let-option pTemplate="item">
+            {{ option.label | translate }}
+          </ng-template>
+          <ng-template let-option pTemplate="selectedItem">
+            {{ option.label | translate }}
+          </ng-template>
+        </p-select>
+        <small class="block mt-2 text-xs text-gray-500">
+          {{ 'holidays.form.recurrenceHint' | translate }}
+        </small>
+      </div>
+
+      <!-- Year (only for non-recurring) -->
+      <div class="form-field" *ngIf="holidayForm.get('recurrence')?.value === 'none'">
+        <label for="year" class="form-label">
+          {{ 'holidays.form.year' | translate }}
+        </label>
+        <input
+          id="year"
+          type="number"
+          pInputText
+          formControlName="year"
+          class="w-full"
+          [placeholder]="'holidays.form.yearPlaceholder' | translate"
+        />
+      </div>
+    </form>
+
+    <!-- Enhanced Footer with Clear Actions -->
+    <ng-template pTemplate="footer">
+      <div class="flex items-center justify-between gap-3">
+        <!-- Action Buttons -->
+        <div class="flex gap-2 ml-auto">
+          <p-button 
+            type="button"
+            [label]="'common.cancel' | translate" 
+            severity="secondary"
+            size="small"
+            (onClick)="closeDialog()">
+          </p-button>
+          <p-button 
+            type="button"
+            [label]="(isEditMode() ? 'common.update' : 'common.create') | translate" 
+            [icon]="isEditMode() ? 'pi pi-check' : 'pi pi-plus'"
+            size="small"
+            [disabled]="holidayForm.invalid"
+            (onClick)="saveHoliday()">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

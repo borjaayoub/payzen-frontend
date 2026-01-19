@@ -223,29 +223,35 @@
           </p-tab>
           <p-tab value="2" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
             <div class="flex items-center gap-2">
+              <i class="pi pi-users"></i>
+              <span>{{ 'employees.profile.sections.family' | translate }}</span>
+            </div>
+          </p-tab>
+          <p-tab value="3" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+            <div class="flex items-center gap-2">
               <i class="pi pi-briefcase"></i>
               <span>{{ 'employees.profile.sections.position' | translate }}</span>
             </div>
           </p-tab>
-          <p-tab value="3" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <p-tab value="4" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
             <div class="flex items-center gap-2">
               <i class="pi pi-dollar"></i>
               <span>{{ 'employees.profile.sections.salary' | translate }}</span>
             </div>
           </p-tab>
-          <p-tab value="4" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <p-tab value="5" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
             <div class="flex items-center gap-2">
               <i class="pi pi-shield"></i>
               <span>{{ 'employees.profile.sections.legal' | translate }}</span>
             </div>
           </p-tab>
-          <p-tab value="5" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <p-tab value="6" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
             <div class="flex items-center gap-2">
               <i class="pi pi-file"></i>
               <span>{{ 'employees.profile.sections.documents' | translate }}</span>
             </div>
           </p-tab>
-          <p-tab value="6" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
+          <p-tab value="7" class="p-4 pr-6 hover:text-(--primary) border-b border-transparent hover:bg-(--bg-hover) hover:border-b hover:border-(--primary)">
             <div class="flex items-center gap-2">
               <i class="pi pi-history"></i>
               <span>{{ 'employees.profile.sections.history' | translate }}</span>
@@ -300,6 +306,23 @@
                     ></p-select>
                   } @else {
                     <p class="read-only-value">{{ getMaritalStatusLabel() }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.identity.gender' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-select
+                      [options]="formData().genders || []"
+                      [ngModel]="employee().genderId"
+                      (ngModelChange)="updateField('genderId', $event)"
+                      optionLabel="label"
+                      optionValue="id"
+                      class="w-full input"
+                      [placeholder]="'common.select' | translate"
+                    ></p-select>
+                  } @else {
+                    <p class="read-only-value">{{ getGenderLabel() }}</p>
                   }
                 </div>
 
@@ -416,8 +439,22 @@
             </div>
           </p-tabpanel>
 
-          <!-- Tab 3: Poste & Contrat -->
+          <!-- Tab 3: Family (Spouse & Children) -->
           <p-tabpanel value="2">
+            <div class="p-6">
+              <app-spouse-children 
+                [employeeId]="employee().id" 
+                [isEditMode]="isEditMode()"
+                [spouses]="employee().spouses || []"
+                [children]="employee().children || []"
+                (spousesChange)="updateField('spouses', $event)"
+                (childrenChange)="updateField('children', $event)">
+              </app-spouse-children>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 4: Poste & Contrat -->
+          <p-tabpanel value="3">
             <div class="p-6 space-y-6">
               <h3 class="section-title">{{ 'employees.profile.sections.position' | translate }}</h3>
 
@@ -548,7 +585,7 @@
           </p-tabpanel>
 
           <!-- Tab 4: Salaire & Eléments Fixes -->
-          <p-tabpanel value="3">
+          <p-tabpanel value="4">
             <div class="p-6 space-y-6">
               <div class="flex items-center justify-between">
                 <h3 class="section-title">{{ 'employees.profile.sections.salary' | translate }}</h3>
@@ -667,7 +704,7 @@
           </p-tabpanel>
 
           <!-- Tab 5: Infos Legales -->
-          <p-tabpanel value="4">
+          <p-tabpanel value="5">
             <div class="p-6 space-y-6">
               <h3 class="section-title">{{ 'employees.profile.sections.legal' | translate }}</h3>
 
@@ -704,8 +741,8 @@
             </div>
           </p-tabpanel>
 
-          <!-- Tab 6: Documents -->
-          <p-tabpanel value="5">
+          <!-- Tab 7: Documents -->
+          <p-tabpanel value="6">
             <div class="p-6 space-y-4">
               <h3 class="section-title">{{ 'employees.profile.sections.documents' | translate }}</h3>
 
@@ -763,8 +800,8 @@
             </div>
           </p-tabpanel>
 
-          <!-- Tab 7: Historique (Enhanced) -->
-          <p-tabpanel value="6">
+          <!-- Tab 8: Historique (Enhanced) -->
+          <p-tabpanel value="7">
             <div class="p-6 history-container" role="region" aria-label="Employee history">
               <!-- Header Section -->
               <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -997,6 +1034,12 @@
                   }
                 </div>
               }
+            </div>
+          </p-tabpanel>
+          <!-- Tab 8: Spouse & Children -->
+          <p-tabpanel value="7">
+            <div class="p-6">
+              <app-spouse-children [employeeId]="employee().id"></app-spouse-children>
             </div>
           </p-tabpanel>
         </p-tabpanels>

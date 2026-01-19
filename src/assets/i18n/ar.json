@@ -30,7 +30,9 @@
     "portfolio": "المحفظة",
     "leave": "الإجازات",
     "absences": "الغيابات",
-    "attendanceReport": "تقرير الحضور"
+    "attendanceReport": "تقرير الحضور",
+    "overtime": "ساعات إضافية",
+    "holidays": "أيام العطل"
   },
   "expert": {
     "activeClient": "العميل الحالي",
@@ -168,6 +170,7 @@
       "jobPositions": "المناصب الوظيفية",
       "contractTypes": "أنواع العقود",
       "employeeCategories": "فئات الموظفين",
+      "holidays": "أيام العطل",
       "referenceData": "البيانات المرجعية",
       "history": "السجل"
     },
@@ -1045,8 +1048,86 @@
       "allTypes": "جميع الأنواع",
       "allDurations": "جميع المدد"
     }
+  },
+  "holidays": {
+    "title": "أيام العطل",
+    "subtitle": "إدارة أيام العطل الرسمية لشركتك",
+    "addHoliday": "إضافة يوم عطلة",
+    "editHoliday": "تعديل يوم العطلة",
+    "createDescription": "تحديد يوم عطلة جديد",
+    "editDescription": "تعديل معلومات يوم العطلة",
+    "noData": "لا توجد أيام عطل مسجلة",
+    "confirmDelete": "هل أنت متأكد من حذف هذا اليوم؟",
+    "filters": {
+      "year": "السنة",
+      "scope": "النطاق",
+      "type": "النوع",
+      "status": "الحالة"
+    },
+    "table": {
+      "date": "التاريخ",
+      "nameFr": "الاسم (FR)",
+      "nameAr": "الاسم (AR)",
+      "nameEn": "الاسم (EN)",
+      "type": "النوع",
+      "scope": "النطاق",
+      "paid": "مدفوع",
+      "status": "الحالة"
+    },
+    "form": {
+      "nameFr": "الاسم بالفرنسية",
+      "nameFrPlaceholder": "مثال: عيد العمال",
+      "nameAr": "الاسم بالعربية",
+      "nameArPlaceholder": "مثال: عيد العمال",
+      "nameEn": "الاسم بالإنجليزية",
+      "nameEnPlaceholder": "مثال: Labour Day",
+      "date": "التاريخ",
+      "selectDate": "اختر تاريخاً",
+      "type": "نوع العطلة",
+      "typePlaceholder": "مثال: وطني، ديني، خاص بالشركة",
+      "scope": "النطاق",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف اختياري ليوم العطلة...",
+      "mandatory": "إلزامي",
+      "paid": "مدفوع",
+      "recurring": "متكرر",
+      "affectPayroll": "يؤثر على الرواتب",
+      "affectAttendance": "يؤثر على الحضور",
+      "active": "نشط",
+      "year": "السنة",
+      "yearPlaceholder": "مثال: 2026",
+      "recurrence": "التكرار",
+      "recurrencePlaceholder": "اختر التكرار"
+    },
+    "recurrence": {
+      "none": "غير متكرر",
+      "yearly": "كل سنة"
+    },
+    "scope": {
+      "all": "الكل",
+      "global": "عام",
+      "company": "خاص بالشركة"
+    },
+    "status": {
+      "all": "الكل",
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "type": {
+      "all": "الكل"
+    },
+    "messages": {
+      "createSuccess": "تم إنشاء يوم العطلة بنجاح",
+      "updateSuccess": "تم تحديث يوم العطلة بنجاح",
+      "deleteSuccess": "تم حذف يوم العطلة بنجاح"
+    },
+    "errors": {
+      "loadFailed": "فشل تحميل أيام العطل",
+      "createFailed": "فشل إنشاء يوم العطلة",
+      "updateFailed": "فشل تحديث يوم العطلة",
+      "deleteFailed": "فشل حذف يوم العطلة"
+    }
   }
 }
-
 
 

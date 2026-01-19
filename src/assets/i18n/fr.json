@@ -31,7 +31,9 @@
     "leave": "Congés",
     "absences": "Absences",
     "absencesTeam": "Absence Équipe",
-    "attendanceReport": "Rapport de Présence"
+    "attendanceReport": "Rapport de Présence",
+    "overtime": "Heures Supplémentaires",
+    "holidays": "Jours Fériés"
   },
       "hrGrant": "Accorder une absence",
   "expert": {
@@ -259,6 +261,11 @@
     "apply": "Appliquer",
     "ok": "OK",
     "remove": "Supprimer",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "cin": "CIN",
+    "phone": "Téléphone",
+    "select": "Sélectionner",
     "unsavedChanges": {
       "title": "Modifications non enregistrées",
       "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
@@ -294,6 +301,7 @@
       "jobPositions": "Postes",
       "contractTypes": "Types de Contrat",
       "employeeCategories": "Catégories d'Employés",
+      "holidays": "Jours Fériés",
       "referenceData": "Données de Référence",
       "history": "Historique"
     },
@@ -679,12 +687,14 @@
         "salary": "Salaire & Éléments Fixes",
         "legal": "Infos Légales",
         "documents": "Documents",
-        "history": "Historique"
+        "history": "Historique",
+        "family": "Conjoint et Enfants"
       },
       "identity": {
         "firstName": "Prénom",
         "lastName": "Nom",
         "cin": "CIN",
+        "gender": "Genre",
         "maritalStatus": "Situation Familiale",
         "birthDate": "Date de Naissance",
         "birthPlace": "Lieu de Naissance"
@@ -755,6 +765,25 @@
         "downloadDocument": "Télécharger le document",
         "deleteDocument": "Supprimer le document",
         "uploadDocument": "Uploader"
+      },
+      "family": {
+        "title": "Famille",
+        "spouse": "Conjoint",
+        "spouses": "Conjoints",
+        "spouseName": "Nom du conjoint",
+        "children": "Enfants",
+        "noSpouse": "Aucun conjoint enregistré",
+        "noSpouses": "Aucun conjoint enregistré",
+        "noChildren": "Aucun enfant enregistré",
+        "editSpouse": "Modifier le conjoint",
+        "editChild": "Modifier l'enfant",
+        "childName": "Nom",
+        "childDob": "Date de naissance",
+        "dob": "Date de naissance",
+        "gender": "Genre",
+        "marriageDate": "Date de mariage",
+        "isDependent": "À charge",
+        "isStudent": "Étudiant"
       },
       "noChanges": "Aucun changement à enregistrer",
       "saveError": "Échec de l'enregistrement. Veuillez réessayer.",
@@ -1025,9 +1054,11 @@
     "submit": "Soumettre",
     "approve": "Approuver",
     "reject": "Rejeter",
+    "cancel": "Annuler",
     "approveRequest": "Approuver la Demande",
     "rejectRequest": "Rejeter la Demande",
     "confirmApprove": "Êtes-vous sûr de vouloir approuver cette demande d'absence ?",
+    "confirmCancel": "Êtes-vous sûr de vouloir annuler cette absence ?",
     "cancelRequest": "Annuler la Demande",
     "rejectionReason": "Motif de Rejet",
     "rejectionReasonPlaceholder": "Veuillez indiquer la raison du rejet...",
@@ -1107,8 +1138,138 @@
       "allTypes": "Tous les types",
       "allDurations": "Toutes les durées"
     }
+  },
+  "overtime": {
+    "title": "Heures Supplémentaires",
+    "subtitle": "Déclarez et gérez vos heures supplémentaires",
+    "declareOvertime": "Déclarer des Heures Sup",
+    "addOvertime": "Ajouter des Heures Supplémentaires",
+    "editOvertime": "Modifier des Heures Supplémentaires",
+    "noData": "Aucune heure supplémentaire enregistrée",
+    "cancel": "Annuler",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette déclaration d'heures supplémentaires ?",
+    "confirmCancel": "Êtes-vous sûr de vouloir annuler cette déclaration d'heures supplémentaires ?",
+    "table": {
+      "date": "Date",
+      "startTime": "Heure Début",
+      "endTime": "Heure Fin",
+      "totalHours": "Total Heures",
+      "reason": "Motif",
+      "status": "Statut"
+    },
+    "form": {
+      "date": "Date",
+      "selectDate": "Sélectionner une date",
+      "type": "Type",
+      "selectType": "Sélectionner un type",
+      "startTime": "Heure de Début",
+      "endTime": "Heure de Fin",
+      "reason": "Motif",
+      "reasonPlaceholder": "Décrivez le motif des heures supplémentaires..."
+    },
+    "type": {
+      "hourly": "Tranche Horaire",
+      "holiday": "Jour Férié"
+    },
+    "status": {
+      "submitted": "Soumise",
+      "approved": "Approuvée",
+      "rejected": "Rejetée",
+      "cancelled": "Annulée"
+    },
+    "messages": {
+      "createSuccess": "Heures supplémentaires déclarées avec succès",
+      "updateSuccess": "Heures supplémentaires mises à jour avec succès",
+      "deleteSuccess": "Heures supplémentaires supprimées avec succès",
+      "cancelSuccess": "Heures supplémentaires annulées avec succès"
+    },
+    "errors": {
+      "loadFailed": "Échec du chargement des heures supplémentaires",
+      "createFailed": "Échec de la déclaration des heures supplémentaires",
+      "updateFailed": "Échec de la mise à jour des heures supplémentaires",
+      "deleteFailed": "Échec de la suppression des heures supplémentaires",
+      "cancelFailed": "Échec de l'annulation des heures supplémentaires",
+      "noEmployee": "Aucun employé trouvé"
+    }
+  },
+  "holidays": {
+    "title": "Jours Fériés",
+    "subtitle": "Gérez les jours fériés de votre entreprise",
+    "addHoliday": "Ajouter un Jour Férié",
+    "editHoliday": "Modifier un Jour Férié",
+    "createDescription": "Définir un nouveau jour férié",
+    "editDescription": "Modifier les informations du jour férié",
+    "noData": "Aucun jour férié enregistré",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce jour férié ?",
+    "filters": {
+      "year": "Année",
+      "scope": "Portée",
+      "type": "Type",
+      "status": "Statut"
+    },
+    "table": {
+      "date": "Date",
+      "nameFr": "Nom (FR)",
+      "nameAr": "Nom (AR)",
+      "nameEn": "Nom (EN)",
+      "type": "Type",
+      "scope": "Portée",
+      "paid": "Payé",
+      "status": "Statut"
+    },
+    "form": {
+      "nameFr": "Nom en Français",
+      "nameFrPlaceholder": "Ex: Fête du Travail",
+      "nameAr": "Nom en Arabe",
+      "nameArPlaceholder": "Ex: عيد العمال",
+      "nameEn": "Nom en Anglais",
+      "nameEnPlaceholder": "Ex: Labour Day",
+      "date": "Date",
+      "selectDate": "Sélectionner une date",
+      "type": "Type de Jour Férié",
+      "typePlaceholder": "Ex: National, Religieux, Entreprise",
+      "scope": "Portée",
+      "description": "Description",
+      "descriptionPlaceholder": "Description optionnelle du jour férié...",
+      "mandatory": "Obligatoire",
+      "paid": "Payé",
+      "recurring": "Récurrent",
+      "affectPayroll": "Affecte la Paie",
+      "affectAttendance": "Affecte la Présence",
+      "active": "Actif",
+      "year": "Année",
+      "yearPlaceholder": "Ex: 2026",
+      "recurrence": "Récurrence",
+      "recurrencePlaceholder": "Sélectionner la récurrence"
+    },
+    "recurrence": {
+      "none": "Non récurrent",
+      "yearly": "Chaque année"
+    },
+    "scope": {
+      "all": "Tous",
+      "global": "Global",
+      "company": "Entreprise"
+    },
+    "status": {
+      "all": "Tous",
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "type": {
+      "all": "Tous"
+    },
+    "messages": {
+      "createSuccess": "Jour férié créé avec succès",
+      "updateSuccess": "Jour férié mis à jour avec succès",
+      "deleteSuccess": "Jour férié supprimé avec succès"
+    },
+    "errors": {
+      "loadFailed": "Échec du chargement des jours fériés",
+      "createFailed": "Échec de la création du jour férié",
+      "updateFailed": "Échec de la mise à jour du jour férié",
+      "deleteFailed": "Échec de la suppression du jour férié"
+    }
   }
 }
-
-
 

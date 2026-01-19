@@ -31,7 +31,9 @@
     "leave": "Leave",
     "attendance": "Attendance",
     "absences": "Absences",
-    "attendanceReport": "Attendance Report"
+    "attendanceReport": "Attendance Report",
+    "overtime": "Overtime",
+    "holidays": "Holidays"
   },
   "expert": {
     "activeClient": "Active Client",
@@ -249,6 +251,11 @@
     "apply": "Apply",
     "ok": "OK",
     "remove": "Remove",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "cin": "CIN",
+    "phone": "Phone",
+    "select": "Select",
     "unsavedChanges": {
       "title": "Unsaved Changes",
       "message": "You have unsaved changes. Are you sure you want to leave?",
@@ -285,6 +292,7 @@
       "jobPositions": "Job Positions",
       "contractTypes": "Contract Types",
       "employeeCategories": "Employee Categories",
+      "holidays": "Holidays",
       "referenceData": "Reference Data",
       "history": "History"
     },
@@ -672,12 +680,14 @@
         "salary": "Salary & Fixed Elements",
         "legal": "Legal Information",
         "documents": "Documents",
-        "history": "History"
+        "history": "History",
+        "family": "Spouse & Children"
       },
       "identity": {
         "firstName": "First Name",
         "lastName": "Last Name",
         "cin": "National ID",
+        "gender": "Gender",
         "maritalStatus": "Marital Status",
         "birthDate": "Date of Birth",
         "birthPlace": "Place of Birth"
@@ -748,6 +758,25 @@
         "downloadDocument": "Download document",
         "deleteDocument": "Delete document",
         "uploadDocument": "Upload"
+      },
+      "family": {
+        "title": "Family",
+        "spouse": "Spouse",
+        "spouses": "Spouses",
+        "spouseName": "Spouse Name",
+        "children": "Children",
+        "noSpouse": "No spouse recorded",
+        "noSpouses": "No spouses recorded",
+        "noChildren": "No children recorded",
+        "editSpouse": "Edit Spouse",
+        "editChild": "Edit Child",
+        "childName": "Name",
+        "childDob": "Date of Birth",
+        "dob": "Date of birth",
+        "gender": "Gender",
+        "marriageDate": "Marriage Date",
+        "isDependent": "Dependent",
+        "isStudent": "Student"
       },
       "noChanges": "No changes to save",
       "saveError": "Failed to save changes. Please try again.",
@@ -1014,9 +1043,11 @@
     "submit": "Submit",
     "approve": "Approve",
     "reject": "Reject",
+    "cancel": "Cancel",
     "approveRequest": "Approve Request",
     "rejectRequest": "Reject Request",
     "confirmApprove": "Are you sure you want to approve this absence request?",
+    "confirmCancel": "Are you sure you want to cancel this absence?",
     "cancelRequest": "Cancel Request",
     "rejectionReason": "Rejection Reason",
     "rejectionReasonPlaceholder": "Please provide a reason for rejection...",
@@ -1088,8 +1119,138 @@
       "allTypes": "All types",
       "allDurations": "All durations"
     }
+  },
+  "overtime": {
+    "title": "Overtime",
+    "subtitle": "Declare and manage your overtime hours",
+    "declareOvertime": "Declare Overtime",
+    "addOvertime": "Add Overtime",
+    "editOvertime": "Edit Overtime",
+    "noData": "No overtime records found",
+    "cancel": "Cancel",
+    "confirmDelete": "Are you sure you want to delete this overtime declaration?",
+    "confirmCancel": "Are you sure you want to cancel this overtime declaration?",
+    "table": {
+      "date": "Date",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "totalHours": "Total Hours",
+      "reason": "Reason",
+      "status": "Status"
+    },
+    "form": {
+      "date": "Date",
+      "selectDate": "Select a date",
+      "type": "Type",
+      "selectType": "Select a type",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "reason": "Reason",
+      "reasonPlaceholder": "Describe the reason for overtime..."
+    },
+    "type": {
+      "hourly": "Hourly Overtime",
+      "holiday": "Holiday Work"
+    },
+    "status": {
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "messages": {
+      "createSuccess": "Overtime successfully declared",
+      "updateSuccess": "Overtime successfully updated",
+      "deleteSuccess": "Overtime successfully deleted",
+      "cancelSuccess": "Overtime successfully cancelled"
+    },
+    "errors": {
+      "loadFailed": "Failed to load overtime records",
+      "createFailed": "Failed to declare overtime",
+      "updateFailed": "Failed to update overtime",
+      "deleteFailed": "Failed to delete overtime",
+      "cancelFailed": "Failed to cancel overtime",
+      "noEmployee": "No employee found"
+    }
+  },
+  "holidays": {
+    "title": "Holidays",
+    "subtitle": "Manage your company holidays",
+    "addHoliday": "Add Holiday",
+    "editHoliday": "Edit Holiday",
+    "createDescription": "Define a new holiday",
+    "editDescription": "Modify holiday information",
+    "noData": "No holidays found",
+    "confirmDelete": "Are you sure you want to delete this holiday?",
+    "filters": {
+      "year": "Year",
+      "scope": "Scope",
+      "type": "Type",
+      "status": "Status"
+    },
+    "table": {
+      "date": "Date",
+      "nameFr": "Name (FR)",
+      "nameAr": "Name (AR)",
+      "nameEn": "Name (EN)",
+      "type": "Type",
+      "scope": "Scope",
+      "paid": "Paid",
+      "status": "Status"
+    },
+    "form": {
+      "nameFr": "Name in French",
+      "nameFrPlaceholder": "e.g. Labour Day",
+      "nameAr": "Name in Arabic",
+      "nameArPlaceholder": "e.g. عيد العمال",
+      "nameEn": "Name in English",
+      "nameEnPlaceholder": "e.g. Labour Day",
+      "date": "Date",
+      "selectDate": "Select a date",
+      "type": "Holiday Type",
+      "typePlaceholder": "e.g. National, Religious, Company",
+      "scope": "Scope",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description of the holiday...",
+      "mandatory": "Mandatory",
+      "paid": "Paid",
+      "recurring": "Recurring",
+      "affectPayroll": "Affects Payroll",
+      "affectAttendance": "Affects Attendance",
+      "active": "Active",
+      "year": "Year",
+      "yearPlaceholder": "e.g. 2026",
+      "recurrence": "Recurrence",
+      "recurrencePlaceholder": "Select recurrence"
+    },
+    "recurrence": {
+      "none": "Non-recurring",
+      "yearly": "Every year"
+    },
+    "scope": {
+      "all": "All",
+      "global": "Global",
+      "company": "Company"
+    },
+    "status": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "type": {
+      "all": "All"
+    },
+    "messages": {
+      "createSuccess": "Holiday created successfully",
+      "updateSuccess": "Holiday updated successfully",
+      "deleteSuccess": "Holiday deleted successfully"
+    },
+    "errors": {
+      "loadFailed": "Failed to load holidays",
+      "createFailed": "Failed to create holiday",
+      "updateFailed": "Failed to update holiday",
+      "deleteFailed": "Failed to delete holiday"
+    }
   }
 }
-
-
 

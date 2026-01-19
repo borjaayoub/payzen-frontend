@@ -265,6 +265,7 @@ export class EmployeeService {
   private readonly EMPLOYEE_URL = `${environment.apiUrl}/employee`;
   // We keep this for the fallback, but we will prefer the company-specific endpoint
   private readonly EMPLOYEE_SUMMARY_URL = `${environment.apiUrl}/employee/summary`;
+  private readonly EMPLOYEES_URL = `${environment.apiUrl}/employees`;
 
   private readonly contextService = inject(CompanyContextService);
   private readonly translate = inject(TranslateService);
@@ -375,6 +376,14 @@ export class EmployeeService {
 
   getEmployeeById(id: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.EMPLOYEE_URL}/${id}`);
+  }
+
+  /**
+   * Get the employee record for the currently authenticated user
+   * Endpoint: GET /api/employee/current
+   */
+  getCurrentEmployee(): Observable<Employee> {
+    return this.http.get<Employee>(`${this.EMPLOYEE_URL}/current`);
   }
 
   /**
@@ -819,6 +828,8 @@ export class EmployeeService {
       amo: this.toStringValue(payload.amo),
       cimr: this.toStringValue(payload.cimr) || undefined,
       annualLeave: payload.annualLeave ?? 0,
+      genderId: (payload as any).genderId ?? (payload as any).GenderId ?? null,
+      genderName: (payload as any).genderName ?? (payload as any).GenderName ?? null,
       // Preserve raw status code (if present in payload) and localized label
       status: (this.mapEmployeeStatus(this.extractStatusCode(payload) || payload.statusName) as unknown) as string,
       statusRaw: this.extractStatusCode(payload) || payload.statusName || undefined,
@@ -829,6 +840,7 @@ export class EmployeeService {
         payload.userId ?? (payload as any).UserId ?? (payload as any).user_id ?? (payload as any).User_Id
       ) || undefined,
       employeeCategoryId: (payload as any).categoryId ?? (payload as any).CategoryId ?? (payload as any).employeeCategoryId ?? undefined,
+      employeeCategoryName: (payload as any).categoryName ?? (payload as any).CategoryName ?? undefined,
       createdAt: payload.createdAt ? new Date(payload.createdAt) : undefined,
       updatedAt: payload.updatedAt ? new Date(payload.updatedAt) : undefined,
       dateOfBirth: this.formatForDateInput(payload.dateOfBirth),
@@ -851,6 +863,10 @@ export class EmployeeService {
       categoryId: (payload as any).categoryId,
       CategoryId: (payload as any).CategoryId,
       employeeCategoryId: (payload as any).employeeCategoryId
+    });
+    console.log('[EmployeeService] Mapped employeeCategoryName:', detail.employeeCategoryName, 'from payload:', {
+      categoryName: (payload as any).categoryName,
+      CategoryName: (payload as any).CategoryName
     });
 
     return detail;
@@ -946,5 +962,30 @@ export class EmployeeService {
   private toNumberValue(value: number | string | undefined | null): number {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  // Family Management
+  createSpouse(employeeId: string | number, spouse: any): Observable<any> {
+    return this.http.post(`${this.EMPLOYEES_URL}/${employeeId}/spouse`, spouse);
+  }
+
+  updateSpouse(employeeId: string | number, spouse: any): Observable<any> {
+    return this.http.put(`${this.EMPLOYEES_URL}/${employeeId}/spouse`, spouse);
+  }
+
+  deleteSpouse(employeeId: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.EMPLOYEES_URL}/${employeeId}/spouse`);
+  }
+
+  createChild(employeeId: string | number, child: any): Observable<any> {
+    return this.http.post(`${this.EMPLOYEES_URL}/${employeeId}/children`, child);
+  }
+
+  updateChild(employeeId: string | number, childId: number | string, child: any): Observable<any> {
+    return this.http.put(`${this.EMPLOYEES_URL}/${employeeId}/children/${childId}`, child);
+  }
+
+  deleteChild(employeeId: string | number, childId: number | string): Observable<void> {
+    return this.http.delete<void>(`${this.EMPLOYEES_URL}/${employeeId}/children/${childId}`);
   }
 }

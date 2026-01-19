@@ -15,6 +15,11 @@ export interface Absence {
   statusDescription?: string;
   createdAt: string;
   createdBy: number;
+  createdByName?: string; // Nom de la personne qui a créé l'absence
+  decisionAt?: string; // Date de la décision (approval/rejection)
+  decisionBy?: number; // ID de l'utilisateur qui a pris la décision
+  decisionByName?: string; // Nom de la personne qui a pris la décision
+  decisionComment?: string; // Commentaire de la décision
 }
 
 export type AbsenceType =

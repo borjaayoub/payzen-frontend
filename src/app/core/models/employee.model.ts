@@ -7,6 +7,45 @@ export interface SalaryComponent {
   amount: number;
 }
 
+export interface Spouse {
+  id?: number;
+  employeeId?: number | string;
+  employeeFirstName?: string;
+  employeeLastName?: string;
+  employeeFullName?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  dateOfBirth?: string;
+  age?: number;
+  genderId?: number | null;
+  genderName?: string | null;
+  cinNumber?: string | null;
+  marriageDate?: string | null;
+  isDependent?: boolean;
+  createdAt?: string;
+  modifiedAt?: string | null;
+}
+
+export interface Child {
+  id?: number;
+  employeeId?: number | string;
+  employeeFirstName?: string;
+  employeeLastName?: string;
+  employeeFullName?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  dateOfBirth?: string;
+  age?: number;
+  genderId?: number | null;
+  genderName?: string | null;
+  isDependent?: boolean;
+  isStudent?: boolean;
+  createdAt?: string;
+  modifiedAt?: string | null;
+}
+
 export interface Employee {
   id: string;
   firstName: string;
@@ -28,6 +67,8 @@ export interface Employee {
   addressLine2?: string;
   zipCode?: string;
   position: string;
+  genderId?: number | null;
+  genderName?: string | null;
   department: string;
   manager?: string;
   contractType: string;
@@ -44,6 +85,7 @@ export interface Employee {
   cimr?: string;
   annualLeave: number;
   employeeCategoryId?: number;
+  employeeCategoryName?: string;
   /**
    * Normalized status used by parts of the UI (may be derived),
    * but primary status code comes from backend in `statusRaw`.
@@ -59,6 +101,8 @@ export interface Employee {
   createdAt?: Date;
   updatedAt?: Date;
   events?: EmployeeEvent[];
+  spouses?: Spouse[];
+  children?: Child[];
 }
 
 export interface EmployeeEvent {

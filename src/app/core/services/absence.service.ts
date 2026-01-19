@@ -15,7 +15,7 @@ import {
 } from '@app/core/models/absence.model';
 import { CompanyContextService } from './companyContext.service';
 
-// Backend DTO interface
+// Backend DTO interface (après conversion camelCase par l'interceptor)
 interface AbsenceReadDto {
   id: number;
   employeeId: number;
@@ -32,9 +32,15 @@ interface AbsenceReadDto {
   endTime: string | null;
   absenceType: string;
   reason: string | null;
-  status: number; // 1=Submitted, 6=Pending, etc.
+  status: number; // 1=Submitted, 2=Approved, 3=Rejected, 4=Cancelled, 5=Expired
   statusDescription: string;
   createdAt: string;
+  createdBy?: number;
+  createdByName?: string;
+  decisionAt?: string | null;
+  decisionBy?: number | null;
+  decisionByName?: string | null;
+  decisionComment?: string | null;
 }
 
 @Injectable({
@@ -63,6 +69,8 @@ export class AbsenceService {
    * Map backend DTO to frontend Absence model
    */
   private mapDtoToAbsence(dto: AbsenceReadDto): Absence {
+    console.log('[AbsenceService] Mapping DTO:', dto);
+    
     const durationTypeMap: Record<number, AbsenceDurationType> = {
       1: 'FullDay',
       2: 'HalfDay',
@@ -121,7 +129,12 @@ export class AbsenceService {
       status,
       statusDescription: dto.statusDescription,
       createdAt: dto.createdAt,
-      createdBy: 0 // Not provided by backend
+      createdBy: dto.createdBy ?? 0,
+      createdByName: dto.createdByName ?? undefined,
+      decisionAt: dto.decisionAt ?? undefined,
+      decisionBy: dto.decisionBy ?? undefined,
+      decisionByName: dto.decisionByName ?? undefined,
+      decisionComment: dto.decisionComment ?? undefined
     };
   }
 
@@ -197,7 +210,9 @@ export class AbsenceService {
    * Get a single absence by ID
    */
   getAbsenceById(id: number): Observable<Absence> {
-    return this.http.get<Absence>(`${this.ABSENCE_URL}/${id}`);
+    return this.http.get<AbsenceReadDto>(`${this.ABSENCE_URL}/${id}`).pipe(
+      map(dto => this.mapDtoToAbsence(dto))
+    );
   }
 
   /**
@@ -316,6 +331,13 @@ export class AbsenceService {
     return this.http.post<void>(`${this.ABSENCE_URL}/${id}/reject`, { 
       Reason: reason || ''
     });
+  }
+
+  /**
+   * Cancel an absence request (Employee action - changes status to Cancelled)
+   */
+  cancelAbsence(id: number): Observable<void> {
+    return this.http.post<void>(`${this.ABSENCE_URL}/${id}/cancel`, {});
   }
 
   /**

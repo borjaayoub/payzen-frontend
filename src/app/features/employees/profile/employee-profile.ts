@@ -28,6 +28,7 @@ import {
 import { JobPositionService } from '@app/core/services/job-position.service';
 import { ContractTypeService } from '@app/core/services/contract-type.service';
 import { EmployeeCategoryService } from '@app/core/services/employee-category.service';
+import { FamilyService } from '@app/core/services/family.service';
 import { JobPosition } from '@app/core/models/job-position.model';
 import { ContractType } from '@app/core/models/contract-type.model';
 import { Employee as EmployeeProfileModel, EmployeeEvent } from '@app/core/models/employee.model';
@@ -39,9 +40,11 @@ import { CanComponentDeactivate } from '@app/core/guards/unsaved-changes.guard';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of, firstValueFrom, forkJoin } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import { TagComponent } from '../../../shared/components/tag/tag.component';
 import { TagVariant } from '../../../shared/components/tag/tag.types';
+import { SpouseChildrenComponent } from '../family/spouse-children';
 
 interface Document {
   type: string;
@@ -76,6 +79,7 @@ interface Document {
     IconFieldModule,
     InputIconModule,
     MultiSelectModule,
+    SpouseChildrenComponent,
     ChangeConfirmationDialog,
     UnsavedChangesDialog
   ],
@@ -91,6 +95,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private jobPositionService = inject(JobPositionService);
   private contractTypeService = inject(ContractTypeService);
   private employeeCategoryService = inject(EmployeeCategoryService);
+  private familyService = inject(FamilyService);
   private destroyRef = inject(DestroyRef);
   private contextService = inject(CompanyContextService);
 
@@ -111,13 +116,16 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   private pendingDraftData: Partial<EmployeeProfileModel> | null = null;
   private pendingDraftTimestamp: Date | null = null;
 
-  private readonly TAB_IDS = ['0', '1', '2', '3', '4'] as const;
+  private readonly TAB_IDS = ['0', '1', '2', '3', '4', '5', '6', '7'] as const;
   private readonly TAB_FIELD_MAP: Record<string, (keyof EmployeeProfileModel)[]> = {
     '0': ['firstName', 'lastName', 'cin', 'maritalStatus', 'dateOfBirth', 'birthPlace'],
     '1': ['personalEmail', 'phone', 'address', 'countryId', 'countryName', 'city', 'addressLine1', 'addressLine2', 'zipCode'],
-    '2': ['position', 'department', 'manager', 'contractType', 'status', 'startDate', 'endDate', 'probationPeriod'],
-    '3': ['baseSalary', 'salaryComponents', 'paymentMethod'],
-    '4': ['cnss', 'amo', 'cimr', 'annualLeave']
+    '2': [], // Family - Spouse & Children managed by separate component
+    '3': ['position', 'department', 'manager', 'contractType', 'status', 'startDate', 'endDate', 'probationPeriod'],
+    '4': ['baseSalary', 'salaryComponents', 'paymentMethod'],
+    '5': ['cnss', 'amo', 'cimr', 'annualLeave'],
+    '6': ['missingDocuments'],
+    '7': ['events']
   };
 
   // UI State
@@ -458,19 +466,32 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     forkJoin({
       details: this.employeeService.getEmployeeDetails(id),
       salary: this.employeeService.getEmployeeSalaryDetails(id),
-      statuses: this.employeeService.getStatuses(false)
+      statuses: this.employeeService.getStatuses(false),
+      spouse: this.familyService.getSpouse(id).pipe(catchError(() => of(null))),
+      children: this.familyService.getChildren(id).pipe(catchError(() => of([])))
     }).subscribe({
-      next: ({ details, salary, statuses }) => {
+      next: ({ details, salary, statuses, spouse, children }) => {
         console.log('[EmployeeProfile] loaded details, statuses from API:', statuses, 'currentLang:', this.translate?.currentLang);
-        console.log('[EmployeeProfile] raw details:', details);
+        console.log('[EmployeeProfile] raw details for employee', id, ':', details);
+        console.log('[EmployeeProfile] backend gender fields:', { GenderId: (details as any).GenderId, GenderName: (details as any).GenderName });
         this.isRestoringDraft = true;
         
+        // Convert single spouse to array for consistency
+        const spouses = spouse ? [spouse] : [];
+
+        // Map backend PascalCase `details` to frontend camelCase employee shape
+        const mappedDetails = this.mapBackendDetails(details);
+        console.log('[EmployeeProfile] mapped details (with gender):', mappedDetails);
+
         // Merge salary components with IDs
         const mergedEmployee = {
-          ...details,
+          ...mappedDetails,
           activeSalaryId: salary.id,
-          salaryComponents: salary.components.length > 0 ? salary.components : details.salaryComponents
-        };
+          salaryComponents: salary.components.length > 0 ? salary.components : (mappedDetails.salaryComponents || []),
+          spouses: spouses,
+          children: children
+        } as EmployeeProfileModel;
+        console.log('[EmployeeProfile] final mergedEmployee:', { genderId: mergedEmployee.genderId, genderName: mergedEmployee.genderName });
 
         // We'll set the employee and try to enrich its `statusName` from referential statuses.
         this.employee.set(mergedEmployee);
@@ -635,6 +656,13 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     return country?.label || '-';
   }
 
+  getGenderLabel(): string {
+    const gid = this.employee().genderId;
+    if (!gid && gid !== 0) return this.employee().genderName || '-';
+    const g = (this.formData().genders || []).find((x: any) => x.id === gid);
+    return g?.label || this.employee().genderName || '-';
+  }
+
   getContractTypeLabel(): string {
     const emp = this.employee();
     // Prefer contractTypes from formData (company-specific)
@@ -661,10 +689,54 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
   }
 
   getEmployeeCategoryLabel(): string {
-    const categoryId = this.employee().employeeCategoryId;
+    const emp = this.employee();
+    if (emp.employeeCategoryName) return emp.employeeCategoryName;
+    const categoryId = emp.employeeCategoryId;
     if (!categoryId) return '-';
     const category = this.formData().employeeCategories?.find(c => c.id === categoryId);
     return category?.label || '-';
+  }
+
+  // Map backend PascalCase response to frontend Employee fields
+  private mapBackendDetails(d: any): Partial<EmployeeProfileModel> {
+    if (!d) return {};
+    const out: any = {};
+    out.id = d.Id != null ? String(d.Id) : (d.id ?? undefined);
+    out.firstName = d.FirstName ?? d.firstName;
+    out.lastName = d.LastName ?? d.lastName;
+    out.cin = d.CinNumber ?? d.Cin ?? d.cin;
+    out.maritalStatus = (d.MaritalStatus ?? d.MaritalStatusName ?? d.maritalStatus) as any;
+    out.dateOfBirth = d.DateOfBirth ?? d.dateOfBirth;
+    out.birthPlace = d.BirthPlace ?? d.birthPlace;
+    out.professionalEmail = d.Email ?? d.ProfessionalEmail ?? d.professionalEmail;
+    out.personalEmail = d.PersonalEmail ?? d.personalEmail;
+    out.phone = d.Phone ?? d.phone;
+    out.address = d.Address ?? d.address;
+    out.position = d.JobPositionName ?? d.Position ?? d.position;
+    out.department = d.DepartmentName ?? d.department ?? (d.departments ?? '')
+    out.manager = d.ManagerName ?? d.Manager ?? d.manager;
+    out.contractType = d.ContractTypeName ?? d.ContractType ?? d.contractType;
+    out.startDate = d.ContractStartDate ?? d.StartDate ?? d.startDate;
+    out.endDate = d.ContractEndDate ?? d.EndDate ?? d.endDate;
+    out.probationPeriod = d.ProbationPeriod ?? d.probationPeriod;
+    out.baseSalary = d.BaseSalary ?? d.baseSalary ?? 0;
+    out.salaryComponents = d.SalaryComponents ?? d.salaryComponents ?? [];
+    out.statusName = d.StatusName ?? d.statusName ?? d.Status ?? d.status;
+    out.status = (d.StatusCode ?? d.Status ?? d.status) as any;
+    out.missingDocuments = d.MissingDocuments ?? d.missingDocuments ?? 0;
+    out.companyId = d.CompanyId ?? d.CompanyId ?? d.companyId;
+    out.userId = d.UserId ?? d.userId;
+    out.createdAt = d.CreatedAt ?? d.createdAt;
+    out.updatedAt = d.UpdatedAt ?? d.updatedAt;
+    out.events = d.Events ?? d.events ?? [];
+    // Gender normalization
+    out.genderId = d.GenderId ?? d.GenderID ?? d.genderId ?? null;
+    out.genderName = d.GenderName ?? d.Gender ?? d.genderName ?? null;
+    // Employee category
+    out.employeeCategoryId = d.CategoryId ?? d.categoryId ?? d.employeeCategoryId ?? null;
+    out.employeeCategoryName = d.CategoryName ?? d.categoryName ?? d.employeeCategoryName ?? null;
+    // keep any other camelCase properties present
+    return out;
   }
 
   // Helper to update employee signal (triggers effect)
@@ -1005,6 +1077,80 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
         if (componentPromises.length > 0) {
           await Promise.all(componentPromises);
         }
+      }
+
+      // Handle Spouses changes
+      const currentSpouses = this.employee().spouses || [];
+      const originalSpouses = this.originalEmployee?.spouses || [];
+      
+      // Find new spouses (no id or temporary id > 1000000000000)
+      const newSpouses = currentSpouses.filter(s => !s.id || s.id > 1000000000000);
+      
+      // Find updated spouses
+      const updatedSpouses = currentSpouses.filter(s => {
+        if (!s.id || s.id > 1000000000000) return false;
+        const original = originalSpouses.find(o => o.id === s.id);
+        return original && JSON.stringify(s) !== JSON.stringify(original);
+      });
+      
+      // Find deleted spouses
+      const deletedSpouses = originalSpouses.filter(o => 
+        o.id && !currentSpouses.find(s => s.id === o.id)
+      );
+
+      const spousePromises = [];
+      
+      for (const spouse of newSpouses) {
+        spousePromises.push(firstValueFrom(this.employeeService.createSpouse(this.employeeId()!, spouse)));
+      }
+      
+      for (const spouse of updatedSpouses) {
+        spousePromises.push(firstValueFrom(this.employeeService.updateSpouse(this.employeeId()!, spouse)));
+      }
+      
+      for (const spouse of deletedSpouses) {
+        spousePromises.push(firstValueFrom(this.employeeService.deleteSpouse(this.employeeId()!)));
+      }
+      
+      if (spousePromises.length > 0) {
+        await Promise.all(spousePromises);
+      }
+
+      // Handle Children changes
+      const currentChildren = this.employee().children || [];
+      const originalChildren = this.originalEmployee?.children || [];
+      
+      // Find new children (no id or temporary id > 1000000000000)
+      const newChildren = currentChildren.filter(c => !c.id || c.id > 1000000000000);
+      
+      // Find updated children
+      const updatedChildren = currentChildren.filter(c => {
+        if (!c.id || c.id > 1000000000000) return false;
+        const original = originalChildren.find(o => o.id === c.id);
+        return original && JSON.stringify(c) !== JSON.stringify(original);
+      });
+      
+      // Find deleted children
+      const deletedChildren = originalChildren.filter(o => 
+        o.id && !currentChildren.find(c => c.id === o.id)
+      );
+
+      const childPromises = [];
+      
+      for (const child of newChildren) {
+        childPromises.push(firstValueFrom(this.employeeService.createChild(this.employeeId()!, child)));
+      }
+      
+      for (const child of updatedChildren) {
+        childPromises.push(firstValueFrom(this.employeeService.updateChild(this.employeeId()!, child.id!, child)));
+      }
+      
+      for (const child of deletedChildren) {
+        childPromises.push(firstValueFrom(this.employeeService.deleteChild(this.employeeId()!, child.id!)));
+      }
+      
+      if (childPromises.length > 0) {
+        await Promise.all(childPromises);
       }
 
       this.saveSuccess.set(this.translate.instant('employees.profile.saveSuccess'));
@@ -1397,7 +1543,9 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
       cimr: undefined,
       annualLeave: 0,
       status: 'active',
-      missingDocuments: 0
+      missingDocuments: 0,
+      spouses: [],
+      children: []
     };
   }
 }

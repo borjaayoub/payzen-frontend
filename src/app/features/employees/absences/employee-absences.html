@@ -95,9 +95,12 @@
               </div>
             </th>
             <th class="saas-table-header">{{ 'absences.table.reason' | translate }}</th>
-            @if (isRH) {
-              <th class="saas-table-header">{{ 'absences.table.status' | translate }}</th>
-            }
+            <th pSortableColumn="status" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ 'absences.table.status' | translate }}
+                <p-sortIcon field="status"></p-sortIcon>
+              </div>
+            </th>
             <th class="saas-table-header">{{ 'common.actions' | translate }}</th>
           </tr>
         </ng-template>
@@ -129,14 +132,12 @@
             <td class="px-6 py-4">
               <span class="text-(--text-secondary)">{{ absence.reason || '-' }}</span>
             </td>
-            @if (isRH) {
-              <td class="px-6 py-4">
-                <p-tag 
-                  [value]="'absences.stats.pending' | translate" 
-                  severity="warn"
-                ></p-tag>
-              </td>
-            }
+            <td class="px-6 py-4">
+              <p-tag 
+                [value]="getStatusLabel(absence.status) | translate" 
+                [severity]="getStatusSeverity(absence.status)"
+              ></p-tag>
+            </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
                 <button
@@ -149,23 +150,13 @@
                   [text]="true"
                   [rounded]="true"
                 ></button>
-                @if (isRH) {
-                  <button
-                    pButton
-                    icon="pi pi-check"
-                    [pTooltip]="'absences.approve' | translate"
-                    tooltipPosition="top"
-                    (click)="approveAbsence(absence.id)"
-                    severity="success"
-                    [text]="true"
-                    [rounded]="true"
-                  ></button>
+                @if (canCancelAbsence(absence)) {
                   <button
                     pButton
                     icon="pi pi-times"
-                    [pTooltip]="'absences.reject' | translate"
+                    [pTooltip]="'absences.cancel' | translate"
                     tooltipPosition="top"
-                    (click)="rejectAbsence(absence.id)"
+                    (click)="cancelAbsence(absence.id)"
                     severity="danger"
                     [text]="true"
                     [rounded]="true"
@@ -177,7 +168,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td [attr.colspan]="isRH ? 6 : 5" class="text-center py-12">
+            <td colspan="6" class="text-center py-12">
               <div class="flex flex-col items-center gap-3">
                 <i class="pi pi-calendar-times text-gray-300 text-5xl"></i>
                 <p class="text-(--text-secondary) font-medium">{{ 'absences.noAbsences' | translate }}</p>
@@ -405,6 +396,33 @@
   <!-- Detail Content -->
   @if (selectedAbsence()) {
     <div class="px-6 py-6 space-y-4">
+      <!-- Status -->
+      <div class="detail-row">
+        <div class="detail-label">
+          <i class="pi pi-info-circle text-gray-400 mr-2"></i>
+          {{ 'absences.table.status' | translate }}
+        </div>
+        <div class="detail-value">
+          <p-tag 
+            [value]="getStatusLabel(selectedAbsence()!.status) | translate" 
+            [severity]="getStatusSeverity(selectedAbsence()!.status)"
+          ></p-tag>
+        </div>
+      </div>
+
+      <!-- Employee (if available) -->
+      @if (selectedAbsence()!.employeeName) {
+        <div class="detail-row">
+          <div class="detail-label">
+            <i class="pi pi-user text-gray-400 mr-2"></i>
+            {{ 'absences.table.employee' | translate }}
+          </div>
+          <div class="detail-value font-medium">
+            {{ selectedAbsence()!.employeeName }}
+          </div>
+        </div>
+      }
+
       <!-- Date -->
       <div class="detail-row">
         <div class="detail-label">
@@ -412,7 +430,8 @@
           {{ 'absences.form.date' | translate }}
         </div>
         <div class="detail-value">
-          {{ selectedAbsence()!.absenceDate | date: 'fullDate' }}
+          <div class="font-medium">{{ selectedAbsence()!.absenceDate | date: 'fullDate' }}</div>
+          <div class="text-sm text-gray-500">{{ selectedAbsence()!.absenceDate | date: 'dd/MM/yyyy' }}</div>
         </div>
       </div>
 
@@ -480,14 +499,17 @@
         </div>
       }
 
+      <!-- Divider -->
+      <div class="border-t border-gray-200 my-4"></div>
+
       <!-- Created By -->
       <div class="detail-row">
         <div class="detail-label">
-          <i class="pi pi-user text-gray-400 mr-2"></i>
+          <i class="pi pi-user-plus text-gray-400 mr-2"></i>
           {{ 'absences.createdBy' | translate }}
         </div>
         <div class="detail-value">
-          {{ selectedAbsence()!.createdBy }}
+          <div class="font-medium">{{ selectedAbsence()!.createdByName || ('ID: ' + selectedAbsence()!.createdBy) }}</div>
         </div>
       </div>
 
@@ -498,9 +520,51 @@
           {{ 'absences.createdAt' | translate }}
         </div>
         <div class="detail-value">
-          {{ selectedAbsence()!.createdAt | date: 'short' }}
+          <div class="font-medium">{{ selectedAbsence()!.createdAt | date: 'medium' }}</div>
+          <div class="text-sm text-gray-500">{{ selectedAbsence()!.createdAt | date: 'short' }}</div>
         </div>
       </div>
+
+      <!-- Decision Details (if available) -->
+      @if (selectedAbsence()!.status === 'Approved' || selectedAbsence()!.status === 'Rejected') {
+        <div class="border-t border-gray-200 my-4"></div>
+        
+        @if (selectedAbsence()!.decisionAt) {
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="pi pi-check-circle text-gray-400 mr-2"></i>
+              {{ selectedAbsence()!.status === 'Approved' ? 'Approuvé le' : 'Rejeté le' }}
+            </div>
+            <div class="detail-value">
+              <div class="font-medium">{{ selectedAbsence()!.decisionAt | date: 'medium' }}</div>
+            </div>
+          </div>
+        }
+        
+        @if (selectedAbsence()!.decisionBy || selectedAbsence()!.decisionByName) {
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="pi pi-user text-gray-400 mr-2"></i>
+              {{ 'Par' }}
+            </div>
+            <div class="detail-value">
+              <div class="font-medium">{{ selectedAbsence()!.decisionByName || ('ID: ' + selectedAbsence()!.decisionBy) }}</div>
+            </div>
+          </div>
+        }
+        
+        @if (selectedAbsence()!.decisionComment) {
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="pi pi-comment text-gray-400 mr-2"></i>
+              {{ 'Commentaire' }}
+            </div>
+            <div class="detail-value whitespace-pre-wrap">
+              {{ selectedAbsence()!.decisionComment }}
+            </div>
+          </div>
+        }
+      }
     </div>
   }
 
