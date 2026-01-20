@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SelectModule } from 'primeng/select';
@@ -12,7 +13,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { PopoverModule } from 'primeng/popover';
 import { MessageService } from 'primeng/api';
+import { forkJoin } from 'rxjs';
 import { CompanyService } from '@app/core/services/company.service';
+import { WorkingCalendarService } from '@app/core/services/working-calendar.service';
 import { CompanyContextService } from '@app/core/services/companyContext.service';
 import { Company, HRParameters } from '@app/core/models/company.model';
 import { Subscription } from 'rxjs';
@@ -23,6 +26,7 @@ import { Subscription } from 'rxjs';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     TranslateModule,
     SelectButtonModule,
     SelectModule,
@@ -40,6 +44,7 @@ import { Subscription } from 'rxjs';
 export class HrSettingsTabComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly companyService = inject(CompanyService);
+  private readonly workingCalendarService = inject(WorkingCalendarService);
   private readonly messageService = inject(MessageService);
   private readonly contextService = inject(CompanyContextService);
   private contextSub?: Subscription;
@@ -48,6 +53,7 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
   hrForm!: FormGroup;
   loading = signal(false);
   company = signal<Company | null>(null);
+  workingCalendars = signal<any[]>([]); // Store loaded working calendars with per-day times
   formSubmitted = false;
 
   // Help popover content
@@ -57,7 +63,7 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
     'company.hrSettings.helpPoint3'
   ];
 
-  // Form options
+  // Working days selector (used in HR parameters quick selection)
   readonly workingDaysOptions = [
     { label: 'Mon', value: 'monday', fullName: 'Monday', icon: 'pi-briefcase', isWeekend: false },
     { label: 'Tue', value: 'tuesday', fullName: 'Tuesday', icon: 'pi-briefcase', isWeekend: false },
@@ -68,6 +74,11 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
     { label: 'Sun', value: 'sunday', fullName: 'Sunday', icon: 'pi-home', isWeekend: true }
   ];
 
+  // Hour presets and visual indicators
+  readonly hoursPresets = [6, 7, 8, 9];
+  readonly visualHours = Array.from({ length: 24 }, (_, i) => i + 1);
+
+  // Form options
   readonly leaveRateOptions = [
     { label: '1.5 days/month', value: 1.5 },
     { label: '2.0 days/month', value: 2.0 }
@@ -123,16 +134,13 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
     { label: 'company.hrSettings.sectors.other', value: 'other' }
   ];
 
-  // Hour presets and visual indicators
-  readonly hoursPresets = [6, 7, 8, 9];
-  readonly visualHours = Array.from({ length: 24 }, (_, i) => i + 1);
 
   // Default form values
   private readonly defaultValues = {
     workingDays: [] as string[],
     standardHoursPerDay: 8,
-    leaveAccrualRate: 1.5,
     includeSaturdays: false,
+    leaveAccrualRate: 1.5,
     currency: 'MAD',
     paymentFrequency: 'monthly',
     fiscalYearStartMonth: 1,
@@ -168,9 +176,9 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
   private initForm() {
     this.hrForm = this.fb.group({
       workingDays: [this.defaultValues.workingDays, Validators.required],
-      standardHoursPerDay: [this.defaultValues.standardHoursPerDay, [Validators.required, Validators.min(0), Validators.max(24)]],
-      leaveAccrualRate: [this.defaultValues.leaveAccrualRate, Validators.required],
+      standardHoursPerDay: [this.defaultValues.standardHoursPerDay],
       includeSaturdays: [this.defaultValues.includeSaturdays, Validators.required],
+      leaveAccrualRate: [this.defaultValues.leaveAccrualRate, Validators.required],
       currency: [this.defaultValues.currency, Validators.required],
       paymentFrequency: [this.defaultValues.paymentFrequency, Validators.required],
       fiscalYearStartMonth: [this.defaultValues.fiscalYearStartMonth, Validators.required],
@@ -184,28 +192,84 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
 
   private loadCompanyData() {
     this.loading.set(true);
+    
+    // Load company data first to get company ID
     this.companyService.getCompany().subscribe({
       next: (data) => {
+        console.log('[HrSettingsTab] Company data loaded:', data);
         this.company.set(data);
-        this.patchFormWithCompanyData(data);
-        this.loading.set(false);
+        
+        // Now load working calendar for this company to extract working days
+        const companyId = Number(data.id);
+        this.workingCalendarService.getByCompanyId(companyId).subscribe({
+          next: (calendars) => {
+            console.log('[HrSettingsTab] Working calendars loaded:', calendars);
+            
+            // Enrich calendars with hour properties for ngModel binding
+            const enrichedCalendars = calendars.map(cal => ({
+              ...cal,
+              startTimeHour: cal.startTime ? parseInt(cal.startTime.split(':')[0], 10) : 9,
+              endTimeHour: cal.endTime ? parseInt(cal.endTime.split(':')[0], 10) : 17
+            }));
+            
+            // Store the enriched calendars for display in template
+            this.workingCalendars.set(enrichedCalendars);
+            
+            // Extract working days from calendar entries
+            const workingDays = enrichedCalendars
+              .filter(wc => wc.isWorkingDay)
+              .map(wc => this.dayOfWeekToName(wc.dayOfWeek))
+              .sort();
+            console.log('[HrSettingsTab] Extracted working days:', workingDays);
+            
+            // Patch form with company data including extracted working days
+            this.patchFormWithCompanyData(data, workingDays);
+            this.loading.set(false);
+          },
+          error: (err) => {
+            console.warn('[HrSettingsTab] Error loading working calendar (will use HR params defaults):', err);
+            // If working calendar fails, just use HR params
+            this.patchFormWithCompanyData(data, []);
+            this.loading.set(false);
+          }
+        });
       },
       error: (err) => {
-        console.error('Error loading company data:', err);
+        console.error('[HrSettingsTab] Error loading company data:', err);
         this.loading.set(false);
       }
     });
   }
 
-  private patchFormWithCompanyData(data: Company) {
+  /**
+   * Convert DayOfWeek number to day name
+   */
+  private dayOfWeekToName(dayOfWeek: number): string {
+    const names = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return names[dayOfWeek];
+  }
+
+  private dayNameToDayOfWeek(dayName: string): number {
+    const names = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return names.indexOf(dayName);
+  }
+
+  private patchFormWithCompanyData(data: Company, loadedWorkingDays: string[] = []) {
     if (!data.hrParameters) return;
     
     const hr = data.hrParameters as any;
+    // Use loaded working days from WorkingCalendars, fall back to HR params, then default
+    const workingDays = loadedWorkingDays.length > 0 
+      ? loadedWorkingDays 
+      : (hr.workingDays ?? this.defaultValues.workingDays);
+    
+    console.log('[HrSettingsTab] Patching form with company data. Working days:', workingDays);
+    
     this.hrForm.patchValue({
-      workingDays: hr.workingDays ?? this.defaultValues.workingDays,
+      workingDays: workingDays,
       standardHoursPerDay: hr.standardHoursPerDay ?? this.defaultValues.standardHoursPerDay,
-      leaveAccrualRate: hr.leaveAccrualRate ?? this.defaultValues.leaveAccrualRate,
       includeSaturdays: hr.includeSaturdays ?? this.defaultValues.includeSaturdays,
+      leaveAccrualRate: hr.leaveAccrualRate ?? this.defaultValues.leaveAccrualRate,
       currency: hr.currency ?? this.defaultValues.currency,
       paymentFrequency: hr.paymentFrequency ?? this.defaultValues.paymentFrequency,
       fiscalYearStartMonth: hr.fiscalYearStartMonth ?? this.defaultValues.fiscalYearStartMonth,
@@ -215,6 +279,44 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
       cnssSpecificParameters: hr.cnssSpecificParameters ?? this.defaultValues.cnssSpecificParameters,
       irSpecificParameters: hr.irSpecificParameters ?? this.defaultValues.irSpecificParameters
     });
+  }
+
+  /**
+   * Get start hour for a specific day (0-23 or null if not working)
+   */
+  getStartHourForDay(dayOfWeek: number): number | null {
+    const cal = this.workingCalendars().find(wc => wc.dayOfWeek === dayOfWeek);
+    if (!cal || !cal.isWorkingDay || !cal.startTime) return null;
+    // Extract hour from "HH:mm:ss" format
+    const hour = parseInt(cal.startTime.split(':')[0], 10);
+    return hour;
+  }
+
+  /**
+   * Get end hour for a specific day (0-23 or null if not working)
+   */
+  getEndHourForDay(dayOfWeek: number): number | null {
+    const cal = this.workingCalendars().find(wc => wc.dayOfWeek === dayOfWeek);
+    if (!cal || !cal.isWorkingDay || !cal.endTime) return null;
+    // Extract hour from "HH:mm:ss" format
+    const hour = parseInt(cal.endTime.split(':')[0], 10);
+    return hour;
+  }
+
+  /**
+   * Update hours for a specific day
+   */
+  updateDayHours(dayOfWeek: number, startHour: number | null, endHour: number | null) {
+    console.log(`[HrSettingsTab] Updating day ${dayOfWeek}: start=${startHour}, end=${endHour}`);
+    const cal = this.workingCalendars().find(wc => wc.dayOfWeek === dayOfWeek);
+    if (cal) {
+      if (startHour !== null) {
+        cal.startTime = `${String(startHour).padStart(2, '0')}:00:00`;
+      }
+      if (endHour !== null) {
+        cal.endTime = `${String(endHour).padStart(2, '0')}:00:00`;
+      }
+    }
   }
 
   private resetFormToCompanyData() {
@@ -227,38 +329,90 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    console.log('[HrSettingsTab] ============ SAVE BUTTON CLICKED ============');
     this.formSubmitted = true;
     this.hrForm.markAllAsTouched();
 
     if (this.hrForm.invalid) {
+      console.warn('[HrSettingsTab] ❌ Form validation failed. Invalid fields detected.');
+      console.warn('[HrSettingsTab] Invalid form controls:', Object.keys(this.hrForm.controls).filter(key => this.hrForm.get(key)?.invalid));
       this.showToast('error', 'Validation Error', 'Please fix the errors in the form before saving');
       this.scrollToFirstError();
       return;
     }
 
     const currentCompany = this.company();
-    if (!currentCompany) return;
+    if (!currentCompany) {
+      console.error('[HrSettingsTab] ❌ No company data available. Cannot save.');
+      return;
+    }
 
+    console.log('[HrSettingsTab] ✓ Form validation passed');
     this.loading.set(true);
     const formValues = this.hrForm.value;
+    const companyId = Number(currentCompany.id);
 
+    console.log('[HrSettingsTab] 📋 Raw form values:', formValues);
+    console.log('[HrSettingsTab] 📋 workingDays selected:', formValues.workingDays);
+    console.log('[HrSettingsTab] 📋 includeSaturdays:', formValues.includeSaturdays);
+    console.log('[HrSettingsTab] 📋 Current working calendars:', this.workingCalendars());
+
+    // Prepare HR params WITHOUT workingDays (those go to WorkingCalendarsController)
     const updatedHrParams: HRParameters = {
       ...currentCompany.hrParameters,
-      ...formValues,
+      workingDays: [], // Keep empty - actual working days are managed by WorkingCalendarsController
+      standardHoursPerDay: formValues.standardHoursPerDay,
+      includeSaturdays: formValues.includeSaturdays,
+      leaveAccrualRate: formValues.leaveAccrualRate,
+      currency: formValues.currency,
+      paymentFrequency: formValues.paymentFrequency,
+      fiscalYearStartMonth: formValues.fiscalYearStartMonth,
+      defaultPaymentMode: formValues.defaultPaymentMode,
+      sector: formValues.sector,
+      collectiveAgreement: formValues.collectiveAgreement,
+      cnssSpecificParameters: formValues.cnssSpecificParameters,
+      irSpecificParameters: formValues.irSpecificParameters,
       annualLeaveDays: formValues.leaveAccrualRate * 12
     };
 
-    this.companyService.updateCompany({ hrParameters: updatedHrParams }).subscribe({
-      next: (updatedCompany) => {
-        this.company.set(updatedCompany);
+    console.log('[HrSettingsTab] 📦 HR params for Company update (NO workingDays):', updatedHrParams);
+    console.log('[HrSettingsTab] 📦 Working calendars to sync (with per-day times):', this.workingCalendars());
+    console.log('[HrSettingsTab] ============ STARTING DUAL SAVE FLOW ============');
+
+    // Create two parallel requests:
+    // 1. Sync working calendar entries via WorkingCalendarsController (with per-day times)
+    // 2. Update HR parameters via Companies controller
+    const workingCalendarSync$ = this.workingCalendarService.syncWorkingDaysWithTimes(
+      companyId,
+      this.workingCalendars()
+    );
+
+    const hrParamsUpdate$ = this.companyService.updateCompany({ 
+      id: currentCompany.id,
+      hrParameters: updatedHrParams 
+    });
+
+    // Execute both operations in parallel using forkJoin
+    forkJoin([workingCalendarSync$, hrParamsUpdate$]).subscribe({
+      next: ([calendarResult, companyResult]) => {
+        console.log('[HrSettingsTab] ✅ SUCCESS: Both operations completed');
+        console.log('[HrSettingsTab] 📥 Working Calendar Sync Result:', calendarResult);
+        console.log('[HrSettingsTab] 📥 Company Update Result:', companyResult.hrParameters);
+        
+        this.company.set(companyResult);
         this.formSubmitted = false;
         this.hrForm.markAsPristine();
-        this.showToast('success', 'Success', 'HR Settings have been successfully updated');
+        this.showToast('success', 'Success', 'HR Settings and Working Calendar have been successfully updated');
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error updating HR settings:', error);
-        this.showToast('error', 'Error', 'Failed to update HR settings. Please try again.');
+        console.error('[HrSettingsTab] ❌ ERROR in dual save flow:', error);
+        console.error('[HrSettingsTab] Error details:', {
+          status: error.status,
+          message: error.message,
+          response: error.error
+        });
+        this.showToast('error', 'Error', 'Failed to update HR settings and working calendar. Please try again.');
         this.loading.set(false);
       }
     });
@@ -279,11 +433,16 @@ export class HrSettingsTabComponent implements OnInit, OnDestroy {
     
     this.hrForm.patchValue({ workingDays: updatedDays });
     this.hrForm.get('workingDays')?.markAsTouched();
-  }
-
-  setStandardHours(hours: number) {
-    this.hrForm.patchValue({ standardHoursPerDay: hours });
-    this.hrForm.get('standardHoursPerDay')?.markAsTouched();
+    
+    // Update the corresponding calendar entry's isWorkingDay property
+    const dayOfWeek = this.dayNameToDayOfWeek(dayValue);
+    const updatedCalendars = this.workingCalendars().map(cal => {
+      if (cal.dayOfWeek === dayOfWeek) {
+        return { ...cal, isWorkingDay: updatedDays.includes(dayValue) };
+      }
+      return cal;
+    });
+    this.workingCalendars.set(updatedCalendars);
   }
 
   private showToast(severity: 'success' | 'error' | 'info', summary: string, detail: string) {

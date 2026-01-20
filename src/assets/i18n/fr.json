@@ -33,6 +33,7 @@
     "absencesTeam": "Absence Équipe",
     "attendanceReport": "Rapport de Présence",
     "overtime": "Heures Supplémentaires",
+    "overtimeManagement": "Validation Heures Sup",
     "holidays": "Jours Fériés"
   },
       "hrGrant": "Accorder une absence",
@@ -302,6 +303,7 @@
       "contractTypes": "Types de Contrat",
       "employeeCategories": "Catégories d'Employés",
       "holidays": "Jours Fériés",
+      "workingCalendar": "Calendrier de Travail",
       "referenceData": "Données de Référence",
       "history": "Historique"
     },
@@ -338,12 +340,17 @@
     },
     "hrSettings": {
       "title": "Paramètres RH",
-      "workingSchedule": "Calendrier de Travail",
-      "workingScheduleDesc": "Définissez la semaine de travail standard et les heures quotidiennes de votre entreprise.",
-      "workingDays": "Jours Ouvrables",
-      "workingDaysHint": "Sélectionnez les jours de travail standard de votre entreprise.",
-      "standardHoursPerDay": "Heures Standard par Jour",
-      "standardHoursHint": "Utilisé pour calculer les taux journaliers et les heures supplémentaires (ex: 8 heures/jour).",
+      "workingSchedule": "Calendrier de travail",
+      "workingScheduleDesc": "Définissez la semaine de travail standard et les heures journalières de votre entreprise.",
+      "workingDays": "Jours ouvrés",
+      "workingDaysHint": "Sélectionnez les jours ouvrés standards pour votre entreprise.",
+      "standardHoursPerDay": "Heures standard par jour",
+      "standardHoursHint": "Utilisé pour calculer les taux journaliers et les heures supplémentaires (ex. 8 heures/jour).",
+      "workingCalendarNotice": {
+        "title": "Configuration du Calendrier de Travail",
+        "description": "Les jours et horaires de travail sont maintenant gérés dans l'onglet Calendrier de Travail. Vous pouvez définir les horaires spécifiques pour chaque jour de la semaine.",
+        "link": "Configurer le Calendrier de Travail"
+      },
       "leaveRules": "Règles de Congés",
       "leaveRulesDesc": "Configurez comment les congés annuels sont accumulés et calculés.",
       "leaveRate": "Taux d'Acquisition des Congés",
@@ -357,6 +364,10 @@
       "ribPlaceholder": "Entrez le numéro RIB à 24 chiffres",
       "ribHint": "Compte bancaire principal de l'entreprise pour les virements de salaire (24 chiffres).",
       "workingHours": "Heures de Travail",
+      "day": "Jour",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin",
+      "workingHoursHint": "Entrez les heures de début et de fin (format 0-23). Exemple : Début 9, Fin 17 pour 9 h à 17 h.",
       "hoursPerWeek": "heures/semaine",
       "helpTitle": "Guide de Configuration RH",
       "helpDescription": "Configurez les paramètres RH essentiels qui affectent les calculs de paie, la gestion des congés et la conformité.",
@@ -1142,6 +1153,7 @@
   "overtime": {
     "title": "Heures Supplémentaires",
     "subtitle": "Déclarez et gérez vos heures supplémentaires",
+    "myRequests": "Mes Demandes",
     "declareOvertime": "Déclarer des Heures Sup",
     "addOvertime": "Ajouter des Heures Supplémentaires",
     "editOvertime": "Modifier des Heures Supplémentaires",
@@ -1151,6 +1163,9 @@
     "confirmCancel": "Êtes-vous sûr de vouloir annuler cette déclaration d'heures supplémentaires ?",
     "table": {
       "date": "Date",
+      "type": "Type",
+      "time": "Horaire",
+      "employee": "Employé",
       "startTime": "Heure Début",
       "endTime": "Heure Fin",
       "totalHours": "Total Heures",
@@ -1181,7 +1196,9 @@
       "createSuccess": "Heures supplémentaires déclarées avec succès",
       "updateSuccess": "Heures supplémentaires mises à jour avec succès",
       "deleteSuccess": "Heures supplémentaires supprimées avec succès",
-      "cancelSuccess": "Heures supplémentaires annulées avec succès"
+      "cancelSuccess": "Heures supplémentaires annulées avec succès",
+      "approved": "Heures supplémentaires approuvées avec succès",
+      "rejected": "Heures supplémentaires rejetées"
     },
     "errors": {
       "loadFailed": "Échec du chargement des heures supplémentaires",
@@ -1189,7 +1206,31 @@
       "updateFailed": "Échec de la mise à jour des heures supplémentaires",
       "deleteFailed": "Échec de la suppression des heures supplémentaires",
       "cancelFailed": "Échec de l'annulation des heures supplémentaires",
+      "approveFailed": "Échec de l'approbation des heures supplémentaires",
+      "rejectFailed": "Échec du rejet des heures supplémentaires",
       "noEmployee": "Aucun employé trouvé"
+    },
+    "management": {
+      "title": "Gestion des Heures Supplémentaires",
+      "subtitle": "Validez les demandes d'heures supplémentaires de vos employés",
+      "allRequests": "Toutes les Demandes",
+      "pending": "En Attente",
+      "review": "Examiner",
+      "reviewRequest": "Examiner la Demande",
+      "employeeInfo": "Informations Employé",
+      "details": "Détails des Heures Supplémentaires",
+      "comment": "Commentaire",
+      "commentPlaceholder": "Ajoutez un commentaire (optionnel pour approbation, requis pour rejet)...",
+      "approve": "Approuver",
+      "reject": "Rejeter"
+    },
+    "filters": {
+      "status": "Statut",
+      "startDate": "Date Début",
+      "endDate": "Date Fin"
+    },
+    "validation": {
+      "rejectCommentRequired": "Un commentaire est requis pour rejeter une demande"
     }
   },
   "holidays": {
@@ -1270,6 +1311,31 @@
       "updateFailed": "Échec de la mise à jour du jour férié",
       "deleteFailed": "Échec de la suppression du jour férié"
     }
+  },
+  "workingCalendar": {
+    "title": "Calendrier de Travail",
+    "description": "Définissez les jours et horaires de travail de votre entreprise",
+    "startTime": "Heure de Début",
+    "endTime": "Heure de Fin",
+    "nonWorkingDay": "Jour Non Travaillé",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "messages": {
+      "saveSuccess": "Calendrier de travail enregistré avec succès"
+    },
+    "errors": {
+      "noCompany": "Aucune entreprise sélectionnée",
+      "loadFailed": "Échec du chargement du calendrier",
+      "saveFailed": "Échec de l'enregistrement du calendrier",
+      "timesRequired": "Les heures de début et de fin sont requises pour {{day}}",
+      "invalidTimeRange": "L'heure de fin doit être après l'heure de début pour {{day}}"
+    }
   }
 }
-

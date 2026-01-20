@@ -12,6 +12,7 @@ import { JobPositionTabComponent } from './tabs/job-position-tab/job-position-ta
 import { ContractTypeTabComponent } from './tabs/contract-type-tab/contract-type-tab.component';
 import { EmployeeCategoriesTabComponent } from './tabs/employee-categories-tab/employee-categories-tab.component';
 import { HolidaysComponent } from '../holidays/holidays';
+import { WorkingCalendarComponent } from './tabs/working-calendar/working-calendar';
 
 @Component({
   selector: 'app-company',
@@ -29,7 +30,8 @@ import { HolidaysComponent } from '../holidays/holidays';
     JobPositionTabComponent,
     ContractTypeTabComponent,
     EmployeeCategoriesTabComponent,
-    HolidaysComponent
+    HolidaysComponent,
+    WorkingCalendarComponent
   ],
   templateUrl: './company.html',
 })

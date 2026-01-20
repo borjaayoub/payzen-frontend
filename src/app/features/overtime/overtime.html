@@ -1,112 +1,160 @@
-<div class="overtime-container">
+<div class="min-h-screen bg-gray-50">
   <p-toast />
   <p-confirmDialog />
 
-  <!-- Header -->
-  <div class="header-section">
-    <div class="header-content">
-      <h1 class="page-title">{{ 'overtime.title' | translate }}</h1>
-      <p class="page-subtitle">{{ 'overtime.subtitle' | translate }}</p>
-    </div>
-    <div class="header-actions">
-      <p-button
-        [label]="'overtime.declareOvertime' | translate"
-        icon="pi pi-plus"
-        (onClick)="openCreateDialog()"
-        styleClass="p-button-primary"
-      />
+  <div>
+    <div class="max-w-7xl mx-auto px-6 pt-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="bg-(--primary)/10 text-(--primary) p-3 rounded-(--rads-lg)">
+              <i class="pi pi-clock text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="heading">
+                {{ 'overtime.title' | translate }}
+              </h1>
+              <p class="subheading mt-1">
+                {{ 'overtime.subtitle' | translate }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p-button
+            [label]="'overtime.declareOvertime' | translate"
+            icon="pi pi-plus"
+            (onClick)="openCreateDialog()"
+          />
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Overtimes Table -->
-  <div class="table-section">
-    <p-table
-      [value]="overtimes()"
-      [loading]="isLoading()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="{{ 'common.table.showing' | translate }}"
-      styleClass="p-datatable-striped"
-      [tableStyle]="{'min-width': '60rem'}"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="overtimeDate">
-            {{ 'overtime.table.date' | translate }}
-            <p-sortIcon field="overtimeDate" />
-          </th>
-          <th>{{ 'overtime.table.startTime' | translate }}</th>
-          <th>{{ 'overtime.table.endTime' | translate }}</th>
-          <th pSortableColumn="totalHours">
-            {{ 'overtime.table.totalHours' | translate }}
-            <p-sortIcon field="totalHours" />
-          </th>
-          <th>{{ 'overtime.table.reason' | translate }}</th>
-          <th pSortableColumn="status">
-            {{ 'overtime.table.status' | translate }}
-            <p-sortIcon field="status" />
-          </th>
-          <th>{{ 'common.actions' | translate }}</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-overtime>
-        <tr>
-          <td>{{ overtime.overtimeDate | date: 'dd/MM/yyyy' }}</td>
-          <td>{{ overtime.startTime }}</td>
-          <td>{{ overtime.endTime }}</td>
-          <td>
-            <strong>{{ overtime.totalHours | number: '1.2-2' }}h</strong>
-          </td>
-          <td>{{ overtime.reason || '-' }}</td>
-          <td>
-            <p-tag
-              [value]="overtime.statusDescription"
-              [severity]="getStatusSeverity(overtime.status)"
-            />
-          </td>
-          <td>
-            <div class="action-buttons">
-              <p-button
-                *ngIf="canEdit(overtime)"
-                icon="pi pi-pencil"
-                [rounded]="true"
-                [text]="true"
-                severity="info"
-                (onClick)="openEditDialog(overtime)"
-                [pTooltip]="'common.edit' | translate"
+  <div class="max-w-7xl mx-auto px-6 py-6">
+    <!-- Overtimes Table -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-(--text-primary)">
+          {{ 'overtime.myRequests' | translate }}
+        </h2>
+      </div>
+
+      <p-table
+        [value]="overtimes()"
+        [loading]="isLoading()"
+        styleClass="p-datatable-sm"
+        [tableStyle]="{'min-width': '50rem'}"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="saas-table-header">{{ 'overtime.table.date' | translate }}</th>
+            <th class="saas-table-header">{{ 'overtime.table.type' | translate }}</th>
+            <th class="saas-table-header">{{ 'overtime.table.time' | translate }}</th>
+            <th class="saas-table-header">{{ 'overtime.table.totalHours' | translate }}</th>
+            <th class="saas-table-header">{{ 'overtime.table.reason' | translate }}</th>
+            <th class="saas-table-header">{{ 'overtime.table.status' | translate }}</th>
+            <th class="saas-table-header">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-overtime>
+          <tr class="saas-table-row">
+            <!-- Date -->
+            <td class="px-6 py-4">{{ overtime.overtimeDate | date: 'dd/MM/yyyy' }}</td>
+
+            <!-- Type -->
+            <td class="px-6 py-4">
+              <p-tag 
+                [value]="getTypeLabel(overtime.overtimeType)" 
+                [severity]="overtime.overtimeType === OvertimeType.Hourly ? 'info' : 'warn'"
+              ></p-tag>
+            </td>
+
+            <!-- Time -->
+            <td class="px-6 py-4">
+              @if (overtime.overtimeType === OvertimeType.Hourly) {
+                <span>{{ overtime.startTime }} - {{ overtime.endTime }}</span>
+              } @else {
+                <span>-</span>
+              }
+            </td>
+
+            <!-- Total Hours -->
+            <td class="px-6 py-4">
+              <strong>{{ overtime.totalHours | number: '1.2-2' }}h</strong>
+            </td>
+
+            <!-- Reason -->
+            <td class="px-6 py-4">
+              <span class="text-sm text-(--text-secondary)">{{ overtime.reason || '-' }}</span>
+            </td>
+
+            <!-- Status -->
+            <td class="px-6 py-4">
+              <p-tag
+                [value]="overtime.statusDescription"
+                [severity]="getStatusSeverity(overtime.status)"
               />
-              <p-button
-                *ngIf="canCancel(overtime)"
-                icon="pi pi-times"
-                [rounded]="true"
-                [text]="true"
-                severity="warn"
-                (onClick)="cancelOvertime(overtime)"
-                [pTooltip]="'overtime.cancel' | translate"
-              />
-              <p-button
-                *ngIf="canEdit(overtime)"
-                icon="pi pi-trash"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                (onClick)="deleteOvertime(overtime)"
-                [pTooltip]="'common.delete' | translate"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7" class="text-center">
-            {{ 'overtime.noData' | translate }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            </td>
+
+            <!-- Actions -->
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                @if (canEdit(overtime)) {
+                  <button
+                    pButton
+                    icon="pi pi-pencil"
+                    [pTooltip]="'common.edit' | translate"
+                    tooltipPosition="top"
+                    (click)="openEditDialog(overtime)"
+                    severity="info"
+                    [text]="true"
+                    [rounded]="true"
+                  ></button>
+                }
+                @if (canCancel(overtime)) {
+                  <button
+                    pButton
+                    icon="pi pi-times"
+                    [pTooltip]="'overtime.cancel' | translate"
+                    tooltipPosition="top"
+                    (click)="cancelOvertime(overtime)"
+                    severity="warn"
+                    [text]="true"
+                    [rounded]="true"
+                  ></button>
+                }
+                @if (canEdit(overtime)) {
+                  <button
+                    pButton
+                    icon="pi pi-trash"
+                    [pTooltip]="'common.delete' | translate"
+                    tooltipPosition="top"
+                    (click)="deleteOvertime(overtime)"
+                    severity="danger"
+                    [text]="true"
+                    [rounded]="true"
+                  ></button>
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center py-8">
+              <div class="flex flex-col items-center gap-3">
+                <i class="pi pi-inbox text-4xl text-(--text-secondary)"></i>
+                <p class="text-(--text-secondary)">{{ 'overtime.noData' | translate }}</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </div>
 
   <!-- Overtime Dialog -->
@@ -117,30 +165,10 @@
     [style]="{width: '600px'}"
     [draggable]="false"
     [resizable]="false"
+    styleClass="app-dialog"
   >
     <form [formGroup]="overtimeForm" class="overtime-form">
-      <!-- Date -->
-      <div class="form-field">
-        <label for="overtimeDate" class="form-label required">
-          {{ 'overtime.form.date' | translate }}
-        </label>
-        <p-datepicker
-          id="overtimeDate"
-          formControlName="overtimeDate"
-          [showIcon]="true"
-          dateFormat="dd/mm/yy"
-          [placeholder]="'overtime.form.selectDate' | translate"
-          styleClass="w-full"
-        ></p-datepicker>
-        <small
-          *ngIf="overtimeForm.get('overtimeDate')?.invalid && overtimeForm.get('overtimeDate')?.touched"
-          class="p-error"
-        >
-          {{ 'common.validation.required' | translate }}
-        </small>
-      </div>
-
-      <!-- Overtime Type -->
+      <!-- Overtime Type (moved before date) -->
       <div class="form-field">
         <label for="overtimeType" class="form-label required">
           {{ 'overtime.form.type' | translate }}
@@ -154,53 +182,74 @@
           [placeholder]="'overtime.form.selectType' | translate"
           styleClass="w-full"
         ></p-select>
-        <small
-          *ngIf="overtimeForm.get('overtimeType')?.invalid && overtimeForm.get('overtimeType')?.touched"
-          class="p-error"
-        >
-          {{ 'common.validation.required' | translate }}
-        </small>
+        @if (overtimeForm.get('overtimeType')?.invalid && overtimeForm.get('overtimeType')?.touched) {
+          <small class="p-error">
+            {{ 'common.validation.required' | translate }}
+          </small>
+        }
+      </div>
+
+      <!-- Date -->
+      <div class="form-field">
+        <label for="overtimeDate" class="form-label required">
+          {{ 'overtime.form.date' | translate }}
+        </label>
+        <p-datepicker
+          id="overtimeDate"
+          formControlName="overtimeDate"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          [placeholder]="'overtime.form.selectDate' | translate"
+          styleClass="w-full"
+        ></p-datepicker>
+        @if (overtimeForm.get('overtimeDate')?.invalid && overtimeForm.get('overtimeDate')?.touched) {
+          <small class="p-error">
+            {{ 'common.validation.required' | translate }}
+          </small>
+        }
       </div>
 
       <!-- Start Time (only for Hourly) -->
-      <div class="form-field" *ngIf="selectedOvertimeType() === 1">
-        <label for="startTime" class="form-label required">
-          {{ 'overtime.form.startTime' | translate }}
-        </label>
-        <input
-          id="startTime"
-          type="time"
-          pInputText
-          formControlName="startTime"
-          class="w-full"
-        />
-        <small
-          *ngIf="overtimeForm.get('startTime')?.invalid && overtimeForm.get('startTime')?.touched"
-          class="p-error"
-        >
-          {{ 'common.validation.required' | translate }}
-        </small>
-      </div>
+      @if (selectedOvertimeType() === 1) {
+        <div class="form-field">
+          <label for="startTime" class="form-label required">
+            {{ 'overtime.form.startTime' | translate }}
+          </label>
+          <input
+            id="startTime"
+            type="time"
+            pInputText
+            formControlName="startTime"
+            class="w-full"
+          />
+          @if (overtimeForm.get('startTime')?.invalid && overtimeForm.get('startTime')?.touched) {
+            <small class="p-error">
+              {{ 'common.validation.required' | translate }}
+            </small>
+          }
+        </div>
+      }
 
       <!-- End Time (only for Hourly) -->
-      <div class="form-field" *ngIf="selectedOvertimeType() === 1">
-        <label for="endTime" class="form-label required">
-          {{ 'overtime.form.endTime' | translate }}
-        </label>
-        <input
-          id="endTime"
-          type="time"
-          pInputText
-          formControlName="endTime"
-          class="w-full"
-        />
-        <small
-          *ngIf="overtimeForm.get('endTime')?.invalid && overtimeForm.get('endTime')?.touched"
-          class="p-error"
-        >
-          {{ 'common.validation.required' | translate }}
-        </small>
-      </div>
+      @if (selectedOvertimeType() === 1) {
+        <div class="form-field">
+          <label for="endTime" class="form-label required">
+            {{ 'overtime.form.endTime' | translate }}
+          </label>
+          <input
+            id="endTime"
+            type="time"
+            pInputText
+            formControlName="endTime"
+            class="w-full"
+          />
+          @if (overtimeForm.get('endTime')?.invalid && overtimeForm.get('endTime')?.touched) {
+            <small class="p-error">
+              {{ 'common.validation.required' | translate }}
+            </small>
+          }
+        </div>
+      }
 
       <!-- Reason -->
       <div class="form-field">

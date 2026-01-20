@@ -74,12 +74,6 @@
                 {{ 'company.hrSettings.formErrors' | translate }}
               </h2>
               <ul class="text-sm text-red-800 space-y-1 list-disc list-inside">
-                @if (hrForm.get('workingDays')?.invalid) {
-                  <li>{{ 'company.hrSettings.errors.workingDaysRequired' | translate }}</li>
-                }
-                @if (hrForm.get('standardHoursPerDay')?.invalid) {
-                  <li>{{ 'company.hrSettings.errors.hoursInvalid' | translate }}</li>
-                }
                 @if (hrForm.get('currency')?.invalid) {
                   <li>{{ 'company.hrSettings.errors.currencyRequired' | translate }}</li>
                 }
@@ -165,62 +159,89 @@
               }
             </div>
 
-            <!-- Standard Hours -->
+            <!-- Standard Work Hours (Per-Day Times) -->
             <div class="form-field">
-              <label class="form-label form-label-required">
-                {{ 'company.hrSettings.standardHoursPerDay' | translate }}
+              <label class="form-label">
+                {{ 'company.hrSettings.workingHours' | translate }}
               </label>
               
-              <!-- Quick Preset Hours + Custom Input -->
-              <div class="flex items-center gap-3">
-                <!-- Preset Buttons -->
-                <div class="flex gap-1.5">
-                  @for (preset of hoursPresets; track preset) {
-                    <button
-                      type="button"
-                      [class]="'relative flex items-center justify-center size-10 rounded-lg border transition-colors duration-150 text-sm font-semibold ' +
-                        (hrForm.get('standardHoursPerDay')?.value === preset
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:bg-blue-50')"
-                      (click)="setStandardHours(preset)"
-                      [attr.aria-label]="preset + ' hours'"
-                      [attr.aria-pressed]="hrForm.get('standardHoursPerDay')?.value === preset">
-                      {{ preset }}h
-                    </button>
-                  }
-                </div>
-                
-                <!-- Divider -->
-                <div class="h-8 w-px bg-gray-300"></div>
-                
-                <!-- Custom Input -->
-                <div class="flex-1 max-w-[180px]">
-                  <p-inputNumber
-                    id="standardHoursPerDay"
-                    formControlName="standardHoursPerDay"
-                    [min]="0"
-                    [max]="24"
-                    [minFractionDigits]="1"
-                    [maxFractionDigits]="1"
-                    suffix=" hrs"
-                    styleClass="w-full"
-                    [attr.aria-required]="true"
-                    [attr.aria-invalid]="isFieldInvalid('standardHoursPerDay')"
-                    aria-describedby="hours-help">
-                  </p-inputNumber>
-                </div>
+              <!-- Working Days Hours Table -->
+              <div class="mt-4 overflow-x-auto">
+                <table class="w-full border-collapse">
+                  <thead>
+                    <tr class="bg-gray-100 border-b border-gray-300">
+                      <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        {{ 'company.hrSettings.day' | translate }}
+                      </th>
+                      <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                        {{ 'company.hrSettings.startTime' | translate }}
+                      </th>
+                      <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                        {{ 'company.hrSettings.endTime' | translate }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (cal of workingCalendars(); track cal.dayOfWeek) {
+                      @if (cal.isWorkingDay) {
+                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                          <!-- Day Name -->
+                          <td class="px-4 py-3 text-sm font-medium text-gray-700">
+                            {{ cal.dayOfWeekName }}
+                          </td>
+                          
+                          <!-- Start Hour Input -->
+                          <td class="px-4 py-3 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              max="23"
+                              [(ngModel)]="cal.startTimeHour"
+                              [ngModelOptions]="{standalone: true}"
+                              (change)="updateDayHours(cal.dayOfWeek, cal.startTimeHour, cal.endTimeHour)"
+                              class="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          </td>
+                          
+                          <!-- End Hour Input -->
+                          <td class="px-4 py-3 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              max="23"
+                              [(ngModel)]="cal.endTimeHour"
+                              [ngModelOptions]="{standalone: true}"
+                              (change)="updateDayHours(cal.dayOfWeek, cal.startTimeHour, cal.endTimeHour)"
+                              class="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
               </div>
               
-              <small id="hours-help" class="block mt-2 text-xs text-gray-500">
-                {{ 'company.hrSettings.standardHoursHint' | translate }}
+              <small id="hours-help" class="block mt-3 text-xs text-gray-500 flex items-start gap-1.5">
+                <i class="pi pi-info-circle text-blue-500 mt-0.5 shrink-0"></i>
+                <span>{{ 'company.hrSettings.workingHoursHint' | translate }}</span>
               </small>
-              
-              @if (isFieldInvalid('standardHoursPerDay')) {
-                <small class="form-error flex items-center gap-1" role="alert">
-                  <i class="pi pi-exclamation-circle"></i>
-                  {{ 'company.hrSettings.errors.hoursInvalid' | translate }}
-                </small>
-              }
+            </div>
+
+            <!-- Save Button for Working Schedule -->
+            <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
+              <button
+                type="submit"
+                [disabled]="loading() || !hrForm.get('workingDays')?.touched"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors duration-150 flex items-center gap-2">
+                <i class="pi pi-save" [class.animate-spin]="loading()"></i>
+                {{ 'common.save' | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="onCancel()"
+                [disabled]="loading()"
+                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-700 rounded-lg font-medium transition-colors duration-150">
+                {{ 'common.cancel' | translate }}
+              </button>
             </div>
           </div>
         </section>

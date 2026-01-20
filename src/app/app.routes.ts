@@ -110,6 +110,11 @@ export const routes: Routes = [
         canActivate: [authGuard]
       },
       {
+        path: 'overtime-management',
+        loadComponent: () => import('./features/overtime/overtime-management/overtime-management').then(m => m.OvertimeManagementComponent),
+        canActivate: [rhGuard]
+      },
+      {
         path: 'employees/create',
         component: EmployeeCreatePage,
         canActivate: [rhGuard]

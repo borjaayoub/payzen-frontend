@@ -33,6 +33,7 @@
     "absences": "Absences",
     "attendanceReport": "Attendance Report",
     "overtime": "Overtime",
+    "overtimeManagement": "Overtime Approval",
     "holidays": "Holidays"
   },
   "expert": {
@@ -293,6 +294,7 @@
       "contractTypes": "Contract Types",
       "employeeCategories": "Employee Categories",
       "holidays": "Holidays",
+      "workingCalendar": "Working Calendar",
       "referenceData": "Reference Data",
       "history": "History"
     },
@@ -335,6 +337,11 @@
       "workingDaysHint": "Select the standard working days for your company.",
       "standardHoursPerDay": "Standard Hours per Day",
       "standardHoursHint": "Used to calculate daily rates and overtime (e.g., 8 hours/day).",
+      "workingCalendarNotice": {
+        "title": "Working Calendar Configuration",
+        "description": "Working days and hours are now managed in the Working Calendar tab. You can define specific hours for each day of the week.",
+        "link": "Configure Working Calendar"
+      },
       "leaveRules": "Leave Rules",
       "leaveRulesDesc": "Configure how annual leave is accrued and calculated.",
       "leaveRate": "Leave Accrual Rate",
@@ -348,6 +355,10 @@
       "ribPlaceholder": "Enter 24-digit RIB number",
       "ribHint": "Company's primary bank account for salary transfers (24 digits).",
       "workingHours": "Working Hours",
+      "day": "Day",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "workingHoursHint": "Enter the start and end hours (0-23 format). Example: Start 9, End 17 for 9 AM to 5 PM.",
       "hoursPerWeek": "hours/week",
       "helpTitle": "HR Configuration Guide",
       "helpDescription": "Configure core HR parameters that affect payroll calculations, leave management, and compliance.",
@@ -1123,6 +1134,7 @@
   "overtime": {
     "title": "Overtime",
     "subtitle": "Declare and manage your overtime hours",
+    "myRequests": "My Requests",
     "declareOvertime": "Declare Overtime",
     "addOvertime": "Add Overtime",
     "editOvertime": "Edit Overtime",
@@ -1132,6 +1144,9 @@
     "confirmCancel": "Are you sure you want to cancel this overtime declaration?",
     "table": {
       "date": "Date",
+      "type": "Type",
+      "time": "Time",
+      "employee": "Employee",
       "startTime": "Start Time",
       "endTime": "End Time",
       "totalHours": "Total Hours",
@@ -1162,7 +1177,9 @@
       "createSuccess": "Overtime successfully declared",
       "updateSuccess": "Overtime successfully updated",
       "deleteSuccess": "Overtime successfully deleted",
-      "cancelSuccess": "Overtime successfully cancelled"
+      "cancelSuccess": "Overtime successfully cancelled",
+      "approved": "Overtime approved successfully",
+      "rejected": "Overtime rejected"
     },
     "errors": {
       "loadFailed": "Failed to load overtime records",
@@ -1170,7 +1187,31 @@
       "updateFailed": "Failed to update overtime",
       "deleteFailed": "Failed to delete overtime",
       "cancelFailed": "Failed to cancel overtime",
+      "approveFailed": "Failed to approve overtime",
+      "rejectFailed": "Failed to reject overtime",
       "noEmployee": "No employee found"
+    },
+    "management": {
+      "title": "Overtime Management",
+      "subtitle": "Review and approve employee overtime requests",
+      "allRequests": "All Requests",
+      "pending": "Pending",
+      "review": "Review",
+      "reviewRequest": "Review Request",
+      "employeeInfo": "Employee Information",
+      "details": "Overtime Details",
+      "comment": "Comment",
+      "commentPlaceholder": "Add a comment (optional for approval, required for rejection)...",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "filters": {
+      "status": "Status",
+      "startDate": "Start Date",
+      "endDate": "End Date"
+    },
+    "validation": {
+      "rejectCommentRequired": "A comment is required to reject a request"
     }
   },
   "holidays": {
@@ -1251,6 +1292,31 @@
       "updateFailed": "Failed to update holiday",
       "deleteFailed": "Failed to delete holiday"
     }
+  },
+  "workingCalendar": {
+    "title": "Working Calendar",
+    "description": "Define your company's working days and hours",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "nonWorkingDay": "Non-Working Day",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "messages": {
+      "saveSuccess": "Working calendar saved successfully"
+    },
+    "errors": {
+      "noCompany": "No company selected",
+      "loadFailed": "Failed to load working calendar",
+      "saveFailed": "Failed to save working calendar",
+      "timesRequired": "Start and end times are required for {{day}}",
+      "invalidTimeRange": "End time must be after start time for {{day}}"
+    }
   }
 }
-

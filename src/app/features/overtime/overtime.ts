@@ -69,6 +69,10 @@ export class OvertimeComponent implements OnInit {
   readonly currentUserId = signal<number | null>(null);
   readonly selectedOvertimeType = signal<OvertimeType>(OvertimeType.Hourly);
 
+  // Expose enum for template
+  readonly OvertimeType = OvertimeType;
+  readonly OvertimeStatus = OvertimeStatus;
+
   // Form
   overtimeForm!: FormGroup;
 
@@ -408,6 +412,15 @@ export class OvertimeComponent implements OnInit {
       default:
         return 'info';
     }
+  }
+
+  /**
+   * Get type label
+   */
+  getTypeLabel(type: OvertimeType): string {
+    return type === OvertimeType.Hourly 
+      ? this.translate.instant('overtime.type.hourly')
+      : this.translate.instant('overtime.type.holiday');
   }
 
   /**

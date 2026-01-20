@@ -139,6 +139,22 @@ export class OvertimeService {
   }
 
   /**
+   * Approve an overtime declaration (for managers/RH)
+   */
+  approveOvertime(id: number, comment?: string): Observable<Overtime> {
+    return this.http.put<OvertimeReadDto>(`${this.OVERTIME_URL}/${id}/approve`, { comment })
+      .pipe(map(dto => this.mapDtoToOvertime(dto)));
+  }
+
+  /**
+   * Reject an overtime declaration (for managers/RH)
+   */
+  rejectOvertime(id: number, comment: string): Observable<Overtime> {
+    return this.http.put<OvertimeReadDto>(`${this.OVERTIME_URL}/${id}/reject`, { comment })
+      .pipe(map(dto => this.mapDtoToOvertime(dto)));
+  }
+
+  /**
    * Get overtime statistics for an employee
    */
   getOvertimeStats(employeeId?: number): Observable<OvertimeStats> {

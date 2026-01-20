@@ -139,6 +139,13 @@ export class CompanyService {
     }
 
     const updateDto = this.mapCompanyToUpdateDto(company);
+    // If hrParameters are provided in the partial company, include them in the payload
+    if ((company as any).hrParameters) {
+      (updateDto as any).hrParameters = (company as any).hrParameters;
+    }
+
+    // Debug: log the final payload to help trace why HR params may not be persisted
+    console.debug('[CompanyService] updateCompany payload:', { companyId, updateDto, rawCompany: company });
     const url = `${this.apiUrl}/companies/${companyId}`;
 
     return this.http.patch<CompanyDto>(url, updateDto).pipe(

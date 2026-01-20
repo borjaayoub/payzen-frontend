@@ -45,6 +45,8 @@ export interface HRParameters {
   workingHoursPerDay: number;
   workingHoursPerWeek: number;
   standardHoursPerDay?: number;
+  startTime?: number; // Hour only (0-23)
+  endTime?: number;   // Hour only (0-23)
   leaveCalculationMode: string;
   absenceCalculationMode: string;
   annualLeaveDays: number;
