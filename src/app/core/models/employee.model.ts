@@ -83,6 +83,12 @@ export interface Employee {
   cnss: string;
   amo: string;
   cimr?: string;
+  cimrEmployeeRate?: number | null;
+  cimrCompanyRate?: number | null;
+  hasPrivateInsurance?: boolean;
+  privateInsuranceNumber?: string | null;
+  privateInsuranceRate?: number | null;
+  disableAmo?: boolean;
   annualLeave: number;
   employeeCategoryId?: number;
   employeeCategoryName?: string;
@@ -146,7 +152,7 @@ export interface BackendEmployee {
   SeniorityBonus: number;
   BenefitsInKind?: string;
   PaymentMethod: string;
-  Cnss: string;
+  cnss: string;
   Amo: string;
   Cimr?: string;
   AnnualLeave: number;

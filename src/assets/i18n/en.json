@@ -733,6 +733,14 @@
         "cnss": "CNSS",
         "amo": "AMO",
         "cimr": "CIMR",
+        "cimrEmployeeRate": "CIMR Employee Rate",
+        "cimrCompanyRate": "CIMR Employer Rate",
+        "hasPrivateInsurance": "Private Insurance",
+        "hasPrivateInsuranceLabel": "Employee has private insurance",
+        "privateInsuranceNumber": "Private Insurance Number",
+        "privateInsuranceRate": "Private Insurance Rate",
+        "disableAmo": "Disable AMO",
+        "disableAmoLabel": "Disable AMO coverage for this employee",
         "annualLeave": "Annual Leave"
       },
       "documents": {
@@ -1224,16 +1232,16 @@
     "noData": "No holidays found",
     "confirmDelete": "Are you sure you want to delete this holiday?",
     "filters": {
+      "title": "Filters",
       "year": "Year",
       "scope": "Scope",
       "type": "Type",
       "status": "Status"
     },
     "table": {
+      "title": "Holidays List",
       "date": "Date",
-      "nameFr": "Name (FR)",
-      "nameAr": "Name (AR)",
-      "nameEn": "Name (EN)",
+      "name": "Name",
       "type": "Type",
       "scope": "Scope",
       "paid": "Paid",

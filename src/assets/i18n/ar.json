@@ -595,6 +595,14 @@
         "cnss": "CNSS",
         "amo": "AMO",
         "cimr": "CIMR",
+        "cimrEmployeeRate": "معدل CIMR للموظف",
+        "cimrCompanyRate": "معدل CIMR لصاحب العمل",
+        "hasPrivateInsurance": "التأمين الخاص",
+        "hasPrivateInsuranceLabel": "الموظف لديه تأمين خاص",
+        "privateInsuranceNumber": "رقم التأمين الخاص",
+        "privateInsuranceRate": "معدل التأمين الخاص",
+        "disableAmo": "تعطيل AMO",
+        "disableAmoLabel": "تعطيل تغطية AMO لهذا الموظف",
         "annualLeave": "العطلة السنوية"
       },
       "documents": {
@@ -1077,9 +1085,7 @@
     },
     "table": {
       "date": "التاريخ",
-      "nameFr": "الاسم (FR)",
-      "nameAr": "الاسم (AR)",
-      "nameEn": "الاسم (EN)",
+      "name": "الاسم",
       "type": "النوع",
       "scope": "النطاق",
       "paid": "مدفوع",

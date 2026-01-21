@@ -7,11 +7,14 @@ import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ContractTypeService } from '../../../../core/services/contract-type.service';
+import { LegalContractTypeService, LegalContractTypeOption } from '../../../../core/services/legal-contract-type.service';
+import { StateEmploymentProgramService, StateEmploymentProgramOption } from '../../../../core/services/state-employment-program.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CompanyContextService } from '../../../../core/services/companyContext.service';
 import { ContractType } from '../../../../core/models/contract-type.model';
@@ -31,6 +34,7 @@ import { catchError } from 'rxjs/operators';
     DialogModule,
     InputTextModule,
     AutoCompleteModule,
+    SelectModule,
     ToastModule,
     TagModule,
     ConfirmDialogModule
@@ -41,6 +45,8 @@ import { catchError } from 'rxjs/operators';
 export class ContractTypeTabComponent implements OnInit {
   private fb = inject(FormBuilder);
   private contractTypeService = inject(ContractTypeService);
+  private legalContractTypeService = inject(LegalContractTypeService);
+  private stateEmploymentProgramService = inject(StateEmploymentProgramService);
   private contextService = inject(CompanyContextService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -51,6 +57,8 @@ export class ContractTypeTabComponent implements OnInit {
   predefinedContractTypes = signal<ContractType[]>([]);
   filteredContractTypes = signal<ContractType[]>([]);
   contractTypes = signal<ContractType[]>([]);
+  legalContractTypeOptions = signal<LegalContractTypeOption[]>([]);
+  stateEmploymentProgramOptions = signal<StateEmploymentProgramOption[]>([]);
   loading = signal(false);
   dialogVisible = signal(false);
   submitLoading = signal(false);
@@ -62,6 +70,7 @@ export class ContractTypeTabComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.loadReferentialData();
     this.loadContractTypes();
     // Reload when company context changes
     this.contextService.contextChanged$
@@ -71,7 +80,33 @@ export class ContractTypeTabComponent implements OnInit {
 
   private initForm() {
     this.contractTypeForm = this.fb.group({
-      contractTypeName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]]
+      contractTypeName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      legalContractTypeId: [null],
+      stateEmploymentProgramId: [null]
+    });
+  }
+
+  private loadReferentialData() {
+    console.log('[ContractTypeTab] Loading referential data...');
+    forkJoin({
+      legalTypes: this.legalContractTypeService.getOptions().pipe(catchError((err) => {
+        console.error('[ContractTypeTab] Error loading legal types:', err);
+        return of([]);
+      })),
+      programs: this.stateEmploymentProgramService.getOptions().pipe(catchError((err) => {
+        console.error('[ContractTypeTab] Error loading programs:', err);
+        return of([]);
+      }))
+    }).subscribe({
+      next: ({ legalTypes, programs }) => {
+        console.log('[ContractTypeTab] Legal types loaded:', legalTypes);
+        console.log('[ContractTypeTab] Programs loaded:', programs);
+        this.legalContractTypeOptions.set(legalTypes);
+        this.stateEmploymentProgramOptions.set(programs);
+      },
+      error: (err) => {
+        console.error('[ContractTypeTab] Error loading referential data', err);
+      }
     });
   }
 
@@ -113,7 +148,9 @@ export class ContractTypeTabComponent implements OnInit {
     this.isEditMode = true;
     this.currentContractTypeId = contractType.id;
     this.contractTypeForm.patchValue({
-      contractTypeName: contractType.contractTypeName
+      contractTypeName: contractType.contractTypeName,
+      legalContractTypeId: contractType.legalContractTypeId,
+      stateEmploymentProgramId: contractType.stateEmploymentProgramId
     });
     this.dialogVisible.set(true);
   }
@@ -138,7 +175,9 @@ export class ContractTypeTabComponent implements OnInit {
     if (this.isEditMode && this.currentContractTypeId) {
       // Update only needs the name
       const updatePayload = {
-        ContractTypeName: name
+        ContractTypeName: name,
+        LegalContractTypeId: this.contractTypeForm.value.legalContractTypeId,
+        StateEmploymentProgramId: this.contractTypeForm.value.stateEmploymentProgramId
       };
 
       this.contractTypeService.update(this.currentContractTypeId, updatePayload).subscribe({
@@ -161,7 +200,9 @@ export class ContractTypeTabComponent implements OnInit {
       // Create needs name and company ID
       const createPayload = {
         ContractTypeName: name,
-        CompanyId: Number(companyId)
+        CompanyId: Number(companyId),
+        LegalContractTypeId: this.contractTypeForm.value.legalContractTypeId,
+        StateEmploymentProgramId: this.contractTypeForm.value.stateEmploymentProgramId
       };
 
       this.contractTypeService.create(createPayload).subscribe({

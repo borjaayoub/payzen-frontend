@@ -231,6 +231,44 @@
           {{ 'company.contractTypes.nameHint' | translate }}
         </small>
       </div>
+
+      <div class="form-field mt-4">
+        <label for="legalContractType" class="form-label">
+          {{ 'company.contractTypes.fields.legalContractType' | translate }}
+        </label>
+        <p-select 
+          id="legalContractType"
+          formControlName="legalContractTypeId"
+          [options]="legalContractTypeOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'company.contractTypes.placeholders.legalContractType' | translate"
+          styleClass="w-full"
+          [showClear]="true">
+        </p-select>
+        <small class="block text-xs text-gray-500 mt-1.5">
+          Type de contrat légal marocain (CDI, CDD, Stage, etc.)
+        </small>
+      </div>
+
+      <div class="form-field mt-4">
+        <label for="stateEmploymentProgram" class="form-label">
+          {{ 'company.contractTypes.fields.stateEmploymentProgram' | translate }}
+        </label>
+        <p-select 
+          id="stateEmploymentProgram"
+          formControlName="stateEmploymentProgramId"
+          [options]="stateEmploymentProgramOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'company.contractTypes.placeholders.stateEmploymentProgram' | translate"
+          styleClass="w-full"
+          [showClear]="true">
+        </p-select>
+        <small class="block text-xs text-gray-500 mt-1.5">
+          Programme d'emploi gouvernemental (ANAPEC, IDMAJ, TAHFIZ)
+        </small>
+      </div>
       
       <!-- Quick Examples -->
       @if (!isEditMode) {

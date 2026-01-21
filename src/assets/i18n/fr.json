@@ -585,10 +585,14 @@
         "name": "Nom du type de contrat"
       },
       "fields": {
-        "name": "Nom du type de contrat"
+        "name": "Nom du type de contrat",
+        "legalContractType": "Type de Contrat Légal",
+        "stateEmploymentProgram": "Programme d'Emploi Gouvernemental"
       },
       "placeholders": {
-        "name": "ex : CDI, CDD, Stage"
+        "name": "ex : CDI, CDD, Stage",
+        "legalContractType": "Sélectionnez le type légal",
+        "stateEmploymentProgram": "Sélectionnez le programme (optionnel)"
       }
     },
     "employeeCategories": {
@@ -740,6 +744,14 @@
         "cnss": "CNSS",
         "amo": "AMO",
         "cimr": "CIMR",
+        "cimrEmployeeRate": "Taux CIMR Employé",
+        "cimrCompanyRate": "Taux CIMR Employeur",
+        "hasPrivateInsurance": "Assurance Privée",
+        "hasPrivateInsuranceLabel": "L'employé possède une assurance privée",
+        "privateInsuranceNumber": "N° Assurance Privée",
+        "privateInsuranceRate": "Taux Assurance Privée",
+        "disableAmo": "Désactiver AMO",
+        "disableAmoLabel": "Désactiver la couverture AMO pour cet employé",
         "annualLeave": "Congés Annuels"
       },
       "documents": {
@@ -1250,9 +1262,7 @@
     },
     "table": {
       "date": "Date",
-      "nameFr": "Nom (FR)",
-      "nameAr": "Nom (AR)",
-      "nameEn": "Nom (EN)",
+      "name": "Nom",
       "type": "Type",
       "scope": "Portée",
       "paid": "Payé",

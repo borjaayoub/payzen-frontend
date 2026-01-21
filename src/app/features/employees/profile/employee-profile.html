@@ -599,7 +599,7 @@
                 <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.salary.baseSalary' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-inputnumber [ngModel]="employee().baseSalary" (ngModelChange)="updateField('baseSalary', $event ?? 0)" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full input" title="{{ 'employees.profile.salary.baseSalary' | translate }}"></p-inputnumber>
+                    <p-inputnumber [ngModel]="employee().baseSalary" (ngModelChange)="updateField('baseSalary', $event ?? 0)" mode="currency" currency="MAD" locale="fr-MA" styleClass="w-full" inputStyleClass="w-full input" title="{{ 'employees.profile.salary.baseSalary' | translate }}"></p-inputnumber>
                   } @else {
                     <p class="read-only-value">{{ employee().baseSalary | number:'1.2-2' }} MAD</p>
                   }
@@ -714,11 +714,9 @@
                   @if (isEditMode()) {
                     <input pInputText [ngModel]="employee().cnss" (ngModelChange)="updateField('cnss', $event)" class="w-full input" title="{{ 'employees.profile.legal.cnss' | translate }}" />
                   } @else {
-                    <p class="read-only-value">{{ employee().cnss }}</p>
+                    <p class="read-only-value">{{ employee().cnss || '-' }}</p>
                   }
                 </div>
-
-
 
                 <div class="form-field">
                   <label class="form-label">{{ 'employees.profile.legal.cimr' | translate }}</label>
@@ -730,9 +728,71 @@
                 </div>
 
                 <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.legal.cimrEmployeeRate' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [ngModel]="employee().cimrEmployeeRate" (ngModelChange)="onCimrEmployeeRateChange($event)" suffix=" %" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" inputStyleClass="w-full input"></p-inputnumber>
+                  } @else {
+                    <p class="read-only-value">{{ employee().cimrEmployeeRate ? (employee().cimrEmployeeRate + ' %') : '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.legal.cimrCompanyRate' | translate }}</label>
+                  @if (isEditMode()) {
+                    <p-inputnumber [ngModel]="employee().cimrCompanyRate" (ngModelChange)="updateField('cimrCompanyRate', $event)" suffix=" %" [minFractionDigits]="2" [maxFractionDigits]="2" [disabled]="true" styleClass="w-full bg-surface-100" inputStyleClass="w-full input"></p-inputnumber>
+                  } @else {
+                    <p class="read-only-value">{{ employee().cimrCompanyRate ? (employee().cimrCompanyRate + ' %') : '-' }}</p>
+                  }
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">{{ 'employees.profile.legal.hasPrivateInsurance' | translate }}</label>
+                  @if (isEditMode()) {
+                    <div class="flex items-center gap-2">
+                      <p-checkbox [ngModel]="employee().hasPrivateInsurance" (ngModelChange)="updateField('hasPrivateInsurance', $event)" [binary]="true" inputId="hasPrivateInsurance"></p-checkbox>
+                      <label for="hasPrivateInsurance" class="cursor-pointer">{{ 'employees.profile.legal.hasPrivateInsuranceLabel' | translate }}</label>
+                    </div>
+                  } @else {
+                    <p class="read-only-value">{{ (employee().hasPrivateInsurance ? 'common.yes' : 'common.no') | translate }}</p>
+                  }
+                </div>
+
+                @if (employee().hasPrivateInsurance) {
+                  <div class="form-field">
+                    <label class="form-label">{{ 'employees.profile.legal.privateInsuranceNumber' | translate }}</label>
+                    @if (isEditMode()) {
+                      <input pInputText [ngModel]="employee().privateInsuranceNumber" (ngModelChange)="updateField('privateInsuranceNumber', $event)" class="w-full input" title="{{ 'employees.profile.legal.privateInsuranceNumber' | translate }}" />
+                    } @else {
+                      <p class="read-only-value">{{ employee().privateInsuranceNumber || '-' }}</p>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label">{{ 'employees.profile.legal.privateInsuranceRate' | translate }}</label>
+                    @if (isEditMode()) {
+                      <p-inputnumber [ngModel]="employee().privateInsuranceRate" (ngModelChange)="updateField('privateInsuranceRate', $event)" suffix=" %" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" inputStyleClass="w-full input"></p-inputnumber>
+                    } @else {
+                      <p class="read-only-value">{{ employee().privateInsuranceRate ? (employee().privateInsuranceRate + ' %') : '-' }}</p>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label">{{ 'employees.profile.legal.disableAmo' | translate }}</label>
+                    @if (isEditMode()) {
+                      <div class="flex items-center gap-2">
+                        <p-checkbox [ngModel]="employee().disableAmo" (ngModelChange)="updateField('disableAmo', $event)" [binary]="true" inputId="disableAmo"></p-checkbox>
+                        <label for="disableAmo" class="cursor-pointer">{{ 'employees.profile.legal.disableAmoLabel' | translate }}</label>
+                      </div>
+                    } @else {
+                      <p class="read-only-value">{{ (employee().disableAmo ? 'common.yes' : 'common.no') | translate }}</p>
+                    }
+                  </div>
+                }
+
+                <div class="form-field">
                   <label class="form-label required">{{ 'employees.profile.legal.annualLeave' | translate }}</label>
                   @if (isEditMode()) {
-                    <p-inputnumber [ngModel]="employee().annualLeave" (ngModelChange)="updateField('annualLeave', $event ?? 0)" suffix=" jours" styleClass="w-full input"></p-inputnumber>
+                    <p-inputnumber [ngModel]="employee().annualLeave" (ngModelChange)="updateField('annualLeave', $event ?? 0)" suffix=" jours" styleClass="w-full" inputStyleClass="w-full input"></p-inputnumber>
                   } @else {
                     <p class="read-only-value">{{ employee().annualLeave }} jours</p>
                   }

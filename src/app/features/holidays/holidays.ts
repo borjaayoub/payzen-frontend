@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // PrimeNG
@@ -53,6 +53,7 @@ export class HolidaysComponent {
   private readonly fb = inject(FormBuilder);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   // Expose HolidayScope for template
   readonly HolidayScope = HolidayScope;
@@ -418,6 +419,23 @@ export class HolidaysComponent {
    */
   getActiveSeverity(isActive: boolean): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
     return isActive ? 'success' : 'danger';
+  }
+
+  /**
+   * Get holiday name based on current language
+   */
+  getHolidayName(holiday: Holiday): string {
+    const currentLang = this.translate.currentLang || 'en';
+    
+    switch (currentLang) {
+      case 'fr':
+        return holiday.nameFr;
+      case 'ar':
+        return holiday.nameAr;
+      case 'en':
+      default:
+        return holiday.nameEn;
+    }
   }
 
   /**

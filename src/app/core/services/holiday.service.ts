@@ -113,7 +113,14 @@ export class HolidayService {
   createHoliday(request: CreateHolidayRequest): Observable<Holiday> {
     return this.http.post<any>(this.apiUrl, request).pipe(
       map(response => {
-        // Handle wrapped response from CreatedAtAction
+        // Handle null response or wrapped response from CreatedAtAction
+        if (!response) {
+          // If response is null, return a minimal holiday object
+          return {
+            ...request,
+            id: 0 // Will be set by refresh
+          } as Holiday;
+        }
         const dto = response.value || response;
         return this.mapDtoToHoliday(dto);
       })

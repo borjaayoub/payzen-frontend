@@ -246,6 +246,12 @@ interface EmployeeDetailsResponse {
   cnss?: string | number;
   amo?: string | number;
   cimr?: string | number;
+  cimrEmployeeRate?: number | null;
+  cimrCompanyRate?: number | null;
+  hasPrivateInsurance?: boolean;
+  privateInsuranceNumber?: string | null;
+  privateInsuranceRate?: number | null;
+  disableAmo?: boolean;
   createdAt?: string;
   updatedAt?: string;
   companyId?: string | number;
@@ -787,12 +793,53 @@ export class EmployeeService {
       amount: c.amount
     }));
     
+    // Debug address object structure
+    console.log('[EmployeeService] Address payload:', {
+      'payload.address': payload.address,
+      '(payload as any).Address': (payload as any).Address,
+      'full payload keys': Object.keys(payload)
+    });
+    
     const addressPayload = payload.address || (payload as any).Address;
+    console.log('[EmployeeService] Extracted addressPayload:', addressPayload);
+    
     const cityName = addressPayload?.cityName || addressPayload?.CityName || '';
     const countryName = addressPayload?.countryName || addressPayload?.CountryName || '';
     const addressLine1 = addressPayload?.addressLine1 || addressPayload?.AddressLine1 || '';
     const addressLine2 = addressPayload?.addressLine2 || addressPayload?.AddressLine2 || '';
     const zipCode = addressPayload?.zipCode || addressPayload?.ZipCode || '';
+    
+    console.log('[EmployeeService] Extracted address fields:', {
+      cityName,
+      countryName,
+      addressLine1,
+      addressLine2,
+      zipCode
+    });
+
+    // Debug CNSS and CIMR values
+    console.log('[EmployeeService] CNSS raw values:', {
+      'payload.cnss': payload.cnss,
+      '(payload as any).Cnss': (payload as any).Cnss,
+      '(payload as any).CNSS': (payload as any).CNSS,
+      'coalesced': payload.cnss ?? (payload as any).Cnss ?? (payload as any).CNSS
+    });
+    console.log('[EmployeeService] CIMR raw values:', {
+      'payload.cimr': payload.cimr,
+      '(payload as any).Cimr': (payload as any).Cimr,
+      '(payload as any).CIMR': (payload as any).CIMR,
+      'coalesced': payload.cimr ?? (payload as any).Cimr ?? (payload as any).CIMR
+    });
+
+    const cnssValue = this.toStringValue(payload.cnss ?? (payload as any).Cnss ?? (payload as any).CNSS);
+    const amoValue = this.toStringValue(payload.amo ?? (payload as any).Amo ?? (payload as any).AMO);
+    const cimrValue = this.toStringValue(payload.cimr ?? (payload as any).Cimr ?? (payload as any).CIMR);
+
+    console.log('[EmployeeService] After toStringValue:', {
+      cnss: cnssValue,
+      amo: amoValue,
+      cimr: cimrValue
+    });
 
     const detail: EmployeeProfileModel = {
       id: this.toStringValue(payload.id),
@@ -824,10 +871,16 @@ export class EmployeeService {
       salaryComponents,
       activeSalaryId: undefined,
       paymentMethod: this.mapPaymentMethod(payload.salaryPaymentMethod),
-      cnss: this.toStringValue(payload.cnss),
-      amo: this.toStringValue(payload.amo),
-      cimr: this.toStringValue(payload.cimr) || undefined,
-      annualLeave: payload.annualLeave ?? 0,
+      cnss: cnssValue || '',
+      amo: amoValue || '',
+      cimr: cimrValue || undefined,
+      cimrEmployeeRate: payload.cimrEmployeeRate ?? (payload as any).CimrEmployeeRate ?? null,
+      cimrCompanyRate: payload.cimrCompanyRate ?? (payload as any).CimrCompanyRate ?? null,
+      hasPrivateInsurance: payload.hasPrivateInsurance ?? (payload as any).HasPrivateInsurance ?? false,
+      privateInsuranceNumber: payload.privateInsuranceNumber ?? (payload as any).PrivateInsuranceNumber ?? null,
+      privateInsuranceRate: payload.privateInsuranceRate ?? (payload as any).PrivateInsuranceRate ?? null,
+      disableAmo: payload.disableAmo ?? (payload as any).DisableAmo ?? false,
+      annualLeave: payload.annualLeave ?? (payload as any).AnnualLeave ?? 0,
       genderId: (payload as any).genderId ?? (payload as any).GenderId ?? null,
       genderName: (payload as any).genderName ?? (payload as any).GenderName ?? null,
       // Preserve raw status code (if present in payload) and localized label
@@ -867,6 +920,11 @@ export class EmployeeService {
     console.log('[EmployeeService] Mapped employeeCategoryName:', detail.employeeCategoryName, 'from payload:', {
       categoryName: (payload as any).categoryName,
       CategoryName: (payload as any).CategoryName
+    });
+    console.log('[EmployeeService] Final detail object with CNSS/CIMR:', {
+      cnss: detail.cnss,
+      cimr: detail.cimr,
+      amo: detail.amo
     });
 
     return detail;

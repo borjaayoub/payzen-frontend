@@ -55,6 +55,8 @@ export class ContractTypeService {
       contractTypeName: (item.ContractTypeName ?? item.contractTypeName ?? '') as string,
       companyId: (item.CompanyId ?? item.companyId ?? 0) as number,
       companyName: (item.CompanyName ?? item.companyName) as string | undefined,
+      legalContractTypeId: (item.LegalContractTypeId ?? item.legalContractTypeId ?? null) as number | null | undefined,
+      stateEmploymentProgramId: (item.StateEmploymentProgramId ?? item.stateEmploymentProgramId ?? null) as number | null | undefined,
       createdAt: (item.CreatedAt ?? item.createdAt ?? '') as string
     };
   }

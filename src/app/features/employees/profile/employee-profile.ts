@@ -20,6 +20,7 @@ import { ChipModule } from 'primeng/chip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { CheckboxModule } from 'primeng/checkbox';
 import {
   EmployeeService,
   EmployeeFormData,
@@ -79,6 +80,7 @@ interface Document {
     IconFieldModule,
     InputIconModule,
     MultiSelectModule,
+    CheckboxModule,
     SpouseChildrenComponent,
     ChangeConfirmationDialog,
     UnsavedChangesDialog
@@ -123,7 +125,7 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     '2': [], // Family - Spouse & Children managed by separate component
     '3': ['position', 'department', 'manager', 'contractType', 'status', 'startDate', 'endDate', 'probationPeriod'],
     '4': ['baseSalary', 'salaryComponents', 'paymentMethod'],
-    '5': ['cnss', 'amo', 'cimr', 'annualLeave'],
+    '5': ['cnss', 'amo', 'cimr', 'cimrEmployeeRate', 'cimrCompanyRate', 'hasPrivateInsurance', 'privateInsuranceNumber', 'privateInsuranceRate', 'disableAmo', 'annualLeave'],
     '6': ['missingDocuments'],
     '7': ['events']
   };
@@ -712,6 +714,14 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     out.personalEmail = d.PersonalEmail ?? d.personalEmail;
     out.phone = d.Phone ?? d.phone;
     out.address = d.Address ?? d.address;
+    // Address individual fields
+    out.addressLine1 = d.AddressLine1 ?? d.addressLine1;
+    out.addressLine2 = d.AddressLine2 ?? d.addressLine2;
+    out.zipCode = d.ZipCode ?? d.zipCode;
+    out.city = d.City ?? d.city;
+    out.cityId = d.CityId ?? d.cityId;
+    out.countryName = d.CountryName ?? d.countryName;
+    out.countryId = d.CountryId ?? d.countryId;
     out.position = d.JobPositionName ?? d.Position ?? d.position;
     out.department = d.DepartmentName ?? d.department ?? (d.departments ?? '')
     out.manager = d.ManagerName ?? d.Manager ?? d.manager;
@@ -735,6 +745,18 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     // Employee category
     out.employeeCategoryId = d.CategoryId ?? d.categoryId ?? d.employeeCategoryId ?? null;
     out.employeeCategoryName = d.CategoryName ?? d.categoryName ?? d.employeeCategoryName ?? null;
+    // Legal information fields (CNSS, AMO, CIMR, Insurance)
+    out.cnss = d.Cnss ?? d.cnss ?? d.CNSS;
+    out.amo = d.Amo ?? d.amo ?? d.AMO;
+    out.cimr = d.Cimr ?? d.cimr ?? d.CIMR;
+    out.cimrEmployeeRate = d.CimrEmployeeRate ?? d.cimrEmployeeRate;
+    out.cimrCompanyRate = d.CimrCompanyRate ?? d.cimrCompanyRate;
+    out.hasPrivateInsurance = d.HasPrivateInsurance ?? d.hasPrivateInsurance ?? false;
+    out.privateInsuranceNumber = d.PrivateInsuranceNumber ?? d.privateInsuranceNumber;
+    out.privateInsuranceRate = d.PrivateInsuranceRate ?? d.privateInsuranceRate;
+    out.disableAmo = d.DisableAmo ?? d.disableAmo ?? false;
+    out.annualLeave = d.AnnualLeave ?? d.annualLeave ?? 0;
+    out.paymentMethod = d.PaymentMethod ?? d.SalaryPaymentMethod ?? d.paymentMethod ?? d.salaryPaymentMethod;
     // keep any other camelCase properties present
     return out;
   }
@@ -936,6 +958,19 @@ export class EmployeeProfile implements OnInit, CanComponentDeactivate {
     const updated = [...current];
     updated[index] = { ...updated[index], [field]: value };
     this.updateField('salaryComponents', updated);
+  }
+
+  onCimrEmployeeRateChange(value: number | null): void {
+    this.updateField('cimrEmployeeRate', value);
+    
+    // Calculate company rate automatically: employee rate + 30% of employee rate
+    // Example: if employee rate is 10%, company rate = 10% + (10% * 0.30) = 13%
+    if (value !== null && value !== undefined && !isNaN(value)) {
+      const companyRate = value * 1.30;
+      this.updateField('cimrCompanyRate', companyRate);
+    } else {
+      this.updateField('cimrCompanyRate', null);
+    }
   }
 
   // Save workflow with confirmation
