@@ -46,5 +46,7 @@ Thumbs.db
 
 /.claude
 /.cursor
+/.agents
 /.github
 /.vscode
+/.vs

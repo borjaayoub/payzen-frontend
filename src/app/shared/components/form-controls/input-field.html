@@ -1,20 +1,19 @@
 <div class="fc-field" [class.fc-invalid]="invalid" [class.fc-disabled]="disabled">
-  @if (!hideLabel) {
+  @if (label) {
     <div class="fc-label-row">
         <label class="fc-label" [for]="resolvedInputId">
           <span>{{ label }}</span>
-          @if(requiredMark) {
+          @if(required) {
             <span class="fc-required">*</span>
+          }
+          @if(optionalText && !required) {
+            <span class="fc-optional">{{ optionalText }}</span>
           }
         </label>
         @if(hint) {
-        <span class="fc-hint">{{ hint }}</span>
+        <span class="fc-hint" [id]="resolvedInputId + '-hint'">{{ hint }}</span>
         }
     </div>
-  }
-  
-  @if(description) {
-  <p class="fc-description">{{ description }}</p>
   }
 
   <div class="fc-control">
@@ -24,7 +23,7 @@
 
     <p-iconfield [iconPosition]="iconPosition" class="w-full relative block">
       @if(icon && iconPosition === 'left') {
-        <p-inputicon [class]="icon + ' absolute top-1/2 -translate-y-1/2 left-3 z-10 text-gray-500'"></p-inputicon>
+        <p-inputicon [ngClass]="[icon, 'absolute', 'top-1/2', '-translate-y-1/2', 'left-3', 'z-10', 'text-gray-500']"></p-inputicon>
       }
 
       <input
@@ -36,25 +35,48 @@
         [type]="type"
         [placeholder]="placeholder"
         [disabled]="disabled"
+        [readonly]="readonly"
+        [attr.inputmode]="inputMode"
+        [attr.maxlength]="maxLength"
         [attr.autocomplete]="autocomplete || null"
         [attr.aria-invalid]="ariaInvalid"
-        [attr.aria-label]="ariaLabel || (hideLabel ? label : null)"
+        [attr.aria-describedby]="ariaDescribedBy"
+        [attr.aria-required]="required ? 'true' : null"
+        [attr.aria-label]="ariaLabel || (!label ? placeholder : null)"
         [value]="value ?? ''"
         (input)="handleInput($any($event.target).value)"
         (blur)="handleBlur()"
       />
 
       @if(icon && iconPosition === 'right') {
-        <p-inputicon [class]="icon + ' absolute top-1/2 -translate-y-1/2 right-3 z-10 text-gray-500'"></p-inputicon>
+        <p-inputicon [ngClass]="[icon, 'absolute', 'top-1/2', '-translate-y-1/2', 'right-3', 'z-10', 'text-gray-500']"></p-inputicon>
       }
     </p-iconfield>
+
+    @if(clearable && value && !disabled && !readonly) {
+      <button
+        type="button"
+        class="fc-clear-btn absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+        (click)="clear()"
+        [attr.aria-label]="'Clear ' + label"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    }
 
     <span class="fc-addon fc-suffix">
       <ng-content select="[suffix]"></ng-content>
     </span>
   </div>
+  
+  @if(showCounter && maxLength) {
+  <div class="fc-counter text-xs text-gray-500 text-right mt-1">
+    {{ (value?.toString() || '').length }} / {{ maxLength }}
+  </div>
+  }
+  
   @if(errorList.length) {
-  <div class="fc-errors">
+  <div class="fc-errors" [id]="resolvedInputId + '-error'" role="alert" aria-live="polite">
     @for(error of errorList; track error) {
       <span>{{ error }}</span>
     }

@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
@@ -19,6 +18,7 @@ import { map } from 'rxjs/operators';
 
 import { DialogModule } from 'primeng/dialog';
 import { ClientFormComponent } from '../components/client-form/client-form.component';
+import { TableComponent, TableColumn } from '../../../shared/components/table/table.component';
 
 @Component({
   selector: 'app-expert-dashboard',
@@ -27,7 +27,6 @@ import { ClientFormComponent } from '../components/client-form/client-form.compo
     CommonModule,
     RouterModule,
     TranslateModule,
-    TableModule,
     ButtonModule,
     TagModule,
     InputTextModule,
@@ -36,7 +35,8 @@ import { ClientFormComponent } from '../components/client-form/client-form.compo
     TooltipModule,
     AuditLogComponent,
     DialogModule,
-    ClientFormComponent
+    ClientFormComponent,
+    TableComponent
   ],
   templateUrl: './expert-dashboard.html',
   styleUrl: './expert-dashboard.css'
@@ -69,6 +69,15 @@ export class ExpertDashboard implements OnInit, OnDestroy {
   readonly totalEmployees = computed(() => 
     this.companies().reduce((acc, curr) => acc + (curr.employeeCount || 0), 0)
   );
+
+  // Table configuration
+  readonly tableColumns: TableColumn[] = [
+    { field: 'legalName', header: 'Raison Sociale', sortable: true, customTemplate: true },
+    { field: 'ice', header: 'ICE', sortable: true },
+    { field: 'employeeCount', header: 'Employees', sortable: true },
+    { field: 'status', header: 'Status', sortable: false, customTemplate: true },
+    { field: 'actions', header: 'Actions', sortable: false, customTemplate: true }
+  ];
 
   ngOnInit(): void {
     this.loadPortfolioDashboard();

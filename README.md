@@ -2,6 +2,12 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.12.
 
+## Documentation
+
+- [Form Controls Migration](./FORM_CONTROLS_MIGRATION.md) - Guide to the new WCAG 2.1 AA compliant form control API
+- [Dashboard API Integration](./DASHBOARD_API_INTEGRATION.md) - Dashboard service integration documentation
+- [Implementation Summary](./IMPLEMENTATION_SUMMARY.md) - Project implementation details
+
 ## Development server
 
 To start a local development server, run:

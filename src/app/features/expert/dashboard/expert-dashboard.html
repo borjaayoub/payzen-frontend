@@ -50,118 +50,113 @@
   </div>
 
   <!-- Clients Table -->
-  <div class="card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-    <p-table 
-      [value]="companies()" 
-      [loading]="isLoading()"
-      [paginator]="true" 
-      [rows]="10"
-      [globalFilterFields]="['legalName', 'ice', 'city']"
-      styleClass="p-datatable-sm">
-      
-      <ng-template pTemplate="caption">
-        <div class="flex items-center justify-between p-4">
-          <h2 class="text-lg font-semibold text-gray-800">Client Portfolio</h2>
-          <p-iconField iconPosition="left">
-            <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
-            <input 
-              pInputText 
-              type="text" 
-              (input)="onSearch($event)" 
-              placeholder="Search clients..." 
-              class="p-inputtext-sm w-64" />
-          </p-iconField>
-        </div>
-      </ng-template>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <!-- Table Header with Search -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800">Client Portfolio</h2>
+      <p-iconField iconPosition="left">
+        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+        <input 
+          pInputText 
+          type="text" 
+          (input)="onSearch($event)" 
+          placeholder="Search clients..." 
+          class="p-inputtext-sm w-64" />
+      </p-iconField>
+    </div>
 
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 25%">Raison Sociale</th>
-          <th style="width: 15%">ICE</th>
-          <th style="width: 10%">Employees</th>
-          <th style="width: 35%">Status</th>
-          <th style="width: 15%">Actions</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-company>
-        <tr class="hover:bg-gray-50 transition-colors cursor-pointer" (click)="onSelectCompany(company)">
-          <td>
+    <!-- Table Component -->
+    <app-table
+      [data]="companies()"
+      [columns]="tableColumns"
+      [isLoading]="isLoading()"
+      loadingMessage="Loading clients..."
+      emptyTitle="No client companies found"
+      emptyDescription="Start by adding your first client"
+      emptyIcon="pi pi-building"
+      (rowClick)="onSelectCompany($event)"
+    >
+      <ng-template #cellTemplate let-company let-column="column">
+        <!-- Company Name & Email -->
+        @if (column.field === 'legalName') {
+          <div>
             <div class="font-medium text-gray-900">{{ company.legalName }}</div>
             <div class="text-xs text-gray-500">{{ company.email }}</div>
-          </td>
-          <td>{{ company.ice }}</td>
-          <td>
-            <span class="font-semibold text-gray-700">{{ company.employeeCount || 0 }}</span>
-          </td>
-          <td>
-            <div class="flex gap-2">
-              <!-- Missing Docs Badge -->
-              @if (getMissingDocsCount(company) > 0) {
-                <p-tag 
-                  severity="warn" 
-                  [value]="getMissingDocsCount(company) + ' Docs Manquants'"
-                  icon="pi pi-exclamation-triangle">
-                </p-tag>
-              } @else {
-                <p-tag 
-                  severity="success" 
-                  value="Docs OK"
-                  icon="pi pi-check">
-                </p-tag>
-              }
+          </div>
+        }
 
-              <!-- Last Payroll Badge -->
-              @if (getLastPayrollStatus(company) === 'validated') {
-                <p-tag 
-                  severity="success" 
-                  value="Paie Validée"
-                  icon="pi pi-check-circle">
-                </p-tag>
-              } @else if (getLastPayrollStatus(company) === 'pending') {
-                <p-tag 
-                  severity="info" 
-                  value="Paie En Cours"
-                  icon="pi pi-spinner">
-                </p-tag>
-              } @else {
-                <p-tag 
-                  severity="danger" 
-                  value="Paie Retard"
-                  icon="pi pi-clock">
-                </p-tag>
-              }
-            </div>
-          </td>
-          <td>
-            <div class="flex gap-2">
-              <button 
-                pButton 
-                icon="pi pi-pencil" 
-                class="p-button-text p-button-sm p-button-secondary"
-                pTooltip="Edit Client"
-                (click)="openEditClient(company); $event.stopPropagation()">
-              </button>
-              <button 
-                pButton 
-                label="Manage" 
-                icon="pi pi-arrow-right" 
-                class="p-button-text p-button-sm"
-                (click)="onSelectCompany(company); $event.stopPropagation()">
-              </button>
-            </div>
-          </td>
-        </tr>
+        <!-- Status Badges -->
+        @if (column.field === 'status') {
+          <div class="flex gap-2">
+            <!-- Missing Docs Badge -->
+            @if (getMissingDocsCount(company) > 0) {
+              <p-tag 
+                severity="warn" 
+                [value]="getMissingDocsCount(company) + ' Docs Manquants'"
+                icon="pi pi-exclamation-triangle">
+              </p-tag>
+            } @else {
+              <p-tag 
+                severity="success" 
+                value="Docs OK"
+                icon="pi pi-check">
+              </p-tag>
+            }
+
+            <!-- Last Payroll Badge -->
+            @if (getLastPayrollStatus(company) === 'validated') {
+              <p-tag 
+                severity="success" 
+                value="Paie Validée"
+                icon="pi pi-check-circle">
+              </p-tag>
+            } @else if (getLastPayrollStatus(company) === 'pending') {
+              <p-tag 
+                severity="info" 
+                value="Paie En Cours"
+                icon="pi pi-spinner">
+              </p-tag>
+            } @else {
+              <p-tag 
+                severity="danger" 
+                value="Paie Retard"
+                icon="pi pi-clock">
+              </p-tag>
+            }
+          </div>
+        }
+
+        <!-- Actions -->
+        @if (column.field === 'actions') {
+          <div class="flex gap-2">
+            <button 
+              pButton 
+              icon="pi pi-pencil" 
+              class="p-button-text p-button-sm p-button-secondary"
+              pTooltip="Edit Client"
+              (click)="openEditClient(company); $event.stopPropagation()">
+            </button>
+            <button 
+              pButton 
+              label="Manage" 
+              icon="pi pi-arrow-right" 
+              class="p-button-text p-button-sm"
+              (click)="onSelectCompany(company); $event.stopPropagation()">
+            </button>
+          </div>
+        }
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="5" class="text-center p-8 text-gray-500">
-            No client companies found.
-          </td>
-        </tr>
+      <ng-template #emptyStateActions>
+        <button 
+          pButton 
+          [label]="'expert.dashboard.newClient' | translate" 
+          icon="pi pi-plus" 
+          class="btn btn-primary mt-4"
+          (click)="openCreateClient()">
+        </button>
       </ng-template>
-    </p-table>
+    </app-table>
   </div>
 
   <!-- Recent Activity Section -->

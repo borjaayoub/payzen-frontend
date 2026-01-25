@@ -72,10 +72,11 @@
 
         <!-- City -->
         <div class="form-field">
-          <app-select-field
+          <ui-select-field
+            id="city"
             formControlName="city"
             [label]="'company.info.city' | translate"
-            [requiredMark]="true"
+            [required]="true"
             [options]="cities()"
             optionLabel="label"
             optionValue="label"
@@ -83,10 +84,10 @@
             [creatable]="true"
             [createLabel]="'Create city'"
             [placeholder]="'Type to search or create a city'"
-            [showClear]="true"
+            [clearable]="true"
             (searchQuery)="onCitySearch($event)"
             (create)="onCreateCity($event)"
-          ></app-select-field>
+          ></ui-select-field>
         </div>
 
         <!-- RC -->

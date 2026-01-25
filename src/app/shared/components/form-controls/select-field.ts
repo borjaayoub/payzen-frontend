@@ -1,50 +1,78 @@
+import { Component, Input, Optional, Self, Output, EventEmitter } from '@angular/core';
+import { ControlValueAccessor, FormsModule, NgControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, Optional, Self, SimpleChanges, Output, EventEmitter } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, FormsModule, NgControl, ReactiveFormsModule } from '@angular/forms';
-import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
-import { ErrorMessageResolver } from './input-field';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+
+export type UiOption<T = any> = { label: string; value: T; disabled?: boolean };
 
 @Component({
-  selector: 'app-select-field',
+  selector: 'app-select-field, ui-select-field',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AutoCompleteModule, SelectModule],
+  imports: [CommonModule, SelectModule, FormsModule, AutoCompleteModule],
   templateUrl: './select-field.html',
   styleUrls: ['./select-field.css'],
 })
-export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnChanges {
+export class SelectFieldComponent implements ControlValueAccessor {
+  // New API (preferred)
+  @Input() id?: string;
   @Input() label = '';
-  @Input() placeholder = '';
-  @Input() hint?: string;
-  @Input() description?: string;
+  @Input() hint: string | null = null;
+  @Input() error: string | null = null;
+  @Input() required = false;
+  @Input() optionalText: string | null = null;
+
+  // Old API (backward compatibility)
+  @Input() inputId?: string;
   @Input() requiredMark = false;
   @Input() hideLabel = false;
-  @Input() variant: 'select' | 'autocomplete' = 'select';
-  @Input() filter = false;
-  @Input() showClear = false;
-  @Input() creatable = false; // Allow creating new options
-  @Input() createLabel = 'Create'; // Label for create button
-  @Input() appendTo: any = 'body';
-  @Input() optionLabel = 'label';
-  @Input() optionValue?: string;
-  @Input() optionDisabled?: string;
-  @Input() options: any[] = [];
-  @Input() disabled = false;
+  @Input() description?: string;
   @Input() showErrors = true;
-  @Input() errorMessages?: Record<string, ErrorMessageResolver>;
-  @Input() inputId?: string;
+  @Input() errorMessages?: Record<string, any>;
   @Input() ariaLabel?: string;
+  @Input() variant: 'select' | 'autocomplete' = 'select';
+  @Input() appendTo: any = 'body';
+  @Input() creatable = false;
+  @Input() createLabel = 'Create';
 
-  @Output() create = new EventEmitter<string>(); // Emit when user wants to create new option
-  @Output() searchQuery = new EventEmitter<string>(); // Emit search query for dynamic loading
+  // Common
+  @Input() options: any[] = [];
+  @Input() optionLabel = 'label';
+  @Input() optionValue: string | null = 'value';
+  @Input() optionDisabled?: string;
+  @Input() placeholder = '';
+  @Input() disabled = false;
 
+  // New API naming
+  @Input() filterable = false;
+  @Input() clearable = true;
+
+  // Old API naming (aliases)
+  @Input() 
+  set filter(val: boolean) { this.filterable = val; }
+  get filter() { return this.filterable; }
+
+  @Input()
+  set showClear(val: boolean) { this.clearable = val; }
+  get showClear() { return this.clearable; }
+
+  // Advanced features
+  @Input() filterBy: string | undefined = undefined;
+  @Input() filterAriaLabel: string | null = null;
+  @Input() loading = false;
+  @Input() virtualScroll = false;
+  @Input() virtualScrollItemSize = 32;
+
+  @Output() create = new EventEmitter<string>();
+  @Output() searchQuery = new EventEmitter<string>();
+
+  // State
   value: any = null;
   filteredOptions: any[] = [];
-  currentQuery = '';
-  showCreateOption = false;
   private readonly uid = `select-${Math.random().toString(36).slice(2, 8)}`;
 
-  private onChange: (value: any) => void = () => {};
+  // CVA
+  private onChange: (v: any) => void = () => {};
   private onTouched: () => void = () => {};
 
   constructor(@Optional() @Self() public ngControl: NgControl) {
@@ -53,105 +81,37 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
     }
   }
 
-  ngOnInit() {
-    this.filteredOptions = [...this.options];
+  // Computed properties for backward compatibility
+  get resolvedId(): string {
+    return this.id || this.inputId || this.uid;
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['options']) {
-      this.filteredOptions = [...this.options];
-      // Re-evaluate value if options changed and we have a value
-      if (this.value && this.optionValue) {
-        this.updateValueFromOptions();
-      }
-    }
+  get resolvedInputId(): string {
+    return this.resolvedId;
   }
 
-  private updateValueFromOptions() {
-    // If we have a value (ID) and optionValue is set, we need to find the full object
-    // But wait, this.value might already be the object if set via UI
-    // We need to check if this.value is the ID or the Object
-    
-    // This is tricky. writeValue sets this.value to the model value (ID).
-    // So we should try to find the object matching this ID.
-    if (this.optionValue && this.value !== null && typeof this.value !== 'object') {
-       const found = this.options.find(opt => opt[this.optionValue!] === this.value);
-       if (found) {
-         this.value = found;
-       }
-    }
+  get ariaInvalid(): string | null {
+    return this.invalid ? 'true' : null;
   }
 
-  search(event: any) {
-    const query = event.query.toLowerCase().trim();
-    this.currentQuery = event.query.trim();
-    
-    // Emit search query for parent to handle dynamic loading
-    this.searchQuery.emit(this.currentQuery);
-    
-    // Filter existing options
-    const filtered = this.options.filter((option) => {
-      const label = option[this.optionLabel];
-      return label && label.toString().toLowerCase().includes(query);
-    });
-    
-    this.filteredOptions = filtered;
-    
-    // Show create option if creatable and no exact match found
-    if (this.creatable && query && filtered.length === 0) {
-      this.showCreateOption = true;
-      // Add a special "create" option
-      this.filteredOptions = [{
-        [this.optionLabel]: `${this.createLabel} "${this.currentQuery}"`,
-        __isCreateOption: true,
-        __createValue: this.currentQuery
-      }];
-    } else if (this.creatable && query) {
-      // Check if there's an exact match
-      const exactMatch = filtered.some(opt => 
-        opt[this.optionLabel].toLowerCase() === query
-      );
-      
-      if (!exactMatch) {
-        // Add create option at the end
-        this.filteredOptions.push({
-          [this.optionLabel]: `${this.createLabel} "${this.currentQuery}"`,
-          __isCreateOption: true,
-          __createValue: this.currentQuery
-        });
-      }
-    }
+  get errorList(): string[] {
+    const err = this.computedError;
+    return err ? [err] : [];
   }
 
-  onSelect(event: AutoCompleteSelectEvent) {
-    const selected = event.value;
-    
-    // Check if this is a "create new" option
-    if (selected.__isCreateOption) {
-      this.create.emit(selected.__createValue);
-      // Clear the input after emitting create event
-      this.value = null;
-      return;
-    }
-    
-    // Normal selection
-    let val = selected;
-    if (this.optionValue) {
-      val = selected[this.optionValue];
-    }
-    this.onChange(val);
-  }
-  
-  onClear() {
-    this.value = null;
-    this.onChange(null);
+  get resolvedRequired(): boolean {
+    return this.required || this.requiredMark;
   }
 
-  private readonly defaultErrorMap: Record<string, (error: any) => string> = {
-    required: () => 'This field is required',
-  };
+  get resolvedHint(): string | null {
+    return this.hint || this.description || null;
+  }
 
-  get control(): AbstractControl | null {
+  get resolvedPlaceholder(): string {
+    return this.placeholder || 'Select…';
+  }
+
+  get control() {
     return this.ngControl?.control ?? null;
   }
 
@@ -160,44 +120,25 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
     return !!control && control.invalid && (control.dirty || control.touched);
   }
 
-  get ariaInvalid(): string | null {
-    return this.invalid ? 'true' : null;
+  get computedError(): string | null {
+    if (this.error) return this.error;
+    if (!this.showErrors || !this.invalid || !this.control?.errors) return null;
+    
+    const errors = this.control.errors;
+    const errorKey = Object.keys(errors)[0];
+    const errorMap: Record<string, string> = {
+      required: 'This field is required',
+      ...this.errorMessages
+    };
+    
+    return errorMap[errorKey] || 'Invalid value';
   }
 
-  get errorList(): string[] {
-    if (!this.showErrors || !this.invalid) {
-      return [];
-    }
-
-    const control = this.control;
-    if (!control?.errors) {
-      return [];
-    }
-
-    const merged = { ...this.defaultErrorMap };
-    if (this.errorMessages) {
-      Object.entries(this.errorMessages).forEach(([key, resolver]) => {
-        merged[key] = typeof resolver === 'function' ? resolver : () => resolver;
-      });
-    }
-
-    return Object.keys(control.errors).map((key) => {
-      const resolver = merged[key];
-      if (resolver) {
-        return resolver(control.errors?.[key]);
-      }
-      return 'Invalid value';
-    });
+  writeValue(v: any): void {
+    this.value = v ?? null;
   }
 
-  writeValue(value: any): void {
-    this.value = value ?? null;
-    if (this.optionValue && this.value !== null) {
-      this.updateValueFromOptions();
-    }
-  }
-
-  registerOnChange(fn: (value: any) => void): void {
+  registerOnChange(fn: (v: any) => void): void {
     this.onChange = fn;
   }
 
@@ -218,7 +159,32 @@ export class SelectFieldComponent implements ControlValueAccessor, OnInit, OnCha
     this.onTouched();
   }
 
-  get resolvedInputId(): string {
-    return this.inputId || this.uid;
+  onPrimeChange(v: any): void {
+    this.value = v;
+    this.onChange(v);
+  }
+
+  search(event: any): void {
+    const query = event.query.toLowerCase().trim();
+    this.searchQuery.emit(query);
+    
+    this.filteredOptions = this.options.filter((option) => {
+      const label = option[this.optionLabel];
+      return label && label.toString().toLowerCase().includes(query);
+    });
+  }
+
+  onSelect(event: any): void {
+    const selected = event.value;
+    let val = selected;
+    if (this.optionValue) {
+      val = selected[this.optionValue];
+    }
+    this.onChange(val);
+  }
+
+  onClear(): void {
+    this.value = null;
+    this.onChange(null);
   }
 }

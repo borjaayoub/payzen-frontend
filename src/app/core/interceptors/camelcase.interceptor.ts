@@ -34,7 +34,12 @@ const camelCaseDeep = (value: unknown): unknown => {
   return value;
 };
 
-const shouldTransform = (response: HttpResponse<unknown>): boolean => {
+const shouldTransform = (response: HttpResponse<unknown>, url: string): boolean => {
+  // Don't transform static assets like translation files
+  if (url.includes('/assets/')) {
+    return false;
+  }
+  
   const contentType = response.headers.get('content-type') ?? '';
   return (
     !!response.body &&
@@ -50,7 +55,7 @@ export const camelCaseInterceptor: HttpInterceptorFn = (req, next) =>
         return event;
       }
 
-      if (!shouldTransform(event)) {
+      if (!shouldTransform(event, req.url)) {
         return event;
       }
 

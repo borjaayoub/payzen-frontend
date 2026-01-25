@@ -12,8 +12,6 @@ import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import { PayZenTheme } from '../assets/themes/payzen-theme';
 
-
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -37,7 +35,7 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
+      prefix: '/assets/i18n/',
       suffix: '.json'
     })
   ],

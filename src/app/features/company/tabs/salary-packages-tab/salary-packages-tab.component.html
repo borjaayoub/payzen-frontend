@@ -1,0 +1,336 @@
+<p-toast></p-toast>
+
+<div class="salary-packages-container">
+  <!-- Sub-tabs: Company Templates | Official Templates -->
+  <p-tabs [(value)]="activeTabIndex">
+    <p-tablist class="mb-4">
+      <p-tab [value]="0" class="px-4 py-2">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-briefcase"></i>
+          <span>{{ 'salary_packages.tabs.my_company_templates' | translate }}</span>
+          @if (companyTemplates().length > 0) {
+            <span class="bg-(--primary)/10 text-(--primary) text-xs px-2 py-0.5 rounded-full">
+              {{ companyTemplates().length }}
+            </span>
+          }
+        </div>
+      </p-tab>
+      <p-tab [value]="1" class="px-4 py-2">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'salary_packages.tabs.official_templates' | translate }}</span>
+          @if (officialTemplates().length > 0) {
+            <span class="bg-(--surface-ground) text-(--text-color-secondary) text-xs px-2 py-0.5 rounded-full">
+              {{ officialTemplates().length }}
+            </span>
+          }
+        </div>
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- Company Templates Panel -->
+      <p-tabpanel [value]="0">
+        <!-- Header with search and filters -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div class="flex flex-col sm:flex-row gap-3 flex-1">
+            <!-- Search -->
+            <div class="relative flex-1 max-w-md">
+              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-(--text-color-secondary)"></i>
+              <input
+                type="text"
+                pInputText
+                [ngModel]="companySearch()"
+                (ngModelChange)="companySearch.set($event)"
+                placeholder="{{ 'common.search' | translate }}"
+                class="w-full pl-10"
+              />
+            </div>
+            <!-- Status Filter -->
+            <p-select
+              [options]="statusOptions"
+              [ngModel]="companyStatusFilter()"
+              (ngModelChange)="companyStatusFilter.set($event)"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="{{ 'salary_packages.filter_by_status' | translate }}"
+              class="w-full sm:w-48"
+            ></p-select>
+          </div>
+          <!-- Create Button -->
+          <p-button
+            label="{{ 'salary_packages.actions.create_new' | translate }}"
+            icon="pi pi-plus"
+            (onClick)="createNewTemplate()"
+            styleClass="whitespace-nowrap"
+          ></p-button>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+          <div class="flex justify-center items-center py-12">
+            <p-progressSpinner strokeWidth="4" [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+          </div>
+        } @else if (filteredCompanyTemplates().length === 0) {
+          <!-- Empty State -->
+          @if (companyTemplates().length === 0) {
+            <app-empty-state
+              icon="pi pi-wallet"
+              [title]="'salary_packages.empty_states.no_company' | translate"
+              [description]="'salary_packages.empty_states.no_company_desc' | translate"
+            >
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <p-button
+                  label="{{ 'salary_packages.empty_states.create_new' | translate }}"
+                  icon="pi pi-plus"
+                  (onClick)="createNewTemplate()"
+                ></p-button>
+                <p-button
+                  label="{{ 'salary_packages.empty_states.browse_official' | translate }}"
+                  icon="pi pi-globe"
+                  [outlined]="true"
+                  (onClick)="switchToOfficialTab()"
+                ></p-button>
+              </div>
+            </app-empty-state>
+          } @else {
+            <!-- No search results -->
+            <app-empty-state
+              icon="pi pi-search"
+              [title]="'common.no_results' | translate"
+              [description]="'common.no_results_desc' | translate"
+            ></app-empty-state>
+          }
+        } @else {
+          <!-- Templates Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            @for (template of filteredCompanyTemplates(); track template.id) {
+              <div class="card p-4 hover:shadow-md transition-shadow cursor-pointer group">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-(--text-color) truncate">{{ template.name }}</h3>
+                    @if (template.code) {
+                      <p class="text-sm text-(--text-color-secondary)">{{ template.code }}</p>
+                    }
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <p-tag
+                      [value]="getStatusLabel(template.status)"
+                      [severity]="getStatusSeverity(template.status)"
+                    ></p-tag>
+                  </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-(--text-color-secondary)">{{ 'salary_packages.base_salary' | translate }}</span>
+                    <span class="font-medium">{{ formatCurrency(template.baseSalary) }}</span>
+                  </div>
+                  @if (template.category) {
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-(--text-color-secondary)">{{ 'salary_packages.form.category' | translate }}</span>
+                      <span>{{ template.category }}</span>
+                    </div>
+                  }
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-(--text-color-secondary)">{{ 'salary_packages.origin.title' | translate }}</span>
+                    <span class="flex items-center gap-1">
+                      @if (template.origin?.originType === OriginType.COPIED_FROM_OFFICIAL) {
+                        <i class="pi pi-copy text-xs"></i>
+                        <span>{{ 'salary_packages.badges.copied' | translate }}</span>
+                      } @else {
+                        <i class="pi pi-pencil text-xs"></i>
+                        <span>{{ 'salary_packages.badges.custom' | translate }}</span>
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-2 pt-3 border-t border-(--border-color-subtle)">
+                  @switch (template.status) {
+                    @case (TemplateStatus.DRAFT) {
+                      <p-button
+                        icon="pi pi-pencil"
+                        [label]="'salary_packages.actions.edit' | translate"
+                        [text]="true"
+                        size="small"
+                        (onClick)="editTemplate(template)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-copy"
+                        [pTooltip]="'salary_packages.actions.duplicate' | translate"
+                        [text]="true"
+                        size="small"
+                        (onClick)="duplicateTemplate(template)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-trash"
+                        [pTooltip]="'salary_packages.actions.delete' | translate"
+                        [text]="true"
+                        size="small"
+                        severity="danger"
+                        (onClick)="deleteTemplate(template)"
+                      ></p-button>
+                    }
+                    @case (TemplateStatus.PUBLISHED) {
+                      <p-button
+                        icon="pi pi-eye"
+                        [label]="'salary_packages.actions.view' | translate"
+                        [text]="true"
+                        size="small"
+                        (onClick)="viewTemplate(template)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-copy"
+                        [pTooltip]="'salary_packages.actions.duplicate' | translate"
+                        [text]="true"
+                        size="small"
+                        (onClick)="duplicateTemplate(template)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-inbox"
+                        [pTooltip]="'salary_packages.actions.archive' | translate"
+                        [text]="true"
+                        size="small"
+                        severity="secondary"
+                        (onClick)="archiveTemplate(template)"
+                      ></p-button>
+                    }
+                    @default {
+                      <p-button
+                        icon="pi pi-eye"
+                        [label]="'salary_packages.actions.view' | translate"
+                        [text]="true"
+                        size="small"
+                        (onClick)="viewTemplate(template)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-copy"
+                        [pTooltip]="'salary_packages.actions.duplicate' | translate"
+                        [text]="true"
+                        size="small"
+                        (onClick)="duplicateTemplate(template)"
+                      ></p-button>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- Official Templates Panel -->
+      <p-tabpanel [value]="1">
+        <!-- Header with search and filters -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+          <!-- Search -->
+          <div class="relative flex-1 max-w-md">
+            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-(--text-color-secondary)"></i>
+            <input
+              type="text"
+              pInputText
+              [ngModel]="officialSearch()"
+              (ngModelChange)="officialSearch.set($event)"
+              placeholder="{{ 'common.search' | translate }}"
+              class="w-full pl-10"
+            />
+          </div>
+          <!-- Category Filter -->
+          <p-select
+            [options]="categoryOptions()"
+            [ngModel]="officialCategoryFilter()"
+            (ngModelChange)="officialCategoryFilter.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="{{ 'salary_packages.filter_by_category' | translate }}"
+            class="w-full sm:w-48"
+          ></p-select>
+        </div>
+
+        @if (filteredOfficialTemplates().length === 0) {
+          <!-- Empty State -->
+          <app-empty-state
+            icon="pi pi-globe"
+            [title]="'salary_packages.empty_states.no_official' | translate"
+            [description]="'salary_packages.empty_states.no_official_desc' | translate"
+          ></app-empty-state>
+        } @else {
+          <!-- Official Templates Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            @for (template of filteredOfficialTemplates(); track template.id) {
+              <div class="card p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-(--text-color) truncate">{{ template.name }}</h3>
+                    @if (template.code) {
+                      <p class="text-sm text-(--text-color-secondary)">{{ template.code }}</p>
+                    }
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <p-tag
+                      value="Officiel"
+                      severity="info"
+                      [rounded]="true"
+                    ></p-tag>
+                    @if (template.regulationCode) {
+                      <p-tag
+                        [value]="template.regulationCode"
+                        severity="secondary"
+                        [rounded]="true"
+                      ></p-tag>
+                    }
+                  </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-(--text-color-secondary)">{{ 'salary_packages.base_salary' | translate }}</span>
+                    <span class="font-medium">{{ formatCurrency(template.baseSalary) }}</span>
+                  </div>
+                  @if (template.category) {
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-(--text-color-secondary)">{{ 'salary_packages.form.category' | translate }}</span>
+                      <span>{{ template.category }}</span>
+                    </div>
+                  }
+                  @if (template.description) {
+                    <p class="text-sm text-(--text-color-secondary) line-clamp-2">{{ template.description }}</p>
+                  }
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-2 pt-3 border-t border-(--border-color-subtle)">
+                  <p-button
+                    icon="pi pi-eye"
+                    [label]="'salary_packages.actions.view' | translate"
+                    [text]="true"
+                    size="small"
+                    (onClick)="viewOfficialTemplate(template)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-copy"
+                    [label]="'salary_packages.actions.copy' | translate"
+                    [outlined]="true"
+                    size="small"
+                    (onClick)="openCloneDialog(template)"
+                  ></p-button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>
+
+<!-- Clone Dialog -->
+<app-clone-dialog
+  [visible]="showCloneDialog()"
+  [sourceTemplate]="templateToClone()"
+  (visibleChange)="showCloneDialog.set($event)"
+  (cloneSuccess)="onCloneSuccess()"
+  (cloneCancel)="onCloneCancel()"
+></app-clone-dialog>

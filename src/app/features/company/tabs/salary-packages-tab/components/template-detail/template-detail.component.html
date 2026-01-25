@@ -1,0 +1,356 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="template-detail min-h-screen bg-(--surface-ground)">
+  <!-- Header -->
+  <div class="bg-(--bg-element) border-b border-(--border-color-subtle) sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button 
+            type="button"
+            pButton 
+            icon="pi pi-arrow-left" 
+            [text]="true" 
+            [rounded]="true"
+            (click)="goBack()"
+            [pTooltip]="'common.back' | translate"
+          ></button>
+          <div>
+            @if (template()) {
+              <div class="flex items-center gap-3">
+                <h1 class="text-xl font-semibold text-(--text-color)">
+                  {{ template()!.name }}
+                </h1>
+                @if (isOfficial()) {
+                  <p-tag value="Officiel" severity="info" [rounded]="true"></p-tag>
+                }
+                <p-tag 
+                  [value]="getStatusLabel(template()!.status)" 
+                  [severity]="getStatusSeverity(template()!.status)"
+                ></p-tag>
+              </div>
+              @if (template()!.code) {
+                <p class="text-sm text-(--text-color-secondary)">{{ template()!.code }}</p>
+              }
+            } @else {
+              <h1 class="text-xl font-semibold text-(--text-color)">
+                {{ 'salary_packages.detail.title' | translate }}
+              </h1>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24">
+      <p-progressSpinner strokeWidth="4" [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+    </div>
+  } @else if (template()) {
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <!-- Origin Banner (for copied templates) -->
+      @if (template()!.origin?.originType === OriginType.COPIED_FROM_OFFICIAL) {
+        <div class="bg-(--info-color)/10 border border-(--info-color)/30 rounded-(--rads-md) p-4 mb-6">
+          <div class="flex items-center gap-3">
+            <i class="pi pi-info-circle text-(--info-color)"></i>
+            <div>
+              <p class="font-medium text-(--text-color)">
+                {{ 'salary_packages.origin.copied_from' | translate }}: {{ template()!.origin!.sourceTemplateName }}
+              </p>
+              @if (template()!.origin!.copiedAt) {
+                <p class="text-sm text-(--text-color-secondary)">
+                  {{ 'salary_packages.origin.copied_at' | translate }} {{ template()!.origin!.copiedAt | date:'mediumDate' }}
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 2-Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Details -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- General Info Card -->
+          <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+              <i class="pi pi-info-circle text-(--primary)"></i>
+              {{ 'salary_packages.editor.general_info' | translate }}
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.name' | translate }}</label>
+                <p class="font-medium">{{ template()!.name }}</p>
+              </div>
+              @if (template()!.code) {
+                <div>
+                  <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.code' | translate }}</label>
+                  <p class="font-medium">{{ template()!.code }}</p>
+                </div>
+              }
+              @if (template()!.category) {
+                <div>
+                  <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.category' | translate }}</label>
+                  <p class="font-medium">{{ template()!.category }}</p>
+                </div>
+              }
+              @if (template()!.regulationCode) {
+                <div>
+                  <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.regulation' | translate }}</label>
+                  <p class="font-medium">{{ template()!.regulationCode }}</p>
+                </div>
+              }
+              @if (template()!.description) {
+                <div class="md:col-span-2">
+                  <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.description' | translate }}</label>
+                  <p>{{ template()!.description }}</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Base Salary Card -->
+          <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+              <i class="pi pi-wallet text-(--primary)"></i>
+              {{ 'salary_packages.editor.base_salary_config' | translate }}
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.base_salary' | translate }}</label>
+                <p class="font-medium text-lg">{{ formatCurrency(template()!.baseSalary) }}</p>
+              </div>
+              @if (template()!.payrollFrequency) {
+                <div>
+                  <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.payroll_frequency' | translate }}</label>
+                  <p class="font-medium">
+                    @switch (template()!.payrollFrequency) {
+                      @case ('MONTHLY') { Mensuel }
+                      @case ('BIWEEKLY') { Bi-mensuel }
+                      @case ('WEEKLY') { Hebdomadaire }
+                      @default { {{ template()!.payrollFrequency }} }
+                    }
+                  </p>
+                </div>
+              }
+              @if (template()!.workingHoursPerWeek) {
+                <div>
+                  <label class="text-sm text-(--text-color-secondary)">{{ 'salary_packages.form.working_hours' | translate }}</label>
+                  <p class="font-medium">{{ template()!.workingHoursPerWeek }} h/semaine</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Fixed Pay Elements Card -->
+          <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+              <i class="pi pi-list text-(--primary)"></i>
+              {{ 'salary_packages.items.title' | translate }}
+              <span class="text-sm font-normal text-(--text-color-secondary)">({{ template()!.items.length }})</span>
+            </h2>
+
+            @if (template()!.items.length === 0) {
+              <div class="text-center py-8 text-(--text-color-secondary)">
+                <i class="pi pi-inbox text-4xl mb-2"></i>
+                <p>{{ 'salary_packages.items.empty' | translate }}</p>
+              </div>
+            } @else {
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b border-(--border-color-subtle)">
+                      <th class="text-left py-3 px-2 text-sm font-medium text-(--text-color-secondary)">{{ 'salary_packages.items.name' | translate }}</th>
+                      <th class="text-right py-3 px-2 text-sm font-medium text-(--text-color-secondary)">{{ 'salary_packages.items.value' | translate }}</th>
+                      <th class="text-center py-3 px-2 text-sm font-medium text-(--text-color-secondary)">{{ 'salary_packages.items.taxable' | translate }}</th>
+                      <th class="text-center py-3 px-2 text-sm font-medium text-(--text-color-secondary)">{{ 'salary_packages.items.cnss' | translate }}</th>
+                      <th class="text-center py-3 px-2 text-sm font-medium text-(--text-color-secondary)">{{ 'salary_packages.items.cimr' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of template()!.items; track item.id || $index) {
+                      <tr class="border-b border-(--border-color-subtle) last:border-b-0">
+                        <td class="py-3 px-2">
+                          <div>
+                            <p class="font-medium">{{ item.name }}</p>
+                            @if (item.code) {
+                              <p class="text-xs text-(--text-color-secondary)">{{ item.code }}</p>
+                            }
+                          </div>
+                        </td>
+                        <td class="py-3 px-2 text-right">
+                          @if (item.valueType === ValueType.PERCENT_OF_BASE) {
+                            <span>{{ item.value }}% <span class="text-(--text-color-secondary)">({{ formatCurrency(calculateItemValue(item, template()!.baseSalary)) }})</span></span>
+                          } @else {
+                            <span>{{ formatCurrency(item.value) }}</span>
+                          }
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                          <i [class]="item.isTaxable ? 'pi pi-check text-(--success-color)' : 'pi pi-times text-(--text-color-secondary)'"></i>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                          <i [class]="item.isCnssBase ? 'pi pi-check text-(--success-color)' : 'pi pi-times text-(--text-color-secondary)'"></i>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                          <i [class]="item.isCimrBase ? 'pi pi-check text-(--success-color)' : 'pi pi-times text-(--text-color-secondary)'"></i>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+
+          <!-- Auto Rules Card -->
+          @if (template()!.autoRules) {
+            <div class="card p-6">
+              <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-cog text-(--primary)"></i>
+                {{ 'salary_packages.editor.auto_rules' | translate }}
+                @if (template()!.autoRules!.ruleVersion) {
+                  <p-tag [value]="template()!.autoRules!.ruleVersion" severity="secondary" [rounded]="true"></p-tag>
+                }
+              </h2>
+              
+              <div class="flex items-center gap-2">
+                <i [class]="template()!.autoRules!.seniorityBonusEnabled ? 'pi pi-check-circle text-(--success-color)' : 'pi pi-times-circle text-(--text-color-secondary)'"></i>
+                <span>{{ 'salary_packages.editor.seniority_bonus' | translate }}</span>
+                @if (template()!.autoRules!.seniorityBonusEnabled) {
+                  <span class="text-(--success-color) text-sm">({{ 'common.enabled' | translate }})</span>
+                } @else {
+                  <span class="text-(--text-color-secondary) text-sm">({{ 'common.disabled' | translate }})</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Right Column: Preview & Actions (Sidebar) -->
+        <div class="lg:col-span-1">
+          <div class="lg:sticky lg:top-24 space-y-6">
+            <!-- Salary Summary Preview -->
+            <div class="card p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-calculator text-(--primary)"></i>
+                {{ 'salary_packages.preview.title' | translate }}
+              </h3>
+              
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.preview.base' | translate }}</span>
+                  <span class="font-medium">{{ formatCurrency(salarySummary().baseSalary) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.preview.allowances' | translate }}</span>
+                  <span class="font-medium text-(--success-color)">+ {{ formatCurrency(salarySummary().totalAllowances) }}</span>
+                </div>
+                <div class="border-t border-(--border-color-subtle) pt-3 flex justify-between items-center">
+                  <span class="font-semibold">{{ 'salary_packages.preview.gross_total' | translate }}</span>
+                  <span class="font-bold text-lg text-(--primary)">{{ formatCurrency(salarySummary().grossTotal) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compliance Snapshot -->
+            <div class="card p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-shield text-(--primary)"></i>
+                {{ 'salary_packages.compliance.title' | translate }}
+              </h3>
+              
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.compliance.taxable' | translate }}</span>
+                  <span>{{ formatCurrency(salarySummary().taxableAmount) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.compliance.cnss_base' | translate }}</span>
+                  <span>{{ formatCurrency(salarySummary().cnssBase) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.compliance.cimr_base' | translate }}</span>
+                  <span>{{ formatCurrency(salarySummary().cimrBase) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card p-6 space-y-3">
+              @if (isOfficial()) {
+                <!-- Official template actions -->
+                <p-button
+                  [label]="'salary_packages.actions.copy' | translate"
+                  icon="pi pi-copy"
+                  styleClass="w-full"
+                  (onClick)="openCloneDialog()"
+                ></p-button>
+              } @else {
+                <!-- Company template actions -->
+                @if (isDraft()) {
+                  <p-button
+                    [label]="'salary_packages.actions.edit' | translate"
+                    icon="pi pi-pencil"
+                    styleClass="w-full"
+                    (onClick)="editTemplate()"
+                  ></p-button>
+                }
+                
+                <p-button
+                  [label]="'salary_packages.actions.duplicate' | translate"
+                  icon="pi pi-copy"
+                  styleClass="w-full"
+                  [outlined]="true"
+                  (onClick)="duplicateTemplate()"
+                ></p-button>
+                
+                @if (isPublished()) {
+                  <p-button
+                    [label]="'salary_packages.actions.archive' | translate"
+                    icon="pi pi-inbox"
+                    styleClass="w-full"
+                    [outlined]="true"
+                    severity="secondary"
+                    (onClick)="openArchiveDialog()"
+                  ></p-button>
+                }
+              }
+              
+              <p-button
+                [label]="'common.back' | translate"
+                [text]="true"
+                styleClass="w-full"
+                (onClick)="goBack()"
+              ></p-button>
+            </div>
+
+            <!-- Metadata -->
+            @if (template()!.createdAt || template()!.updatedAt) {
+              <div class="card p-6 text-sm text-(--text-color-secondary)">
+                @if (template()!.createdAt) {
+                  <p>{{ 'common.created_at' | translate }}: {{ template()!.createdAt | date:'medium' }}</p>
+                }
+                @if (template()!.updatedAt) {
+                  <p>{{ 'common.updated_at' | translate }}: {{ template()!.updatedAt | date:'medium' }}</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Clone Dialog (for official templates) -->
+<app-clone-dialog
+  [visible]="showCloneDialog()"
+  [sourceTemplate]="template()"
+  (visibleChange)="showCloneDialog.set($event)"
+  (cloneSuccess)="onCloneSuccess()"
+  (cloneCancel)="onCloneCancel()"
+></app-clone-dialog>

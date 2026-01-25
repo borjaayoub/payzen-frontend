@@ -68,6 +68,40 @@ export const routes: Routes = [
         canActivate: [rhGuard]
       },
       {
+        path: 'company/salary-packages/new',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-editor/template-editor.component')
+            .then(m => m.TemplateEditorComponent),
+        canActivate: [rhGuard],
+        canDeactivate: [unsavedChangesGuard],
+        title: 'New Salary Template - PayZen'
+      },
+      {
+        path: 'company/salary-packages/official/:id',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-detail/template-detail.component')
+            .then(m => m.TemplateDetailComponent),
+        canActivate: [rhGuard],
+        title: 'Official Template - PayZen'
+      },
+      {
+        path: 'company/salary-packages/:id',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-detail/template-detail.component')
+            .then(m => m.TemplateDetailComponent),
+        canActivate: [rhGuard],
+        title: 'Salary Template - PayZen'
+      },
+      {
+        path: 'company/salary-packages/:id/edit',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-editor/template-editor.component')
+            .then(m => m.TemplateEditorComponent),
+        canActivate: [rhGuard],
+        canDeactivate: [unsavedChangesGuard],
+        title: 'Edit Salary Template - PayZen'
+      },
+      {
         path: 'employees',
         component: EmployeesPage,
         canActivate: [rhGuard]
@@ -164,6 +198,40 @@ export const routes: Routes = [
         path: 'company',
         loadComponent: () => import('./features/company/company.component').then(m => m.CompanyComponent),
         data: { expertMode: true }
+      },
+      {
+        path: 'company/salary-packages/new',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-editor/template-editor.component')
+            .then(m => m.TemplateEditorComponent),
+        canDeactivate: [unsavedChangesGuard],
+        data: { expertMode: true },
+        title: 'New Salary Template - PayZen'
+      },
+      {
+        path: 'company/salary-packages/official/:id',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-detail/template-detail.component')
+            .then(m => m.TemplateDetailComponent),
+        data: { expertMode: true },
+        title: 'Official Template - PayZen'
+      },
+      {
+        path: 'company/salary-packages/:id',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-detail/template-detail.component')
+            .then(m => m.TemplateDetailComponent),
+        data: { expertMode: true },
+        title: 'Salary Template - PayZen'
+      },
+      {
+        path: 'company/salary-packages/:id/edit',
+        loadComponent: () => 
+          import('./features/company/tabs/salary-packages-tab/components/template-editor/template-editor.component')
+            .then(m => m.TemplateEditorComponent),
+        canDeactivate: [unsavedChangesGuard],
+        data: { expertMode: true },
+        title: 'Edit Salary Template - PayZen'
       },
       {
         path: 'employees',

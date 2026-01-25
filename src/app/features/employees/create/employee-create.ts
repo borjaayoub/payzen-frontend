@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -35,6 +37,8 @@ import { ContractType } from '@app/core/models/contract-type.model';
     InputTextModule,
     SelectModule,
     ToastModule,
+    IconFieldModule,
+    InputIconModule,
     InputFieldComponent,
     SelectFieldComponent
   ],
@@ -80,7 +84,7 @@ export class EmployeeCreatePage implements OnInit {
     cinNumber: ['', Validators.required],
     birthDate: ['', Validators.required],
     phone: ['', Validators.required],
-    phoneCountryId: [null as number | null, Validators.required],
+    phoneCountryId: [null as number | null],
     statusId: [null, Validators.required],
     genderId: [null],
     educationLevelId: [null],
@@ -209,7 +213,7 @@ export class EmployeeCreatePage implements OnInit {
       firstName: value.firstName ?? '',
       lastName: value.lastName ?? '',
       email: value.email ?? '',
-      phone: [selectedPhoneCode, value.phone].filter(Boolean).join(' ').trim(),
+      phone: value.phone ?? '',
       dateOfBirth: value.birthDate ?? '',
       cinNumber: value.cinNumber || null,
       statusId: Number(value.statusId),
@@ -247,10 +251,6 @@ export class EmployeeCreatePage implements OnInit {
           detail: this.translate.instant('employees.create.success')
         });
         this.employeeForm.reset();
-        const defaultCountry = this.findDefaultCountry(this.formData().countries);
-        if (defaultCountry) {
-          this.employeeForm.controls.phoneCountryId.setValue(defaultCountry.id);
-        }
         setTimeout(() => this.router.navigate([`${this.routePrefix()}/employees`]), 800);
       },
       error: (err) => {

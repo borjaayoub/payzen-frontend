@@ -1,0 +1,491 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="template-editor min-h-screen bg-(--surface-ground)">
+  <!-- Header -->
+  <div class="bg-(--bg-element) border-b border-(--border-color-subtle) sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button 
+            type="button"
+            pButton 
+            icon="pi pi-arrow-left" 
+            [text]="true" 
+            [rounded]="true"
+            (click)="cancel()"
+            [pTooltip]="'common.back' | translate"
+          ></button>
+          <div>
+            <h1 class="text-xl font-semibold text-(--text-color)">
+              @if (isEditMode()) {
+                {{ 'salary_packages.editor.edit_title' | translate }}
+              } @else {
+                {{ 'salary_packages.editor.create_title' | translate }}
+              }
+            </h1>
+            @if (lastAutoSave()) {
+              <p class="text-sm text-(--text-color-secondary)">
+                {{ 'salary_packages.editor.auto_saved' | translate }} {{ lastAutoSave() | date:'HH:mm:ss' }}
+              </p>
+            }
+          </div>
+        </div>
+        
+        <!-- Action buttons (mobile hidden, shown in sidebar on desktop) -->
+        <div class="hidden lg:flex items-center gap-2">
+          @if (hasUnsavedChanges()) {
+            <span class="text-sm text-(--warning-color) flex items-center gap-1">
+              <i class="pi pi-circle-fill text-xs"></i>
+              {{ 'salary_packages.editor.unsaved' | translate }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24">
+      <p-progressSpinner strokeWidth="4" [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <!-- Origin Banner (for copied templates) -->
+      @if (existingTemplate()?.origin?.originType === OriginType.COPIED_FROM_OFFICIAL) {
+        <div class="bg-(--info-color)/10 border border-(--info-color)/30 rounded-(--rads-md) p-4 mb-6">
+          <div class="flex items-center gap-3">
+            <i class="pi pi-info-circle text-(--info-color)"></i>
+            <div>
+              <p class="font-medium text-(--text-color)">
+                {{ 'salary_packages.origin.copied_from' | translate }}: {{ existingTemplate()?.origin?.sourceTemplateName }}
+              </p>
+              <p class="text-sm text-(--text-color-secondary)">
+                {{ 'salary_packages.origin.copied_at' | translate }} {{ existingTemplate()?.origin?.copiedAt | date:'mediumDate' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 2-Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Editor Form -->
+        <div class="lg:col-span-2 space-y-6">
+          <form [formGroup]="form">
+            <!-- General Info Card -->
+            <div class="card p-6 mb-6">
+              <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-info-circle text-(--primary)"></i>
+                {{ 'salary_packages.editor.general_info' | translate }}
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                  <label for="name" class="font-medium">
+                    {{ 'salary_packages.form.name' | translate }} *
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="name"
+                    [placeholder]="'salary_packages.form.name_placeholder' | translate"
+                    class="w-full"
+                  />
+                  @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                    <small class="text-(--danger-color)">{{ 'salary_packages.validation.name_required' | translate }}</small>
+                  }
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="code" class="font-medium">
+                    {{ 'salary_packages.form.code' | translate }}
+                  </label>
+                  <input
+                    id="code"
+                    type="text"
+                    pInputText
+                    formControlName="code"
+                    [placeholder]="'salary_packages.form.code_placeholder' | translate"
+                    class="w-full"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="category" class="font-medium">
+                    {{ 'salary_packages.form.category' | translate }}
+                  </label>
+                  <input
+                    id="category"
+                    type="text"
+                    pInputText
+                    formControlName="category"
+                    [placeholder]="'salary_packages.form.category_placeholder' | translate"
+                    class="w-full"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2 md:col-span-2">
+                  <label for="description" class="font-medium">
+                    {{ 'salary_packages.form.description' | translate }}
+                  </label>
+                  <textarea
+                    id="description"
+                    pTextarea
+                    formControlName="description"
+                    [placeholder]="'salary_packages.form.description_placeholder' | translate"
+                    rows="3"
+                    class="w-full"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Base Salary Card -->
+            <div class="card p-6 mb-6">
+              <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-wallet text-(--primary)"></i>
+                {{ 'salary_packages.editor.base_salary_config' | translate }}
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-2">
+                  <label for="baseSalary" class="font-medium">
+                    {{ 'salary_packages.base_salary' | translate }} *
+                  </label>
+                  <p-inputNumber
+                    id="baseSalary"
+                    formControlName="baseSalary"
+                    mode="currency"
+                    currency="MAD"
+                    locale="fr-MA"
+                    [min]="0"
+                    styleClass="w-full"
+                  ></p-inputNumber>
+                  @if (form.get('baseSalary')?.invalid && form.get('baseSalary')?.touched) {
+                    <small class="text-(--danger-color)">{{ 'salary_packages.validation.base_salary_positive' | translate }}</small>
+                  }
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="payrollFrequency" class="font-medium">
+                    {{ 'salary_packages.form.payroll_frequency' | translate }}
+                  </label>
+                  <p-select
+                    id="payrollFrequency"
+                    formControlName="payrollFrequency"
+                    [options]="[
+                      { label: 'Mensuel', value: 'MONTHLY' },
+                      { label: 'Bi-mensuel', value: 'BIWEEKLY' },
+                      { label: 'Hebdomadaire', value: 'WEEKLY' }
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-full"
+                  ></p-select>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="workingHoursPerWeek" class="font-medium">
+                    {{ 'salary_packages.form.working_hours' | translate }}
+                  </label>
+                  <p-inputNumber
+                    id="workingHoursPerWeek"
+                    formControlName="workingHoursPerWeek"
+                    [min]="0"
+                    [max]="168"
+                    suffix=" h/semaine"
+                    styleClass="w-full"
+                  ></p-inputNumber>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fixed Pay Elements Card -->
+            <div class="card p-6 mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold flex items-center gap-2">
+                  <i class="pi pi-list text-(--primary)"></i>
+                  {{ 'salary_packages.items.title' | translate }}
+                </h2>
+                <p-button
+                  [label]="'salary_packages.items.add' | translate"
+                  icon="pi pi-plus"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="addItem()"
+                ></p-button>
+              </div>
+
+              @if (itemsFormArray.length === 0) {
+                <div class="text-center py-8 text-(--text-color-secondary)">
+                  <i class="pi pi-inbox text-4xl mb-2"></i>
+                  <p>{{ 'salary_packages.items.empty' | translate }}</p>
+                  <p class="text-sm">{{ 'salary_packages.items.empty_hint' | translate }}</p>
+                </div>
+              } @else {
+                <div class="space-y-4" formArrayName="items">
+                  @for (item of itemsFormArray.controls; track $index; let i = $index) {
+                    <div [formGroupName]="i" class="border border-(--border-color-subtle) rounded-(--rads-md) p-4 bg-(--surface-ground)">
+                      <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div class="flex flex-col gap-1">
+                            <label class="text-sm font-medium">{{ 'salary_packages.items.name' | translate }} *</label>
+                            <input
+                              type="text"
+                              pInputText
+                              formControlName="name"
+                              placeholder="Ex: Prime de transport"
+                              class="w-full"
+                            />
+                          </div>
+                          <div class="flex flex-col gap-1">
+                            <label class="text-sm font-medium">{{ 'salary_packages.items.value_type' | translate }}</label>
+                            <p-select
+                              formControlName="valueType"
+                              [options]="valueTypeOptions"
+                              optionLabel="label"
+                              optionValue="value"
+                              styleClass="w-full"
+                            ></p-select>
+                          </div>
+                          <div class="flex flex-col gap-1">
+                            <label class="text-sm font-medium">{{ 'salary_packages.items.value' | translate }}</label>
+                            @if (item.get('valueType')?.value === ValueType.PERCENT_OF_BASE) {
+                              <p-inputNumber
+                                formControlName="value"
+                                [min]="0"
+                                [max]="100"
+                                suffix="%"
+                                styleClass="w-full"
+                              ></p-inputNumber>
+                            } @else {
+                              <p-inputNumber
+                                formControlName="value"
+                                mode="currency"
+                                currency="MAD"
+                                locale="fr-MA"
+                                [min]="0"
+                                styleClass="w-full"
+                              ></p-inputNumber>
+                            }
+                          </div>
+                        </div>
+                        <p-button
+                          icon="pi pi-trash"
+                          [text]="true"
+                          [rounded]="true"
+                          severity="danger"
+                          (onClick)="removeItem(i)"
+                          [pTooltip]="'common.delete' | translate"
+                        ></p-button>
+                      </div>
+
+                      <!-- Compliance Flags -->
+                      <div class="flex flex-wrap gap-4 pt-3 border-t border-(--border-color-subtle)">
+                        <div class="flex items-center gap-2">
+                          <p-checkbox
+                            formControlName="isTaxable"
+                            [binary]="true"
+                            inputId="taxable-{{i}}"
+                          ></p-checkbox>
+                          <label for="taxable-{{i}}" class="text-sm cursor-pointer">
+                            {{ 'salary_packages.items.taxable' | translate }}
+                          </label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <p-checkbox
+                            formControlName="isCnssBase"
+                            [binary]="true"
+                            inputId="cnss-{{i}}"
+                          ></p-checkbox>
+                          <label for="cnss-{{i}}" class="text-sm cursor-pointer">
+                            {{ 'salary_packages.items.cnss' | translate }}
+                          </label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <p-checkbox
+                            formControlName="isCimrBase"
+                            [binary]="true"
+                            inputId="cimr-{{i}}"
+                          ></p-checkbox>
+                          <label for="cimr-{{i}}" class="text-sm cursor-pointer">
+                            {{ 'salary_packages.items.cimr' | translate }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Auto Rules Card -->
+            <div class="card p-6" formGroupName="autoRules">
+              <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-cog text-(--primary)"></i>
+                {{ 'salary_packages.editor.auto_rules' | translate }}
+                <p-tag value="MA 2025" severity="secondary" [rounded]="true"></p-tag>
+              </h2>
+              
+              <div class="flex items-center gap-2">
+                <p-checkbox
+                  formControlName="seniorityBonusEnabled"
+                  [binary]="true"
+                  inputId="seniorityBonus"
+                ></p-checkbox>
+                <label for="seniorityBonus" class="cursor-pointer">
+                  {{ 'salary_packages.editor.seniority_bonus' | translate }}
+                </label>
+              </div>
+              <p class="text-sm text-(--text-color-secondary) mt-2 ml-6">
+                {{ 'salary_packages.editor.seniority_bonus_desc' | translate }}
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Preview & Actions (Sidebar) -->
+        <div class="lg:col-span-1">
+          <div class="lg:sticky lg:top-24 space-y-6">
+            <!-- Salary Summary Preview -->
+            <div class="card p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-calculator text-(--primary)"></i>
+                {{ 'salary_packages.preview.title' | translate }}
+              </h3>
+              
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.preview.base' | translate }}</span>
+                  <span class="font-medium">{{ formatCurrency(salarySummary().baseSalary) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.preview.allowances' | translate }}</span>
+                  <span class="font-medium text-(--success-color)">+ {{ formatCurrency(salarySummary().totalAllowances) }}</span>
+                </div>
+                <div class="border-t border-(--border-color-subtle) pt-3 flex justify-between items-center">
+                  <span class="font-semibold">{{ 'salary_packages.preview.gross_total' | translate }}</span>
+                  <span class="font-bold text-lg text-(--primary)">{{ formatCurrency(salarySummary().grossTotal) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compliance Snapshot -->
+            <div class="card p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-shield text-(--primary)"></i>
+                {{ 'salary_packages.compliance.title' | translate }}
+              </h3>
+              
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.compliance.taxable' | translate }}</span>
+                  <span>{{ formatCurrency(salarySummary().taxableAmount) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.compliance.cnss_base' | translate }}</span>
+                  <span>{{ formatCurrency(salarySummary().cnssBase) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-(--text-color-secondary)">{{ 'salary_packages.compliance.cimr_base' | translate }}</span>
+                  <span>{{ formatCurrency(salarySummary().cimrBase) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Validation Status -->
+            <div class="card p-6">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <i class="pi pi-check-circle text-(--primary)"></i>
+                {{ 'salary_packages.validation.title' | translate }}
+              </h3>
+              
+              @if (isFormValid()) {
+                <div class="flex items-center gap-2 text-(--success-color)">
+                  <i class="pi pi-check-circle"></i>
+                  <span>{{ 'salary_packages.validation.valid' | translate }}</span>
+                </div>
+              } @else {
+                <div class="space-y-2">
+                  @for (error of validationErrors(); track error) {
+                    <div class="flex items-center gap-2 text-(--danger-color) text-sm">
+                      <i class="pi pi-times-circle"></i>
+                      <span>{{ error }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card p-6 space-y-3">
+              <p-button
+                [label]="'salary_packages.actions.save_draft' | translate"
+                icon="pi pi-save"
+                styleClass="w-full"
+                [outlined]="true"
+                [loading]="isSaving()"
+                [disabled]="!isFormValid() || isSaving() || isPublishing()"
+                (onClick)="saveDraft()"
+              ></p-button>
+              
+              <p-button
+                [label]="'salary_packages.actions.publish' | translate"
+                icon="pi pi-check"
+                styleClass="w-full"
+                [loading]="isPublishing()"
+                [disabled]="!isFormValid() || isSaving() || isPublishing()"
+                (onClick)="openPublishDialog()"
+              ></p-button>
+              
+              <p-button
+                [label]="'common.cancel' | translate"
+                [text]="true"
+                styleClass="w-full"
+                [disabled]="isSaving() || isPublishing()"
+                (onClick)="cancel()"
+              ></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Publish Confirmation Dialog -->
+<p-dialog
+  [header]="'salary_packages.publish_modal.title' | translate"
+  [(visible)]="showPublishDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '400px' }"
+>
+  <div class="space-y-4">
+    <p>{{ 'salary_packages.publish_modal.description' | translate }}</p>
+    <div class="bg-(--warning-color)/10 border border-(--warning-color)/30 rounded-(--rads-md) p-3">
+      <div class="flex items-start gap-2">
+        <i class="pi pi-exclamation-triangle text-(--warning-color) mt-0.5"></i>
+        <p class="text-sm">{{ 'salary_packages.publish_modal.warning' | translate }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button
+        [label]="'common.cancel' | translate"
+        [text]="true"
+        (onClick)="showPublishDialog.set(false)"
+      ></p-button>
+      <p-button
+        [label]="'salary_packages.publish_modal.confirm' | translate"
+        icon="pi pi-check"
+        [loading]="isPublishing()"
+        (onClick)="publish()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

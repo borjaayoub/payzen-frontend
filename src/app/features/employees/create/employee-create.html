@@ -33,11 +33,8 @@
         icon="pi pi-arrow-left"
         [label]="'common.back' | translate"
         [attr.aria-label]="'common.back' | translate"
-        [attr.title]="'common.back' | translate"
         (click)="cancel()"
-      >
-        <span class="sr-only">{{ 'common.back' | translate }}</span>
-      </button>
+      ></button>
     </div>
 
     @if (errorMessage()) {
@@ -51,11 +48,8 @@
           icon="pi pi-refresh"
           [label]="'common.retry' | translate"
           [attr.aria-label]="'common.retry' | translate"
-          [attr.title]="'common.retry' | translate"
           (click)="retryLoad()"
-        >
-          <span class="sr-only">{{ 'common.retry' | translate }}</span>
-        </button>
+        ></button>
       </div>
     }
 
@@ -86,140 +80,157 @@
                 </div>
               </div>
               <div class="grid gap-5 md:grid-cols-2">
-                <app-input-field
+                <ui-input-field
+                  id="firstName"
                   [label]="'employees.create.form.firstName' | translate"
                   [placeholder]="'Amal'"
-                  [requiredMark]="true"
+                  [required]="true"
                   icon="pi pi-user"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="firstName"
-                ></app-input-field>
+                ></ui-input-field>
 
-                <app-input-field
+                <ui-input-field
+                  id="lastName"
                   [label]="'employees.create.form.lastName' | translate"
                   [placeholder]="'El Idrissi'"
-                  [requiredMark]="true"
+                  [required]="true"
                   icon="pi pi-user"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="lastName"
-                ></app-input-field>
+                ></ui-input-field>
 
-                <app-input-field
+                <ui-input-field
+                  id="email"
                   [label]="'employees.create.form.email' | translate"
                   type="email"
                   [placeholder]="'amal@entreprise.ma'"
-                  [requiredMark]="true"
+                  [required]="true"
                   icon="pi pi-envelope"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate), email: ('employees.create.validation.email' | translate) }"
                   formControlName="email"
-                ></app-input-field>
+                ></ui-input-field>
 
-                <app-input-field
+                <ui-input-field
+                  id="cinNumber"
                   [label]="'employees.create.form.cin' | translate"
                   [placeholder]="'AA123456'"
-                  [requiredMark]="true"
+                  [required]="true"
                   icon="pi pi-id-card"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="cinNumber"
-                ></app-input-field>
+                ></ui-input-field>
 
-                <app-input-field
+                <ui-input-field
+                  id="birthDate"
                   [label]="'employees.create.form.birthDate' | translate"
                   type="date"
-                  [requiredMark]="true"
+                  [required]="true"
                   icon="pi pi-calendar"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="birthDate"
-                ></app-input-field>
+                ></ui-input-field>
 
-                <div class="form-field">
-                  <label class="field-label after:text-red-500 after:content-['*']">{{ 'employees.create.form.phone' | translate }}</label>
+                <div class="phone-field flex flex-col gap-1">
+                  <label class="text-sm font-medium text-gray-700">
+                    {{ 'employees.create.form.phone' | translate }}
+                    <span class="text-red-500">*</span>
+                  </label>
                   <div class="phone-combo">
-                    <app-select-field
-                      class=""
-                      [hideLabel]="true"
-                      [showErrors]="false"
+                    <p-select
                       [options]="data.countries"
                       optionLabel="phoneCode"
                       optionValue="id"
-                      [filter]="false"
-                      [appendTo]="'body'"
-                      formControlName="phoneCountryId"
-                      [ariaLabel]="'employees.create.form.phoneCountry' | translate"
-                    ></app-select-field>
-
-                    <app-input-field
-                      class="phone-combo__number"
-                      type="tel"
-                      [hideLabel]="true"
-                      [showErrors]="false"
-                      [placeholder]="'1234-5678'"
-                      icon="pi pi-phone"
-                      formControlName="phone"
-                      [ariaLabel]="'employees.create.form.phone' | translate"
-                    ></app-input-field>
+                      [placeholder]="'+212'"
+                      [filter]="true"
+                      filterBy="phoneCode,label"
+                      [showClear]="false"
+                      [formControl]="employeeForm.controls.phoneCountryId"
+                      appendTo="body"
+                      styleClass="phone-code-select"
+                    >
+                      <ng-template pTemplate="selectedItem" let-item>
+                        <div class="phone-select-selected">
+                          <span class="country-label">{{ item?.phoneCode }}</span>
+                        </div>
+                      </ng-template>
+                      <ng-template pTemplate="item" let-item>
+                        <div class="phone-select-option">
+                          <span class="country-label">{{ item.label }}</span>
+                          <span class="country-code">{{ item.phoneCode }}</span>
+                        </div>
+                      </ng-template>
+                    </p-select>
+                    <p-iconfield iconPosition="left" class="w-full relative block">
+                      <p-inputicon
+                        class="pi pi-phone absolute top-1/2 -translate-y-1/2 left-3 z-10 text-gray-500"
+                      ></p-inputicon>
+                      <input
+                        pInputText
+                        type="tel"
+                        class="input w-full pl-10"
+                        [placeholder]="'612 345 678'"
+                        formControlName="phone"
+                      />
+                    </p-iconfield>
                   </div>
-                  @if (isInvalid('phoneCountryId')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
-                  }
-                  @if (isInvalid('phone')) {
-                    <p class="field-error">{{ 'employees.create.validation.required' | translate }}</p>
+                  @if (employeeForm.controls.phone.invalid && employeeForm.controls.phone.touched) {
+                    <small class="text-red-500 text-xs mt-1">{{ 'validation.required' | translate }}</small>
                   }
                 </div>
 
-                <app-select-field
+                <ui-select-field
+                  id="genderId"
                   [label]="'employees.create.form.gender' | translate"
                   [placeholder]="'--'"
                   [options]="data.genders"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="false"
-                  [showClear]="true"
+                  [filterable]="false"
+                  [clearable]="true"
                   formControlName="genderId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="statusId"
                   [label]="'employees.create.form.status' | translate"
-                  [requiredMark]="true"
+                  [required]="true"
                   [options]="data.statuses"
                   optionLabel="label"
                   optionValue="id"
                   [placeholder]="'employees.create.form.statusPlaceholder' | translate"
-                  [filter]="false"
+                  [filterable]="false"
                   [appendTo]="'body'"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="statusId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="maritalStatusId"
                   [label]="'employees.create.form.maritalStatus' | translate"
                   [placeholder]="'--'"
                   [options]="data.maritalStatuses"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="false"
+                  [filterable]="false"
                   formControlName="maritalStatusId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="educationLevelId"
                   [label]="'employees.create.form.educationLevel' | translate"
                   [placeholder]="'--'"
                   [options]="data.educationLevels"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="true"
+                  [filterable]="true"
                   formControlName="educationLevelId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="nationalityId"
                   [label]="'employees.create.form.nationality' | translate"
                   [placeholder]="'--'"
                   [options]="data.nationalities"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="true"
+                  [filterable]="true"
                   formControlName="nationalityId"
-                ></app-select-field>
+                ></ui-select-field>
               </div>
             </section>
 
@@ -232,72 +243,74 @@
                 </div>
               </div>
               <div class="grid gap-5 md:grid-cols-2">
-                <app-select-field
+                <ui-select-field
+                  id="departmentId"
                   [label]="'employees.create.form.department' | translate"
-                  [requiredMark]="true"
+                  [required]="true"
                   [options]="data.departments"
                   optionLabel="label"
                   optionValue="id"
                   [placeholder]="'employees.create.form.departmentPlaceholder' | translate"
-                  [filter]="true"
+                  [filterable]="true"
                   [appendTo]="'body'"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="departmentId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="jobPositionId"
                   [label]="'employees.create.form.jobPosition' | translate"
-                  [requiredMark]="true"
+                  [required]="true"
                   [options]="data.jobPositions"
                   optionLabel="label"
                   optionValue="id"
                   [placeholder]="'employees.create.form.jobPositionPlaceholder' | translate"
-                  [filter]="true"
+                  [filterable]="true"
                   [appendTo]="'body'"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="jobPositionId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="contractTypeId"
                   [label]="'employees.create.form.contractType' | translate"
-                  [requiredMark]="true"
+                  [required]="true"
                   [options]="data.contractTypes"
                   optionLabel="label"
                   optionValue="id"
                   [placeholder]="'employees.create.form.contractTypePlaceholder' | translate"
-                  [filter]="true"
+                  [filterable]="true"
                   [appendTo]="'body'"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="contractTypeId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="managerId"
                   [label]="'employees.create.form.manager' | translate"
                   [options]="data.potentialManagers"
                   optionLabel="label"
                   optionValue="id"
                   [placeholder]="'employees.create.form.managerPlaceholder' | translate"
-                  [filter]="true"
+                  [filterable]="true"
                   [appendTo]="'body'"
                   formControlName="managerId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-input-field
+                <ui-input-field
+                  id="startDate"
                   [label]="'employees.create.form.startDate' | translate"
                   type="date"
-                  [requiredMark]="true"
+                  [required]="true"
                   icon="pi pi-calendar"
-                  [errorMessages]="{ required: ('employees.create.validation.required' | translate) }"
                   formControlName="startDate"
-                ></app-input-field>
+                ></ui-input-field>
 
-                <app-input-field
+                <ui-input-field
+                  id="salary"
                   [label]="'employees.create.form.salary' | translate"
                   type="number"
                   placeholder="12000"
                   icon="pi pi-money-bill"
                   formControlName="salary"
-                ></app-input-field>
+                ></ui-input-field>
               </div>
             </section>
 
@@ -310,50 +323,55 @@
                 </div>
               </div>
               <div class="grid gap-5 md:grid-cols-2">
-                <app-select-field
+                <ui-select-field
+                  id="countryId"
                   [label]="'employees.create.form.country' | translate"
                   [placeholder]="'employees.create.form.countryPlaceholder' | translate"
                   [options]="data.countries"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="true"
+                  [filterable]="true"
                   [appendTo]="'body'"
                   formControlName="countryId"
-                ></app-select-field>
+                ></ui-select-field>
 
-                <app-select-field
+                <ui-select-field
+                  id="cityId"
                   [label]="'employees.create.form.city' | translate"
                   [placeholder]="'employees.create.form.cityPlaceholder' | translate"
                   [options]="cityOptions()"
                   optionLabel="label"
                   optionValue="id"
-                  [filter]="true"
+                  [filterable]="true"
                   [appendTo]="'body'"
                   [disabled]="!selectedCountryId()"
                   formControlName="cityId"
-                ></app-select-field>
+                ></ui-select-field>
 
                 <div class="md:col-span-2">
-                  <app-input-field
+                  <ui-input-field
+                    id="addressLine1"
                     [label]="'employees.create.form.addressLine1' | translate"
                     icon="pi pi-map-marker"
                     formControlName="addressLine1"
-                  ></app-input-field>
+                  ></ui-input-field>
                 </div>
 
                 <div class="md:col-span-2">
-                  <app-input-field
+                  <ui-input-field
+                    id="addressLine2"
                     [label]="'employees.create.form.addressLine2' | translate"
                     icon="pi pi-map-marker"
                     formControlName="addressLine2"
-                  ></app-input-field>
+                  ></ui-input-field>
                 </div>
 
-                <app-input-field
+                <ui-input-field
+                  id="zipCode"
                   [label]="'employees.create.form.zipCode' | translate"
                   icon="pi pi-map"
                   formControlName="zipCode"
-                ></app-input-field>
+                ></ui-input-field>
               </div>
             </section>
 
@@ -364,25 +382,17 @@
                 class="btn btn-secondary"
                 [label]="'common.cancel' | translate"
                 [attr.aria-label]="'common.cancel' | translate"
-                [attr.title]="'common.cancel' | translate"
                 (click)="cancel()"
-              >
-                <span class="sr-only">{{ 'common.cancel' | translate }}</span>
-              </button>
+              ></button>
               <button
                 type="submit"
                 pButton
                 class="btn btn-primary"
                 icon="pi pi-save"
-                [disabled]="isSubmitting()"
+                [disabled]="isSubmitting() || employeeForm.invalid"
                 [label]="isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate)"
                 [attr.aria-label]="isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate)"
-                [attr.title]="isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate)"
-              >
-                <span class="sr-only">
-                  {{ isSubmitting() ? ('common.loading' | translate) : ('employees.create.submit' | translate) }}
-                </span>
-              </button>
+              ></button>
             </div>
           </form>
     </div>

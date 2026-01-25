@@ -6,3 +6,4 @@ export * from './employee.model';
 export * from './membership.model';
 export * from './audit-log.model';
 export * from './permission-management.model';
+export * from './salary-package.model';

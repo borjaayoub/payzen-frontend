@@ -28,7 +28,7 @@
 }
 
 .fc-required {
-  color: #EF4444;
+  color: var(--danger);
   font-weight: 600;
 }
 
@@ -59,49 +59,49 @@
 /* PrimeNG Select - Clean Minimal Style */
 .fc-select :deep(.p-select) {
   width: 100%;
-  height: 48px;
-  border: 1px solid #E2E8F0;
-  border-radius: 0.5rem;
-  background-color: #FFFFFF;
-  transition: all 0.15s ease;
+  height: var(--field-height);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  background-color: var(--field-bg-muted);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: none;
 }
 
 .fc-select :deep(.p-select:not(.p-disabled):hover) {
-  border-color: #CBD5E1;
+  border-color: var(--field-border-hover);
 }
 
 .fc-select :deep(.p-select:not(.p-disabled).p-focus) {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
+  border-color: var(--field-border-focus);
+  box-shadow: 0 0 0 2px var(--focus-ring-color);
 }
 
 .fc-select :deep(.p-select .p-select-label) {
-  padding: 0 1rem;
-  font-size: 0.9375rem;
-  color: #0F172A;
+  padding: var(--field-padding-y) var(--field-padding-x);
+  font-size: 0.875rem;
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
 .fc-select :deep(.p-select .p-select-label.p-placeholder) {
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 .fc-select :deep(.p-select .p-select-dropdown) {
-  width: 2.5rem;
-  color: #64748B;
+  width: 2.75rem;
+  color: var(--text-secondary);
 }
 
 /* Disabled State */
 .fc-select :deep(.p-select.p-disabled) {
-  background-color: #F8FAFC;
-  border-color: #E2E8F0;
+  background-color: var(--field-bg-muted);
+  border-color: var(--field-border);
   opacity: 1;
 }
 
 .fc-select :deep(.p-select.p-disabled .p-select-label) {
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 /* AutoComplete - Clean Style */
@@ -111,36 +111,36 @@
 
 .fc-select :deep(.p-autocomplete .p-autocomplete-input) {
   width: 100%;
-  height: 48px;
-  padding: 0 1rem;
-  font-size: 0.9375rem;
+  height: var(--field-height);
+  padding: var(--field-padding-y) var(--field-padding-x);
+  font-size: 0.875rem;
   line-height: 1.5;
-  color: #0F172A;
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 0.5rem;
-  transition: all 0.15s ease;
+  color: var(--text-primary);
+  background-color: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: none;
 }
 
 .fc-select :deep(.p-autocomplete .p-autocomplete-input::placeholder) {
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 .fc-select :deep(.p-autocomplete .p-autocomplete-input:hover:not(:disabled)) {
-  border-color: #CBD5E1;
+  border-color: var(--field-border-hover);
 }
 
 .fc-select :deep(.p-autocomplete .p-autocomplete-input:focus) {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
+  border-color: var(--field-border-focus);
+  box-shadow: 0 0 0 2px var(--focus-ring-color);
 }
 
 .fc-select :deep(.p-autocomplete .p-autocomplete-input:disabled) {
-  background-color: #F8FAFC;
-  border-color: #E2E8F0;
-  color: #94A3B8;
+  background-color: var(--field-bg-muted);
+  border-color: var(--field-border);
+  color: var(--text-muted);
 }
 
 /* Error State */

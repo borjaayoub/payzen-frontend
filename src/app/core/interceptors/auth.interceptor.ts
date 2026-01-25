@@ -14,8 +14,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const companyId = contextService.companyId();
   const isExpertMode = contextService.isExpertMode();
 
-  // Skip adding headers for auth endpoints
-  if (req.url.includes('/auth/login') || req.url.includes('/auth/register')) {
+  // Skip adding headers for auth endpoints and static assets
+  if (req.url.includes('/auth/login') || 
+      req.url.includes('/auth/register') ||
+      req.url.includes('/assets/')) {
     return next(req);
   }
 

@@ -512,6 +512,10 @@ export class EmployeeService {
     );
   }
 
+  updateEmployeeSalary(id: number, payload: { baseSalary?: number; effectiveDate?: string; endDate?: string }): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/employee-salaries/${id}`, payload);
+  }
+
   addSalaryComponent(component: any): Observable<any> {
     return this.http.post(`${environment.apiUrl}/employee-salary-components`, component);
   }

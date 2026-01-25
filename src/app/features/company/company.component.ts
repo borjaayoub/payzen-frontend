@@ -10,6 +10,7 @@ import { HistoryTabComponent } from './tabs/history-tab/history-tab.component';
 import { DepartmentTabComponent } from './tabs/department-tab/department-tab.component';
 import { JobPositionTabComponent } from './tabs/job-position-tab/job-position-tab.component';
 import { ContractTypeTabComponent } from './tabs/contract-type-tab/contract-type-tab.component';
+import { SalaryPackagesTabComponent } from './tabs/salary-packages-tab/salary-packages-tab.component';
 
 @Component({
   selector: 'app-company',
@@ -25,7 +26,8 @@ import { ContractTypeTabComponent } from './tabs/contract-type-tab/contract-type
     HistoryTabComponent,
     DepartmentTabComponent,
     JobPositionTabComponent,
-    ContractTypeTabComponent
+    ContractTypeTabComponent,
+    SalaryPackagesTabComponent
   ],
   templateUrl: './company.html',
 })

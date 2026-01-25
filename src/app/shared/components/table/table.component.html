@@ -1,0 +1,73 @@
+<div class="card-compact relative">
+  <!-- Loading Overlay -->
+  @if (isLoading) {
+    <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
+      <div class="flex flex-col items-center gap-3">
+        <i class="pi pi-spin pi-spinner text-primary text-4xl"></i>
+        <p class="text-gray-500 font-medium">{{ loadingMessage }}</p>
+      </div>
+    </div>
+  }
+
+  <p-table
+    [value]="data"
+    [styleClass]="styleClass"
+    [tableStyle]="{'min-width': minWidth}"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        @for (column of columns; track column.field) {
+          @if (column.sortable) {
+            <th [pSortableColumn]="column.field" class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ column.header }}
+                <p-sortIcon [field]="column.field"></p-sortIcon>
+              </div>
+            </th>
+          } @else {
+            <th class="saas-table-header">
+              <div class="flex items-center gap-2">
+                {{ column.header }}
+              </div>
+            </th>
+          }
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+      <tr 
+        class="saas-table-row cursor-pointer" 
+        (click)="onRowClick(rowData)"
+      >
+        @for (column of columns; track column.field) {
+          <td class="px-6 py-4">
+            @if (column.customTemplate && cellTemplate) {
+              <ng-container 
+                *ngTemplateOutlet="cellTemplate; context: { $implicit: rowData, column: column, rowIndex: rowIndex }"
+              ></ng-container>
+            } @else {
+              <span class="text-(--text-primary)">{{ getCellValue(rowData, column.field) }}</span>
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="columns.length" class="p-0 border-none">
+          <app-empty-state
+            [title]="emptyTitle"
+            [description]="emptyDescription"
+            [icon]="emptyIcon"
+          >
+            @if (emptyStateActions) {
+              <ng-container *ngTemplateOutlet="emptyStateActions"></ng-container>
+            }
+          </app-empty-state>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

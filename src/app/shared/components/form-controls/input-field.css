@@ -75,42 +75,42 @@
 .fc-input {
   flex: 1 1 auto;
   width: 100%;
-  height: 48px;
-  padding: 0 1rem;
-  font-size: 0.9375rem;
+  height: var(--field-height);
+  padding: var(--field-padding-y) var(--field-padding-x);
+  font-size: 0.875rem;
   line-height: 1.5;
-  color: #0F172A;
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 0.5rem;
-  transition: all 0.15s ease;
+  color: var(--text-primary);
+  background-color: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: none;
 }
 
 /* Placeholder - Subtle Gray */
 .fc-input::placeholder {
-  color: #94A3B8;
+  color: var(--text-muted);
   opacity: 1;
 }
 
 /* Focus State - Simple Border Change */
 .fc-input:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
-  background-color: #FFFFFF;
+  border-color: var(--field-border-focus);
+  box-shadow: 0 0 0 2px var(--focus-ring-color);
+  background-color: var(--field-bg);
 }
 
 /* Hover State - Subtle */
 .fc-input:hover:not(:focus):not(:disabled) {
-  border-color: #CBD5E1;
+  border-color: var(--field-border-hover);
 }
 
 /* Disabled State */
 .fc-input:disabled {
-  background-color: #F8FAFC;
-  border-color: #E2E8F0;
-  color: #94A3B8;
+  background-color: var(--field-bg-muted);
+  border-color: var(--field-border);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
 
@@ -126,13 +126,12 @@
 /* Error State - Minimal Red Accent */
 .fc-invalid .fc-input,
 .fc-input.ng-invalid.ng-touched {
-  border-color: #EF4444;
-  background-color: #FFFBFA;
+  border-color: var(--color-red-500);
 }
 
 .fc-invalid .fc-input:focus,
 .fc-input.ng-invalid.ng-touched:focus {
-  border-color: #EF4444;
+  border-color: var(--color-red-500);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.05);
 }
 
@@ -142,7 +141,7 @@
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.8125rem;
-  color: #EF4444;
+  color: var(--color-red-500);
   line-height: 1.5;
   padding-left: 0;
 }
@@ -153,12 +152,11 @@
 
 /* Success State */
 .fc-success .fc-input {
-  border-color: #10B981;
-  background-color: #FAFFFE;
+  border-color: var(--color-green-500);
 }
 
 .fc-success .fc-input:focus {
-  border-color: #10B981;
+  border-color: var(--color-green-500);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.05);
 }
 
@@ -168,12 +166,12 @@
 }
 
 .fc-disabled .fc-label {
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 /* Focus Label - Subtle Color Change */
 .fc-field:focus-within .fc-label {
-  color: #3B82F6;
+  color: var(--color-primary);
 }
 
 /* Responsive */

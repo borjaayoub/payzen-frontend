@@ -83,7 +83,8 @@
 }
 
 .phone-code-select {
-  min-width: 7rem;
+  min-width: 2.5rem;
+  width: 100%;
 }
 
 .phone-select-option,
@@ -143,8 +144,9 @@
 
 .phone-combo {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: minmax(2.5rem, 5.5rem) minmax(0, 1fr);
   gap: 0.5rem;
+  align-items: stretch;
 }
 
 @media (max-width: 640px) {
